@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>John & i Molesti — Setlist</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+
+    header {
+      padding: 24px 20px;
+      border-bottom: 1px solid #333;
+      background: #181818;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #999;
+    }
+
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    .new-song {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .new-song input {
+      flex: 1;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #222;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #f0cf21;
+      color: #111;
+      font-weight: bold;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: #181818;
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .counter {
+      color: #999;
+      font-size: 14px;
+    }
+
+    .song-list {
+      min-height: 180px;
+      padding: 10px;
+    }
+
+    .song {
+      background: #242424;
+      border: 1px solid #3b3b3b;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .song:hover {
+      border-color: #666;
+    }
+
+    .drag-handle {
+      font-size: 20px;
+      color: #777;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .position {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #333;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .song-title {
+      flex: 1;
+      min-width: 0;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .song-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .song-actions button {
+      padding: 7px 9px;
+      background: #333;
+      color: #ddd;
+    }
+
+    .song-actions button:hover {
+      background: #444;
+    }
+
+    .empty {
+      text-align: center;
+      color: #666;
+      padding: 45px 15px;
+    }
+
+    .sortable-ghost {
+      opacity: 0.25;
+    }
+
+    .sortable-chosen {
+      border-color: #f0cf21;
+    }
+
+    .excluded .position {
+      display: none;
+    }
+
+    .excluded .song {
+      opacity: 0.65;
+    }
+
+    .footer-note {
+      color: #666;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 700px) {
+      .columns {
+        grid-template-columns: 1fr;
+      }
+
+      .new-song {
+        flex-direction: column;
+      }
+
+      .new-song button {
+        min-height: 46px;
+      }
+
+      header h1 {
+        font-size: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>John & i Molesti</h1>
+  <p>Setlist Builder</p>
+</header>
+
+<main>
+
+  <form class="new-song" id="newSongForm">
+    <input
+      id="newSongTitle"
+      type="text"
+      placeholder="Titolo della nuova canzone..."
+      autocomplete="off"
+      required
+    >
+
+    <button class="primary" type="submit">
+      + Aggiungi canzone
+    </button>
+  </form>
+
+
+  <div class="columns">
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Scaletta</h2>
+        <span class="counter" id="setlistCounter"></span>
+      </div>
+
+      <div class="song-list" id="setlist"></div>
+    </section>
+
+
+    <section class="panel excluded">
+      <div class="panel-header">
+        <h2>Escluse</h2>
+        <span class="counter" id="excludedCounter"></span>
+      </div>
+
+      <div class="song-list" id="excluded"></div>
+    </section>
+
+  </div>
+
+  <div class="footer-note">
+    Trascina le canzoni per cambiare ordine o spostarle tra Scaletta ed Escluse.
+  </div>
+
+</main>
+
+
+<script>
+
+  const STORAGE_KEY = "molesti-setlist-v1";
+
+  let songs = loadSongs();
+
+
+  function loadSongs() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
+
+  function saveSongs() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+  }
+
+
+  function generateId() {
+    return crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString();
+  }
+
+
+  function addSong(title) {
+
+    songs.push({
+      id: generateId(),
+      title: title.trim(),
+      included: true,
+      order: getIncludedSongs().length
+    });
+
+    normalizeOrders();
+    saveSongs();
+    render();
+  }
+
+
+  function editSong(id) {
+
+    const song = songs.find(song => song.id === id);
+
+    if (!song) return;
+
+    const newTitle = prompt(
+      "Modifica titolo:",
+      song.title
+    );
+
+    if (newTitle === null) return;
+
+    const cleanTitle = newTitle.trim();
+
+    if (!cleanTitle) return;
+
+    song.title = cleanTitle;
+
+    saveSongs();
+    render();
+  }
+
+
+  function moveSong(id, included) {
+
+    const song = songs.find(song => song.id === id);
+
+    if (!song) return;
+
+    song.included = included;
+
+    normalizeOrders();
+    saveSongs();
+    render();
+  }
+
+
+  function deleteSong(id) {
+
+    const song = songs.find(song => song.id === id);
+
+    if (!song) return;
+
+    const confirmed = confirm(
+      `Eliminare definitivamente "${song.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    songs = songs.filter(song => song.id !== id);
+
+    normalizeOrders();
+    saveSongs();
+    render();
+  }
+
+
+  function moveUp(id) {
+
+    const list = getIncludedSongs();
+
+    const index = list.findIndex(song => song.id === id);
+
+    if (index <= 0) return;
+
+    const previous = list[index - 1];
+
+    const current = list[index];
+
+    const temp = previous.order;
+
+    previous.order = current.order;
+    current.order = temp;
+
+    saveSongs();
+    render();
+  }
+
+
+  function moveDown(id) {
+
+    const list = getIncludedSongs();
+
+    const index = list.findIndex(song => song.id === id);
+
+    if (index === -1 || index >= list.length - 1) return;
+
+    const next = list[index + 1];
+
+    const current = list[index];
+
+    const temp = next.order;
+
+    next.order = current.order;
+    current.order = temp;
+
+    saveSongs();
+    render();
+  }
+
+
+  function getIncludedSongs() {
+
+    return songs
+      .filter(song => song.included)
+      .sort((a, b) => a.order - b.order);
+  }
+
+
+  function getExcludedSongs() {
+
+    return songs
+      .filter(song => !song.included)
+      .sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+
+  function normalizeOrders() {
+
+    getIncludedSongs().forEach((song, index) => {
+      song.order = index;
+    });
+  }
+
+
+  function createSongElement(song, index, included) {
+
+    const element = document.createElement("div");
+
+    element.className = "song";
+    element.dataset.id = song.id;
+
+
+    const drag = document.createElement("span");
+
+    drag.className = "drag-handle";
+    drag.textContent = "☰";
+
+
+    const position = document.createElement("span");
+
+    position.className = "position";
+    position.textContent = index + 1;
+
+
+    const title = document.createElement("div");
+
+    title.className = "song-title";
+    title.textContent = song.title;
+
+
+    const actions = document.createElement("div");
+
+    actions.className = "song-actions";
+
+
+    const editButton = document.createElement("button");
+
+    editButton.type = "button";
+    editButton.textContent = "✎";
+    editButton.title = "Modifica";
+
+    editButton.addEventListener("click", () => {
+      editSong(song.id);
+    });
+
+
+    actions.appendChild(editButton);
+
+
+    if (included) {
+
+      const upButton = document.createElement("button");
+
+      upButton.type = "button";
+      upButton.textContent = "↑";
+      upButton.title = "Sposta su";
+
+      upButton.addEventListener("click", () => {
+        moveUp(song.id);
+      });
+
+
+      const downButton = document.createElement("button");
+
+      downButton.type = "button";
+      downButton.textContent = "↓";
+      downButton.title = "Sposta giù";
+
+      downButton.addEventListener("click", () => {
+        moveDown(song.id);
+      });
+
+
+      const excludeButton = document.createElement("button");
+
+      excludeButton.type = "button";
+      excludeButton.textContent = "×";
+      excludeButton.title = "Escludi dalla scaletta";
+
+      excludeButton.addEventListener("click", () => {
+        moveSong(song.id, false);
+      });
+
+
+      actions.appendChild(upButton);
+      actions.appendChild(downButton);
+      actions.appendChild(excludeButton);
+
+    } else {
+
+      const includeButton = document.createElement("button");
+
+      includeButton.type = "button";
+      includeButton.textContent = "+";
+      includeButton.title = "Inserisci nella scaletta";
+
+      includeButton.addEventListener("click", () => {
+        moveSong(song.id, true);
+      });
+
+
+      const deleteButton = document.createElement("button");
+
+      deleteButton.type = "button";
+      deleteButton.textContent = "🗑";
+      deleteButton.title = "Elimina definitivamente";
+
+      deleteButton.addEventListener("click", () => {
+        deleteSong(song.id);
+      });
+
+
+      actions.appendChild(includeButton);
+      actions.appendChild(deleteButton);
+    }
+
+
+    element.appendChild(drag);
+
+    if (included) {
+      element.appendChild(position);
+    }
+
+    element.appendChild(title);
+    element.appendChild(actions);
+
+    return element;
+  }
+
+
+  function render() {
+
+    const setlist = document.getElementById("setlist");
+    const excluded = document.getElementById("excluded");
+
+    setlist.innerHTML = "";
+    excluded.innerHTML = "";
+
+
+    const includedSongs = getIncludedSongs();
+    const excludedSongs = getExcludedSongs();
+
+
+    if (!includedSongs.length) {
+
+      const empty = document.createElement("div");
+
+      empty.className = "empty";
+      empty.textContent = "Nessuna canzone in scaletta";
+
+      setlist.appendChild(empty);
+
+    } else {
+
+      includedSongs.forEach((song, index) => {
+
+        setlist.appendChild(
+          createSongElement(song, index, true)
+        );
+
+      });
+
+    }
+
+
+    if (!excludedSongs.length) {
+
+      const empty = document.createElement("div");
+
+      empty.className = "empty";
+      empty.textContent = "Nessuna canzone esclusa";
+
+      excluded.appendChild(empty);
+
+    } else {
+
+      excludedSongs.forEach((song, index) => {
+
+        excluded.appendChild(
+          createSongElement(song, index, false)
+        );
+
+      });
+
+    }
+
+
+    document.getElementById("setlistCounter").textContent =
+      `${includedSongs.length} brani`;
+
+    document.getElementById("excludedCounter").textContent =
+      `${excludedSongs.length} brani`;
+  }
+
+
+  function syncFromDOM() {
+
+    const setlistElement =
+      document.getElementById("setlist");
+
+    const excludedElement =
+      document.getElementById("excluded");
+
+
+    const includedIds = Array
+      .from(setlistElement.querySelectorAll(".song"))
+      .map(element => element.dataset.id);
+
+
+    const excludedIds = Array
+      .from(excludedElement.querySelectorAll(".song"))
+      .map(element => element.dataset.id);
+
+
+    includedIds.forEach((id, index) => {
+
+      const song = songs.find(song => song.id === id);
+
+      if (song) {
+        song.included = true;
+        song.order = index;
+      }
+
+    });
+
+
+    excludedIds.forEach(id => {
+
+      const song = songs.find(song => song.id === id);
+
+      if (song) {
+        song.included = false;
+      }
+
+    });
+
+
+    saveSongs();
+    render();
+  }
+
+
+  document
+    .getElementById("newSongForm")
+    .addEventListener("submit", event => {
+
+      event.preventDefault();
+
+      const input =
+        document.getElementById("newSongTitle");
+
+      const title = input.value.trim();
+
+      if (!title) return;
+
+      addSong(title);
+
+      input.value = "";
+      input.focus();
+
+    });
+
+
+  new Sortable(
+    document.getElementById("setlist"),
+    {
+      group: "songs",
+      animation: 150,
+      handle: ".drag-handle",
+      onEnd: syncFromDOM
+    }
+  );
+
+
+  new Sortable(
+    document.getElementById("excluded"),
+    {
+      group: "songs",
+      animation: 150,
+      handle: ".drag-handle",
+      onEnd: syncFromDOM
+    }
+  );
+
+
+  render();
+
+</script>
+
+</body>
+</html>
