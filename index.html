@@ -7,14 +7,19 @@
   <title>John & i Molesti — Setlist</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"
-    const SUPABASE_URL =
-  "https://etzwybamvfpeitkttwrc.supabase.co";
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script>
+  const SUPABASE_URL =
+    "https://etzwybamvfpeitkttwrc.supabase.co";
 
-const SUPABASE_KEY =
-  "sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";>
-    
-  </script>
+  const SUPABASE_KEY =
+    "sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
   <style>
     * {
