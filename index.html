@@ -6,7 +6,15 @@
 
   <title>John & i Molesti — Setlist</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"
+    const SUPABASE_URL =
+  "https://etzwybamvfpeitkttwrc.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";>
+    
+  </script>
 
   <style>
     * {
@@ -20,74 +28,180 @@
       color: #fff;
     }
 
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* LOGIN */
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: min(360px, 100%);
+      background: #181818;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 28px;
+    }
+
+    .login-box h1 {
+      margin: 0 0 4px;
+      font-size: 25px;
+    }
+
+    .login-box .subtitle {
+      color: #888;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .login-box label {
+      display: block;
+      margin: 12px 0 5px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .login-box input {
+      width: 100%;
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 6px;
+      padding: 11px;
+      font-size: 16px;
+    }
+
+    .login-box button {
+      width: 100%;
+      border: 0;
+      border-radius: 6px;
+      margin-top: 18px;
+      padding: 11px;
+      background: #f0cf21;
+      color: #111;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    #loginMessage {
+      min-height: 18px;
+      margin-top: 12px;
+      color: #d88;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+
+    /* APP */
+
+    #appScreen {
+      display: none;
+    }
+
     header {
-      padding: 24px 20px;
+      height: 44px;
+      padding: 6px 12px;
       border-bottom: 1px solid #333;
       background: #181818;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
     }
 
-    header h1 {
+    .brand h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 17px;
     }
 
-    header p {
-      margin: 6px 0 0;
-      color: #999;
+    .brand p {
+      margin: 1px 0 0;
+      color: #777;
+      font-size: 10px;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    #logoutButton {
+      border: 1px solid #444;
+      background: #282828;
+      color: #ddd;
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 10px;
     }
 
     main {
-      width: min(1100px, 100%);
+      width: min(1400px, 100%);
       margin: 0 auto;
-      padding: 24px 16px 60px;
+      padding: 6px 10px 10px;
     }
 
     .new-song {
       display: flex;
-      gap: 10px;
-      margin-bottom: 28px;
+      gap: 5px;
+      margin-bottom: 6px;
     }
 
     .new-song input {
       flex: 1;
-      padding: 14px;
-      border-radius: 8px;
-      border: 1px solid #444;
+      height: 30px;
+      padding: 4px 8px;
       background: #222;
+      border: 1px solid #444;
+      border-radius: 5px;
       color: white;
-      font-size: 16px;
+      font-size: 13px;
     }
 
-    button {
+    .new-song button {
+      height: 30px;
       border: 0;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .primary {
+      border-radius: 5px;
+      padding: 3px 12px;
       background: #f0cf21;
       color: #111;
+      font-size: 11px;
       font-weight: bold;
     }
 
     .columns {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
+      grid-template-columns: 3fr 1fr;
+      gap: 6px;
     }
 
     .panel {
       background: #181818;
       border: 1px solid #333;
-      border-radius: 12px;
+      border-radius: 6px;
       overflow: hidden;
     }
 
     .panel-header {
-      padding: 16px;
+      height: 27px;
+      padding: 3px 7px;
       border-bottom: 1px solid #333;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -95,80 +209,92 @@
 
     .panel-header h2 {
       margin: 0;
-      font-size: 19px;
+      font-size: 12px;
     }
 
     .counter {
-      color: #999;
-      font-size: 14px;
+      color: #777;
+      font-size: 9px;
     }
 
     .song-list {
-      min-height: 180px;
-      padding: 10px;
+      min-height: 100px;
+      padding: 2px;
     }
 
     .song {
-      background: #242424;
-      border: 1px solid #3b3b3b;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      padding: 10px;
+      min-height: 20px;
+      margin-bottom: 1px;
+      padding: 1px 4px;
+
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
+      gap: 4px;
 
-    .song:hover {
-      border-color: #666;
+      background: #242424;
+      border: 1px solid #333;
+      border-radius: 3px;
     }
 
     .drag-handle {
-      font-size: 20px;
-      color: #777;
+      width: 12px;
+      color: #666;
       cursor: grab;
+      font-size: 11px;
       user-select: none;
     }
 
     .position {
-      width: 28px;
-      height: 28px;
-      flex: 0 0 28px;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #333;
+
       border-radius: 50%;
-      font-size: 13px;
+      background: #383838;
+      font-size: 8px;
       font-weight: bold;
     }
 
     .song-title {
       flex: 1;
       min-width: 0;
-      font-weight: bold;
+      font-size: 11px;
+      line-height: 14px;
+      font-weight: 600;
       overflow-wrap: anywhere;
     }
 
     .song-actions {
       display: flex;
-      gap: 5px;
+      gap: 1px;
     }
 
     .song-actions button {
-      padding: 7px 9px;
-      background: #333;
+      height: 17px;
+      min-width: 19px;
+      padding: 0 3px;
+
+      border: 0;
+      border-radius: 2px;
+      background: #353535;
       color: #ddd;
+
+      font-size: 9px;
     }
 
     .song-actions button:hover {
-      background: #444;
+      background: #505050;
     }
 
     .empty {
       text-align: center;
       color: #666;
-      padding: 45px 15px;
+      padding: 20px;
+      font-size: 10px;
     }
 
     .sortable-ghost {
@@ -179,657 +305,1580 @@
       border-color: #f0cf21;
     }
 
-    .excluded .position {
-      display: none;
-    }
-
-    .excluded .song {
-      opacity: 0.65;
-    }
-
     .footer-note {
-      color: #666;
-      font-size: 13px;
+      margin-top: 4px;
       text-align: center;
-      margin-top: 25px;
+      color: #555;
+      font-size: 9px;
+    }
+
+    #loadingMessage {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 13px;
     }
 
     @media (max-width: 700px) {
+
+      header {
+        height: auto;
+        min-height: 48px;
+      }
+
       .columns {
         grid-template-columns: 1fr;
       }
 
-      .new-song {
-        flex-direction: column;
+      .new-song input {
+        font-size: 16px;
       }
 
-      .new-song button {
-        min-height: 46px;
+      .song {
+        min-height: 34px;
+        padding: 4px 6px;
       }
 
-      header h1 {
-        font-size: 23px;
+      .song-title {
+        font-size: 13px;
+      }
+
+      .song-actions button {
+        min-width: 28px;
+        height: 28px;
+      }
+
+      .position {
+        width: 22px;
+        height: 22px;
+        flex-basis: 22px;
+        font-size: 10px;
+      }
+
+      .drag-handle {
+        font-size: 16px;
+        width: 18px;
       }
     }
-    /* VERSIONE COMPATTA DESKTOP */
-
-header {
-  padding: 8px 16px;
-}
-
-header h1 {
-  font-size: 20px;
-}
-
-header p {
-  margin: 2px 0 0;
-  font-size: 11px;
-}
-
-main {
-  padding: 8px 12px 15px;
-  width: min(1300px, 100%);
-}
-
-.new-song {
-  margin-bottom: 8px;
-  gap: 6px;
-}
-
-.new-song input {
-  padding: 7px 10px;
-  font-size: 14px;
-  height: 34px;
-}
-
-.new-song button {
-  padding: 5px 12px;
-  font-size: 13px;
-  height: 34px;
-}
-
-.columns {
-  gap: 8px;
-  grid-template-columns: 3fr 1fr;
-}
-
-.panel {
-  border-radius: 6px;
-}
-
-.panel-header {
-  padding: 5px 8px;
-  min-height: 30px;
-}
-
-.panel-header h2 {
-  font-size: 14px;
-}
-
-.counter {
-  font-size: 11px;
-}
-
-.song-list {
-  padding: 3px;
-  min-height: 50px;
-}
-
-.song {
-  min-height: 22px;
-  margin-bottom: 2px;
-  padding: 2px 5px;
-  gap: 5px;
-  border-radius: 4px;
-}
-
-.drag-handle {
-  font-size: 13px;
-  width: 13px;
-}
-
-.position {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 18px;
-  font-size: 10px;
-}
-
-.song-title {
-  font-size: 12px;
-  line-height: 15px;
-}
-
-.song-actions {
-  gap: 2px;
-}
-
-.song-actions button {
-  padding: 1px 5px;
-  min-width: 22px;
-  height: 20px;
-  font-size: 11px;
-  border-radius: 3px;
-}
-
-.footer-note {
-  margin-top: 5px;
-  font-size: 10px;
-}
   </style>
 </head>
 
 <body>
 
-<header>
-  <h1>John & i Molesti</h1>
-  <p>Setlist Builder</p>
-</header>
 
-<main>
+<!-- LOGIN -->
 
-  <form class="new-song" id="newSongForm">
+<section id="loginScreen">
+
+  <form class="login-box" id="loginForm">
+
+    <h1>John & i Molesti</h1>
+
+    <div class="subtitle">
+      Setlist Builder
+    </div>
+
+    <label for="username">
+      Username
+    </label>
+
     <input
-      id="newSongTitle"
+      id="username"
       type="text"
-      placeholder="Titolo della nuova canzone..."
-      autocomplete="off"
+      autocomplete="username"
       required
     >
 
-    <button class="primary" type="submit">
-      + Aggiungi canzone
+    <label for="password">
+      Password
+    </label>
+
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      minlength="6"
+      required
+    >
+
+    <button type="submit">
+      ACCEDI
     </button>
+
+    <div id="loginMessage"></div>
+
   </form>
 
-
-  <div class="columns">
-
-    <section class="panel">
-      <div class="panel-header">
-        <h2>Scaletta</h2>
-        <span class="counter" id="setlistCounter"></span>
-      </div>
-
-      <div class="song-list" id="setlist"></div>
-    </section>
+</section>
 
 
-    <section class="panel excluded">
-      <div class="panel-header">
-        <h2>Escluse</h2>
-        <span class="counter" id="excludedCounter"></span>
-      </div>
 
-      <div class="song-list" id="excluded"></div>
-    </section>
+<!-- APP -->
 
-  </div>
+<section id="appScreen">
 
-  <div class="footer-note">
-    Trascina le canzoni per cambiare ordine o spostarle tra Scaletta ed Escluse.
-  </div>
+  <header>
 
-</main>
+    <div class="brand">
+      <h1>John & i Molesti</h1>
+      <p>Setlist Builder</p>
+    </div>
+
+    <div class="user-area">
+
+      <span id="currentUser"></span>
+
+      <button id="logoutButton" type="button">
+        Esci
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <form class="new-song" id="newSongForm">
+
+      <input
+        id="newSongTitle"
+        type="text"
+        placeholder="Nuova canzone..."
+        autocomplete="off"
+        required
+      >
+
+      <button type="submit">
+        + AGGIUNGI
+      </button>
+
+    </form>
+
+
+    <div id="loadingMessage">
+      Caricamento...
+    </div>
+
+
+    <div class="columns" id="setlistArea" style="display:none;">
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <h2>LA MIA SCALETTA</h2>
+
+          <span
+            class="counter"
+            id="setlistCounter">
+          </span>
+
+        </div>
+
+        <div
+          class="song-list"
+          id="setlist">
+        </div>
+
+      </section>
+
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <h2>ESCLUSE</h2>
+
+          <span
+            class="counter"
+            id="excludedCounter">
+          </span>
+
+        </div>
+
+        <div
+          class="song-list"
+          id="excluded">
+        </div>
+
+      </section>
+
+    </div>
+
+
+    <div class="footer-note">
+      Trascina i brani per modificare ordine e inclusione.
+    </div>
+
+  </main>
+
+</section>
+
 
 
 <script>
 
-  const STORAGE_KEY = "molesti-setlist-v1";
+  /* ==========================================
+     INSERISCI QUI I TUOI DATI SUPABASE
+     ========================================== */
 
-  let songs = loadSongs();
+  const SUPABASE_URL =
+    "INCOLLA_QUI_PROJECT_URL";
+
+  const SUPABASE_KEY =
+    "INCOLLA_QUI_PUBLISHABLE_KEY";
 
 
-  function loadSongs() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return [];
+
+  /* ==========================================
+     STATO APP
+     ========================================== */
+
+  let currentUser = null;
+
+  let currentProfile = null;
+
+  let currentSetlistId = null;
+
+  let songs = [];
+
+  let setlistItems = [];
+
+
+  /* ==========================================
+     LOGIN
+     ========================================== */
+
+  document
+    .getElementById("loginForm")
+    .addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+        const username =
+          document
+            .getElementById("username")
+            .value
+            .trim()
+            .toLowerCase();
+
+        const password =
+          document
+            .getElementById("password")
+            .value;
+
+        const message =
+          document
+            .getElementById("loginMessage");
+
+        message.textContent =
+          "Accesso in corso...";
+
+
+        try {
+
+          /* Verifica se lo username appartiene
+             ai 5 membri autorizzati */
+
+          const {
+            data: memberData,
+            error: memberError
+          } =
+            await supabaseClient.rpc(
+              "check_member",
+              {
+                p_username: username
+              }
+            );
+
+
+          if (memberError) {
+            throw memberError;
+          }
+
+
+          if (
+            !memberData ||
+            memberData.length === 0
+          ) {
+
+            message.textContent =
+              "Username non riconosciuto.";
+
+            return;
+          }
+
+
+          const member =
+            memberData[0];
+
+
+          const email =
+            `${username}@johnimolesti.app`;
+
+
+          /* ===================================
+             PRIMO ACCESSO
+             =================================== */
+
+          if (!member.activated) {
+
+            message.textContent =
+              "Primo accesso: creazione account...";
+
+
+            const {
+              data,
+              error
+            } =
+              await supabaseClient.auth.signUp({
+                email,
+                password
+              });
+
+
+            if (error) {
+              throw error;
+            }
+
+
+            if (!data.session) {
+
+              message.textContent =
+                "Account creato ma Supabase richiede la conferma email. Disattiva Confirm Email nelle impostazioni Authentication.";
+
+              return;
+            }
+
+
+            const {
+              error: claimError
+            } =
+              await supabaseClient.rpc(
+                "claim_member",
+                {
+                  p_username: username
+                }
+              );
+
+
+            if (claimError) {
+              throw claimError;
+            }
+
+          }
+
+
+          /* ===================================
+             ACCESSI SUCCESSIVI
+             =================================== */
+
+          else {
+
+            const {
+              error
+            } =
+              await supabaseClient
+                .auth
+                .signInWithPassword({
+                  email,
+                  password
+                });
+
+
+            if (error) {
+
+              message.textContent =
+                "Password errata.";
+
+              return;
+            }
+
+          }
+
+
+          message.textContent = "";
+
+          await startApp();
+
+        }
+
+        catch (error) {
+
+          console.error(error);
+
+          message.textContent =
+            error.message ||
+            "Errore durante l'accesso.";
+
+        }
+
       }
+    );
+
+
+  /* ==========================================
+     AVVIO APP
+     ========================================== */
+
+  async function startApp() {
+
+    const {
+      data: { user }
+    } =
+      await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+      showLogin();
+      return;
     }
 
-    return [];
+
+    currentUser = user;
+
+
+    const {
+      data: profile,
+      error: profileError
+    } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+
+    if (profileError) {
+
+      console.error(profileError);
+
+      await supabaseClient.auth.signOut();
+
+      showLogin();
+
+      document
+        .getElementById("loginMessage")
+        .textContent =
+        "Profilo utente non trovato.";
+
+      return;
+    }
+
+
+    currentProfile = profile;
+
+
+    document
+      .getElementById("currentUser")
+      .textContent =
+      profile.display_name;
+
+
+    showApp();
+
+
+    await ensureDefaultSetlist();
+
+    await loadData();
+
   }
 
 
-  function saveSongs() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+  /* ==========================================
+     SCALETTA PREDEFINITA
+     ========================================== */
+
+  async function ensureDefaultSetlist() {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("setlists")
+        .select("id")
+        .eq(
+          "owner_id",
+          currentUser.id
+        )
+        .eq(
+          "name",
+          "Scaletta ideale"
+        )
+        .limit(1);
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    if (data.length > 0) {
+
+      currentSetlistId =
+        data[0].id;
+
+      return;
+    }
+
+
+    const {
+      data: created,
+      error: createError
+    } =
+      await supabaseClient
+        .from("setlists")
+        .insert({
+          owner_id:
+            currentUser.id,
+
+          name:
+            "Scaletta ideale"
+        })
+        .select("id")
+        .single();
+
+
+    if (createError) {
+      throw createError;
+    }
+
+
+    currentSetlistId =
+      created.id;
+
   }
 
 
-  function generateId() {
-    return crypto.randomUUID
-      ? crypto.randomUUID()
-      : Date.now().toString();
-  }
+  /* ==========================================
+     CARICAMENTO DATI
+     ========================================== */
+
+  async function loadData() {
+
+    document
+      .getElementById("loadingMessage")
+      .style.display =
+      "block";
 
 
-  function addSong(title) {
+    document
+      .getElementById("setlistArea")
+      .style.display =
+      "none";
 
-    songs.push({
-      id: generateId(),
-      title: title.trim(),
-      included: true,
-      order: getIncludedSongs().length
-    });
 
-    normalizeOrders();
-    saveSongs();
+    const {
+      data: songsData,
+      error: songsError
+    } =
+      await supabaseClient
+        .from("songs")
+        .select("*")
+        .eq("active", true)
+        .order(
+          "created_at",
+          {
+            ascending: true
+          }
+        );
+
+
+    if (songsError) {
+      throw songsError;
+    }
+
+
+    songs =
+      songsData || [];
+
+
+    let {
+      data: itemsData,
+      error: itemsError
+    } =
+      await supabaseClient
+        .from("setlist_items")
+        .select("*")
+        .eq(
+          "setlist_id",
+          currentSetlistId
+        );
+
+
+    if (itemsError) {
+      throw itemsError;
+    }
+
+
+    setlistItems =
+      itemsData || [];
+
+
+    /*
+      Se questa è la prima volta che
+      l'utente apre la sua scaletta,
+      inseriamo tutte le canzoni
+      esistenti.
+    */
+
+    if (
+      setlistItems.length === 0 &&
+      songs.length > 0
+    ) {
+
+      const initialItems =
+        songs.map(
+          (song, index) => ({
+            setlist_id:
+              currentSetlistId,
+
+            song_id:
+              song.id,
+
+            position:
+              index,
+
+            included:
+              true
+          })
+        );
+
+
+      const {
+        error
+      } =
+        await supabaseClient
+          .from("setlist_items")
+          .insert(initialItems);
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      setlistItems =
+        initialItems;
+
+    }
+
+
     render();
+
+
+    document
+      .getElementById("loadingMessage")
+      .style.display =
+      "none";
+
+
+    document
+      .getElementById("setlistArea")
+      .style.display =
+      "grid";
+
   }
 
 
-  function editSong(id) {
-
-    const song = songs.find(song => song.id === id);
-
-    if (!song) return;
-
-    const newTitle = prompt(
-      "Modifica titolo:",
-      song.title
-    );
-
-    if (newTitle === null) return;
-
-    const cleanTitle = newTitle.trim();
-
-    if (!cleanTitle) return;
-
-    song.title = cleanTitle;
-
-    saveSongs();
-    render();
-  }
-
-
-  function moveSong(id, included) {
-
-    const song = songs.find(song => song.id === id);
-
-    if (!song) return;
-
-    song.included = included;
-
-    normalizeOrders();
-    saveSongs();
-    render();
-  }
-
-
-  function deleteSong(id) {
-
-    const song = songs.find(song => song.id === id);
-
-    if (!song) return;
-
-    const confirmed = confirm(
-      `Eliminare definitivamente "${song.title}"?`
-    );
-
-    if (!confirmed) return;
-
-    songs = songs.filter(song => song.id !== id);
-
-    normalizeOrders();
-    saveSongs();
-    render();
-  }
-
-
-  function moveUp(id) {
-
-    const list = getIncludedSongs();
-
-    const index = list.findIndex(song => song.id === id);
-
-    if (index <= 0) return;
-
-    const previous = list[index - 1];
-
-    const current = list[index];
-
-    const temp = previous.order;
-
-    previous.order = current.order;
-    current.order = temp;
-
-    saveSongs();
-    render();
-  }
-
-
-  function moveDown(id) {
-
-    const list = getIncludedSongs();
-
-    const index = list.findIndex(song => song.id === id);
-
-    if (index === -1 || index >= list.length - 1) return;
-
-    const next = list[index + 1];
-
-    const current = list[index];
-
-    const temp = next.order;
-
-    next.order = current.order;
-    current.order = temp;
-
-    saveSongs();
-    render();
-  }
-
+  /* ==========================================
+     LISTE
+     ========================================== */
 
   function getIncludedSongs() {
 
+    const itemsMap =
+      new Map(
+        setlistItems.map(
+          item => [
+            item.song_id,
+            item
+          ]
+        )
+      );
+
+
     return songs
-      .filter(song => song.included)
-      .sort((a, b) => a.order - b.order);
+      .filter(song => {
+
+        const item =
+          itemsMap.get(song.id);
+
+        return item &&
+          item.included;
+
+      })
+      .sort((a, b) => {
+
+        return (
+          itemsMap.get(a.id).position -
+          itemsMap.get(b.id).position
+        );
+
+      });
+
   }
 
 
   function getExcludedSongs() {
 
+    const itemsMap =
+      new Map(
+        setlistItems.map(
+          item => [
+            item.song_id,
+            item
+          ]
+        )
+      );
+
+
     return songs
-      .filter(song => !song.included)
-      .sort((a, b) => a.title.localeCompare(b.title));
+      .filter(song => {
+
+        const item =
+          itemsMap.get(song.id);
+
+        return (
+          !item ||
+          !item.included
+        );
+
+      })
+      .sort(
+        (a, b) =>
+          a.title.localeCompare(
+            b.title
+          )
+      );
+
   }
 
 
-  function normalizeOrders() {
-
-    getIncludedSongs().forEach((song, index) => {
-      song.order = index;
-    });
-  }
-
-
-  function createSongElement(song, index, included) {
-
-    const element = document.createElement("div");
-
-    element.className = "song";
-    element.dataset.id = song.id;
-
-
-    const drag = document.createElement("span");
-
-    drag.className = "drag-handle";
-    drag.textContent = "☰";
-
-
-    const position = document.createElement("span");
-
-    position.className = "position";
-    position.textContent = index + 1;
-
-
-    const title = document.createElement("div");
-
-    title.className = "song-title";
-    title.textContent = song.title;
-
-
-    const actions = document.createElement("div");
-
-    actions.className = "song-actions";
-
-
-    const editButton = document.createElement("button");
-
-    editButton.type = "button";
-    editButton.textContent = "✎";
-    editButton.title = "Modifica";
-
-    editButton.addEventListener("click", () => {
-      editSong(song.id);
-    });
-
-
-    actions.appendChild(editButton);
-
-
-    if (included) {
-
-      const upButton = document.createElement("button");
-
-      upButton.type = "button";
-      upButton.textContent = "↑";
-      upButton.title = "Sposta su";
-
-      upButton.addEventListener("click", () => {
-        moveUp(song.id);
-      });
-
-
-      const downButton = document.createElement("button");
-
-      downButton.type = "button";
-      downButton.textContent = "↓";
-      downButton.title = "Sposta giù";
-
-      downButton.addEventListener("click", () => {
-        moveDown(song.id);
-      });
-
-
-      const excludeButton = document.createElement("button");
-
-      excludeButton.type = "button";
-      excludeButton.textContent = "×";
-      excludeButton.title = "Escludi dalla scaletta";
-
-      excludeButton.addEventListener("click", () => {
-        moveSong(song.id, false);
-      });
-
-
-      actions.appendChild(upButton);
-      actions.appendChild(downButton);
-      actions.appendChild(excludeButton);
-
-    } else {
-
-      const includeButton = document.createElement("button");
-
-      includeButton.type = "button";
-      includeButton.textContent = "+";
-      includeButton.title = "Inserisci nella scaletta";
-
-      includeButton.addEventListener("click", () => {
-        moveSong(song.id, true);
-      });
-
-
-      const deleteButton = document.createElement("button");
-
-      deleteButton.type = "button";
-      deleteButton.textContent = "🗑";
-      deleteButton.title = "Elimina definitivamente";
-
-      deleteButton.addEventListener("click", () => {
-        deleteSong(song.id);
-      });
-
-
-      actions.appendChild(includeButton);
-      actions.appendChild(deleteButton);
-    }
-
-
-    element.appendChild(drag);
-
-    if (included) {
-      element.appendChild(position);
-    }
-
-    element.appendChild(title);
-    element.appendChild(actions);
-
-    return element;
-  }
-
+  /* ==========================================
+     RENDER
+     ========================================== */
 
   function render() {
 
-    const setlist = document.getElementById("setlist");
-    const excluded = document.getElementById("excluded");
+    const setlist =
+      document.getElementById(
+        "setlist"
+      );
+
+    const excluded =
+      document.getElementById(
+        "excluded"
+      );
+
 
     setlist.innerHTML = "";
     excluded.innerHTML = "";
 
 
-    const includedSongs = getIncludedSongs();
-    const excludedSongs = getExcludedSongs();
+    const includedSongs =
+      getIncludedSongs();
+
+    const excludedSongs =
+      getExcludedSongs();
 
 
-    if (!includedSongs.length) {
-
-      const empty = document.createElement("div");
-
-      empty.className = "empty";
-      empty.textContent = "Nessuna canzone in scaletta";
-
-      setlist.appendChild(empty);
-
-    } else {
-
-      includedSongs.forEach((song, index) => {
+    includedSongs.forEach(
+      (song, index) => {
 
         setlist.appendChild(
-          createSongElement(song, index, true)
+          createSongElement(
+            song,
+            index,
+            true
+          )
         );
 
-      });
+      }
+    );
 
-    }
 
-
-    if (!excludedSongs.length) {
-
-      const empty = document.createElement("div");
-
-      empty.className = "empty";
-      empty.textContent = "Nessuna canzone esclusa";
-
-      excluded.appendChild(empty);
-
-    } else {
-
-      excludedSongs.forEach((song, index) => {
+    excludedSongs.forEach(
+      (song, index) => {
 
         excluded.appendChild(
-          createSongElement(song, index, false)
+          createSongElement(
+            song,
+            index,
+            false
+          )
         );
 
-      });
+      }
+    );
+
+
+    if (
+      includedSongs.length === 0
+    ) {
+
+      setlist.innerHTML =
+        '<div class="empty">Nessun brano in scaletta</div>';
 
     }
 
 
-    document.getElementById("setlistCounter").textContent =
+    if (
+      excludedSongs.length === 0
+    ) {
+
+      excluded.innerHTML =
+        '<div class="empty">Nessun brano escluso</div>';
+
+    }
+
+
+    document
+      .getElementById(
+        "setlistCounter"
+      )
+      .textContent =
       `${includedSongs.length} brani`;
 
-    document.getElementById("excludedCounter").textContent =
+
+    document
+      .getElementById(
+        "excludedCounter"
+      )
+      .textContent =
       `${excludedSongs.length} brani`;
+
   }
 
 
-  function syncFromDOM() {
+  function createSongElement(
+    song,
+    index,
+    included
+  ) {
 
-    const setlistElement =
-      document.getElementById("setlist");
-
-    const excludedElement =
-      document.getElementById("excluded");
-
-
-    const includedIds = Array
-      .from(setlistElement.querySelectorAll(".song"))
-      .map(element => element.dataset.id);
+    const element =
+      document.createElement("div");
 
 
-    const excludedIds = Array
-      .from(excludedElement.querySelectorAll(".song"))
-      .map(element => element.dataset.id);
+    element.className =
+      "song";
 
 
-    includedIds.forEach((id, index) => {
-
-      const song = songs.find(song => song.id === id);
-
-      if (song) {
-        song.included = true;
-        song.order = index;
-      }
-
-    });
+    element.dataset.id =
+      song.id;
 
 
-    excludedIds.forEach(id => {
-
-      const song = songs.find(song => song.id === id);
-
-      if (song) {
-        song.included = false;
-      }
-
-    });
+    const drag =
+      document.createElement(
+        "span"
+      );
 
 
-    saveSongs();
-    render();
+    drag.className =
+      "drag-handle";
+
+    drag.textContent =
+      "☰";
+
+
+    const position =
+      document.createElement(
+        "span"
+      );
+
+
+    position.className =
+      "position";
+
+    position.textContent =
+      index + 1;
+
+
+    const title =
+      document.createElement(
+        "div"
+      );
+
+
+    title.className =
+      "song-title";
+
+    title.textContent =
+      song.title;
+
+
+    const actions =
+      document.createElement(
+        "div"
+      );
+
+
+    actions.className =
+      "song-actions";
+
+
+    const editButton =
+      document.createElement(
+        "button"
+      );
+
+
+    editButton.type =
+      "button";
+
+    editButton.textContent =
+      "✎";
+
+    editButton.title =
+      "Modifica canzone";
+
+
+    editButton.addEventListener(
+      "click",
+      () => editSong(song)
+    );
+
+
+    actions.appendChild(
+      editButton
+    );
+
+
+    if (included) {
+
+      const excludeButton =
+        document.createElement(
+          "button"
+        );
+
+
+      excludeButton.type =
+        "button";
+
+      excludeButton.textContent =
+        "×";
+
+      excludeButton.title =
+        "Escludi";
+
+
+      excludeButton.addEventListener(
+        "click",
+        () =>
+          setSongIncluded(
+            song.id,
+            false
+          )
+      );
+
+
+      actions.appendChild(
+        excludeButton
+      );
+
+    }
+
+    else {
+
+      const includeButton =
+        document.createElement(
+          "button"
+        );
+
+
+      includeButton.type =
+        "button";
+
+      includeButton.textContent =
+        "+";
+
+      includeButton.title =
+        "Inserisci";
+
+
+      includeButton.addEventListener(
+        "click",
+        () =>
+          setSongIncluded(
+            song.id,
+            true
+          )
+      );
+
+
+      const deleteButton =
+        document.createElement(
+          "button"
+        );
+
+
+      deleteButton.type =
+        "button";
+
+      deleteButton.textContent =
+        "🗑";
+
+      deleteButton.title =
+        "Elimina definitivamente";
+
+
+      deleteButton.addEventListener(
+        "click",
+        () =>
+          deleteSong(song)
+      );
+
+
+      actions.appendChild(
+        includeButton
+      );
+
+      actions.appendChild(
+        deleteButton
+      );
+
+    }
+
+
+    element.appendChild(
+      drag
+    );
+
+
+    if (included) {
+
+      element.appendChild(
+        position
+      );
+
+    }
+
+
+    element.appendChild(
+      title
+    );
+
+    element.appendChild(
+      actions
+    );
+
+
+    return element;
+
   }
 
+
+  /* ==========================================
+     CREA CANZONE
+     ========================================== */
 
   document
-    .getElementById("newSongForm")
-    .addEventListener("submit", event => {
+    .getElementById(
+      "newSongForm"
+    )
+    .addEventListener(
+      "submit",
+      async event => {
 
-      event.preventDefault();
+        event.preventDefault();
 
-      const input =
-        document.getElementById("newSongTitle");
 
-      const title = input.value.trim();
+        const input =
+          document.getElementById(
+            "newSongTitle"
+          );
 
-      if (!title) return;
 
-      addSong(title);
+        const title =
+          input.value.trim();
 
-      input.value = "";
-      input.focus();
 
-    });
+        if (!title) {
+          return;
+        }
+
+
+        const {
+          data: newSong,
+          error
+        } =
+          await supabaseClient
+            .from("songs")
+            .insert({
+              title
+            })
+            .select("*")
+            .single();
+
+
+        if (error) {
+
+          alert(
+            "Errore: " +
+            error.message
+          );
+
+          return;
+
+        }
+
+
+        const position =
+          getIncludedSongs()
+            .length;
+
+
+        const {
+          error: itemError
+        } =
+          await supabaseClient
+            .from(
+              "setlist_items"
+            )
+            .insert({
+              setlist_id:
+                currentSetlistId,
+
+              song_id:
+                newSong.id,
+
+              position,
+
+              included:
+                true
+            });
+
+
+        if (itemError) {
+
+          alert(
+            "Errore: " +
+            itemError.message
+          );
+
+        }
+
+
+        input.value = "";
+
+        await loadData();
+
+      }
+    );
+
+
+  /* ==========================================
+     MODIFICA CANZONE
+     ========================================== */
+
+  async function editSong(song) {
+
+    const newTitle =
+      prompt(
+        "Titolo:",
+        song.title
+      );
+
+
+    if (newTitle === null) {
+      return;
+    }
+
+
+    const title =
+      newTitle.trim();
+
+
+    if (!title) {
+      return;
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("songs")
+        .update({
+          title
+        })
+        .eq(
+          "id",
+          song.id
+        );
+
+
+    if (error) {
+
+      alert(
+        "Errore: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    await loadData();
+
+  }
+
+
+  /* ==========================================
+     INCLUDI / ESCLUDI
+     ========================================== */
+
+  async function setSongIncluded(
+    songId,
+    included
+  ) {
+
+    const position =
+      included
+        ? getIncludedSongs().length
+        : null;
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from(
+          "setlist_items"
+        )
+        .upsert({
+          setlist_id:
+            currentSetlistId,
+
+          song_id:
+            songId,
+
+          included,
+
+          position
+        });
+
+
+    if (error) {
+
+      alert(
+        "Errore: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    await loadData();
+
+  }
+
+
+  /* ==========================================
+     ELIMINA CANZONE
+     ========================================== */
+
+  async function deleteSong(song) {
+
+    const confirmed =
+      confirm(
+        `Eliminare definitivamente "${song.title}" dal catalogo di tutti?`
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from("songs")
+        .delete()
+        .eq(
+          "id",
+          song.id
+        );
+
+
+    if (error) {
+
+      alert(
+        "Errore: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    await loadData();
+
+  }
+
+
+  /* ==========================================
+     DRAG & DROP
+     ========================================== */
+
+  async function syncFromDOM() {
+
+    const includedIds =
+      Array
+        .from(
+          document
+            .getElementById(
+              "setlist"
+            )
+            .querySelectorAll(
+              ".song"
+            )
+        )
+        .map(
+          element =>
+            element.dataset.id
+        );
+
+
+    const excludedIds =
+      Array
+        .from(
+          document
+            .getElementById(
+              "excluded"
+            )
+            .querySelectorAll(
+              ".song"
+            )
+        )
+        .map(
+          element =>
+            element.dataset.id
+        );
+
+
+    const rows = [];
+
+
+    includedIds.forEach(
+      (songId, index) => {
+
+        rows.push({
+          setlist_id:
+            currentSetlistId,
+
+          song_id:
+            songId,
+
+          included:
+            true,
+
+          position:
+            index
+        });
+
+      }
+    );
+
+
+    excludedIds.forEach(
+      songId => {
+
+        rows.push({
+          setlist_id:
+            currentSetlistId,
+
+          song_id:
+            songId,
+
+          included:
+            false,
+
+          position:
+            null
+        });
+
+      }
+    );
+
+
+    if (
+      rows.length === 0
+    ) {
+      return;
+    }
+
+
+    const {
+      error
+    } =
+      await supabaseClient
+        .from(
+          "setlist_items"
+        )
+        .upsert(rows);
+
+
+    if (error) {
+
+      alert(
+        "Errore salvataggio: " +
+        error.message
+      );
+
+    }
+
+
+    await loadData();
+
+  }
 
 
   new Sortable(
-    document.getElementById("setlist"),
+    document.getElementById(
+      "setlist"
+    ),
     {
       group: "songs",
-      animation: 150,
-      handle: ".drag-handle",
-      onEnd: syncFromDOM
+      animation: 100,
+      handle:
+        ".drag-handle",
+      onEnd:
+        syncFromDOM
     }
   );
 
 
   new Sortable(
-    document.getElementById("excluded"),
+    document.getElementById(
+      "excluded"
+    ),
     {
       group: "songs",
-      animation: 150,
-      handle: ".drag-handle",
-      onEnd: syncFromDOM
+      animation: 100,
+      handle:
+        ".drag-handle",
+      onEnd:
+        syncFromDOM
     }
   );
 
 
-  render();
+  /* ==========================================
+     LOGOUT
+     ========================================== */
+
+  document
+    .getElementById(
+      "logoutButton"
+    )
+    .addEventListener(
+      "click",
+      async () => {
+
+        await supabaseClient
+          .auth
+          .signOut();
+
+        location.reload();
+
+      }
+    );
+
+
+  /* ==========================================
+     SCHERMATE
+     ========================================== */
+
+  function showLogin() {
+
+    document
+      .getElementById(
+        "loginScreen"
+      )
+      .style.display =
+      "flex";
+
+
+    document
+      .getElementById(
+        "appScreen"
+      )
+      .style.display =
+      "none";
+
+  }
+
+
+  function showApp() {
+
+    document
+      .getElementById(
+        "loginScreen"
+      )
+      .style.display =
+      "none";
+
+
+    document
+      .getElementById(
+        "appScreen"
+      )
+      .style.display =
+      "block";
+
+  }
+
+
+  /* ==========================================
+     SESSIONE GIÀ ATTIVA
+     ========================================== */
+
+  async function init() {
+
+    const {
+      data: {
+        session
+      }
+    } =
+      await supabaseClient
+        .auth
+        .getSession();
+
+
+    if (session) {
+
+      await startApp();
+
+    }
+
+    else {
+
+      showLogin();
+
+    }
+
+  }
+
+
+  init();
 
 </script>
 
