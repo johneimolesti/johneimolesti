@@ -4,1883 +4,315 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>John & i Molesti — Setlist</title>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
-
   <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --bg: #101010;
-      --panel: #181818;
-      --row: #232323;
-      --row-2: #292929;
-      --border: #363636;
-      --text: #f7f7f7;
-      --muted: #888;
-      --accent: #f0cf21;
-      --danger: #a84545;
-      --success: #377e50;
-      --info: #325d83;
-    }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    button, input, select, textarea { font-family: inherit; }
-    button { cursor: pointer; }
-    button:disabled { cursor: default; opacity: .45; }
-    .hidden { display: none !important; }
-
-    /* LOGIN */
-    #loginScreen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .login-box {
-      width: min(370px, 100%);
-      padding: 28px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel);
-    }
-
-    .login-box h1 { margin: 0; font-size: 25px; }
-    .login-subtitle { margin: 4px 0 24px; color: var(--muted); font-size: 13px; }
-    .login-box label { display: block; margin: 12px 0 5px; color: #aaa; font-size: 12px; }
-    .login-box input {
-      width: 100%;
-      padding: 11px;
-      border: 1px solid #444;
-      border-radius: 6px;
-      background: #222;
-      color: white;
-      font-size: 16px;
-    }
-    .login-box input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
-    #loginButton {
-      width: 100%;
-      margin-top: 18px;
-      padding: 11px;
-      border: 0;
-      border-radius: 6px;
-      background: var(--accent);
-      color: #111;
-      font-size: 14px;
-      font-weight: 700;
-    }
-    #loginMessage { min-height: 18px; margin-top: 12px; color: #e59a9a; font-size: 12px; line-height: 1.4; }
-    .login-note { margin-top: 14px; color: #666; font-size: 10px; text-align: center; line-height: 1.4; }
-
-    /* APP */
-    #appScreen { display: none; }
-
-    header {
-      min-height: 43px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 5px 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel);
-    }
-    .brand h1 { margin: 0; font-size: 17px; }
-    .brand p { margin: 1px 0 0; color: #777; font-size: 10px; }
-    .user-area { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 11px; }
-    #logoutButton { padding: 5px 8px; border: 1px solid #444; border-radius: 5px; background: #282828; color: #ddd; font-size: 10px; }
-
-    .nav {
-      width: min(1500px, 100%);
-      margin: 0 auto;
-      display: flex;
-      gap: 2px;
-      padding: 5px 10px 0;
-      overflow-x: auto;
-      scrollbar-width: thin;
-    }
-    .nav-button {
-      flex: 0 0 auto;
-      padding: 7px 11px;
-      border: 1px solid #333;
-      border-bottom: 0;
-      border-radius: 5px 5px 0 0;
-      background: #1c1c1c;
-      color: #999;
-      font-size: 10px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .nav-button.active { border-color: var(--accent); background: var(--accent); color: #111; }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 16px;
-      height: 16px;
-      margin-left: 4px;
-      padding: 0 4px;
-      border-radius: 8px;
-      background: var(--danger);
-      color: #fff;
-      font-size: 9px;
-    }
-
-    main { width: min(1500px, 100%); margin: 0 auto; padding: 6px 10px 16px; }
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .toolbar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
-    .toolbar input, .toolbar select {
-      min-width: 0;
-      height: 31px;
-      padding: 4px 8px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      background: #222;
-      color: #fff;
-      font-size: 12px;
-    }
-    .toolbar input.grow { flex: 1 1 220px; }
-    .toolbar button {
-      min-height: 31px;
-      padding: 4px 11px;
-      border: 0;
-      border-radius: 5px;
-      background: var(--accent);
-      color: #111;
-      font-size: 10px;
-      font-weight: 700;
-    }
-    .toolbar button.secondary { border: 1px solid #444; background: #2b2b2b; color: #ddd; }
-    .toolbar button.danger { background: #5a2929; color: #f2b5b5; }
-    .toolbar button.success { background: #28563a; color: #a9e8bb; }
-
-    .columns { display: grid; grid-template-columns: 3fr 1fr; gap: 6px; }
-    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .panel { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
-    .panel-header {
-      min-height: 29px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 4px 7px;
-      border-bottom: 1px solid var(--border);
-    }
-    .panel-header h2 { margin: 0; font-size: 11px; }
-    .counter { color: #777; font-size: 9px; }
-    .empty { padding: 24px 10px; color: #666; text-align: center; font-size: 10px; }
-    .section-note { margin: 0 0 7px; color: #777; font-size: 10px; line-height: 1.5; }
-
-    /* SONG TABLE / SETLIST */
-    .song-list { min-height: 90px; padding: 2px; }
-    .song-row {
-      min-height: 23px;
-      display: grid;
-      grid-template-columns: 15px 25px 42px minmax(150px, 1fr) 48px 58px minmax(80px, .65fr) minmax(80px, .65fr) auto;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 1px;
-      padding: 2px 4px;
-      border: 1px solid #333;
-      border-radius: 3px;
-      background: var(--row);
-      font-size: 10px;
-    }
-    .song-row.header-row {
-      min-height: 24px;
-      border: 0;
-      border-bottom: 1px solid #333;
-      border-radius: 0;
-      background: #1c1c1c;
-      color: #777;
-      font-size: 8px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .song-row.excluded { opacity: .55; }
-    .drag-handle { color: #666; cursor: grab; user-select: none; font-size: 12px; }
-    .position { color: #aaa; font-size: 9px; text-align: right; }
-    .score-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 34px;
-      height: 18px;
-      padding: 0 5px;
-      border-radius: 9px;
-      font-size: 9px;
-      font-weight: 800;
-      color: #111;
-      background: #aaa;
-    }
-    .score-badge.top { background: #87d59e; }
-    .score-badge.good { background: #d5ca71; }
-    .score-badge.mid { background: #d0a56c; }
-    .score-badge.low { background: #c98282; }
-    .song-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 700; }
-    .song-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aaa; }
-    .song-actions { display: flex; justify-content: flex-end; gap: 2px; }
-    .song-actions button { min-width: 20px; height: 18px; padding: 0 4px; border: 0; border-radius: 3px; background: #383838; color: #ddd; font-size: 9px; }
-    .sortable-ghost { opacity: .2; }
-    .sortable-chosen { border-color: var(--accent); }
-
-    /* GENERAL ROWS */
-    .list { padding: 2px; }
-    .list-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 30px;
-      margin-bottom: 2px;
-      padding: 5px 7px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: var(--row);
-      font-size: 10px;
-    }
-    .list-main { flex: 1; min-width: 0; }
-    .list-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 11px; }
-    .small-info { margin-top: 2px; color: #777; font-size: 9px; line-height: 1.3; }
-    .row-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px; }
-    .small-button { padding: 4px 7px; border: 0; border-radius: 3px; background: #3b3b3b; color: #ddd; font-size: 9px; }
-    .small-button.primary { background: var(--accent); color: #111; font-weight: 700; }
-    .small-button.danger { background: #5b2929; color: #f2b5b5; }
-    .small-button.success { background: #28563a; color: #a9e8bb; }
-    .small-button.info { background: #294b67; color: #b8d9f2; }
-    .status { flex: 0 0 auto; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; }
-    .status.pending { background: #64581e; color: #f6dc55; }
-    .status.approved { background: #234c30; color: #8ed9a6; }
-    .status.rejected { background: #522828; color: #e89a9a; }
-    .status.draft { background: #3b3b3b; color: #bbb; }
-    .status.confirmed { background: #294b67; color: #b8d9f2; }
-    .status.completed { background: #28563a; color: #a9e8bb; }
-
-    /* MEMBER TABS */
-    .member-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
-    .member-tab { padding: 6px 10px; border: 1px solid #444; border-radius: 5px; background: #222; color: #aaa; font-size: 10px; }
-    .member-tab.active { border-color: var(--accent); background: var(--accent); color: #111; font-weight: 700; }
-    .member-tab.unavailable { opacity: .4; }
-
-    /* PROPOSAL ALGORITHM */
-    .proposal-summary {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-    .summary-card { padding: 8px; border: 1px solid #333; border-radius: 5px; background: #1c1c1c; }
-    .summary-label { color: #777; font-size: 8px; text-transform: uppercase; }
-    .summary-value { margin-top: 2px; font-size: 14px; font-weight: 800; }
-    .sequence-tag { display: inline-block; margin-left: 4px; padding: 2px 4px; border-radius: 3px; background: #343434; color: #bbb; font-size: 7px; vertical-align: middle; }
-    .sequence-tag.accent { background: #685c18; color: #f6dc55; }
-    .sequence-tag.final { background: #572929; color: #efabab; }
-    .sequence-tag.bridge { background: #294b67; color: #b8d9f2; }
-
-    /* RANKINGS */
-    .ranking-row {
-      display: grid;
-      grid-template-columns: 42px 46px minmax(170px, 1fr) 90px 90px 90px;
-      align-items: center;
-      gap: 6px;
-      min-height: 31px;
-      margin-bottom: 2px;
-      padding: 4px 7px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background: var(--row);
-      font-size: 10px;
-    }
-    .ranking-row.header-row { border: 0; border-bottom: 1px solid #333; border-radius: 0; background: #1c1c1c; color: #777; font-size: 8px; font-weight: 700; text-transform: uppercase; }
-    .rank { text-align: center; font-weight: 800; font-size: 12px; }
-
-    /* CONCERTS */
-    .concert-layout { display: grid; grid-template-columns: minmax(250px, .75fr) minmax(0, 2fr); gap: 6px; }
-    .concert-row.selected { border-color: var(--accent); }
-    .concert-detail { padding: 7px; }
-    .concert-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 7px; color: #aaa; font-size: 10px; }
-    .fan-average { color: #9ec5e3; font-size: 8px; }
-
-    /* MODAL */
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(0,0,0,.78);
-    }
-    .modal.open { display: flex; }
-    .modal-card { width: min(760px, 100%); max-height: 90vh; overflow-y: auto; border: 1px solid #444; border-radius: 8px; background: #1a1a1a; }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #333; }
-    .modal-header h2 { margin: 0; font-size: 14px; }
-    .modal-close { border: 0; background: transparent; color: #aaa; font-size: 20px; }
-    .form-body { padding: 12px; }
-    .form-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #303030; }
-    .form-section h3 { margin: 0 0 8px; color: var(--accent); font-size: 10px; text-transform: uppercase; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .form-field.full { grid-column: 1 / -1; }
-    .form-field label { display: block; margin-bottom: 3px; color: #888; font-size: 9px; }
-    .form-field input, .form-field select, .form-field textarea {
-      width: 100%;
-      padding: 7px;
-      border: 1px solid #444;
-      border-radius: 4px;
-      background: #242424;
-      color: #fff;
-      font-size: 12px;
-    }
-    .form-field textarea { min-height: 70px; resize: vertical; }
-    .checkbox-row { display: flex; flex-wrap: wrap; gap: 14px; }
-    .checkbox-row label { display: flex; align-items: center; gap: 5px; color: #bbb; font-size: 10px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 5px; margin-top: 10px; }
-    .modal-actions button { padding: 7px 12px; border: 0; border-radius: 4px; font-size: 10px; }
-    .modal-save { background: var(--accent); color: #111; font-weight: 700; }
-    .modal-cancel { background: #333; color: #ddd; }
-
-    /* PRINT */
-    .print-only { display: none; }
-
-    @media (max-width: 900px) {
-      .song-row { grid-template-columns: 15px 24px 40px minmax(135px, 1fr) 44px 55px auto; }
-      .song-row > .base-artist-col, .song-row > .lyrics-artist-col { display: none; }
-      .proposal-summary { grid-template-columns: 1fr 1fr; }
-      .concert-layout { grid-template-columns: 1fr; }
-      .ranking-row { grid-template-columns: 35px 42px minmax(140px, 1fr) 75px; }
-      .ranking-row > :nth-child(5), .ranking-row > :nth-child(6) { display: none; }
-    }
-
-    @media (max-width: 700px) {
-      header { min-height: 48px; }
-      .columns, .two-columns { grid-template-columns: 1fr; }
-      .toolbar input { font-size: 16px; }
-      .song-row {
-        grid-template-columns: 20px 26px 42px minmax(0, 1fr) auto;
-        min-height: 40px;
-        padding: 4px 5px;
-      }
-      .song-row.header-row { display: none; }
-      .song-row > .bpm-col, .song-row > .key-col, .song-row > .base-artist-col, .song-row > .lyrics-artist-col { display: none; }
-      .song-title { white-space: normal; line-height: 1.2; font-size: 12px; }
-      .song-title::after { content: attr(data-mobile-meta); display: block; margin-top: 2px; color: #777; font-size: 8px; font-weight: 400; }
-      .song-actions button { min-width: 30px; height: 28px; font-size: 12px; }
-      .form-grid { grid-template-columns: 1fr; }
-      .proposal-summary { grid-template-columns: 1fr 1fr; }
-      .ranking-row { grid-template-columns: 30px 42px minmax(0, 1fr); }
-      .ranking-row.header-row { display: none; }
-      .ranking-row > :nth-child(n+4) { grid-column: 3; font-size: 8px; color: #aaa; }
-    }
+    *{box-sizing:border-box} [hidden]{display:none!important}
+    :root{--bg:#101010;--panel:#191919;--row:#242424;--row2:#2b2b2b;--border:#383838;--text:#f7f7f7;--muted:#8d8d8d;--accent:#f0cf21;--danger:#a84545;--success:#377e50;--info:#365e80}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif} button,input,select,textarea{font:inherit} button{cursor:pointer}.hidden{display:none!important}
+    .gate{min-height:100vh;display:grid;place-items:center;padding:22px}.gate-card{width:min(430px,100%);padding:28px;border:1px solid var(--border);border-radius:14px;background:var(--panel)}.gate-card h1{margin:0;font-size:27px}.gate-card h2{margin:4px 0 22px;color:var(--muted);font-size:13px;font-weight:400}.gate-actions{display:grid;gap:9px}.big-btn{width:100%;padding:13px;border:0;border-radius:7px;background:var(--accent);color:#111;font-weight:800}.big-btn.secondary{border:1px solid #444;background:#292929;color:#eee}.back-btn{margin:0 0 12px;padding:0;border:0;background:none;color:#aaa;font-size:11px}.field{margin:10px 0}.field label{display:block;margin-bottom:5px;color:#aaa;font-size:11px}.field input,.field select,.field textarea{width:100%;padding:10px;border:1px solid #444;border-radius:6px;background:#232323;color:#fff}.gate-note{min-height:18px;margin-top:10px;color:#d99595;font-size:11px;line-height:1.4}
+    header{min-height:45px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 12px;border-bottom:1px solid var(--border);background:var(--panel)}.brand h1{margin:0;font-size:17px}.brand p{margin:1px 0 0;color:#777;font-size:10px}.user-area{display:flex;align-items:center;gap:8px;color:#aaa;font-size:11px}.small-btn,.icon-btn{padding:6px 9px;border:1px solid #444;border-radius:5px;background:#292929;color:#ddd;font-size:10px}.small-btn.primary{border:0;background:var(--accent);color:#111;font-weight:800}.small-btn.success{border:0;background:#28563a;color:#b7edc6}.small-btn.danger{border:0;background:#5a2929;color:#efbcbc}
+    .nav{width:min(1500px,100%);margin:auto;display:flex;gap:2px;padding:5px 10px 0;overflow-x:auto}.nav-button{flex:0 0 auto;padding:7px 11px;border:1px solid #333;border-bottom:0;border-radius:5px 5px 0 0;background:#1d1d1d;color:#999;font-size:10px;font-weight:800;white-space:nowrap}.nav-button.active{border-color:var(--accent);background:var(--accent);color:#111}.badge{display:inline-flex;min-width:16px;height:16px;align-items:center;justify-content:center;margin-left:4px;padding:0 4px;border-radius:9px;background:var(--danger);color:#fff;font-size:9px}
+    main{width:min(1500px,100%);margin:auto;padding:7px 10px 20px}.page{display:none}.page.active{display:block}.panel{min-width:0;border:1px solid var(--border);border-radius:7px;background:var(--panel);overflow:hidden}.panel-header{min-height:31px;display:flex;align-items:center;justify-content:space-between;gap:7px;padding:5px 8px;border-bottom:1px solid var(--border)}.panel-header h2{margin:0;font-size:11px}.counter{color:#777;font-size:9px}.empty{padding:26px 10px;color:#666;text-align:center;font-size:10px}.section-note{margin:0 0 7px;color:#777;font-size:10px;line-height:1.5}.columns{display:grid;grid-template-columns:3fr 1fr;gap:7px}.two-columns{display:grid;grid-template-columns:1fr 1fr;gap:7px}.three-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.concert-layout{display:grid;grid-template-columns:minmax(250px,.75fr) minmax(0,2fr);gap:7px}.toolbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}.toolbar input,.toolbar select{min-width:0;height:32px;padding:5px 8px;border:1px solid #444;border-radius:5px;background:#222;color:#fff;font-size:11px}.toolbar .grow{flex:1 1 220px}.toolbar button{min-height:32px;padding:5px 11px;border:0;border-radius:5px;background:var(--accent);color:#111;font-size:10px;font-weight:800}.toolbar button.secondary{border:1px solid #444;background:#292929;color:#ddd}
+    .song-list{min-height:60px;padding:2px}.song-row{min-height:27px;display:grid;grid-template-columns:15px 25px 48px minmax(150px,1fr) 48px 66px minmax(85px,.65fr) minmax(85px,.65fr) auto;align-items:center;gap:5px;margin-bottom:1px;padding:3px 4px;border:1px solid #333;border-radius:3px;background:var(--row);font-size:10px}.song-row.header-row{min-height:25px;border:0;border-bottom:1px solid #333;border-radius:0;background:#1c1c1c;color:#777;font-size:8px;font-weight:800;text-transform:uppercase}.song-row.excluded{opacity:.55}.drag-handle{color:#666;cursor:grab;font-size:12px}.position{text-align:right;color:#aaa;font-size:9px}.score-badge{display:inline-flex;align-items:center;justify-content:center;min-width:39px;height:19px;padding:0 4px;border-radius:4px;background:#777;color:#111;font-size:9px;font-weight:900}.score-badge.top{background:#8dd7a1}.score-badge.good{background:#d7cb74}.score-badge.mid{background:#d2a568}.score-badge.low{background:#c97d7d}.song-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.song-meta{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#aaa}.song-actions{display:flex;gap:3px}.song-actions button{min-width:23px;height:21px;padding:0 5px;border:1px solid #444;border-radius:3px;background:#303030;color:#ddd;font-size:9px}.sequence-tag{display:inline-block;margin-left:5px;padding:1px 4px;border-radius:3px;background:#404040;color:#bbb;font-size:7px;vertical-align:middle}.sequence-tag.accent{background:#695d14;color:#f9e45e}.sequence-tag.final{background:#673536;color:#ffc1c1}.sequence-tag.forced{background:#3d5670;color:#b9dcff}
+    .list{padding:2px}.list-row{display:flex;align-items:center;gap:8px;min-height:38px;padding:6px;border-bottom:1px solid #303030;font-size:10px}.list-row:last-child{border-bottom:0}.list-row.selected{background:#2a291d}.list-main{min-width:0;flex:1}.list-title{font-weight:800}.small-info{margin-top:3px;color:#888;font-size:9px;line-height:1.35}.row-buttons{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}.status{padding:2px 5px;border-radius:3px;font-size:8px;font-weight:800}.status.pending,.status.draft{background:#554a22;color:#eadc87}.status.approved,.status.confirmed,.status.completed{background:#254e34;color:#aee2bd}.status.rejected{background:#552d2d;color:#e8aaaa}
+    .member-tabs,.proposal-tabs{display:flex;gap:4px;margin-bottom:7px;overflow-x:auto}.member-tab{padding:7px 12px;border:1px solid #3d3d3d;border-radius:5px;background:#222;color:#aaa;font-size:10px}.member-tab.active{border-color:var(--accent);color:var(--accent)}.member-tab.unavailable{opacity:.45}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:7px}.summary-card{padding:8px;border:1px solid #333;border-radius:6px;background:#1d1d1d}.summary-label{color:#777;font-size:8px;text-transform:uppercase}.summary-value{margin-top:3px;font-size:16px;font-weight:900}.proposal-panel .panel-header{background:#1e1e1e}.proposal-help{padding:6px 8px;color:#777;font-size:9px;border-bottom:1px solid #303030}
+    .ranking-row{display:grid;grid-template-columns:32px 52px minmax(150px,1fr) 72px 72px 72px 72px;gap:6px;align-items:center;min-height:31px;padding:4px 7px;border-bottom:1px solid #303030;font-size:10px}.ranking-row.header-row{color:#777;font-size:8px;text-transform:uppercase;font-weight:800}.rank{font-weight:900;color:#aaa}.concert-detail{padding:8px}.concert-meta{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:8px;color:#aaa;font-size:10px}.activity-list{margin-top:10px;border-top:1px solid #333;padding-top:8px}.activity-row{display:grid;grid-template-columns:1fr 95px 65px;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid #2d2d2d;font-size:10px}.activity-row input{width:100%;padding:6px;border:1px solid #444;border-radius:4px;background:#222;color:#fff}
+    .modal{position:fixed;inset:0;z-index:50;display:none;align-items:flex-start;justify-content:center;padding:28px 12px;background:rgba(0,0,0,.78);overflow:auto}.modal.open{display:flex}.modal-card{width:min(780px,100%);border:1px solid #444;border-radius:9px;background:#191919;box-shadow:0 15px 50px #000}.modal-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #333}.modal-header h2{margin:0;font-size:14px}.modal-close{border:0;background:none;color:#aaa;font-size:22px}.form-body{padding:11px}.form-section{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #303030}.form-section:last-of-type{border-bottom:0}.form-section h3{margin:0 0 8px;color:var(--accent);font-size:10px;text-transform:uppercase}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.form-field.full{grid-column:1/-1}.form-field label{display:block;margin-bottom:4px;color:#aaa;font-size:9px}.form-field input,.form-field select,.form-field textarea{width:100%;padding:8px;border:1px solid #444;border-radius:5px;background:#242424;color:#fff;font-size:11px}.form-field textarea{min-height:70px;resize:vertical}.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 18px}.check-card{display:flex!important;align-items:center;gap:8px!important;margin:0!important;padding:8px;border:1px solid #383838;border-radius:5px;background:#222;color:#ccc!important;font-size:11px!important}.check-card input{width:16px!important;height:16px!important;margin:0!important;flex:0 0 16px}.computed-box{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.computed-item{padding:7px;border:1px solid #333;border-radius:5px;background:#222}.computed-item b{display:block;margin-top:2px;font-size:14px}.computed-item span{color:#777;font-size:8px;text-transform:uppercase}.modal-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}.modal-actions button{padding:8px 12px;border:0;border-radius:5px;font-size:10px;font-weight:800}.modal-cancel{background:#333;color:#ddd}.modal-save{background:var(--accent);color:#111}
+    .fan-hero{padding:12px;border:1px solid #333;border-radius:8px;background:#1b1b1b;margin-bottom:8px}.fan-hero h2{margin:0 0 5px}.fan-bottom-nav{width:min(900px,100%);margin:auto;display:flex;gap:3px;padding:5px 10px 0}.fan-bottom-nav button{flex:1;padding:8px;border:1px solid #333;border-bottom:0;border-radius:5px 5px 0 0;background:#1d1d1d;color:#999;font-size:10px;font-weight:800}.fan-bottom-nav button.active{background:var(--accent);color:#111;border-color:var(--accent)}.fan-main{width:min(900px,100%)}
+    @media(max-width:1000px){.three-columns{grid-template-columns:1fr}.concert-layout,.two-columns{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}}
+    @media(max-width:720px){main{padding:6px}.song-row{grid-template-columns:14px 23px 43px minmax(120px,1fr) 45px 58px auto}.base-artist-col,.lyrics-artist-col{display:none}.song-title{white-space:normal}.song-title:after{content:attr(data-mobile-meta);display:block;margin-top:2px;color:#777;font-size:8px;font-weight:400}.ranking-row{grid-template-columns:27px 45px 1fr 55px}.ranking-row>*:nth-child(5),.ranking-row>*:nth-child(6),.ranking-row>*:nth-child(7){display:none}.form-grid{grid-template-columns:1fr}.checkbox-grid{grid-template-columns:1fr}.computed-box{grid-template-columns:1fr 1fr}.activity-row{grid-template-columns:1fr 75px 58px}}
+    @media print{.no-print{display:none!important}}
   </style>
 </head>
-
 <body>
-<section id="loginScreen" hidden>
-  <form id="loginForm" class="login-box">
+
+<!-- SCELTA ACCESSO -->
+<section id="welcomeScreen" class="gate">
+  <div class="gate-card">
     <h1>John & i Molesti</h1>
-    <div class="login-subtitle">Setlist Builder</div>
+    <h2>Setlist & Live</h2>
+    <div class="gate-actions">
+      <button id="chooseMember" class="big-btn">SONO UN MEMBRO</button>
+      <button id="chooseFan" class="big-btn secondary">SONO UN FAN</button>
+    </div>
+  </div>
+</section>
 
-    <label for="username">Username</label>
-    <input id="username" type="text" autocomplete="username" autocapitalize="none" required>
-
-    <label for="password">Password</label>
-    <input id="password" type="password" autocomplete="current-password" minlength="6" required>
-
-    <button id="loginButton" type="submit">ACCEDI</button>
-    <div id="loginMessage"></div>
-    <div class="login-note">Al primo accesso la password inserita viene associata al membro.</div>
+<!-- LOGIN MEMBRO -->
+<section id="memberLoginScreen" class="gate" hidden>
+  <form id="memberLoginForm" class="gate-card">
+    <button id="backFromMember" class="back-btn" type="button">← Indietro</button>
+    <h1>Area membri</h1><h2>Accesso riservato alla band</h2>
+    <div class="field"><label>Username</label><input id="memberUsername" autocomplete="username" required></div>
+    <div class="field"><label>Password</label><input id="memberPassword" type="password" autocomplete="current-password" required></div>
+    <button id="memberLoginButton" class="big-btn" type="submit">ACCEDI</button>
+    <div id="memberLoginMessage" class="gate-note"></div>
   </form>
 </section>
 
-<section id="appScreen" hidden>
-  <header>
-    <div class="brand">
-      <h1>John & i Molesti</h1>
-      <p>Setlist Builder</p>
-    </div>
-    <div class="user-area">
-      <strong id="currentUser"></strong>
-      <button id="logoutButton" type="button">Esci</button>
-    </div>
-  </header>
+<!-- LOGIN FAN -->
+<section id="fanLoginScreen" class="gate" hidden>
+  <form id="fanLoginForm" class="gate-card">
+    <button id="backFromFan" class="back-btn" type="button">← Indietro</button>
+    <h1>Area fan</h1><h2>Nessuna password: il dispositivo ti riconoscerà le volte successive.</h2>
+    <div class="field"><label>Come ti chiami?</label><input id="fanName" autocomplete="name" required placeholder="Es. Marco"></div>
+    <button id="fanLoginButton" class="big-btn" type="submit">ENTRA</button>
+    <div id="fanLoginMessage" class="gate-note"></div>
+  </form>
+</section>
 
-  <nav class="nav">
+<!-- APP MEMBRI -->
+<section id="memberApp" hidden>
+  <header>
+    <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><button id="memberLogout" class="small-btn">Esci</button></div>
+  </header>
+  <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
-    <button class="nav-button" data-page="proposalPage">PROPOSTA FINALE</button>
-    <button class="nav-button" data-page="catalogPage">BRANI & PROPOSTE <span id="proposalBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-page="proposalsPage">3 PROPOSTE</button>
+    <button class="nav-button" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-page="membersPage">SCALETTE MEMBRI</button>
     <button class="nav-button" data-page="concertsPage">CONCERTI</button>
     <button class="nav-button" data-page="songRankingPage">CLASSIFICA BRANI</button>
-    <button class="nav-button" data-page="fansPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
   </nav>
-
   <main>
-    <!-- MY SETLIST -->
     <section id="mySetlistPage" class="page active">
+      <div class="toolbar">
+        <button id="confirmSetlistButton" type="button">CONFERMA SCALETTA</button>
+        <span id="confirmSetlistInfo" class="section-note" style="align-self:center;margin:0"></span>
+      </div>
       <div class="columns">
-        <section class="panel">
-          <div class="panel-header"><h2>LA MIA SCALETTA</h2><span id="setlistCounter" class="counter"></span></div>
-          <div id="mySetlistHeader"></div>
-          <div id="setlist" class="song-list"></div>
-        </section>
-        <section class="panel">
-          <div class="panel-header"><h2>ESCLUSE</h2><span id="excludedCounter" class="counter"></span></div>
-          <div id="excluded" class="song-list"></div>
-        </section>
+        <section class="panel"><div class="panel-header"><h2>LA MIA SCALETTA</h2><span id="setlistCounter" class="counter"></span></div><div id="mySetlistHeader"></div><div id="setlist" class="song-list"></div></section>
+        <section class="panel"><div class="panel-header"><h2>ESCLUSE</h2><span id="excludedCounter" class="counter"></span></div><div id="excluded" class="song-list"></div></section>
       </div>
     </section>
 
-    <!-- PROPOSAL -->
-    <section id="proposalPage" class="page">
-      <p class="section-note">La proposta usa preferenze dei membri, score dei brani, funzione live, varietà di artisti e sequenze consecutive ricorrenti nelle scalette personali. Lo score misura quanto è forte un pezzo; l'algoritmo decide quando giocarselo.</p>
-      <div id="proposalSummary" class="proposal-summary"></div>
-      <div class="columns">
-        <section class="panel">
-          <div class="panel-header"><h2>PROPOSTA AUTOMATICA</h2><span id="algorithmCounter" class="counter"></span></div>
-          <div id="algorithmHeader"></div>
-          <div id="algorithmList" class="song-list"></div>
-        </section>
-        <section class="panel">
-          <div class="panel-header"><h2>ESCLUSE SUGGERITE</h2><span id="algorithmExcludedCounter" class="counter"></span></div>
-          <div id="algorithmExcluded" class="song-list"></div>
-        </section>
+    <section id="proposalsPage" class="page">
+      <p class="section-note">Media membri = scelte e ordine della band. Algoritmo = costruzione live indipendente. Fusa = 70% scelte membri + 30% ottimizzazione live. Gli agganci forzati prevalgono sempre.</p>
+      <div id="proposalSummary" class="summary"></div>
+      <div class="three-columns">
+        <section class="panel proposal-panel"><div class="panel-header"><h2>MEDIA MEMBRI</h2><span id="mediaCounter" class="counter"></span></div><div class="proposal-help">Media di inclusioni, posizioni e sequenze ricorrenti.</div><div id="mediaList" class="song-list"></div></section>
+        <section class="panel proposal-panel"><div class="panel-header"><h2>ALGORITMO PURO</h2><span id="pureCounter" class="counter"></span></div><div class="proposal-help">Hit, ritmo, BPM, difficoltà, tonalità, varietà e funzione live.</div><div id="pureList" class="song-list"></div></section>
+        <section class="panel proposal-panel"><div class="panel-header"><h2>FUSA</h2><span id="fusedCounter" class="counter"></span></div><div class="proposal-help">Preferenze membri dominanti, algoritmo usato per rifinire il flusso.</div><div id="fusedList" class="song-list"></div></section>
       </div>
     </section>
 
-    <!-- CATALOG -->
     <section id="catalogPage" class="page">
-      <form id="newSongForm" class="toolbar">
-        <input id="newSongTitle" class="grow" type="text" placeholder="Titolo nuova canzone..." autocomplete="off" required>
-        <button id="newSongButton" type="submit">+ AGGIUNGI</button>
-      </form>
+      <form id="newSongForm" class="toolbar"><input id="newSongTitle" class="grow" placeholder="Titolo nuova canzone..." required><button type="submit">+ AGGIUNGI / PROPONI</button></form>
       <div class="two-columns">
-        <section class="panel">
-          <div class="panel-header"><h2>CATALOGO UFFICIALE</h2><span id="catalogCounter" class="counter"></span></div>
-          <div id="catalogList" class="list"></div>
-        </section>
-        <section class="panel">
-          <div class="panel-header"><h2 id="proposalSectionTitle">PROPOSTE</h2><span id="proposalCounter" class="counter"></span></div>
-          <div id="proposalList" class="list"></div>
-        </section>
+        <section class="panel"><div class="panel-header"><h2>CATALOGO UFFICIALE</h2><span id="catalogCounter" class="counter"></span></div><div id="catalogList" class="list"></div></section>
+        <section class="panel"><div class="panel-header"><h2 id="proposalTitle">PROPOSTE</h2><span id="proposalCounter" class="counter"></span></div><div id="proposalList" class="list"></div></section>
       </div>
     </section>
 
-    <!-- MEMBERS -->
-    <section id="membersPage" class="page">
-      <div id="memberTabs" class="member-tabs"></div>
-      <section class="panel">
-        <div class="panel-header"><h2 id="memberSetlistTitle">SCALETTA</h2><span id="memberSetlistCounter" class="counter"></span></div>
-        <div id="memberSetlistHeader"></div>
-        <div id="memberSetlist" class="song-list"></div>
-      </section>
-    </section>
+    <section id="membersPage" class="page"><div id="memberTabs" class="member-tabs"></div><section class="panel"><div class="panel-header"><h2 id="memberSetlistTitle">SCALETTA</h2><span id="memberSetlistCounter" class="counter"></span></div><div id="memberSetlistHeader"></div><div id="memberSetlist" class="song-list"></div></section></section>
 
-    <!-- CONCERTS -->
     <section id="concertsPage" class="page">
-      <div id="concertAdminToolbar" class="toolbar hidden">
-        <button id="newConcertButton" type="button">+ NUOVO CONCERTO</button>
-      </div>
+      <div id="concertAdminToolbar" class="toolbar hidden"><button id="newConcertButton">+ NUOVO CONCERTO</button></div>
       <div class="concert-layout">
-        <section class="panel">
-          <div class="panel-header"><h2>CONCERTI</h2><span id="concertCounter" class="counter"></span></div>
-          <div id="concertList" class="list"></div>
-        </section>
-        <section class="panel">
-          <div class="panel-header"><h2 id="concertDetailTitle">SCALETTA CONCERTO</h2><span id="concertDetailCounter" class="counter"></span></div>
-          <div id="concertDetail" class="concert-detail"><div class="empty">Seleziona un concerto.</div></div>
-        </section>
+        <section class="panel"><div class="panel-header"><h2>CONCERTI</h2><span id="concertCounter" class="counter"></span></div><div id="concertList" class="list"></div></section>
+        <section class="panel"><div class="panel-header"><h2 id="concertDetailTitle">SCALETTA CONCERTO</h2><span id="concertDetailCounter" class="counter"></span></div><div id="concertDetail" class="concert-detail"><div class="empty">Seleziona un concerto.</div></div></section>
       </div>
     </section>
 
-    <!-- SONG RANKING -->
-    <section id="songRankingPage" class="page">
-      <p class="section-note">Lo score 1–100 combina dati interni e giudizi fan. I voti individuali dei fan non sono visibili: vengono usate soltanto medie aggregate.</p>
-      <section class="panel">
-        <div class="panel-header"><h2>CLASSIFICA BRANI</h2><span id="songRankingCounter" class="counter"></span></div>
-        <div id="songRankingList" class="list"></div>
-      </section>
-    </section>
+    <section id="songRankingPage" class="page"><p class="section-note">Qui prevalgono i fan: Fan 50% · Membri 30% · Popolarità 20%. Il numero usato dall'algoritmo di scaletta è invece Membri 50% · Fan 30% · Popolarità 20%.</p><section class="panel"><div class="panel-header"><h2>CLASSIFICA BRANI</h2><span id="songRankingCounter" class="counter"></span></div><div id="songRankingList"></div></section></section>
 
-    <!-- FANS -->
-    <section id="fansPage" class="page">
+    <section id="fansAdminPage" class="page">
+      <div id="fanAdminCreate" class="toolbar hidden"><input id="adminFanName" class="grow" placeholder="Nuovo fan (nome)"><input id="adminFanNickname" placeholder="Nickname facoltativo"><select id="adminFanConcert"><option value="">Nessuna presenza iniziale</option></select><button id="adminCreateFanButton">+ CREA FAN</button></div>
       <div class="two-columns">
-        <section class="panel">
-          <div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="fanRankingCounter" class="counter"></span></div>
-          <div id="fanRankingList" class="list"></div>
-        </section>
-        <section id="fanAdminPanel" class="panel hidden">
-          <div class="panel-header"><h2>RICHIESTE UNIFICAZIONE</h2><span id="mergeRequestCounter" class="counter"></span></div>
-          <div id="mergeRequestList" class="list"></div>
-        </section>
+        <section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="fanRankingCounter" class="counter"></span></div><div id="fanRankingList" class="list"></div></section>
+        <section id="mergePanel" class="panel hidden"><div class="panel-header"><h2>RICHIESTE UNIFICAZIONE</h2><span id="mergeCounter" class="counter"></span></div><div id="mergeList" class="list"></div></section>
       </div>
     </section>
   </main>
 </section>
 
-<!-- SONG MODAL -->
-<div id="songModal" class="modal" hidden>
-  <div class="modal-card">
-    <div class="modal-header"><h2>Scheda canzone</h2><button id="closeSongModal" class="modal-close" type="button">×</button></div>
-    <form id="songEditForm" class="form-body">
-      <input id="editSongId" type="hidden">
+<!-- APP FAN: SOLO CONCERTI / SCALETTA+VOTO / CLASSIFICHE -->
+<section id="fanApp" hidden>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button></nav>
+  <main class="fan-main">
+    <section id="fanConcertsPage" class="page active"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Apri un concerto per vedere la scaletta, segnare “Io c'ero” e valutare le canzoni.</div></div><div id="publicConcertList" class="list panel"></div><div id="publicConcertDetail" style="margin-top:8px"></div></section>
+    <section id="fanRankingsPage" class="page"><div class="two-columns"><section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="publicFanRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="publicSongRanking" class="list"></div></section></div></section>
+  </main>
+</section>
 
-      <div class="form-section">
-        <h3>Canzone Molesta</h3>
-        <div class="form-grid">
-          <div class="form-field full"><label>Titolo</label><input id="editTitle" required></div>
-        </div>
-      </div>
+<!-- MODAL CANZONE -->
+<div id="songModal" class="modal" hidden><div class="modal-card"><div class="modal-header"><h2>Scheda canzone</h2><button id="closeSongModal" class="modal-close">×</button></div><form id="songEditForm" class="form-body">
+  <input id="editSongId" type="hidden">
+  <div class="form-section"><h3>Canzone Molesta</h3><div class="form-grid"><div class="form-field full"><label>Titolo</label><input id="editTitle" required></div></div></div>
+  <div class="form-section"><h3>Punteggi calcolati</h3><div class="computed-box"><div class="computed-item"><span>Popolarità totale</span><b id="computedPopularity">—</b></div><div class="computed-item"><span>Curiosità</span><b id="computedCuriosity">—</b></div><div class="computed-item"><span>Score classifica</span><b id="computedRankingScore">—</b></div><div class="computed-item"><span>Score scaletta</span><b id="computedSetlistScore">—</b></div></div></div>
+  <div class="form-section"><h3>Base musicale</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editBaseTitle"></div><div class="form-field"><label>Artista</label><input id="editBaseArtist"></div><div class="form-field"><label>Anno</label><input id="editBaseYear" type="number" min="1900" max="2100"></div><div class="form-field"><label>Spotify streams</label><input id="editBaseSpotify" type="number" min="0"></div><div class="form-field"><label>YouTube views</label><input id="editBaseYoutube" type="number" min="0"></div></div></div>
+  <div class="form-section"><h3>Testo</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editLyricsTitle"></div><div class="form-field"><label>Artista</label><input id="editLyricsArtist"></div><div class="form-field"><label>Anno</label><input id="editLyricsYear" type="number" min="1900" max="2100"></div><div class="form-field"><label>Spotify streams</label><input id="editLyricsSpotify" type="number" min="0"></div><div class="form-field"><label>YouTube views</label><input id="editLyricsYoutube" type="number" min="0"></div></div></div>
+  <div class="form-section"><h3>Versione Molesta / Live</h3><div class="form-grid"><div class="form-field"><label>BPM</label><input id="editBpm" type="number" min="20" max="400" step="0.01"></div><div class="form-field"><label>Durata (secondi)</label><input id="editDuration" type="number" min="1"></div><div class="form-field"><label>Nota</label><input id="editKeyNote" placeholder="A, C#, Bb..."></div><div class="form-field"><label>Modo</label><select id="editKeyMode"><option value="">—</option><option value="major">Maggiore</option><option value="minor">Minore</option></select></div><div class="form-field"><label>Ballabilità 1–10</label><input id="editDanceability" type="number" min="1" max="10" step="0.1"></div><div class="form-field"><label>Difficoltà chitarre 1–10</label><input id="editGuitarDifficulty" type="number" min="1" max="10" step="0.1"></div><div class="form-field"><label>Difficoltà basso 1–10</label><input id="editBassDifficulty" type="number" min="1" max="10" step="0.1"></div><div class="form-field"><label>Difficoltà batteria 1–10</label><input id="editDrumsDifficulty" type="number" min="1" max="10" step="0.1"></div><div class="form-field full"><label>Aggancio forzato: questa canzone deve essere seguita da</label><select id="editForcedNext"><option value="">Nessun aggancio</option></select></div><div class="form-field full"><label>Note</label><textarea id="editNotes"></textarea></div><div class="form-field full"><div class="checkbox-grid"><label class="check-card"><input id="editExplosive" type="checkbox"> Esplosiva</label><label class="check-card"><input id="editCalm" type="checkbox"> Calma</label><label class="check-card"><input id="editFrenetic" type="checkbox"> Frenetica</label><label class="check-card"><input id="editSingable" type="checkbox"> Cantabile</label><label class="check-card"><input id="editActive" type="checkbox"> Brano attivo</label></div></div></div></div>
+  <div class="modal-actions"><button id="cancelSongEdit" type="button" class="modal-cancel">ANNULLA</button><button class="modal-save" type="submit">SALVA</button></div>
+</form></div></div>
 
-      <div class="form-section">
-        <h3>Base musicale</h3>
-        <div class="form-grid">
-          <div class="form-field"><label>Titolo</label><input id="editBaseTitle"></div>
-          <div class="form-field"><label>Artista</label><input id="editBaseArtist"></div>
-          <div class="form-field"><label>Anno</label><input id="editBaseYear" type="number" min="1900" max="2100"></div>
-          <div class="form-field"><label>BPM</label><input id="editBpm" type="number" min="20" max="400" step="0.01"></div>
-          <div class="form-field"><label>Nota</label><input id="editKeyNote" placeholder="Es. A, C#, Bb"></div>
-          <div class="form-field"><label>Scala</label><select id="editKeyMode"><option value="">—</option><option value="major">Maggiore</option><option value="minor">Minore</option></select></div>
-          <div class="form-field"><label>Popolarità base 0–10</label><input id="editBasePopularity" type="number" min="0" max="10" step="0.1"></div>
-        </div>
-      </div>
+<!-- MODAL VOTO MEMBRO -->
+<div id="memberVoteModal" class="modal" hidden><div class="modal-card" style="width:min(520px,100%)"><div class="modal-header"><h2 id="memberVoteTitle">Valuta brano</h2><button id="closeMemberVote" class="modal-close">×</button></div><form id="memberVoteForm" class="form-body"><input id="voteSongId" type="hidden"><div class="form-grid"><div class="form-field full"><label>Versione Molesti 1–10 (obbligatorio)</label><input id="voteMolesti" type="number" min="1" max="10" step="0.1" required></div><div class="form-field"><label>Testo 1–10 (facoltativo)</label><input id="voteLyrics" type="number" min="1" max="10" step="0.1"></div><div class="form-field"><label>Base 1–10 (facoltativo)</label><input id="voteBase" type="number" min="1" max="10" step="0.1"></div><div class="form-field full"><label>Mix automatico</label><input id="voteMix" disabled></div></div><div class="modal-actions"><button id="deleteMemberVote" type="button" class="modal-cancel">RIMUOVI VOTO</button><button class="modal-save">SALVA</button></div></form></div></div>
 
-      <div class="form-section">
-        <h3>Testo</h3>
-        <div class="form-grid">
-          <div class="form-field"><label>Titolo</label><input id="editLyricsTitle"></div>
-          <div class="form-field"><label>Artista</label><input id="editLyricsArtist"></div>
-          <div class="form-field"><label>Anno</label><input id="editLyricsYear" type="number" min="1900" max="2100"></div>
-          <div class="form-field"><label>Popolarità testo 0–10</label><input id="editLyricsPopularity" type="number" min="0" max="10" step="0.1"></div>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <h3>Versione Molesta / Live</h3>
-        <div class="form-grid">
-          <div class="form-field"><label>Durata in secondi</label><input id="editDuration" type="number" min="1"></div>
-          <div class="form-field"><label>Apprezzamento generale 0–10</label><input id="editGeneralRating" type="number" min="0" max="10" step="0.1"></div>
-          <div class="form-field"><label>Coinvolgimento 0–10</label><input id="editEngagement" type="number" min="0" max="10" step="0.1"></div>
-          <div class="form-field"><label>Curiosità / capacità di attirare 0–10</label><input id="editCuriosity" type="number" min="0" max="10" step="0.1"></div>
-          <div class="form-field"><label>Esplosività 0–10</label><input id="editExplosiveness" type="number" min="0" max="10" step="0.1"></div>
-          <div class="form-field"><label>Capacità di stacco / transizione 0–10</label><input id="editTransition" type="number" min="0" max="10" step="0.1"></div>
-          <div class="form-field full"><label>Note</label><textarea id="editNotes"></textarea></div>
-          <div class="form-field full">
-            <div class="checkbox-row">
-              <label><input id="editActive" type="checkbox"> Brano attivo</label>
-              <label><input id="editCanOpen" type="checkbox"> Può aprire</label>
-              <label><input id="editIsBridge" type="checkbox"> Brano di stacco</label>
-              <label><input id="editCanClose" type="checkbox"> Può chiudere</label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button id="cancelSongEdit" class="modal-cancel" type="button">ANNULLA</button>
-        <button class="modal-save" type="submit">SALVA</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- CONCERT MODAL -->
-<div id="concertModal" class="modal" hidden>
-  <div class="modal-card" style="width:min(560px,100%)">
-    <div class="modal-header"><h2 id="concertModalTitle">Concerto</h2><button id="closeConcertModal" class="modal-close" type="button">×</button></div>
-    <form id="concertForm" class="form-body">
-      <input id="editConcertId" type="hidden">
-      <div class="form-grid">
-        <div class="form-field full"><label>Nome concerto / evento</label><input id="concertName" required></div>
-        <div class="form-field"><label>Data</label><input id="concertDate" type="date" required></div>
-        <div class="form-field"><label>Stato</label><select id="concertStatus"><option value="draft">Bozza</option><option value="confirmed">Confermato</option><option value="completed">Concluso</option></select></div>
-        <div class="form-field"><label>Locale / evento</label><input id="concertVenue"></div>
-        <div class="form-field"><label>Città</label><input id="concertCity"></div>
-        <div class="form-field full"><label class="checkbox-row"><span><input id="concertVotingOpen" type="checkbox"> Votazione fan aperta</span></label></div>
-      </div>
-      <div class="modal-actions">
-        <button id="cancelConcertEdit" class="modal-cancel" type="button">ANNULLA</button>
-        <button class="modal-save" type="submit">SALVA</button>
-      </div>
-    </form>
-  </div>
-</div>
+<!-- MODAL CONCERTO -->
+<div id="concertModal" class="modal" hidden><div class="modal-card" style="width:min(560px,100%)"><div class="modal-header"><h2 id="concertModalTitle">Concerto</h2><button id="closeConcertModal" class="modal-close">×</button></div><form id="concertForm" class="form-body"><input id="editConcertId" type="hidden"><div class="form-grid"><div class="form-field full"><label>Nome concerto / evento</label><input id="concertName" required></div><div class="form-field"><label>Data</label><input id="concertDate" type="date" required></div><div class="form-field"><label>Stato</label><select id="concertStatus"><option value="draft">Bozza</option><option value="confirmed">Confermato</option><option value="completed">Concluso</option></select></div><div class="form-field"><label>Locale / evento</label><input id="concertVenue"></div><div class="form-field"><label>Città</label><input id="concertCity"></div><div class="form-field full"><label class="check-card"><input id="concertVotingOpen" type="checkbox"> Votazione fan aperta</label></div></div><div class="modal-actions"><button id="cancelConcertEdit" type="button" class="modal-cancel">ANNULLA</button><button class="modal-save">SALVA</button></div></form></div></div>
 
 <script>
-  const SUPABASE_URL = "https://etzwybamvfpeitkttwrc.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  const BAND_MEMBERS = [
-    { username: "ema", displayName: "Ema" },
-    { username: "kekko", displayName: "Kekko" },
-    { username: "gianni", displayName: "Gianni" },
-    { username: "carlo", displayName: "Carlo" },
-    { username: "ale", displayName: "Ale" }
-  ];
-
-  let currentUser = null;
-  let currentProfile = null;
-  let currentSetlistId = null;
-  let songs = [];
-  let songScores = [];
-  let setlistItems = [];
-  let proposals = [];
-  let profiles = [];
-  let idealSetlists = [];
-  let communityItems = [];
-  let concerts = [];
-  let selectedConcertId = null;
-  let selectedMemberUsername = null;
-  let algorithmResult = { included: [], excluded: [], stats: {} };
-  let fanRanking = [];
-  let mergeRequests = [];
-  let adminFans = [];
-  let concertSortable = null;
-
-  const loginScreen = document.getElementById("loginScreen");
-  const appScreen = document.getElementById("appScreen");
-  const loginForm = document.getElementById("loginForm");
-  const loginButton = document.getElementById("loginButton");
-  const loginMessage = document.getElementById("loginMessage");
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-  const setlistElement = document.getElementById("setlist");
-  const excludedElement = document.getElementById("excluded");
-
-  function isEma() {
-    return currentProfile?.username?.toLowerCase() === "ema";
-  }
-
-  function isFanAdmin() {
-    return ["ema", "kekko"].includes(currentProfile?.username?.toLowerCase());
-  }
-
-  function activeSongs() {
-    return songs.filter(song => song.active);
-  }
-
-  function songScore(songId) {
-    const row = songScores.find(item => item.song_id === songId);
-    const value = Number(row?.score);
-    return Number.isFinite(value) ? value : 50;
-  }
-
-  function scoreClass(score) {
-    if (score >= 90) return "top";
-    if (score >= 80) return "good";
-    if (score >= 65) return "mid";
-    return "low";
-  }
-
-  function scoreBadge(songId) {
-    const score = songScore(songId);
-    return `<span class="score-badge ${scoreClass(score)}">${score.toFixed(0)}</span>`;
-  }
-
-  function keyLabel(song) {
-    if (!song.key_note) return "—";
-    const mode = song.key_mode === "major" ? "Maj" : song.key_mode === "minor" ? "Min" : "";
-    return `${song.key_note}${mode ? " " + mode : ""}`;
-  }
-
-  function formatDate(value) {
-    if (!value) return "—";
-    const [y, m, d] = String(value).slice(0, 10).split("-");
-    return `${d}/${m}/${y}`;
-  }
-
-  function formatDuration(seconds) {
-    const n = Number(seconds);
-    if (!Number.isFinite(n) || n <= 0) return "—";
-    const h = Math.floor(n / 3600);
-    const m = Math.floor((n % 3600) / 60);
-    const s = Math.round(n % 60);
-    return h ? `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}` : `${m}:${String(s).padStart(2,"0")}`;
-  }
-
-  function emptyToNull(value) {
-    const text = String(value ?? "").trim();
-    return text === "" ? null : text;
-  }
-
-  function numberOrNull(value) {
-    if (value === "" || value === null || value === undefined) return null;
-    const n = Number(value);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function normalizeArtist(value) {
-    return String(value || "").trim().toLowerCase();
-  }
-
-  function getProfileById(id) {
-    return profiles.find(profile => profile.id === id);
-  }
-
-  function makeSongHeader() {
-    return `
-      <div class="song-row header-row">
-        <div></div><div>#</div><div>Score</div><div>Brano</div><div class="bpm-col">BPM</div><div class="key-col">Key</div><div class="base-artist-col">Base</div><div class="lyrics-artist-col">Testo</div><div></div>
-      </div>`;
-  }
-
-  function mobileMeta(song) {
-    const bits = [];
-    if (song.bpm) bits.push(`${song.bpm} BPM`);
-    if (song.key_note) bits.push(keyLabel(song));
-    if (song.base_artist) bits.push(`Base: ${song.base_artist}`);
-    if (song.lyrics_artist) bits.push(`Testo: ${song.lyrics_artist}`);
-    return bits.join(" · ");
-  }
-
-  function createSongRow(song, index, options = {}) {
-    const {
-      draggable = false,
-      excluded = false,
-      actions = [],
-      tags = []
-    } = options;
-
-    const row = document.createElement("div");
-    row.className = `song-row${excluded ? " excluded" : ""}`;
-    row.dataset.id = song.id;
-
-    const handle = document.createElement("div");
-    handle.className = "drag-handle";
-    handle.textContent = draggable ? "☰" : "";
-
-    const pos = document.createElement("div");
-    pos.className = "position";
-    pos.textContent = index === null || index === undefined ? "—" : index + 1;
-
-    const score = document.createElement("div");
-    score.innerHTML = scoreBadge(song.id);
-
-    const title = document.createElement("div");
-    title.className = "song-title";
-    title.textContent = song.title;
-    title.title = song.title;
-    title.dataset.mobileMeta = mobileMeta(song);
-    tags.forEach(tag => {
-      const span = document.createElement("span");
-      span.className = `sequence-tag ${tag.className || ""}`.trim();
-      span.textContent = tag.text;
-      title.appendChild(span);
-    });
-
-    const bpm = document.createElement("div");
-    bpm.className = "song-meta bpm-col";
-    bpm.textContent = song.bpm ?? "—";
-
-    const key = document.createElement("div");
-    key.className = "song-meta key-col";
-    key.textContent = keyLabel(song);
-
-    const baseArtist = document.createElement("div");
-    baseArtist.className = "song-meta base-artist-col";
-    baseArtist.textContent = song.base_artist || "—";
-    baseArtist.title = song.base_artist || "";
-
-    const lyricsArtist = document.createElement("div");
-    lyricsArtist.className = "song-meta lyrics-artist-col";
-    lyricsArtist.textContent = song.lyrics_artist || "—";
-    lyricsArtist.title = song.lyrics_artist || "";
-
-    const actionBox = document.createElement("div");
-    actionBox.className = "song-actions";
-    actions.forEach(action => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = action.label;
-      button.title = action.title || "";
-      button.addEventListener("click", action.onClick);
-      actionBox.appendChild(button);
-    });
-
-    row.append(handle, pos, score, title, bpm, key, baseArtist, lyricsArtist, actionBox);
-    return row;
-  }
-
-  /* NAV */
-  document.querySelectorAll(".nav-button").forEach(button => {
-    button.addEventListener("click", async () => {
-      document.querySelectorAll(".nav-button").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
-      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
-      document.getElementById(button.dataset.page).classList.add("active");
-
-      try {
-        if (button.dataset.page === "proposalPage") {
-          await loadCommunityData();
-          calculateAlgorithm();
-          renderAlgorithm();
-        }
-        if (button.dataset.page === "catalogPage") {
-          await loadProposals();
-          renderCatalog();
-          renderProposals();
-        }
-        if (button.dataset.page === "membersPage") {
-          await loadCommunityData();
-          renderMemberTabs();
-          renderSelectedMember();
-        }
-        if (button.dataset.page === "concertsPage") {
-          await loadConcerts();
-          renderConcerts();
-          if (selectedConcertId) await renderConcertDetail(selectedConcertId);
-        }
-        if (button.dataset.page === "songRankingPage") {
-          await loadSongScores();
-          renderSongRanking();
-        }
-        if (button.dataset.page === "fansPage") {
-          await loadFanArea();
-          renderFanArea();
-        }
-      } catch (error) {
-        console.error(error);
-        alert("Errore: " + error.message);
-      }
-    });
-  });
-
-  /* LOGIN */
-  loginForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    const username = usernameInput.value.trim().toLowerCase();
-    const password = passwordInput.value;
-
-    if (!username) {
-      loginMessage.textContent = "Inserisci lo username.";
-      return;
-    }
-    if (password.length < 6) {
-      loginMessage.textContent = "La password deve contenere almeno 6 caratteri.";
-      return;
-    }
-
-    loginButton.disabled = true;
-    loginMessage.textContent = "Accesso in corso...";
-
-    try {
-      const { data: memberData, error: memberError } = await supabaseClient.rpc("check_member", { p_username: username });
-      if (memberError) throw memberError;
-      if (!memberData?.length) {
-        loginMessage.textContent = "Username non riconosciuto.";
-        return;
-      }
-
-      const member = memberData[0];
-      const email = `${username}@johnimolesti.app`;
-
-      if (!member.activated) {
-        loginMessage.textContent = "Primo accesso: creazione account...";
-        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email, password });
-
-        if (signUpError) {
-          const { error: recoveryError } = await supabaseClient.auth.signInWithPassword({ email, password });
-          if (recoveryError) throw signUpError;
-        } else if (!signUpData.session) {
-          loginMessage.textContent = "Account creato, ma Supabase richiede la conferma email.";
-          return;
-        }
-
-        const { error: claimError } = await supabaseClient.rpc("claim_member", { p_username: username });
-        if (claimError) throw claimError;
-      } else {
-        const { error: signInError } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (signInError) {
-          loginMessage.textContent = "Password errata.";
-          return;
-        }
-      }
-
-      loginMessage.textContent = "";
-      await startApp();
-    } catch (error) {
-      console.error(error);
-      loginMessage.textContent = error?.message || "Errore durante l'accesso.";
-    } finally {
-      loginButton.disabled = false;
-    }
-  });
-
-  async function startApp() {
-    const { data, error } = await supabaseClient.auth.getUser();
-    if (error) throw error;
-    if (!data.user) return showLogin();
-
-    currentUser = data.user;
-    const { data: profile, error: profileError } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
-    if (profileError) {
-      await supabaseClient.auth.signOut();
-      showLogin();
-      loginMessage.textContent = "Profilo utente non trovato.";
-      return;
-    }
-
-    currentProfile = profile;
-    document.getElementById("currentUser").textContent = profile.display_name;
-    document.getElementById("newSongButton").textContent = isEma() ? "+ AGGIUNGI" : "+ PROPONI";
-    document.getElementById("proposalSectionTitle").textContent = isEma() ? "PROPOSTE DA VALUTARE" : "LE MIE PROPOSTE";
-    document.getElementById("concertAdminToolbar").classList.toggle("hidden", !isEma());
-    document.getElementById("fanAdminPanel").classList.toggle("hidden", !isFanAdmin());
-
-    showApp();
-    await ensureDefaultSetlist();
-    await refreshCore();
-  }
-
-  async function ensureDefaultSetlist() {
-    const { data, error } = await supabaseClient.from("setlists").select("id").eq("owner_id", currentUser.id).eq("name", "Scaletta ideale").limit(1);
-    if (error) throw error;
-    if (data?.length) {
-      currentSetlistId = data[0].id;
-      return;
-    }
-
-    const { data: created, error: createError } = await supabaseClient.from("setlists").insert({ owner_id: currentUser.id, name: "Scaletta ideale" }).select("id").single();
-    if (createError) throw createError;
-    currentSetlistId = created.id;
-  }
-
-  async function loadSongs() {
-    const { data, error } = await supabaseClient.from("songs").select("*").order("created_at", { ascending: true });
-    if (error) throw error;
-    songs = data || [];
-  }
-
-  async function loadSongScores() {
-    const { data, error } = await supabaseClient.rpc("get_song_scores");
-    if (error) throw error;
-    songScores = data || [];
-  }
-
-  async function loadSetlistItems() {
-    const { data, error } = await supabaseClient.from("setlist_items").select("*").eq("setlist_id", currentSetlistId);
-    if (error) throw error;
-    setlistItems = data || [];
-  }
-
-  async function ensureInitialItems() {
-    await loadSetlistItems();
-    if (setlistItems.length) return;
-    const available = activeSongs();
-    if (!available.length) return;
-    const rows = available.map((song, index) => ({ setlist_id: currentSetlistId, song_id: song.id, position: index, included: true }));
-    const { error } = await supabaseClient.from("setlist_items").insert(rows);
-    if (error) throw error;
-  }
-
-  async function loadProfiles() {
-    const { data, error } = await supabaseClient.from("profiles").select("*");
-    if (error) throw error;
-    profiles = data || [];
-  }
-
-  async function loadProposals() {
-    const { data, error } = await supabaseClient.from("song_proposals").select("*").order("created_at", { ascending: false });
-    if (error) throw error;
-    proposals = data || [];
-    updateBadges();
-  }
-
-  async function refreshCore() {
-    await loadSongs();
-    await loadSongScores();
-    await ensureInitialItems();
-    await loadSetlistItems();
-    await loadProfiles();
-    await loadProposals();
-    renderMySetlist();
-    renderCatalog();
-    renderProposals();
-    renderSongRanking();
-  }
-
-  /* MY SETLIST */
-  function getItemsMap() {
-    return new Map(setlistItems.map(item => [item.song_id, item]));
-  }
-
-  function getIncludedSongs() {
-    const map = getItemsMap();
-    return activeSongs().filter(song => map.get(song.id)?.included).sort((a, b) => (map.get(a.id)?.position ?? 9999) - (map.get(b.id)?.position ?? 9999));
-  }
-
-  function getExcludedSongs() {
-    const map = getItemsMap();
-    return activeSongs().filter(song => !map.get(song.id)?.included).sort((a, b) => a.title.localeCompare(b.title, "it"));
-  }
-
-  function renderMySetlist() {
-    document.getElementById("mySetlistHeader").innerHTML = makeSongHeader();
-    setlistElement.innerHTML = "";
-    excludedElement.innerHTML = "";
-    const included = getIncludedSongs();
-    const excluded = getExcludedSongs();
-
-    included.forEach((song, index) => {
-      setlistElement.appendChild(createSongRow(song, index, {
-        draggable: true,
-        actions: [{ label: "×", title: "Escludi", onClick: () => setSongIncluded(song.id, false) }]
-      }));
-    });
-
-    excluded.forEach(song => {
-      excludedElement.appendChild(createSongRow(song, null, {
-        draggable: true,
-        excluded: true,
-        actions: [{ label: "+", title: "Inserisci", onClick: () => setSongIncluded(song.id, true) }]
-      }));
-    });
-
-    if (!included.length) setlistElement.innerHTML = '<div class="empty">Nessun brano in scaletta</div>';
-    if (!excluded.length) excludedElement.innerHTML = '<div class="empty">Nessun brano escluso</div>';
-    document.getElementById("setlistCounter").textContent = `${included.length} brani`;
-    document.getElementById("excludedCounter").textContent = `${excluded.length} brani`;
-  }
-
-  async function setSongIncluded(songId, included) {
-    const position = included ? getIncludedSongs().length : null;
-    const { error } = await supabaseClient.from("setlist_items").upsert({ setlist_id: currentSetlistId, song_id: songId, included, position });
-    if (error) return alert("Errore: " + error.message);
-    await loadSetlistItems();
-    renderMySetlist();
-  }
-
-  async function syncFromDOM() {
-    const includedIds = Array.from(setlistElement.querySelectorAll(".song-row")).map(el => el.dataset.id);
-    const excludedIds = Array.from(excludedElement.querySelectorAll(".song-row")).map(el => el.dataset.id);
-    const rows = [];
-    includedIds.forEach((songId, index) => rows.push({ setlist_id: currentSetlistId, song_id: songId, included: true, position: index }));
-    excludedIds.forEach(songId => rows.push({ setlist_id: currentSetlistId, song_id: songId, included: false, position: null }));
-    if (!rows.length) return;
-    const { error } = await supabaseClient.from("setlist_items").upsert(rows);
-    if (error) alert("Errore salvataggio: " + error.message);
-    await loadSetlistItems();
-    renderMySetlist();
-  }
-
-  new Sortable(setlistElement, { group: "songs", animation: 120, handle: ".drag-handle", onEnd: syncFromDOM });
-  new Sortable(excludedElement, { group: "songs", animation: 120, handle: ".drag-handle", onEnd: syncFromDOM });
-
-  /* SONGS & PROPOSALS */
-  document.getElementById("newSongForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    const input = document.getElementById("newSongTitle");
-    const title = input.value.trim();
-    if (!title) return;
-
-    if (isEma()) {
-      const { error } = await supabaseClient.from("songs").insert({ title });
-      if (error) return alert("Errore: " + error.message);
-    } else {
-      const { error } = await supabaseClient.from("song_proposals").insert({ proposed_by: currentUser.id, title });
-      if (error) return alert("Errore proposta: " + error.message);
-    }
-
-    input.value = "";
-    await refreshCore();
-  });
-
-  function renderCatalog() {
-    const container = document.getElementById("catalogList");
-    container.innerHTML = "";
-    const ordered = [...songs].sort((a, b) => a.title.localeCompare(b.title, "it"));
-
-    ordered.forEach(song => {
-      const row = document.createElement("div");
-      row.className = "list-row";
-      const main = document.createElement("div");
-      main.className = "list-main";
-      main.innerHTML = `<div class="list-title">${scoreBadge(song.id)} &nbsp;${escapeHtml(song.title)}</div><div class="small-info">${song.bpm ?? "—"} BPM · ${escapeHtml(keyLabel(song))} · Base: ${escapeHtml(song.base_artist || "—")} · Testo: ${escapeHtml(song.lyrics_artist || "—")}</div>`;
-      row.appendChild(main);
-
-      if (!song.active) {
-        const inactive = document.createElement("span");
-        inactive.className = "status draft";
-        inactive.textContent = "INATTIVA";
-        row.appendChild(inactive);
-      }
-
-      if (isEma()) {
-        const buttons = document.createElement("div");
-        buttons.className = "row-buttons";
-        const edit = document.createElement("button");
-        edit.type = "button"; edit.className = "small-button"; edit.textContent = "MODIFICA"; edit.addEventListener("click", () => openSongModal(song));
-        const remove = document.createElement("button");
-        remove.type = "button"; remove.className = "small-button danger"; remove.textContent = "ELIMINA"; remove.addEventListener("click", () => deleteOfficialSong(song));
-        buttons.append(edit, remove);
-        row.appendChild(buttons);
-      }
-      container.appendChild(row);
-    });
-
-    if (!ordered.length) container.innerHTML = '<div class="empty">Nessuna canzone</div>';
-    document.getElementById("catalogCounter").textContent = `${ordered.length} brani`;
-  }
-
-  function updateBadges() {
-    const proposalBadge = document.getElementById("proposalBadge");
-    const proposalCount = isEma() ? proposals.filter(p => p.status === "pending").length : 0;
-    proposalBadge.textContent = proposalCount;
-    proposalBadge.classList.toggle("hidden", !proposalCount);
-
-    const mergeBadge = document.getElementById("mergeBadge");
-    const mergeCount = isFanAdmin() ? mergeRequests.filter(r => r.status === "pending").length : 0;
-    mergeBadge.textContent = mergeCount;
-    mergeBadge.classList.toggle("hidden", !mergeCount);
-  }
-
-  function renderProposals() {
-    const container = document.getElementById("proposalList");
-    container.innerHTML = "";
-    const visible = [...proposals].sort((a,b) => (a.status === "pending" ? -1 : 0) - (b.status === "pending" ? -1 : 0) || new Date(b.created_at) - new Date(a.created_at));
-
-    visible.forEach(proposal => {
-      const row = document.createElement("div"); row.className = "list-row";
-      const proposer = getProfileById(proposal.proposed_by);
-      const main = document.createElement("div"); main.className = "list-main";
-      main.innerHTML = `<div class="list-title">${escapeHtml(proposal.title)}</div><div class="small-info">${proposer ? "Proposta da " + escapeHtml(proposer.display_name) : "Proposta"}${proposal.review_note ? " · " + escapeHtml(proposal.review_note) : ""}</div>`;
-      row.appendChild(main);
-      const status = document.createElement("span"); status.className = `status ${proposal.status}`; status.textContent = ({ pending:"IN ATTESA", approved:"APPROVATA", rejected:"RIFIUTATA" })[proposal.status]; row.appendChild(status);
-
-      const buttons = document.createElement("div"); buttons.className = "row-buttons";
-      if (isEma() && proposal.status === "pending") {
-        const approve = document.createElement("button"); approve.className = "small-button success"; approve.type="button"; approve.textContent="APPROVA"; approve.addEventListener("click", () => approveProposal(proposal.id));
-        const reject = document.createElement("button"); reject.className = "small-button danger"; reject.type="button"; reject.textContent="RIFIUTA"; reject.addEventListener("click", () => rejectProposal(proposal.id));
-        buttons.append(approve, reject);
-      } else if (!isEma() && proposal.status === "pending") {
-        const edit = document.createElement("button"); edit.className="small-button"; edit.type="button"; edit.textContent="MODIFICA"; edit.addEventListener("click", () => editProposal(proposal));
-        const remove = document.createElement("button"); remove.className="small-button danger"; remove.type="button"; remove.textContent="RITIRA"; remove.addEventListener("click", () => deleteProposal(proposal));
-        buttons.append(edit, remove);
-      }
-      if (buttons.children.length) row.appendChild(buttons);
-      container.appendChild(row);
-    });
-
-    if (!visible.length) container.innerHTML = '<div class="empty">Nessuna proposta</div>';
-    document.getElementById("proposalCounter").textContent = `${visible.length} proposte`;
-  }
-
-  async function approveProposal(id) {
-    const { error } = await supabaseClient.rpc("approve_song_proposal", { p_proposal_id: id });
-    if (error) return alert("Errore: " + error.message);
-    await refreshCore();
-  }
-
-  async function rejectProposal(id) {
-    const note = prompt("Motivo del rifiuto (facoltativo):", "");
-    if (note === null) return;
-    const { error } = await supabaseClient.rpc("reject_song_proposal", { p_proposal_id: id, p_note: note });
-    if (error) return alert("Errore: " + error.message);
-    await refreshCore();
-  }
-
-  async function editProposal(proposal) {
-    const title = prompt("Modifica proposta:", proposal.title);
-    if (title === null || !title.trim()) return;
-    const { error } = await supabaseClient.from("song_proposals").update({ title: title.trim() }).eq("id", proposal.id);
-    if (error) return alert("Errore: " + error.message);
-    await loadProposals(); renderProposals();
-  }
-
-  async function deleteProposal(proposal) {
-    if (!confirm(`Ritirare la proposta "${proposal.title}"?`)) return;
-    const { error } = await supabaseClient.from("song_proposals").delete().eq("id", proposal.id);
-    if (error) return alert("Errore: " + error.message);
-    await loadProposals(); renderProposals();
-  }
-
-  /* SONG EDIT MODAL */
-  function openSongModal(song) {
-    if (!isEma()) return;
-    document.getElementById("editSongId").value = song.id;
-    document.getElementById("editTitle").value = song.title || "";
-    document.getElementById("editBaseTitle").value = song.base_title || "";
-    document.getElementById("editBaseArtist").value = song.base_artist || "";
-    document.getElementById("editBaseYear").value = song.base_year || "";
-    document.getElementById("editBpm").value = song.bpm || "";
-    document.getElementById("editKeyNote").value = song.key_note || "";
-    document.getElementById("editKeyMode").value = song.key_mode || "";
-    document.getElementById("editBasePopularity").value = song.base_popularity ?? "";
-    document.getElementById("editLyricsTitle").value = song.lyrics_title || "";
-    document.getElementById("editLyricsArtist").value = song.lyrics_artist || "";
-    document.getElementById("editLyricsYear").value = song.lyrics_year || "";
-    document.getElementById("editLyricsPopularity").value = song.lyrics_popularity ?? "";
-    document.getElementById("editDuration").value = song.duration_seconds || "";
-    document.getElementById("editGeneralRating").value = song.general_rating ?? "";
-    document.getElementById("editEngagement").value = song.engagement ?? "";
-    document.getElementById("editCuriosity").value = song.curiosity_score ?? "";
-    document.getElementById("editExplosiveness").value = song.explosiveness_score ?? "";
-    document.getElementById("editTransition").value = song.transition_score ?? "";
-    document.getElementById("editNotes").value = song.notes || "";
-    document.getElementById("editActive").checked = Boolean(song.active);
-    document.getElementById("editCanOpen").checked = Boolean(song.can_open);
-    document.getElementById("editIsBridge").checked = Boolean(song.is_bridge);
-    document.getElementById("editCanClose").checked = Boolean(song.can_close);
-    document.getElementById("songModal").hidden = false;
-    document.getElementById("songModal").classList.add("open");
-  }
-
-  function closeSongModal() {
-    const modal = document.getElementById("songModal");
-    modal.classList.remove("open");
-    modal.hidden = true;
-  }
-  document.getElementById("closeSongModal").addEventListener("click", closeSongModal);
-  document.getElementById("cancelSongEdit").addEventListener("click", closeSongModal);
-
-  document.getElementById("songEditForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!isEma()) return;
-    const id = document.getElementById("editSongId").value;
-    const payload = {
-      title: document.getElementById("editTitle").value.trim(),
-      base_title: emptyToNull(document.getElementById("editBaseTitle").value),
-      base_artist: emptyToNull(document.getElementById("editBaseArtist").value),
-      base_year: numberOrNull(document.getElementById("editBaseYear").value),
-      bpm: numberOrNull(document.getElementById("editBpm").value),
-      key_note: emptyToNull(document.getElementById("editKeyNote").value),
-      key_mode: emptyToNull(document.getElementById("editKeyMode").value),
-      base_popularity: numberOrNull(document.getElementById("editBasePopularity").value),
-      lyrics_title: emptyToNull(document.getElementById("editLyricsTitle").value),
-      lyrics_artist: emptyToNull(document.getElementById("editLyricsArtist").value),
-      lyrics_year: numberOrNull(document.getElementById("editLyricsYear").value),
-      lyrics_popularity: numberOrNull(document.getElementById("editLyricsPopularity").value),
-      duration_seconds: numberOrNull(document.getElementById("editDuration").value),
-      general_rating: numberOrNull(document.getElementById("editGeneralRating").value),
-      engagement: numberOrNull(document.getElementById("editEngagement").value),
-      curiosity_score: numberOrNull(document.getElementById("editCuriosity").value),
-      explosiveness_score: numberOrNull(document.getElementById("editExplosiveness").value),
-      transition_score: numberOrNull(document.getElementById("editTransition").value),
-      notes: emptyToNull(document.getElementById("editNotes").value),
-      active: document.getElementById("editActive").checked,
-      can_open: document.getElementById("editCanOpen").checked,
-      is_bridge: document.getElementById("editIsBridge").checked,
-      can_close: document.getElementById("editCanClose").checked,
-      updated_at: new Date().toISOString()
-    };
-
-    const { error } = await supabaseClient.from("songs").update(payload).eq("id", id);
-    if (error) return alert("Errore: " + error.message);
-    closeSongModal();
-    await refreshCore();
-  });
-
-  async function deleteOfficialSong(song) {
-    if (!confirm(`Eliminare definitivamente "${song.title}" dal catalogo di tutti?`)) return;
-    const { error } = await supabaseClient.from("songs").delete().eq("id", song.id);
-    if (error) return alert("Errore: " + error.message);
-    await refreshCore();
-  }
-
-  /* COMMUNITY */
-  async function loadCommunityData() {
-    await loadProfiles();
-    const { data: setlistData, error: setlistError } = await supabaseClient.from("setlists").select("*").eq("name", "Scaletta ideale");
-    if (setlistError) throw setlistError;
-    idealSetlists = setlistData || [];
-    if (!idealSetlists.length) { communityItems = []; return; }
-    const ids = idealSetlists.map(item => item.id);
-    const { data: itemData, error: itemError } = await supabaseClient.from("setlist_items").select("*").in("setlist_id", ids);
-    if (itemError) throw itemError;
-    communityItems = itemData || [];
-  }
-
-  function getMemberData(username) {
-    const profile = profiles.find(item => item.username?.toLowerCase() === username.toLowerCase());
-    if (!profile) return null;
-    const setlist = idealSetlists.find(item => item.owner_id === profile.id);
-    if (!setlist) return { profile, setlist: null, items: [] };
-    return { profile, setlist, items: communityItems.filter(item => item.setlist_id === setlist.id) };
-  }
-
-  function renderMemberTabs() {
-    const container = document.getElementById("memberTabs");
-    container.innerHTML = "";
-    if (!selectedMemberUsername) selectedMemberUsername = currentProfile.username;
-
-    BAND_MEMBERS.forEach(member => {
-      const data = getMemberData(member.username);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "member-tab";
-      if (member.username === selectedMemberUsername) button.classList.add("active");
-      if (!data?.setlist) button.classList.add("unavailable");
-      button.textContent = member.displayName;
-      button.addEventListener("click", () => { selectedMemberUsername = member.username; renderMemberTabs(); renderSelectedMember(); });
-      container.appendChild(button);
-    });
-  }
-
-  function renderSelectedMember() {
-    const container = document.getElementById("memberSetlist");
-    const title = document.getElementById("memberSetlistTitle");
-    const counter = document.getElementById("memberSetlistCounter");
-    document.getElementById("memberSetlistHeader").innerHTML = makeSongHeader();
-    const info = BAND_MEMBERS.find(m => m.username === selectedMemberUsername);
-    title.textContent = `SCALETTA DI ${(info?.displayName || "").toUpperCase()}`;
-    const data = getMemberData(selectedMemberUsername);
-    if (!data?.setlist) {
-      container.innerHTML = '<div class="empty">Questo membro non ha ancora attivato la propria scaletta.</div>';
-      counter.textContent = "";
-      return;
-    }
-
-    const map = new Map(data.items.map(item => [item.song_id, item]));
-    const included = activeSongs().filter(song => map.get(song.id)?.included).sort((a,b) => (map.get(a.id)?.position ?? 9999) - (map.get(b.id)?.position ?? 9999));
-    const excluded = activeSongs().filter(song => !map.get(song.id)?.included).sort((a,b) => a.title.localeCompare(b.title,"it"));
-    container.innerHTML = "";
-    included.forEach((song,index) => container.appendChild(createSongRow(song,index)));
-    excluded.forEach(song => container.appendChild(createSongRow(song,null,{excluded:true})));
-    if (!included.length && !excluded.length) container.innerHTML = '<div class="empty">Nessun brano.</div>';
-    counter.textContent = `${included.length} incluse · ${excluded.length} escluse`;
-  }
-
-  /* ALGORITHM */
-  function buildMemberStats() {
-    const members = BAND_MEMBERS.map(m => getMemberData(m.username)).filter(d => d?.setlist);
-    const songStats = new Map();
-    const directPairs = new Map();
-    const unorderedPairs = new Map();
-
-    activeSongs().forEach(song => songStats.set(song.id, { includedCount: 0, rankTotal: 0, rankSamples: 0 }));
-
-    members.forEach(member => {
-      const includedItems = member.items.filter(i => i.included).sort((a,b) => (a.position ?? 9999) - (b.position ?? 9999));
-      const n = Math.max(includedItems.length, 1);
-      includedItems.forEach((item, index) => {
-        const stat = songStats.get(item.song_id);
-        if (!stat) return;
-        stat.includedCount += 1;
-        const rankNorm = n <= 1 ? 100 : 100 * (1 - index / (n - 1));
-        stat.rankTotal += rankNorm;
-        stat.rankSamples += 1;
-      });
-
-      for (let i = 0; i < includedItems.length - 1; i++) {
-        const a = includedItems[i].song_id;
-        const b = includedItems[i+1].song_id;
-        const directKey = `${a}|${b}`;
-        directPairs.set(directKey, (directPairs.get(directKey) || 0) + 1);
-        const unorderedKey = [a,b].sort().join("|");
-        unorderedPairs.set(unorderedKey, (unorderedPairs.get(unorderedKey) || 0) + 1);
-      }
-    });
-
-    songStats.forEach(stat => {
-      const inclusionPct = members.length ? 100 * stat.includedCount / members.length : 100;
-      const rankAvg = stat.rankSamples ? stat.rankTotal / stat.rankSamples : 0;
-      stat.inclusionPct = inclusionPct;
-      stat.rankAvg = rankAvg;
-      stat.memberScore = 0.70 * inclusionPct + 0.30 * rankAvg;
-    });
-
-    return { members, songStats, directPairs, unorderedPairs };
-  }
-
-  function pairBonus(previous, candidate, stats) {
-    if (!previous) return 0;
-    const direct = stats.directPairs.get(`${previous.id}|${candidate.id}`) || 0;
-    const unordered = stats.unorderedPairs.get([previous.id,candidate.id].sort().join("|")) || 0;
-    return direct * 8 + Math.max(0, unordered - direct) * 3;
-  }
-
-  function artistPenalty(sequence, candidate) {
-    let penalty = 0;
-    const base = normalizeArtist(candidate.base_artist);
-    const lyrics = normalizeArtist(candidate.lyrics_artist);
-    const prev1 = sequence.at(-1);
-    const prev2 = sequence.at(-2);
-    const prev3 = sequence.at(-3);
-
-    if (prev1) {
-      if (base && base === normalizeArtist(prev1.base_artist)) penalty += 18;
-      if (lyrics && lyrics === normalizeArtist(prev1.lyrics_artist)) penalty += 18;
-    }
-    if (prev2) {
-      if (base && base === normalizeArtist(prev2.base_artist)) penalty += 7;
-      if (lyrics && lyrics === normalizeArtist(prev2.lyrics_artist)) penalty += 7;
-    }
-    if (prev3) {
-      if (base && base === normalizeArtist(prev3.base_artist)) penalty += 3;
-      if (lyrics && lyrics === normalizeArtist(prev3.lyrics_artist)) penalty += 3;
-    }
-    return penalty;
-  }
-
-  function musicalTransitionBonus(previous, candidate) {
-    if (!previous) return 0;
-    let bonus = 0;
-    const a = Number(previous.bpm);
-    const b = Number(candidate.bpm);
-    if (Number.isFinite(a) && Number.isFinite(b)) {
-      const diff = Math.abs(a-b);
-      if (diff <= 8) bonus += 3;
-      else if (diff <= 18) bonus += 1.5;
-      else if (diff >= 55) bonus -= 2;
-    }
-    if (previous.key_note && candidate.key_note && previous.key_note.toLowerCase() === candidate.key_note.toLowerCase()) {
-      bonus += previous.key_mode === candidate.key_mode ? 2 : 1;
-    }
-    return bonus;
-  }
-
-  function calculateAlgorithm() {
-    const stats = buildMemberStats();
-    const memberCount = stats.members.length;
-    const thresholdCount = memberCount ? Math.max(1, Math.ceil(memberCount * 0.5)) : 1;
-
-    const candidates = [];
-    const excluded = [];
-
-    activeSongs().forEach(song => {
-      const s = stats.songStats.get(song.id) || { includedCount: 0, inclusionPct: 100, memberScore: 70 };
-      const score = songScore(song.id);
-      const include = memberCount === 0 || s.includedCount >= thresholdCount || (s.inclusionPct >= 40 && score >= 90);
-      (include ? candidates : excluded).push(song);
-    });
-
-    const scoresSorted = candidates.map(s => songScore(s.id)).sort((a,b) => a-b);
-    const topThreshold = scoresSorted.length ? scoresSorted[Math.max(0, Math.floor(scoresSorted.length * 0.80))] : 90;
-    const remaining = [...candidates];
-    const sequence = [];
-    let bridgeUsed = false;
-
-    while (remaining.length) {
-      const i = sequence.length;
-      const n = candidates.length;
-      const p = n <= 1 ? 1 : i / (n - 1);
-      const previous = sequence.at(-1);
-
-      let bestIndex = 0;
-      let bestValue = -Infinity;
-
-      remaining.forEach((song, idx) => {
-        const stat = stats.songStats.get(song.id) || { memberScore: 70, inclusionPct: 100 };
-        const strength = songScore(song.id);
-        const curiosity = Number(song.curiosity_score ?? 5);
-        const explosive = Number(song.explosiveness_score ?? 5);
-        const transition = Number(song.transition_score ?? 5);
-        let value = 0.55 * strength + 0.45 * stat.memberScore;
-
-        if (i === 0) {
-          value += curiosity * 4;
-          if (song.can_open) value += 16;
-          if (strength >= topThreshold && !song.can_open) value -= 10;
-          if (strength > 96 && !song.can_open) value -= 8;
-          value -= Math.abs(explosive - 7) * 1.2;
-        } else if (p < 0.25) {
-          value += curiosity * 2.2;
-          value -= Math.abs(explosive - 6.2) * 1.1;
-          if (strength >= topThreshold) value -= 12;
-        } else if (p < 0.58) {
-          value += strength * 0.08;
-          value -= Math.abs(explosive - 6.8) * 0.7;
-        } else if (p < 0.76) {
-          value += transition * 2.3;
-          if (song.is_bridge && !bridgeUsed) value += 18;
-          if (song.is_bridge && bridgeUsed) value += 5;
-        } else {
-          const finalProgress = (p - 0.76) / 0.24;
-          value += explosive * (2.2 + 2.8 * finalProgress);
-          value += strength * (0.12 + 0.28 * finalProgress);
-          if (song.can_close) value += p > 0.92 ? 24 : 8;
-          if (strength >= topThreshold) value += 7 + 14 * finalProgress;
-          if (song.is_bridge) value -= 6;
-        }
-
-        if (p < 0.55 && strength >= topThreshold && !(i === 0 && song.can_open)) value -= 6;
-        value += pairBonus(previous, song, stats);
-        value += musicalTransitionBonus(previous, song);
-        value -= artistPenalty(sequence, song);
-
-        if (value > bestValue || (value === bestValue && song.title.localeCompare(remaining[bestIndex].title, "it") < 0)) {
-          bestValue = value;
-          bestIndex = idx;
-        }
-      });
-
-      const chosen = remaining.splice(bestIndex, 1)[0];
-      if (chosen.is_bridge && sequence.length / Math.max(1,candidates.length-1) >= .50) bridgeUsed = true;
-      sequence.push(chosen);
-    }
-
-    const totalDuration = sequence.reduce((sum, song) => sum + (Number(song.duration_seconds) || 0), 0);
-    const avgScore = sequence.length ? sequence.reduce((sum, song) => sum + songScore(song.id), 0) / sequence.length : 0;
-    const pairMatches = sequence.slice(1).reduce((sum, song, idx) => {
-      const prev = sequence[idx];
-      const count = stats.directPairs.get(`${prev.id}|${song.id}`) || 0;
-      return sum + (count >= 2 ? 1 : 0);
-    }, 0);
-
-    algorithmResult = {
-      included: sequence,
-      excluded: excluded.sort((a,b) => songScore(b.id) - songScore(a.id)),
-      stats: { memberCount, totalDuration, avgScore, pairMatches, directPairs: stats.directPairs }
-    };
-  }
-
-  function renderAlgorithm() {
-    document.getElementById("algorithmHeader").innerHTML = makeSongHeader();
-    const list = document.getElementById("algorithmList");
-    const excludedBox = document.getElementById("algorithmExcluded");
-    const summary = document.getElementById("proposalSummary");
-    list.innerHTML = "";
-    excludedBox.innerHTML = "";
-
-    algorithmResult.included.forEach((song,index) => {
-      const p = algorithmResult.included.length <= 1 ? 1 : index / (algorithmResult.included.length - 1);
-      const tags = [];
-      if (index === 0) tags.push({ text:"INTRO", className:"accent" });
-      if (song.is_bridge && p >= .48 && p <= .82) tags.push({ text:"STACCO", className:"bridge" });
-      if (p >= .80) tags.push({ text:"FINALE", className:"final" });
-      if (index > 0) {
-        const prev = algorithmResult.included[index-1];
-        const pairCount = algorithmResult.stats.directPairs?.get(`${prev.id}|${song.id}`) || 0;
-        if (pairCount >= 2) tags.push({ text:`COPPIA ${pairCount}×`, className:"accent" });
-      }
-      list.appendChild(createSongRow(song,index,{tags}));
-    });
-
-    algorithmResult.excluded.forEach(song => excludedBox.appendChild(createSongRow(song,null,{excluded:true})));
-    if (!algorithmResult.included.length) list.innerHTML = '<div class="empty">Nessun brano candidato.</div>';
-    if (!algorithmResult.excluded.length) excludedBox.innerHTML = '<div class="empty">Nessuna esclusione suggerita.</div>';
-
-    document.getElementById("algorithmCounter").textContent = `${algorithmResult.included.length} brani`;
-    document.getElementById("algorithmExcludedCounter").textContent = `${algorithmResult.excluded.length} brani`;
-    summary.innerHTML = `
-      <div class="summary-card"><div class="summary-label">Membri considerati</div><div class="summary-value">${algorithmResult.stats.memberCount || 0}</div></div>
-      <div class="summary-card"><div class="summary-label">Score medio</div><div class="summary-value">${(algorithmResult.stats.avgScore || 0).toFixed(1)}</div></div>
-      <div class="summary-card"><div class="summary-label">Durata nota</div><div class="summary-value">${formatDuration(algorithmResult.stats.totalDuration)}</div></div>
-      <div class="summary-card"><div class="summary-label">Sequenze condivise mantenute</div><div class="summary-value">${algorithmResult.stats.pairMatches || 0}</div></div>`;
-  }
-
-  /* SONG RANKING */
-  function renderSongRanking() {
-    const container = document.getElementById("songRankingList");
-    container.innerHTML = `
-      <div class="ranking-row header-row"><div>#</div><div>Score</div><div>Brano</div><div>Fan</div><div>Band</div><div>Voti fan</div></div>`;
-
-    [...songScores].sort((a,b) => Number(b.score) - Number(a.score)).forEach((row,index) => {
-      const div = document.createElement("div");
-      div.className = "ranking-row";
-      div.innerHTML = `
-        <div class="rank">${index+1}</div>
-        <div>${scoreBadge(row.song_id)}</div>
-        <div class="list-title">${escapeHtml(row.title)}</div>
-        <div>${row.fan_score == null ? "—" : Number(row.fan_score).toFixed(1)}</div>
-        <div>${row.internal_score == null ? "—" : Number(row.internal_score).toFixed(1)}</div>
-        <div>${row.fan_vote_count ?? 0}</div>`;
-      container.appendChild(div);
-    });
-
-    document.getElementById("songRankingCounter").textContent = `${songScores.length} brani`;
-  }
-
-  /* CONCERTS */
-  async function loadConcerts() {
-    const { data, error } = await supabaseClient.from("concerts").select("*").order("concert_date", { ascending: false });
-    if (error) throw error;
-    concerts = data || [];
-    if (!selectedConcertId && concerts.length) selectedConcertId = concerts[0].id;
-  }
-
-  function renderConcerts() {
-    const container = document.getElementById("concertList");
-    container.innerHTML = "";
-    concerts.forEach(concert => {
-      const row = document.createElement("div");
-      row.className = `list-row concert-row${concert.id === selectedConcertId ? " selected" : ""}`;
-      const main = document.createElement("div"); main.className = "list-main";
-      main.innerHTML = `<div class="list-title">${escapeHtml(concert.name)}</div><div class="small-info">${formatDate(concert.concert_date)}${concert.venue ? " · " + escapeHtml(concert.venue) : ""}${concert.city ? " · " + escapeHtml(concert.city) : ""}</div>`;
-      const status = document.createElement("span"); status.className = `status ${concert.status}`; status.textContent = ({draft:"BOZZA", confirmed:"CONFERMATO", completed:"CONCLUSO"})[concert.status] || concert.status;
-      row.append(main,status);
-      row.addEventListener("click", async () => { selectedConcertId = concert.id; renderConcerts(); await renderConcertDetail(concert.id); });
-      container.appendChild(row);
-    });
-    if (!concerts.length) container.innerHTML = '<div class="empty">Nessun concerto.</div>';
-    document.getElementById("concertCounter").textContent = `${concerts.length} concerti`;
-  }
-
-  document.getElementById("newConcertButton").addEventListener("click", () => openConcertModal(null));
-  document.getElementById("closeConcertModal").addEventListener("click", closeConcertModal);
-  document.getElementById("cancelConcertEdit").addEventListener("click", closeConcertModal);
-
-  function openConcertModal(concert) {
-    if (!isEma()) return;
-    document.getElementById("concertModalTitle").textContent = concert ? "Modifica concerto" : "Nuovo concerto";
-    document.getElementById("editConcertId").value = concert?.id || "";
-    document.getElementById("concertName").value = concert?.name || "";
-    document.getElementById("concertDate").value = concert?.concert_date || "";
-    document.getElementById("concertStatus").value = concert?.status || "draft";
-    document.getElementById("concertVenue").value = concert?.venue || "";
-    document.getElementById("concertCity").value = concert?.city || "";
-    document.getElementById("concertVotingOpen").checked = Boolean(concert?.fan_voting_open);
-    document.getElementById("concertModal").hidden = false;
-    document.getElementById("concertModal").classList.add("open");
-  }
-
-  function closeConcertModal() {
-    const modal = document.getElementById("concertModal");
-    modal.classList.remove("open");
-    modal.hidden = true;
-  }
-
-  document.getElementById("concertForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!isEma()) return;
-    const id = document.getElementById("editConcertId").value;
-    const payload = {
-      name: document.getElementById("concertName").value.trim(),
-      concert_date: document.getElementById("concertDate").value,
-      venue: emptyToNull(document.getElementById("concertVenue").value),
-      city: emptyToNull(document.getElementById("concertCity").value),
-      status: document.getElementById("concertStatus").value,
-      fan_voting_open: document.getElementById("concertVotingOpen").checked
-    };
-
-    let error;
-    if (id) ({ error } = await supabaseClient.from("concerts").update(payload).eq("id", id));
-    else {
-      const result = await supabaseClient.from("concerts").insert(payload).select("id").single();
-      error = result.error;
-      if (!error) selectedConcertId = result.data.id;
-    }
-    if (error) return alert("Errore: " + error.message);
-    closeConcertModal();
-    await loadConcerts(); renderConcerts();
-    if (selectedConcertId) await renderConcertDetail(selectedConcertId);
-  });
-
-  async function getConcertSetlist(concertId) {
-    const { data, error } = await supabaseClient.from("concert_setlist_items").select("*").eq("concert_id", concertId).order("position", { ascending: true });
-    if (error) throw error;
-    return data || [];
-  }
-
-  async function getConcertFanAverages(concertId) {
-    const { data, error } = await supabaseClient.rpc("get_concert_fan_averages", { p_concert_id: concertId });
-    if (error) throw error;
-    return data || [];
-  }
-
-  async function renderConcertDetail(concertId) {
-    const concert = concerts.find(c => c.id === concertId);
-    const box = document.getElementById("concertDetail");
-    if (!concert) { box.innerHTML = '<div class="empty">Concerto non trovato.</div>'; return; }
-    document.getElementById("concertDetailTitle").textContent = concert.name.toUpperCase();
-
-    const items = await getConcertSetlist(concertId);
-    const fanAverages = await getConcertFanAverages(concertId);
-    const averageMap = new Map(fanAverages.map(a => [a.song_id, a]));
-    const orderedSongs = items.map(item => songs.find(s => s.id === item.song_id)).filter(Boolean);
-    const totalDuration = orderedSongs.reduce((sum,s) => sum + (Number(s.duration_seconds)||0), 0);
-
-    box.innerHTML = "";
-    const meta = document.createElement("div"); meta.className = "concert-meta";
-    meta.innerHTML = `<strong>${formatDate(concert.concert_date)}</strong>${concert.venue ? `<span>${escapeHtml(concert.venue)}</span>` : ""}${concert.city ? `<span>${escapeHtml(concert.city)}</span>` : ""}<span>Durata nota: ${formatDuration(totalDuration)}</span><span>Fan voting: ${concert.fan_voting_open ? "APERTO" : "chiuso"}</span>`;
-    box.appendChild(meta);
-
-    const buttons = document.createElement("div"); buttons.className = "toolbar";
-    const printButton = document.createElement("button"); printButton.type="button"; printButton.className="secondary"; printButton.textContent="STAMPA / PDF"; printButton.addEventListener("click", () => printConcert(concert, orderedSongs)); buttons.appendChild(printButton);
-
-    if (isEma()) {
-      const edit = document.createElement("button"); edit.type="button"; edit.className="secondary"; edit.textContent="MODIFICA CONCERTO"; edit.addEventListener("click", () => openConcertModal(concert));
-      const useProposal = document.createElement("button"); useProposal.type="button"; useProposal.textContent="USA PROPOSTA AUTOMATICA"; useProposal.addEventListener("click", () => useAlgorithmForConcert(concert.id));
-      buttons.prepend(edit, useProposal);
-    }
-    box.appendChild(buttons);
-
-    const header = document.createElement("div"); header.innerHTML = makeSongHeader(); box.appendChild(header);
-    const list = document.createElement("div"); list.className="song-list"; list.id="concertSetlistLive";
-    orderedSongs.forEach((song,index) => {
-      const avg = averageMap.get(song.id);
-      const row = createSongRow(song,index,{ draggable:isEma() });
-      if (avg?.molesti_votes) {
-        const title = row.querySelector(".song-title");
-        const fan = document.createElement("span"); fan.className="sequence-tag bridge"; fan.textContent=`Fan ${Number(avg.molesti_average).toFixed(1)} (${avg.molesti_votes})`; title.appendChild(fan);
-      }
-      list.appendChild(row);
-    });
-    if (!orderedSongs.length) list.innerHTML='<div class="empty">Nessuna scaletta confermata per questo concerto.</div>';
-    box.appendChild(list);
-    document.getElementById("concertDetailCounter").textContent = `${orderedSongs.length} brani`;
-
-    if (concertSortable) { concertSortable.destroy(); concertSortable = null; }
-    if (isEma() && orderedSongs.length) {
-      concertSortable = new Sortable(list,{animation:120,handle:".drag-handle",onEnd:() => saveConcertOrder(concert.id,list)});
-    }
-  }
-
-  async function useAlgorithmForConcert(concertId) {
-    await loadCommunityData();
-    calculateAlgorithm();
-    if (!algorithmResult.included.length) return alert("La proposta automatica è vuota.");
-    if (!confirm("Sostituire la scaletta del concerto con la proposta automatica attuale?")) return;
-
-    const { error: deleteError } = await supabaseClient.from("concert_setlist_items").delete().eq("concert_id", concertId);
-    if (deleteError) return alert("Errore: " + deleteError.message);
-    const rows = algorithmResult.included.map((song,index) => ({ concert_id: concertId, song_id: song.id, position:index }));
-    const { error } = await supabaseClient.from("concert_setlist_items").insert(rows);
-    if (error) return alert("Errore: " + error.message);
-    await renderConcertDetail(concertId);
-  }
-
-  async function saveConcertOrder(concertId, list) {
-    const ids = Array.from(list.querySelectorAll(".song-row")).map(el => el.dataset.id);
-    const rows = ids.map((songId,index) => ({ concert_id: concertId, song_id: songId, position:index }));
-    const { error } = await supabaseClient.from("concert_setlist_items").upsert(rows);
-    if (error) alert("Errore: " + error.message);
-    await renderConcertDetail(concertId);
-  }
-
-  function printConcert(concert, orderedSongs) {
-    const totalDuration = orderedSongs.reduce((sum,s) => sum + (Number(s.duration_seconds)||0), 0);
-    const rows = orderedSongs.map((song,index) => `<tr><td>${index+1}</td><td><strong>${escapeHtml(song.title)}</strong></td><td>${song.bpm ?? "—"}</td><td>${escapeHtml(keyLabel(song))}</td><td>${escapeHtml(song.base_artist || "—")}</td><td>${escapeHtml(song.lyrics_artist || "—")}</td></tr>`).join("");
-    const w = window.open("", "_blank");
-    if (!w) return alert("Il browser ha bloccato la finestra di stampa.");
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(concert.name)}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{margin:0 0 4px}p{margin:4px 0 14px;color:#555}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px;border-bottom:1px solid #ddd;text-align:left}th{font-size:10px;text-transform:uppercase;color:#666}@media print{button{display:none}}</style></head><body><h1>John & i Molesti</h1><h2>${escapeHtml(concert.name)}</h2><p>${formatDate(concert.concert_date)}${concert.venue ? " · "+escapeHtml(concert.venue):""}${concert.city ? " · "+escapeHtml(concert.city):""} · Durata nota: ${formatDuration(totalDuration)}</p><table><thead><tr><th>#</th><th>Brano</th><th>BPM</th><th>Key</th><th>Base</th><th>Testo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
-    w.document.close();
-  }
-
-  /* FAN AREA */
-  async function loadFanArea() {
-    const { data: rankingData, error: rankingError } = await supabaseClient.rpc("get_fan_ranking");
-    if (rankingError) throw rankingError;
-    fanRanking = rankingData || [];
-
-    if (isFanAdmin()) {
-      const [{ data: requestData, error: requestError }, { data: fanData, error: fanError }] = await Promise.all([
-        supabaseClient.from("fan_merge_requests").select("*").eq("status","pending").order("created_at",{ascending:true}),
-        supabaseClient.from("fans").select("id,display_name,nickname,merged_into").is("merged_into", null)
-      ]);
-      if (requestError) throw requestError;
-      if (fanError) throw fanError;
-      mergeRequests = requestData || [];
-      adminFans = fanData || [];
-    } else {
-      mergeRequests = [];
-      adminFans = [];
-    }
-    updateBadges();
-  }
-
-  function renderFanArea() {
-    const rankingBox = document.getElementById("fanRankingList");
-    rankingBox.innerHTML = "";
-    fanRanking.forEach(row => {
-      const div = document.createElement("div"); div.className="list-row";
-      div.innerHTML = `<div class="rank" style="width:28px">${row.ranking_position}</div><div class="list-main"><div class="list-title">${escapeHtml(row.fan_name)}</div><div class="small-info">Fan dal ${formatDate(row.fan_since)} · ${row.attendance_count} presenze · ${row.rated_song_count} brani votati</div></div><strong>${row.points} pt</strong>`;
-      rankingBox.appendChild(div);
-    });
-    if (!fanRanking.length) rankingBox.innerHTML='<div class="empty">Nessun fan in classifica.</div>';
-    document.getElementById("fanRankingCounter").textContent=`${fanRanking.length} fan`;
-
-    if (isFanAdmin()) renderMergeRequests();
-  }
-
-  function fanLabel(id) {
-    const rank = fanRanking.find(f => f.fan_id === id);
-    if (rank) return `${rank.fan_name} — fan dal ${formatDate(rank.fan_since)}`;
-    const fan = adminFans.find(f => f.id === id);
-    return fan ? (fan.nickname || fan.display_name) : "Profilo sconosciuto";
-  }
-
-  function renderMergeRequests() {
-    const box = document.getElementById("mergeRequestList");
-    box.innerHTML="";
-    mergeRequests.forEach(request => {
-      const row=document.createElement("div"); row.className="list-row";
-      const main=document.createElement("div"); main.className="list-main";
-      main.innerHTML=`<div class="list-title">${escapeHtml(request.requested_nickname)}</div><div class="small-info">Nuovo profilo: ${escapeHtml(fanLabel(request.requester_fan_id))}<br>Propone: ${escapeHtml(fanLabel(request.suggested_fan_id))}</div>`;
-      const buttons=document.createElement("div"); buttons.className="row-buttons";
-      const approve=document.createElement("button"); approve.type="button"; approve.className="small-button success"; approve.textContent="UNIFICA"; approve.addEventListener("click",()=>approveMergeRequest(request));
-      const reject=document.createElement("button"); reject.type="button"; reject.className="small-button danger"; reject.textContent="RIFIUTA"; reject.addEventListener("click",()=>rejectMergeRequest(request));
-      buttons.append(approve,reject); row.append(main,buttons); box.appendChild(row);
-    });
-    if(!mergeRequests.length) box.innerHTML='<div class="empty">Nessuna richiesta.</div>';
-    document.getElementById("mergeRequestCounter").textContent=`${mergeRequests.length} richieste`;
-  }
-
-  async function approveMergeRequest(request) {
-    const options = adminFans.filter(f => f.id !== request.requester_fan_id).map(f => `${f.id} | ${f.nickname || f.display_name}`).join("\n");
-    const suggested = request.suggested_fan_id || "";
-    const targetId = prompt(`ID del profilo da mantenere.\nSuggerito: ${fanLabel(suggested)}\n\nProfili disponibili:\n${options}`, suggested);
-    if (targetId === null || !targetId.trim()) return;
-    const nickname = prompt("Nickname finale univoco:", request.requested_nickname || fanLabel(targetId.trim()).split(" — ")[0]);
-    if (nickname === null || !nickname.trim()) return;
-    const { error } = await supabaseClient.rpc("merge_fans", {
-      p_source_fan_id: request.requester_fan_id,
-      p_target_fan_id: targetId.trim(),
-      p_final_nickname: nickname.trim(),
-      p_request_id: request.id
-    });
-    if (error) return alert("Errore unificazione: " + error.message);
-    await loadFanArea(); renderFanArea();
-  }
-
-  async function rejectMergeRequest(request) {
-    const note = prompt("Nota per il rifiuto (facoltativa):", "");
-    if (note === null) return;
-    const { error } = await supabaseClient.rpc("reject_fan_merge_request", { p_request_id: request.id, p_note: note });
-    if (error) return alert("Errore: " + error.message);
-    await loadFanArea(); renderFanArea();
-  }
-
-  /* LOGOUT / SCREEN */
-  document.getElementById("logoutButton").addEventListener("click", async () => {
-    await supabaseClient.auth.signOut();
-    currentUser = null; currentProfile = null; currentSetlistId = null;
-    passwordInput.value = "";
-    showLogin();
-  });
-
-  function showLogin() {
-    loginScreen.hidden = false;
-    appScreen.hidden = true;
-    loginScreen.style.display = "flex";
-    appScreen.style.display = "none";
-  }
-  function showApp() {
-    loginScreen.hidden = true;
-    appScreen.hidden = false;
-    loginScreen.style.display = "none";
-    appScreen.style.display = "block";
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
-  }
-
-  async function init() {
-    try {
-      const { data, error } = await supabaseClient.auth.getSession();
-      if (error) throw error;
-      if (data.session) await startApp(); else showLogin();
-    } catch (error) {
-      console.error(error);
-      loginMessage.textContent = "Errore di connessione: " + error.message;
-      showLogin();
-    }
-  }
-
-  init();
+const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
+const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
+const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const BAND_MEMBERS=[{username:"ema",displayName:"Ema"},{username:"kekko",displayName:"Kekko"},{username:"gianni",displayName:"Gianni"},{username:"carlo",displayName:"Carlo"},{username:"ale",displayName:"Ale"}];
+let currentUser=null,currentProfile=null,currentSetlistId=null;
+let songs=[],songScores=[],memberVotes=[],setlistItems=[],profiles=[],proposals=[],idealSetlists=[],communityItems=[],concerts=[],confirmations=[];
+let selectedMemberUsername=null,selectedConcertId=null,concertSortable=null;
+let proposalResults={media:[],pure:[],fused:[],stats:{}};
+let fanRanking=[],mergeRequests=[],adminFans=[];
+let currentFan=null,publicConcerts=[];
+
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+const emptyToNull=v=>String(v??"").trim()===""?null:String(v).trim();
+const numberOrNull=v=>v===""||v==null?null:(Number.isFinite(Number(v))?Number(v):null);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+function formatDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return `${d}/${m}/${y}`}
+function formatDuration(sec){const n=Number(sec);if(!Number.isFinite(n)||n<=0)return"—";const h=Math.floor(n/3600),m=Math.floor((n%3600)/60),s=Math.round(n%60);return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`}
+function keyLabel(song){if(!song?.key_note)return"—";return `${song.key_note}${song.key_mode==="major"?" Maj":song.key_mode==="minor"?" Min":""}`}
+function isEma(){return currentProfile?.username?.toLowerCase()==="ema"} function isFanAdmin(){return ["ema","kekko"].includes(currentProfile?.username?.toLowerCase())}
+function activeSongs(){return songs.filter(s=>s.active)}
+function scoreRow(id){return songScores.find(r=>r.song_id===id)||{ranking_score:50,setlist_score:50,score:50}}
+function getScore(id,mode="setlist"){const r=scoreRow(id);const n=Number(mode==="ranking"?(r.ranking_score??r.score):(r.setlist_score??r.score));return Number.isFinite(n)?n:50}
+function scoreClass(n){return n>=90?"top":n>=80?"good":n>=65?"mid":"low"}
+function scoreBadge(id,mode="setlist"){const n=getScore(id,mode);return `<span class="score-badge ${scoreClass(n)}">${mode==="ranking"?"R":"S"} ${n.toFixed(0)}</span>`}
+function mobileMeta(s){return [s.bpm?`${s.bpm} BPM`:null,s.key_note?keyLabel(s):null,s.base_artist?`Base: ${s.base_artist}`:null,s.lyrics_artist?`Testo: ${s.lyrics_artist}`:null].filter(Boolean).join(" · ")}
+function makeSongHeader(){return `<div class="song-row header-row"><div></div><div>#</div><div>S.Score</div><div>Brano</div><div>BPM</div><div>Key</div><div class="base-artist-col">Base</div><div class="lyrics-artist-col">Testo</div><div></div></div>`}
+function createSongRow(song,index,opt={}){const row=document.createElement("div");row.className=`song-row${opt.excluded?" excluded":""}`;row.dataset.id=song.id;const tags=opt.tags||[];row.innerHTML=`<div class="drag-handle">${opt.draggable?"☰":""}</div><div class="position">${index==null?"—":index+1}</div><div>${scoreBadge(song.id,"setlist")}</div><div class="song-title" data-mobile-meta="${esc(mobileMeta(song))}">${esc(song.title)}${tags.map(t=>`<span class="sequence-tag ${t.className||""}">${esc(t.text)}</span>`).join("")}</div><div class="song-meta">${song.bpm??"—"}</div><div class="song-meta">${esc(keyLabel(song))}</div><div class="song-meta base-artist-col">${esc(song.base_artist||"—")}</div><div class="song-meta lyrics-artist-col">${esc(song.lyrics_artist||"—")}</div><div class="song-actions"></div>`;const box=row.lastElementChild;(opt.actions||[]).forEach(a=>{const b=document.createElement("button");b.type="button";b.textContent=a.label;b.title=a.title||"";b.onclick=e=>{e.stopPropagation();a.onClick()};box.appendChild(b)});return row}
+function openModal(id){$(id).hidden=false;$(id).classList.add("open")} function closeModal(id){$(id).classList.remove("open");$(id).hidden=true}
+function showOnly(screen){["welcomeScreen","memberLoginScreen","fanLoginScreen","memberApp","fanApp"].forEach(id=>$(id).hidden=id!==screen)}
+
+$("chooseMember").onclick=()=>showOnly("memberLoginScreen");$("chooseFan").onclick=()=>showOnly("fanLoginScreen");$("backFromMember").onclick=()=>showOnly("welcomeScreen");$("backFromFan").onclick=()=>showOnly("welcomeScreen");
+
+/* MEMBER LOGIN */
+$("memberLoginForm").addEventListener("submit",async e=>{e.preventDefault();const username=$("memberUsername").value.trim().toLowerCase(),password=$("memberPassword").value;$("memberLoginButton").disabled=true;$("memberLoginMessage").textContent="Accesso in corso...";try{if(!username)throw new Error("Inserisci lo username.");if(password.length<6)throw new Error("La password deve contenere almeno 6 caratteri.");const {data:members,error:me}=await sb.rpc("check_member",{p_username:username});if(me)throw me;if(!members?.length)throw new Error("Username non riconosciuto.");const member=members[0],email=`${username}@johnimolesti.app`;if(!member.activated){const {data:su,error:se}=await sb.auth.signUp({email,password});if(se){const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw se}else if(!su.session)throw new Error("Supabase richiede la conferma email.");const {error:ce}=await sb.rpc("claim_member",{p_username:username});if(ce)throw ce}else{const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw new Error("Password errata.")}await startMemberApp()}catch(err){console.error(err);$("memberLoginMessage").textContent=err.message}finally{$("memberLoginButton").disabled=false}});
+$("memberLogout").onclick=async()=>{await sb.auth.signOut();currentUser=currentProfile=null;showOnly("welcomeScreen")};
+
+async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;$("concertAdminToolbar").classList.toggle("hidden",!isEma());$("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());$("mergePanel").classList.toggle("hidden",!isFanAdmin());$("proposalTitle").textContent=isEma()?"PROPOSTE DA VALUTARE":"LE MIE PROPOSTE";showOnly("memberApp");await refreshAll();}
+
+/* MEMBER NAV */
+$("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await loadCommunityData();calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadSongScores();renderSongRanking()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}}catch(err){console.error(err);alert(err.message)}});
+
+async function loadSongs(){const {data,error}=await sb.from("songs").select("*").order("title");if(error)throw error;songs=data||[]}
+async function loadSongScores(){const {data,error}=await sb.rpc("get_song_scores");if(error)throw error;songScores=data||[]}
+async function loadProfiles(){const {data,error}=await sb.from("profiles").select("*");if(error)throw error;profiles=data||[]}
+async function ensureMySetlist(){const {data,error}=await sb.from("setlists").select("*").eq("owner_id",currentUser.id).eq("name","Scaletta ideale").maybeSingle();if(error)throw error;if(data){currentSetlistId=data.id;return}const {data:newSet,error:ie}=await sb.from("setlists").insert({owner_id:currentUser.id,name:"Scaletta ideale"}).select("id").single();if(ie)throw ie;currentSetlistId=newSet.id}
+async function loadSetlistItems(){const {data,error}=await sb.from("setlist_items").select("*").eq("setlist_id",currentSetlistId);if(error)throw error;setlistItems=data||[]}
+async function ensureInitialItems(){await loadSetlistItems();if(setlistItems.length)return;const rows=activeSongs().map((s,i)=>({setlist_id:currentSetlistId,song_id:s.id,position:i,included:true}));if(rows.length){const {error}=await sb.from("setlist_items").insert(rows);if(error)throw error;await loadSetlistItems()}}
+async function loadMemberVotes(){const {data,error}=await sb.from("member_votes").select("*").eq("member_id",currentUser.id);if(error)throw error;memberVotes=data||[]}
+async function loadProposals(){const {data,error}=await sb.from("song_proposals").select("*").order("created_at",{ascending:false});if(error)throw error;proposals=data||[];updateBadges()}
+async function loadConcerts(){const {data,error}=await sb.from("concerts").select("*").order("concert_date",{ascending:false});if(error)throw error;concerts=data||[];if(!selectedConcertId&&concerts.length)selectedConcertId=concerts[0].id;fillAdminConcertSelect()}
+async function refreshAll(){await loadSongs();await loadSongScores();await loadProfiles();await ensureMySetlist();await ensureInitialItems();await loadMemberVotes();await loadProposals();await loadConcerts();renderMySetlist();renderCatalog();renderSongProposals();renderSongRanking();updateConfirmInfo()}
+
+/* MY SETLIST */
+function itemsMap(){return new Map(setlistItems.map(i=>[i.song_id,i]))}function includedSongs(){const m=itemsMap();return activeSongs().filter(s=>m.get(s.id)?.included).sort((a,b)=>(m.get(a.id)?.position??9999)-(m.get(b.id)?.position??9999))}function excludedSongs(){const m=itemsMap();return activeSongs().filter(s=>!m.get(s.id)?.included).sort((a,b)=>a.title.localeCompare(b.title,"it"))}
+function renderMySetlist(){$("mySetlistHeader").innerHTML=makeSongHeader();$("setlist").innerHTML="";$("excluded").innerHTML="";const inc=includedSongs(),exc=excludedSongs();inc.forEach((s,i)=>$("setlist").appendChild(createSongRow(s,i,{draggable:true,actions:[{label:"×",title:"Escludi",onClick:()=>setIncluded(s.id,false)}]})));exc.forEach(s=>$("excluded").appendChild(createSongRow(s,null,{draggable:true,excluded:true,actions:[{label:"+",title:"Includi",onClick:()=>setIncluded(s.id,true)}]})));if(!inc.length)$("setlist").innerHTML='<div class="empty">Nessun brano.</div>';if(!exc.length)$("excluded").innerHTML='<div class="empty">Nessun brano escluso.</div>';$("setlistCounter").textContent=`${inc.length} brani`;$("excludedCounter").textContent=`${exc.length} brani`}
+async function setIncluded(songId,included){const pos=included?includedSongs().length:null;const {error}=await sb.from("setlist_items").upsert({setlist_id:currentSetlistId,song_id:songId,included,position:pos});if(error)return alert(error.message);await loadSetlistItems();renderMySetlist()}
+async function syncSetlistDOM(){const ids=[...$("setlist").querySelectorAll(".song-row[data-id]")].map(x=>x.dataset.id),exc=[...$("excluded").querySelectorAll(".song-row[data-id]")].map(x=>x.dataset.id);const rows=[...ids.map((id,i)=>({setlist_id:currentSetlistId,song_id:id,included:true,position:i})),...exc.map(id=>({setlist_id:currentSetlistId,song_id:id,included:false,position:null}))];if(rows.length){const {error}=await sb.from("setlist_items").upsert(rows);if(error)alert(error.message)}await loadSetlistItems();renderMySetlist()}
+new Sortable($("setlist"),{group:"songs",animation:120,handle:".drag-handle",onEnd:syncSetlistDOM});new Sortable($("excluded"),{group:"songs",animation:120,handle:".drag-handle",onEnd:syncSetlistDOM});
+function getNextConcert(){const today=todayISO();return [...concerts].filter(c=>c.status!=="completed"&&c.concert_date>=today).sort((a,b)=>a.concert_date.localeCompare(b.concert_date))[0]||null}
+function updateConfirmInfo(){const c=getNextConcert();$("confirmSetlistButton").disabled=!c;$("confirmSetlistInfo").textContent=c?`Prossimo concerto: ${c.name} · ${formatDate(c.concert_date)}`:"Nessun prossimo concerto disponibile."}
+$("confirmSetlistButton").onclick=async()=>{const c=getNextConcert();if(!c)return;try{const {error}=await sb.rpc("confirm_my_setlist",{p_concert_id:c.id});if(error)throw error;alert(`Scaletta confermata per ${c.name}.`)}catch(err){alert("Errore: "+err.message)}};
+
+/* CATALOG + MEMBER VOTE */
+$("newSongForm").addEventListener("submit",async e=>{e.preventDefault();const title=$("newSongTitle").value.trim();if(!title)return;let error;if(isEma())({error}=await sb.from("songs").insert({title}));else({error}=await sb.from("song_proposals").insert({proposed_by:currentUser.id,title}));if(error)return alert(error.message);$("newSongTitle").value="";await refreshAll()});
+function ownVote(songId){return memberVotes.find(v=>v.song_id===songId)}
+function renderCatalog(){const box=$("catalogList");box.innerHTML="";[...songs].sort((a,b)=>a.title.localeCompare(b.title,"it")).forEach(song=>{const sc=scoreRow(song.id),vote=ownVote(song.id),row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${scoreBadge(song.id,"ranking")} &nbsp;${esc(song.title)}</div><div class="small-info">Scaletta ${getScore(song.id,"setlist").toFixed(0)} · Popolarità ${sc.popularity_score==null?"—":Number(sc.popularity_score).toFixed(1)} · ${song.bpm??"—"} BPM · ${esc(keyLabel(song))}${vote?` · Mio voto ${Number(vote.molesti_score).toFixed(1)}`:""}</div></div>`;if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');const buttons=document.createElement("div");buttons.className="row-buttons";const voteBtn=document.createElement("button");voteBtn.className="small-btn";voteBtn.textContent=vote?"MODIFICA VOTO":"VOTA";voteBtn.onclick=()=>openMemberVote(song);buttons.appendChild(voteBtn);if(isEma()){const edit=document.createElement("button");edit.className="small-btn";edit.textContent="MODIFICA";edit.onclick=()=>openSongModal(song);const del=document.createElement("button");del.className="small-btn danger";del.textContent="ELIMINA";del.onclick=()=>deleteSong(song);buttons.append(edit,del)}row.appendChild(buttons);box.appendChild(row)});$("catalogCounter").textContent=`${songs.length} brani`}
+function updateVoteMix(){const a=numberOrNull($("voteLyrics").value),b=numberOrNull($("voteBase").value);$("voteMix").value=a!=null&&b!=null?((a+b)/2).toFixed(1):"—"}$("voteLyrics").oninput=updateVoteMix;$("voteBase").oninput=updateVoteMix;
+function openMemberVote(song){const v=ownVote(song.id);$("voteSongId").value=song.id;$("memberVoteTitle").textContent=`Valuta — ${song.title}`;$("voteMolesti").value=v?.molesti_score??"";$("voteLyrics").value=v?.lyrics_score??"";$("voteBase").value=v?.base_score??"";$("deleteMemberVote").style.visibility=v?"visible":"hidden";updateVoteMix();openModal("memberVoteModal")}
+$("closeMemberVote").onclick=()=>closeModal("memberVoteModal");$("memberVoteForm").addEventListener("submit",async e=>{e.preventDefault();const payload={member_id:currentUser.id,song_id:$("voteSongId").value,molesti_score:numberOrNull($("voteMolesti").value),lyrics_score:numberOrNull($("voteLyrics").value),base_score:numberOrNull($("voteBase").value),updated_at:new Date().toISOString()};const {error}=await sb.from("member_votes").upsert(payload);if(error)return alert(error.message);closeModal("memberVoteModal");await loadMemberVotes();await loadSongScores();renderCatalog();renderSongRanking();renderMySetlist()});
+$("deleteMemberVote").onclick=async()=>{const id=$("voteSongId").value;if(!confirm("Rimuovere la tua valutazione?"))return;const {error}=await sb.from("member_votes").delete().eq("member_id",currentUser.id).eq("song_id",id);if(error)return alert(error.message);closeModal("memberVoteModal");await loadMemberVotes();await loadSongScores();renderCatalog();renderSongRanking()};
+
+/* SONG EDIT */
+function fillForcedOptions(song){$("editForcedNext").innerHTML='<option value="">Nessun aggancio</option>'+activeSongs().filter(s=>s.id!==song.id).map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join("")}
+function openSongModal(song){if(!isEma())return;const sc=scoreRow(song.id);$("editSongId").value=song.id;$("editTitle").value=song.title||"";$("editBaseTitle").value=song.base_title||"";$("editBaseArtist").value=song.base_artist||"";$("editBaseYear").value=song.base_year||"";$("editBaseSpotify").value=song.base_spotify_streams??"";$("editBaseYoutube").value=song.base_youtube_views??"";$("editLyricsTitle").value=song.lyrics_title||"";$("editLyricsArtist").value=song.lyrics_artist||"";$("editLyricsYear").value=song.lyrics_year||"";$("editLyricsSpotify").value=song.lyrics_spotify_streams??"";$("editLyricsYoutube").value=song.lyrics_youtube_views??"";$("editBpm").value=song.bpm??"";$("editDuration").value=song.duration_seconds??"";$("editKeyNote").value=song.key_note||"";$("editKeyMode").value=song.key_mode||"";$("editDanceability").value=song.danceability??"";$("editGuitarDifficulty").value=song.guitar_difficulty??"";$("editBassDifficulty").value=song.bass_difficulty??"";$("editDrumsDifficulty").value=song.drums_difficulty??"";$("editNotes").value=song.notes||"";$("editExplosive").checked=!!song.is_explosive;$("editCalm").checked=!!song.is_calm;$("editFrenetic").checked=!!song.is_frenetic;$("editSingable").checked=!!song.is_singable;$("editActive").checked=!!song.active;fillForcedOptions(song);$("editForcedNext").value=song.forced_next_song_id||"";$("computedPopularity").textContent=sc.popularity_score==null?"—":Number(sc.popularity_score).toFixed(1);$("computedCuriosity").textContent=sc.curiosity_score==null?"—":Number(sc.curiosity_score).toFixed(1);$("computedRankingScore").textContent=getScore(song.id,"ranking").toFixed(0);$("computedSetlistScore").textContent=getScore(song.id,"setlist").toFixed(0);openModal("songModal")}
+$("closeSongModal").onclick=()=>closeModal("songModal");$("cancelSongEdit").onclick=()=>closeModal("songModal");
+$("songEditForm").addEventListener("submit",async e=>{e.preventDefault();const id=$("editSongId").value,payload={title:$("editTitle").value.trim(),base_title:emptyToNull($("editBaseTitle").value),base_artist:emptyToNull($("editBaseArtist").value),base_year:numberOrNull($("editBaseYear").value),base_spotify_streams:numberOrNull($("editBaseSpotify").value),base_youtube_views:numberOrNull($("editBaseYoutube").value),lyrics_title:emptyToNull($("editLyricsTitle").value),lyrics_artist:emptyToNull($("editLyricsArtist").value),lyrics_year:numberOrNull($("editLyricsYear").value),lyrics_spotify_streams:numberOrNull($("editLyricsSpotify").value),lyrics_youtube_views:numberOrNull($("editLyricsYoutube").value),bpm:numberOrNull($("editBpm").value),duration_seconds:numberOrNull($("editDuration").value),key_note:emptyToNull($("editKeyNote").value),key_mode:emptyToNull($("editKeyMode").value),danceability:numberOrNull($("editDanceability").value),guitar_difficulty:numberOrNull($("editGuitarDifficulty").value),bass_difficulty:numberOrNull($("editBassDifficulty").value),drums_difficulty:numberOrNull($("editDrumsDifficulty").value),is_explosive:$("editExplosive").checked,is_calm:$("editCalm").checked,is_frenetic:$("editFrenetic").checked,is_singable:$("editSingable").checked,active:$("editActive").checked,forced_next_song_id:emptyToNull($("editForcedNext").value),notes:emptyToNull($("editNotes").value),updated_at:new Date().toISOString()};const {error}=await sb.from("songs").update(payload).eq("id",id);if(error)return alert(error.message);closeModal("songModal");await refreshAll()});
+async function deleteSong(song){if(!confirm(`Eliminare definitivamente "${song.title}"?`))return;const {error}=await sb.from("songs").delete().eq("id",song.id);if(error)return alert(error.message);await refreshAll()}
+
+/* SONG PROPOSALS */
+function updateBadges(){const pc=isEma()?proposals.filter(p=>p.status==="pending").length:0;$("proposalBadge").textContent=pc;$("proposalBadge").classList.toggle("hidden",!pc);const mc=isFanAdmin()?mergeRequests.filter(r=>r.status==="pending").length:0;$("mergeBadge").textContent=mc;$("mergeBadge").classList.toggle("hidden",!mc)}
+function renderSongProposals(){const box=$("proposalList");box.innerHTML="";const vis=[...proposals].sort((a,b)=>(a.status==="pending"?-1:0)-(b.status==="pending"?-1:0)||new Date(b.created_at)-new Date(a.created_at));vis.forEach(p=>{const prof=profiles.find(x=>x.id===p.proposed_by),row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(p.title)}</div><div class="small-info">${prof?`Proposta da ${esc(prof.display_name)}`:"Proposta"}${p.review_note?` · ${esc(p.review_note)}`:""}</div></div><span class="status ${p.status}">${p.status==="pending"?"IN ATTESA":p.status==="approved"?"APPROVATA":"RIFIUTATA"}</span>`;const buttons=document.createElement("div");buttons.className="row-buttons";if(isEma()&&p.status==="pending"){buttons.innerHTML='<button class="small-btn success">APPROVA</button><button class="small-btn danger">RIFIUTA</button>';buttons.children[0].onclick=()=>approveProposal(p.id);buttons.children[1].onclick=()=>rejectProposal(p.id)}else if(!isEma()&&p.status==="pending"){buttons.innerHTML='<button class="small-btn">MODIFICA</button><button class="small-btn danger">RITIRA</button>';buttons.children[0].onclick=()=>editProposal(p);buttons.children[1].onclick=()=>deleteProposal(p)}if(buttons.children.length)row.appendChild(buttons);box.appendChild(row)});if(!vis.length)box.innerHTML='<div class="empty">Nessuna proposta.</div>';$("proposalCounter").textContent=`${vis.length} proposte`}
+async function approveProposal(id){const {error}=await sb.rpc("approve_song_proposal",{p_proposal_id:id});if(error)return alert(error.message);await refreshAll()}async function rejectProposal(id){const note=prompt("Motivo del rifiuto (facoltativo):","");if(note===null)return;const {error}=await sb.rpc("reject_song_proposal",{p_proposal_id:id,p_note:note});if(error)return alert(error.message);await refreshAll()}async function editProposal(p){const title=prompt("Modifica proposta:",p.title);if(!title?.trim())return;const {error}=await sb.from("song_proposals").update({title:title.trim()}).eq("id",p.id);if(error)return alert(error.message);await loadProposals();renderSongProposals()}async function deleteProposal(p){if(!confirm("Ritirare la proposta?"))return;const {error}=await sb.from("song_proposals").delete().eq("id",p.id);if(error)return alert(error.message);await loadProposals();renderSongProposals()}
+
+/* COMMUNITY + MEMBER SETLISTS */
+async function loadCommunityData(){await loadProfiles();const {data:ss,error}=await sb.from("setlists").select("*").eq("name","Scaletta ideale");if(error)throw error;idealSetlists=ss||[];communityItems=[];if(idealSetlists.length){const {data:it,error:ie}=await sb.from("setlist_items").select("*").in("setlist_id",idealSetlists.map(x=>x.id));if(ie)throw ie;communityItems=it||[]}confirmations=[];const next=getNextConcert();if(next){const {data:cf,error:ce}=await sb.from("member_setlist_confirmations").select("*").eq("concert_id",next.id);if(ce)throw ce;confirmations=cf||[]}}
+function getMemberData(username){const profile=profiles.find(p=>p.username?.toLowerCase()===username.toLowerCase());if(!profile)return null;const confirmed=confirmations.filter(x=>x.member_id===profile.id).sort((a,b)=>a.position-b.position);if(confirmed.length)return{profile,source:"confirmed",items:confirmed.map(x=>({song_id:x.song_id,position:x.position,included:true}))};const setlist=idealSetlists.find(s=>s.owner_id===profile.id);return{profile,source:"ideal",items:setlist?communityItems.filter(i=>i.setlist_id===setlist.id):[]}}
+function renderMemberTabs(){const box=$("memberTabs");box.innerHTML="";if(!selectedMemberUsername)selectedMemberUsername=currentProfile.username;BAND_MEMBERS.forEach(m=>{const d=getMemberData(m.username),b=document.createElement("button");b.className="member-tab"+(m.username===selectedMemberUsername?" active":"")+(!d?.items?.length?" unavailable":"");b.textContent=m.displayName;b.onclick=()=>{selectedMemberUsername=m.username;renderMemberTabs();renderSelectedMember()};box.appendChild(b)})}
+function renderSelectedMember(){const d=getMemberData(selectedMemberUsername),box=$("memberSetlist");$("memberSetlistHeader").innerHTML=makeSongHeader();const name=BAND_MEMBERS.find(m=>m.username===selectedMemberUsername)?.displayName||"";$("memberSetlistTitle").textContent=`SCALETTA DI ${name.toUpperCase()}${d?.source==="confirmed"?" · CONFERMATA":""}`;if(!d?.items?.length){box.innerHTML='<div class="empty">Nessuna scaletta disponibile.</div>';return}const m=new Map(d.items.map(i=>[i.song_id,i])),inc=activeSongs().filter(s=>m.get(s.id)?.included).sort((a,b)=>(m.get(a.id)?.position??9999)-(m.get(b.id)?.position??9999));box.innerHTML="";inc.forEach((s,i)=>box.appendChild(createSongRow(s,i)));$("memberSetlistCounter").textContent=`${inc.length} brani`}
+
+/* THREE PROPOSALS */
+function buildMemberStats(){const members=BAND_MEMBERS.map(m=>getMemberData(m.username)).filter(d=>d?.items?.length);const stats=new Map(),pairs=new Map();activeSongs().forEach(s=>stats.set(s.id,{included:0,posSum:0,posN:0}));const counts=[];members.forEach(m=>{const inc=m.items.filter(i=>i.included).sort((a,b)=>(a.position??9999)-(b.position??9999));counts.push(inc.length);const den=Math.max(1,inc.length-1);inc.forEach((it,idx)=>{const st=stats.get(it.song_id);if(st){st.included++;st.posSum+=idx/den;st.posN++}});for(let i=0;i<inc.length-1;i++){const k=`${inc[i].song_id}|${inc[i+1].song_id}`;pairs.set(k,(pairs.get(k)||0)+1)}});stats.forEach(st=>{st.inclusion=members.length?100*st.included/members.length:100;st.avgPos=st.posN?st.posSum/st.posN:.5;st.consensus=.85*st.inclusion+.15*(100*(1-Math.abs(st.avgPos-.5)))});counts.sort((a,b)=>a-b);const target=counts.length?counts[Math.floor(counts.length/2)]:activeSongs().length;return{members,stats,pairs,target:Math.max(1,target)}}
+function bpmBounds(){const arr=activeSongs().map(s=>Number(s.bpm)).filter(Number.isFinite);return{min:arr.length?Math.min(...arr):120,max:arr.length?Math.max(...arr):200}}
+function difficulty(s){const a=[s.guitar_difficulty,s.bass_difficulty,s.drums_difficulty].map(Number).filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:5}
+function intensity(s,bounds=bpmBounds()){const bpm=Number(s.bpm),bn=Number.isFinite(bpm)&&bounds.max>bounds.min?10*(bpm-bounds.min)/(bounds.max-bounds.min):5,d=Number(s.danceability??5),diff=difficulty(s);return clamp(.48*bn+.14*d+.14*diff+(s.is_frenetic?1.5:0)+(s.is_explosive?.8:0)-(s.is_calm?1.7:0),0,10)}
+function forcedClosure(selected){const map=new Map(activeSongs().map(s=>[s.id,s])),out=new Map(selected.map(s=>[s.id,s]));let changed=true;while(changed){changed=false;[...out.values()].forEach(s=>{if(s.forced_next_song_id&&map.has(s.forced_next_song_id)&&!out.has(s.forced_next_song_id)){out.set(s.forced_next_song_id,map.get(s.forced_next_song_id));changed=true}})}return[...out.values()]}
+function chainBlocks(selected){const map=new Map(selected.map(s=>[s.id,s])),incoming=new Set();selected.forEach(s=>{if(s.forced_next_song_id&&map.has(s.forced_next_song_id))incoming.add(s.forced_next_song_id)});const visited=new Set(),blocks=[];function walk(start){const block=[];let cur=start,guard=0;while(cur&&!visited.has(cur.id)&&guard++<selected.length+1){visited.add(cur.id);block.push(cur);cur=cur.forced_next_song_id?map.get(cur.forced_next_song_id):null}return block}selected.filter(s=>!incoming.has(s.id)).forEach(s=>{const b=walk(s);if(b.length)blocks.push(b)});selected.forEach(s=>{if(!visited.has(s.id)){const b=walk(s);if(b.length)blocks.push(b)}});return blocks}
+function artistPenalty(seq,c){let p=0;const base=String(c.base_artist||"").toLowerCase(),lyr=String(c.lyrics_artist||"").toLowerCase();[1,2,3].forEach((back,i)=>{const s=seq.at(-back);if(!s)return;const w=[18,7,3][i];if(base&&base===String(s.base_artist||"").toLowerCase())p+=w;if(lyr&&lyr===String(s.lyrics_artist||"").toLowerCase())p+=w});return p}
+function keyBonus(prev,c){if(!prev||!prev.key_note||!c.key_note)return 0;const sameNote=prev.key_note.toLowerCase()===c.key_note.toLowerCase(),sameMode=prev.key_mode===c.key_mode;if(sameNote&&sameMode)return-9;if(sameNote&&!sameMode)return-3;return 5+(sameMode?0:1)}
+function streakPenalty(seq,c,bounds){const cls=s=>intensity(s,bounds)>=6.7?"high":intensity(s,bounds)<=4.2?"low":"mid",cc=cls(c);if(cc==="high"&&seq.slice(-3).every(x=>cls(x)==="high")&&seq.length>=3)return 70;if(cc==="low"&&seq.slice(-2).every(x=>cls(x)==="low")&&seq.length>=2)return 65;let p=0;if(cc==="high"&&seq.slice(-2).every(x=>cls(x)==="high")&&seq.length>=2)p+=15;if(difficulty(c)>=7.5&&seq.slice(-2).filter(s=>difficulty(s)>=7.5).length===2)p+=16;return p}
+function stageValue(song,p){const strength=getScore(song.id,"setlist")/100,cur=Number(scoreRow(song.id).curiosity_score??5)/10;let target;if(p<.07)target=.72;else if(p<.18)target=.62;else if(p<.40)target=.48;else if(p<.62)target=.68;else if(p<.82)target=.83;else target=.94;let v=100-Math.abs(strength-target)*115;if(p<.08)v+=cur*24+(song.is_singable?6:0);if(p<.35&&strength>.90)v-=18;if(p>.68)v+=(song.is_explosive?10:0)+(song.is_singable?5:0);if(p>.85)v+=strength*22;return v}
+function blockEval(block,seq,startIndex,total,mode,stats,bounds){const first=block[0],prev=seq.at(-1),p=total<=1?1:startIndex/(total-1);let alg=stageValue(first,p)+keyBonus(prev,first)-artistPenalty(seq,first)-streakPenalty(seq,first,bounds);const st=stats.stats.get(first.id)||{avgPos:.5,inclusion:0};const memberFit=100-Math.abs(st.avgPos-p)*120+.25*st.inclusion;const pair=prev?(stats.pairs.get(`${prev.id}|${first.id}`)||0)*18:0;if(mode==="media")return memberFit+pair;if(mode==="fused")return .70*(memberFit+pair)+.30*alg;return alg}
+function sequenceSelected(selected,mode,stats){selected=forcedClosure(selected);const blocks=chainBlocks(selected),seq=[],bounds=bpmBounds(),total=selected.length;while(blocks.length){let best=0,val=-Infinity;blocks.forEach((b,i)=>{const v=blockEval(b,seq,seq.length,total,mode,stats,bounds);if(v>val){val=v;best=i}});const chosen=blocks.splice(best,1)[0];seq.push(...chosen)}return seq}
+function calculateAllProposals(){const st=buildMemberStats(),target=Math.min(st.target,activeSongs().length),all=activeSongs();const memberSorted=[...all].sort((a,b)=>((st.stats.get(b.id)?.inclusion??0)-(st.stats.get(a.id)?.inclusion??0))||((st.stats.get(a.id)?.avgPos??.5)-(st.stats.get(b.id)?.avgPos??.5)));const pureSorted=[...all].sort((a,b)=>getScore(b.id,"setlist")-getScore(a.id,"setlist"));const fusedSorted=[...all].sort((a,b)=>{const sa=.70*(st.stats.get(a.id)?.inclusion??0)+.30*getScore(a.id,"setlist"),sb=.70*(st.stats.get(b.id)?.inclusion??0)+.30*getScore(b.id,"setlist");return sb-sa});const mediaSel=memberSorted.slice(0,target),pureSel=pureSorted.slice(0,target),fusedSel=fusedSorted.slice(0,target);proposalResults={media:sequenceSelected(mediaSel,"media",st),pure:sequenceSelected(pureSel,"pure",st),fused:sequenceSelected(fusedSel,"fused",st),stats:{memberCount:st.members.length,target}}}
+function renderProposalList(id,list){const box=$(id);box.innerHTML="";list.forEach((s,i)=>{const tags=[];const prev=list[i-1];if(prev?.forced_next_song_id===s.id)tags.push({text:"AGGANCIO",className:"forced"});if(i===0)tags.push({text:"INTRO",className:"accent"});if(i>=Math.floor(list.length*.82))tags.push({text:"FINALE",className:"final"});box.appendChild(createSongRow(s,i,{tags}))});if(!list.length)box.innerHTML='<div class="empty">Nessuna proposta.</div>'}
+function renderProposalsPage(){renderProposalList("mediaList",proposalResults.media);renderProposalList("pureList",proposalResults.pure);renderProposalList("fusedList",proposalResults.fused);$("mediaCounter").textContent=`${proposalResults.media.length} brani`;$("pureCounter").textContent=`${proposalResults.pure.length} brani`;$("fusedCounter").textContent=`${proposalResults.fused.length} brani`;const avg=list=>list.length?list.reduce((a,s)=>a+getScore(s.id,"setlist"),0)/list.length:0,total=list=>list.reduce((a,s)=>a+(Number(s.duration_seconds)||0),0);$("proposalSummary").innerHTML=`<div class="summary-card"><div class="summary-label">Membri considerati</div><div class="summary-value">${proposalResults.stats.memberCount}</div></div><div class="summary-card"><div class="summary-label">Brani target</div><div class="summary-value">${proposalResults.stats.target}</div></div><div class="summary-card"><div class="summary-label">Score medio Fusa</div><div class="summary-value">${avg(proposalResults.fused).toFixed(1)}</div></div><div class="summary-card"><div class="summary-label">Durata Fusa</div><div class="summary-value">${formatDuration(total(proposalResults.fused))}</div></div>`}
+
+/* SONG RANKING */
+function renderSongRanking(){const box=$("songRankingList");box.innerHTML='<div class="ranking-row header-row"><div>#</div><div>Score</div><div>Brano</div><div>Fan</div><div>Band</div><div>Pop.</div><div>S.Score</div></div>';[...songScores].sort((a,b)=>Number(b.ranking_score??b.score)-Number(a.ranking_score??a.score)).forEach((r,i)=>{const row=document.createElement("div");row.className="ranking-row";row.innerHTML=`<div class="rank">${i+1}</div><div>${scoreBadge(r.song_id,"ranking")}</div><div class="list-title">${esc(r.title)}</div><div>${r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1)}</div><div>${r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1)}</div><div>${r.popularity_score==null?"—":Number(r.popularity_score).toFixed(1)}</div><div>${getScore(r.song_id,"setlist").toFixed(0)}</div>`;box.appendChild(row)});$("songRankingCounter").textContent=`${songScores.length} brani`}
+
+/* CONCERTS */
+function renderConcerts(){const box=$("concertList");box.innerHTML="";concerts.forEach(c=>{const row=document.createElement("div");row.className=`list-row${c.id===selectedConcertId?" selected":""}`;row.innerHTML=`<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}</div></div><span class="status ${c.status}">${c.status==="draft"?"BOZZA":c.status==="confirmed"?"CONFERMATO":"CONCLUSO"}</span>`;row.onclick=async()=>{selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id)};box.appendChild(row)});if(!concerts.length)box.innerHTML='<div class="empty">Nessun concerto.</div>';$("concertCounter").textContent=`${concerts.length} concerti`}
+$("newConcertButton").onclick=()=>openConcertModal(null);$("closeConcertModal").onclick=()=>closeModal("concertModal");$("cancelConcertEdit").onclick=()=>closeModal("concertModal");
+function updateConcertDateMin(){const status=$("concertStatus").value;$("concertDate").min=status==="completed"?"":todayISO()}$("concertStatus").onchange=updateConcertDateMin;
+function openConcertModal(c){$("concertModalTitle").textContent=c?"Modifica concerto":"Nuovo concerto";$("editConcertId").value=c?.id||"";$("concertName").value=c?.name||"";$("concertDate").value=c?.concert_date||"";$("concertStatus").value=c?.status||"draft";$("concertVenue").value=c?.venue||"";$("concertCity").value=c?.city||"";$("concertVotingOpen").checked=!!c?.fan_voting_open;updateConcertDateMin();openModal("concertModal")}
+$("concertForm").addEventListener("submit",async e=>{e.preventDefault();const id=$("editConcertId").value,status=$("concertStatus").value,date=$("concertDate").value;if(status!=="completed"&&date<todayISO())return alert("Per inserire una data passata imposta lo stato su Concluso.");const payload={name:$("concertName").value.trim(),concert_date:date,status,venue:emptyToNull($("concertVenue").value),city:emptyToNull($("concertCity").value),fan_voting_open:$("concertVotingOpen").checked};let error;if(id)({error}=await sb.from("concerts").update(payload).eq("id",id));else{const res=await sb.from("concerts").insert(payload).select("id").single();error=res.error;if(res.data)selectedConcertId=res.data.id}if(error)return alert(error.message);closeModal("concertModal");await loadConcerts();renderConcerts();updateConfirmInfo();if(selectedConcertId)await renderConcertDetail(selectedConcertId)});
+async function getConcertItems(id){const {data,error}=await sb.from("concert_setlist_items").select("*").eq("concert_id",id).order("position");if(error)throw error;return data||[]}
+async function getFanAverages(id){const {data,error}=await sb.rpc("get_concert_fan_averages",{p_concert_id:id});if(error)throw error;return data||[]}
+async function getConcertConfirmations(id){const {data,error}=await sb.from("member_setlist_confirmations").select("*").eq("concert_id",id).order("position");if(error)throw error;return data||[]}
+async function renderConcertDetail(id){const c=concerts.find(x=>x.id===id),box=$("concertDetail");if(!c)return;$("concertDetailTitle").textContent=c.name.toUpperCase();const items=await getConcertItems(id),avg=await getFanAverages(id),avgMap=new Map(avg.map(x=>[x.song_id,x])),ordered=items.map(i=>songs.find(s=>s.id===i.song_id)).filter(Boolean);box.innerHTML="";const meta=document.createElement("div");meta.className="concert-meta";meta.innerHTML=`<strong>${formatDate(c.concert_date)}</strong>${c.venue?`<span>${esc(c.venue)}</span>`:""}${c.city?`<span>${esc(c.city)}</span>`:""}<span>${ordered.length} brani</span><span>Durata ${formatDuration(ordered.reduce((a,s)=>a+(Number(s.duration_seconds)||0),0))}</span>`;box.appendChild(meta);const tools=document.createElement("div");tools.className="toolbar no-print";const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA / PDF";print.onclick=()=>printConcert(c,ordered);tools.appendChild(print);if(isEma()){const edit=document.createElement("button");edit.className="secondary";edit.textContent="MODIFICA CONCERTO";edit.onclick=()=>openConcertModal(c);tools.appendChild(edit);const select=document.createElement("select");select.id="concertImportSource";select.innerHTML='<option value="fused">Importa: Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';const cf=await getConcertConfirmations(id);const grouped=new Map();cf.forEach(x=>{if(!grouped.has(x.member_id))grouped.set(x.member_id,[]);grouped.get(x.member_id).push(x)});grouped.forEach((rows,memberId)=>{const p=profiles.find(x=>x.id===memberId),o=document.createElement("option");o.value=`member:${memberId}`;o.textContent=`Importa: ${p?.display_name||"Membro"} confermata`;select.appendChild(o)});tools.appendChild(select);const imp=document.createElement("button");imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);const addSelect=document.createElement("select");addSelect.id="manualSongSelect";addSelect.innerHTML='<option value="">+ aggiungi brano...</option>'+activeSongs().filter(s=>!ordered.some(o=>o.id===s.id)).map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join("");tools.appendChild(addSelect);const add=document.createElement("button");add.textContent="AGGIUNGI";add.onclick=()=>manualAddSong(c.id,addSelect.value,items.length);tools.appendChild(add)}box.appendChild(tools);const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";ordered.forEach((s,i)=>{const a=avgMap.get(s.id),tags=[];if(a?.molesti_votes)tags.push({text:`Fan ${Number(a.molesti_average).toFixed(1)} (${a.molesti_votes})`,className:""});list.appendChild(createSongRow(s,i,{draggable:isEma(),tags,actions:isEma()?[{label:"×",title:"Rimuovi",onClick:()=>removeConcertSong(c.id,s.id)}]:[]}))});if(!ordered.length)list.innerHTML='<div class="empty">Scaletta vuota: puoi importarla o inserirla manualmente.</div>';box.appendChild(list);$("concertDetailCounter").textContent=`${ordered.length} brani`;if(concertSortable){concertSortable.destroy();concertSortable=null}if(isEma()&&ordered.length)concertSortable=new Sortable(list,{animation:120,handle:".drag-handle",onEnd:()=>saveConcertOrder(c.id,list)});if(c.status==="completed")await renderLiveActivity(c.id,box)}
+async function ensureProposalsReady(){await loadCommunityData();calculateAllProposals()}
+async function importConcertSetlist(concertId,source,grouped){if(!confirm("Sostituire la scaletta ufficiale del concerto?"))return;let list=[];if(source.startsWith("member:")){const id=source.split(":")[1];list=(grouped.get(id)||[]).sort((a,b)=>a.position-b.position).map(x=>songs.find(s=>s.id===x.song_id)).filter(Boolean)}else{await ensureProposalsReady();list=proposalResults[source]||[]}const {error:de}=await sb.from("concert_setlist_items").delete().eq("concert_id",concertId);if(de)return alert(de.message);if(list.length){const {error}=await sb.from("concert_setlist_items").insert(list.map((s,i)=>({concert_id:concertId,song_id:s.id,position:i})));if(error)return alert(error.message)}await renderConcertDetail(concertId)}
+async function manualAddSong(concertId,songId,pos){if(!songId)return;const {error}=await sb.from("concert_setlist_items").insert({concert_id:concertId,song_id:songId,position:pos});if(error)return alert(error.message);await renderConcertDetail(concertId)}
+async function removeConcertSong(concertId,songId){const {error}=await sb.from("concert_setlist_items").delete().eq("concert_id",concertId).eq("song_id",songId);if(error)return alert(error.message);const items=await getConcertItems(concertId);await sb.from("concert_setlist_items").upsert(items.map((x,i)=>({...x,position:i})));await renderConcertDetail(concertId)}
+async function saveConcertOrder(concertId,list){const ids=[...list.querySelectorAll(".song-row[data-id]")].map(x=>x.dataset.id);const {error}=await sb.from("concert_setlist_items").upsert(ids.map((id,i)=>({concert_id:concertId,song_id:id,position:i})));if(error)alert(error.message);await renderConcertDetail(concertId)}
+function printConcert(c,list){const rows=list.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.title)}</td><td>${esc(keyLabel(s))}</td><td>${s.bpm??"—"}</td></tr>`).join("");const w=window.open("","_blank");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(c.name)}</title><style>body{font-family:Arial;padding:24px;color:#111}h1{margin:0}h2{margin:4px 0 18px;font-size:15px;color:#555}table{width:100%;border-collapse:collapse}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{font-size:9px;text-transform:uppercase;color:#666}</style></head><body><h1>John & i Molesti</h1><h2>${esc(c.name)} · ${formatDate(c.concert_date)}</h2><table><thead><tr><th>#</th><th>Brano Molesto</th><th>Tonalità</th><th>BPM</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);w.document.close()}
+async function renderLiveActivity(concertId,parent){try{const {data,error}=await sb.rpc("get_concert_fans_for_member",{p_concert_id:concertId});if(error)throw error;const wrap=document.createElement("div");wrap.className="activity-list";wrap.innerHTML='<div class="panel-header" style="padding-left:0"><h2>ATTIVITÀ LIVE DEI FAN</h2><span class="counter">1–10 · solo fan presenti</span></div>';if(!data?.length)wrap.insertAdjacentHTML("beforeend",'<div class="empty">Nessun fan ha segnato “Io c\'ero”.</div>');(data||[]).forEach(f=>{const row=document.createElement("div");row.className="activity-row";row.innerHTML=`<div><strong>${esc(f.fan_name)}</strong><div class="small-info">Fan dal ${formatDate(f.fan_since)}</div></div><input type="number" min="1" max="10" step="0.1" value="${f.my_activity_score??""}" placeholder="1–10"><button class="small-btn">SALVA</button>`;row.querySelector("button").onclick=async()=>{const val=numberOrNull(row.querySelector("input").value);if(val==null)return alert("Inserisci un voto da 1 a 10.");const {error}=await sb.rpc("set_my_fan_live_rating",{p_concert_id:concertId,p_fan_id:f.fan_id,p_score:val});if(error)return alert(error.message);row.querySelector("button").textContent="OK"};wrap.appendChild(row)});parent.appendChild(wrap)}catch(err){const d=document.createElement("div");d.className="section-note";d.textContent=`Voto attività fan non disponibile: ${err.message}`;parent.appendChild(d)}}
+
+/* FAN RANKING + ADMIN */
+async function loadFanArea(){const {data:r,error}=await sb.rpc("get_fan_ranking");if(error)throw error;fanRanking=r||[];mergeRequests=[];adminFans=[];if(isFanAdmin()){const [{data:mr,error:me},{data:fa,error:fe}]=await Promise.all([sb.from("fan_merge_requests").select("*").eq("status","pending").order("created_at"),sb.from("fans").select("id,display_name,nickname,merged_into,claimed_at").is("merged_into",null)]);if(me)throw me;if(fe)throw fe;mergeRequests=mr||[];adminFans=fa||[]}updateBadges()}
+function renderFanArea(){const box=$("fanRankingList");box.innerHTML="";fanRanking.forEach(r=>{const row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="rank" style="width:30px">${r.ranking_position}</div><div class="list-main"><div class="list-title">${esc(r.fan_name)}</div><div class="small-info">Fan dal ${formatDate(r.fan_since)} · ${r.attendance_count} presenze · ${r.rated_song_count} brani votati · bonus live ${r.activity_points??0}</div></div><strong>${r.points} pt</strong>`;box.appendChild(row)});if(!fanRanking.length)box.innerHTML='<div class="empty">Nessun fan in classifica.</div>';$("fanRankingCounter").textContent=`${fanRanking.length} fan`;renderMergeRequests()}
+function fillAdminConcertSelect(){$("adminFanConcert").innerHTML='<option value="">Nessuna presenza iniziale</option>'+concerts.map(c=>`<option value="${c.id}">${formatDate(c.concert_date)} · ${esc(c.name)}</option>`).join("")}
+$("adminCreateFanButton").onclick=async()=>{const name=$("adminFanName").value.trim();if(!name)return alert("Inserisci il nome.");const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull($("adminFanNickname").value),p_concert_id:emptyToNull($("adminFanConcert").value)});if(error)return alert(error.message);$("adminFanName").value=$("adminFanNickname").value="";await loadFanArea();renderFanArea()};
+function fanLabel(id){const r=fanRanking.find(x=>x.fan_id===id);if(r)return `${r.fan_name} — fan dal ${formatDate(r.fan_since)}`;const f=adminFans.find(x=>x.id===id);return f?(f.nickname||f.display_name):"Profilo sconosciuto"}
+function renderMergeRequests(){const box=$("mergeList");if(!isFanAdmin())return;box.innerHTML="";mergeRequests.forEach(r=>{const row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(r.requested_nickname||"Richiesta unificazione")}</div><div class="small-info">Nuovo: ${esc(fanLabel(r.requester_fan_id))}<br>Proposto: ${esc(fanLabel(r.suggested_fan_id))}</div></div>`;const b=document.createElement("div");b.className="row-buttons";b.innerHTML='<button class="small-btn success">UNISCI</button><button class="small-btn danger">RIFIUTA</button>';b.children[0].onclick=()=>mergeFanRequest(r);b.children[1].onclick=()=>rejectFanRequest(r);row.appendChild(b);box.appendChild(row)});if(!mergeRequests.length)box.innerHTML='<div class="empty">Nessuna richiesta.</div>';$("mergeCounter").textContent=`${mergeRequests.length}`}
+async function mergeFanRequest(r){const choices=adminFans.filter(f=>f.id!==r.requester_fan_id).map(f=>`${f.id} | ${f.nickname||f.display_name}`).join("\n");const target=prompt(`ID profilo da mantenere:\n\n${choices}`,r.suggested_fan_id||"");if(!target)return;const nick=prompt("Nickname finale (facoltativo):",r.requested_nickname||"");const {error}=await sb.rpc("merge_fans",{p_source_fan_id:r.requester_fan_id,p_target_fan_id:target.trim(),p_final_nickname:emptyToNull(nick),p_request_id:r.id});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
+async function rejectFanRequest(r){const note=prompt("Nota (facoltativa):","");if(note===null)return;const {error}=await sb.rpc("reject_fan_merge_request",{p_request_id:r.id,p_note:note});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
+
+/* FAN FRONTEND — richiede Edge Function fan-api */
+function getFanDeviceToken(){let t=localStorage.getItem("jm_fan_device_token");if(!t){t=crypto.randomUUID();localStorage.setItem("jm_fan_device_token",t)}return t}
+function fanFingerprint(){return [navigator.userAgent,navigator.language,Intl.DateTimeFormat().resolvedOptions().timeZone,screen.width,screen.height,window.devicePixelRatio||1].join("|")}
+async function fanApi(action,payload={}){const res=await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},body:JSON.stringify({action,device_token:getFanDeviceToken(),fingerprint:fanFingerprint(),...payload})});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.error||`fan-api HTTP ${res.status}`);return data}
+async function resolvePossibleFanMatches(data){const matches=data.possible_matches||[];if(!matches.length)return data;const lines=matches.map((m,i)=>`${i+1}) ${m.fan_name}${m.fan_since?` — fan dal ${formatDate(m.fan_since)}`:""}`).join("\n");const answer=prompt(`Potresti essere già presente in classifica.\n\n${lines}\n\nScrivi il numero del tuo vecchio profilo, oppure lascia vuoto se sei un nuovo fan.`);if(!answer?.trim())return data;const idx=Number(answer)-1;if(!Number.isInteger(idx)||!matches[idx]){alert("Selezione non valida: continuerai col nuovo profilo.");return data}const target=matches[idx];let recovery=null;if(target.has_recovery){recovery=prompt(`Per verificare che “${target.fan_name}” sia davvero il tuo profilo, inserisci il nickname Instagram o la parola di riconoscimento che avevi salvato:`);if(recovery===null)return data}const result=await fanApi("claim_candidate",{target_fan_id:target.fan_id,recovery_value:recovery});if(result.merged){return {...data,fan:result.fan,possible_matches:[]}}alert(result.message||"Richiesta di unificazione inviata agli admin.");return data}
+$("fanLoginForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("fanName").value.trim();if(!name)return;$("fanLoginButton").disabled=true;$("fanLoginMessage").textContent="Accesso in corso...";try{let data=await fanApi("enter",{display_name:name});data=await resolvePossibleFanMatches(data);currentFan=data.fan||data;$("currentFanName").textContent=currentFan.display_name||currentFan.nickname||name;if(data.is_new&&confirm("Vuoi impostare un dato di recupero facoltativo? Serve solo se in futuro cambi telefono/browser; non è una password di accesso.")){const type=prompt("Scrivi 'instagram' oppure 'parola':","instagram");if(type!==null){const value=prompt(type.trim().toLowerCase()==="instagram"?"Inserisci il tuo nickname Instagram (es. @marketto178):":"Inserisci una parola o breve frase di riconoscimento:");if(value?.trim())await fanApi("set_recovery",{recovery_type:type,recovery_value:value})}}showOnly("fanApp");await loadFanFrontend()}catch(err){console.error(err);$("fanLoginMessage").textContent="Area fan non ancora collegata alla Edge Function: "+err.message}finally{$("fanLoginButton").disabled=false}});
+$("fanLogout").onclick=()=>{currentFan=null;showOnly("welcomeScreen")};
+$("fanApp").querySelectorAll("[data-fan-page]").forEach(btn=>btn.onclick=async()=>{$("fanApp").querySelectorAll("[data-fan-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("fanApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.fanPage).classList.add("active");if(btn.dataset.fanPage==="fanRankingsPage")await renderPublicRankings()});
+async function loadFanFrontend(){const data=await fanApi("list_concerts");publicConcerts=data.concerts||[];const box=$("publicConcertList");box.innerHTML="";publicConcerts.forEach(c=>{const row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}</div></div><span class="status ${c.status}">${c.status==="completed"?"CONCLUSO":"CONFERMATO"}</span>`;row.onclick=()=>openPublicConcert(c.id);box.appendChild(row)});if(!publicConcerts.length)box.innerHTML='<div class="empty">Nessun concerto disponibile.</div>'}
+async function openPublicConcert(id){try{const data=await fanApi("concert_detail",{concert_id:id}),c=data.concert,box=$("publicConcertDetail");box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><span class="counter">${formatDate(c.concert_date)}</span></div><div style="padding:8px"><div class="toolbar"><button id="fanAttendBtn">${data.attended?"✓ IO C'ERO":"IO C'ERO"}</button></div><div id="fanConcertSongs" class="list"></div></div></section>`;const songBox=$("fanConcertSongs");(data.songs||[]).forEach((s,i)=>{const v=s.my_vote||{},row=document.createElement("div");row.className="list-row";row.innerHTML=`<div style="width:26px">${i+1}</div><div class="list-main"><div class="list-title">${esc(s.title)}</div><div class="small-info">${s.bpm??"—"} BPM · ${esc(s.key||"—")}</div></div>${data.voting_open?`<button class="small-btn">${v.molesti_score?"MODIFICA VOTO":"VALUTA"}</button>`:""}`;if(data.voting_open)row.querySelector("button").onclick=()=>publicVotePrompt(c.id,s,v);songBox.appendChild(row)});$("fanAttendBtn").onclick=async()=>{const r=await fanApi("attend",{concert_id:c.id});alert(r.message||"Presenza registrata.");await openPublicConcert(c.id)}}catch(err){alert(err.message)}}
+async function publicVotePrompt(concertId,song,v){const mol=prompt(`Voto versione Molesti per “${song.title}” (1–10):`,v.molesti_score||"");if(mol===null)return;const lyrics=prompt("Voto testo facoltativo (1–10):",v.lyrics_score||"");if(lyrics===null)return;const base=prompt("Voto base facoltativo (1–10):",v.base_score||"");if(base===null)return;try{await fanApi("vote",{concert_id:concertId,song_id:song.id,molesti_score:Number(mol),lyrics_score:lyrics.trim()?Number(lyrics):null,base_score:base.trim()?Number(base):null});await openPublicConcert(concertId)}catch(err){alert(err.message)}}
+async function renderPublicRankings(){try{const data=await fanApi("rankings");$("publicFanRanking").innerHTML=(data.fans||[]).map(r=>`<div class="list-row"><div class="rank" style="width:28px">${r.ranking_position}</div><div class="list-main"><div class="list-title">${esc(r.fan_name)}</div><div class="small-info">${r.attendance_count} presenze</div></div><strong>${r.points} pt</strong></div>`).join("")||'<div class="empty">Classifica non disponibile.</div>';$("publicSongRanking").innerHTML=data.song_ranking_unlocked?(data.songs||[]).map((r,i)=>`<div class="list-row"><div class="rank" style="width:28px">${i+1}</div><div class="list-main"><div class="list-title">${esc(r.title)}</div></div><strong>${r.ranking_score}</strong></div>`).join(""):'<div class="empty">Valuta almeno una canzone per sbloccare la classifica brani.</div>'}catch(err){alert(err.message)}}
+
+/* INIT */
+(async()=>{try{const {data:{session}}=await sb.auth.getSession();if(session?.user){await startMemberApp();return}}catch(err){console.error(err)}showOnly("welcomeScreen")})();
 </script>
 </body>
 </html>
