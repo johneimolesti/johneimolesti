@@ -595,23 +595,66 @@ $("fanApp").querySelectorAll("[data-fan-page]").forEach(btn=>btn.onclick=async()
 async function loadFanFrontend(){await Promise.all([loadPublicCatalog(),loadPublicConcerts()])}
 async function loadPublicCatalog(){
   const box=$("publicCatalogList");
+  box.innerHTML='<div class="empty">Caricamento catalogo...</div>';
   try{
-    const data=await fanApi("catalog"),rows=data.songs||[];
-    if(!rows.length){box.innerHTML='<div class="empty">Nessun brano disponibile.</div>';return}
-    box.innerHTML=`<div class="fan-catalog-scroll"><div class="fan-catalog-head"><div>Brano</div><div>Molesti*</div><div>Base</div><div>Testo</div><div>Con. base</div><div>Con. testo</div></div><div id="fanCatalogRows"></div></div><div class="fan-catalog-actions"><div id="fanCatalogStatus" class="fan-catalog-status">* Molesti obbligatorio solo se vuoi salvare anche i voti Base/Testo. La conoscenza può essere salvata anche da sola.</div><button id="saveFanCatalogVotes" class="fan-catalog-save" type="button" disabled>SALVA MODIFICHE</button></div>`;
-    const rowsBox=$("fanCatalogRows");
-    rows.forEach(s=>{
-      const v=s.my_vote||{},f=s.my_familiarity||{},baseOriginal=!!s.base_is_original||isMolestiArtist(s.base_artist),baseLocked=baseOriginal||f.base_familiarity!=null,lyricsLocked=f.lyrics_familiarity!=null;
-      const row=document.createElement("div");row.className="fan-catalog-row";row.dataset.songId=s.id;row.dataset.baseOriginal=baseOriginal?"1":"0";
-      const baseMeta=[s.base_artist,s.base_title].filter(Boolean).join(" — ")||"Base non indicata",lyricsMeta=[s.lyrics_artist,s.lyrics_title].filter(Boolean).join(" — ")||"Testo non indicato";
-      const baseFam=baseOriginal?'<input class="catalog-base-fam" value="—" disabled title="Base originale John & i Molesti">':`<input class="catalog-base-fam" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${f.base_familiarity??""}" ${baseLocked?"disabled":""} title="${baseLocked?"Conoscenza già registrata: non modificabile":"Quanto conoscevi già la base"}">`;
-      const lyricsFam=`<input class="catalog-lyrics-fam" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${f.lyrics_familiarity??""}" ${lyricsLocked?"disabled":""} title="${lyricsLocked?"Conoscenza già registrata: non modificabile":"Quanto conoscevi già il testo"}">`;
-      row.innerHTML=`<div class="fan-catalog-song"><div class="fan-catalog-title">${esc(s.title)}</div><div class="fan-catalog-meta">Base: ${esc(baseMeta)} · Testo: ${esc(lyricsMeta)}</div></div><div class="fan-catalog-cell"><input class="catalog-molesti" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${v.molesti_score??""}"></div><div class="fan-catalog-cell"><input class="catalog-base-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${v.base_score??""}"></div><div class="fan-catalog-cell"><input class="catalog-lyrics-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${v.lyrics_score??""}"></div><div class="fan-catalog-cell">${baseFam}</div><div class="fan-catalog-cell">${lyricsFam}</div>`;
-      row.querySelectorAll("input:not(:disabled)").forEach(input=>input.addEventListener("input",()=>{row.classList.add("catalog-dirty");row.classList.remove("row-error","row-saved");$("saveFanCatalogVotes").disabled=false;$("fanCatalogStatus").textContent="Modifiche non ancora salvate."}));
-      rowsBox.appendChild(row);
+    const data=await fanApi("catalog");
+    const rows=Array.isArray(data?.songs)?data.songs:[];
+    if(!rows.length){
+      box.innerHTML='<div class="empty">Nessun brano disponibile.</div>';
+      return;
+    }
+
+    const bodyHtml=rows.map(s=>{
+      const v=s?.my_vote||{},f=s?.my_familiarity||{};
+      const baseOriginal=!!s?.base_is_original||isMolestiArtist(s?.base_artist);
+      const baseLocked=baseOriginal||f?.base_familiarity!=null;
+      const lyricsLocked=f?.lyrics_familiarity!=null;
+      const baseMeta=[s?.base_artist,s?.base_title].filter(Boolean).join(" — ")||"Base non indicata";
+      const lyricsMeta=[s?.lyrics_artist,s?.lyrics_title].filter(Boolean).join(" — ")||"Testo non indicato";
+      const baseFam=baseOriginal
+        ? '<input class="catalog-base-fam" value="—" disabled title="Base originale John & i Molesti">'
+        : `<input class="catalog-base-fam" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${esc(f?.base_familiarity??"")}" ${baseLocked?"disabled":""} title="${baseLocked?"Conoscenza già registrata: non modificabile":"Quanto conoscevi già la base"}">`;
+      const lyricsFam=`<input class="catalog-lyrics-fam" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${esc(f?.lyrics_familiarity??"")}" ${lyricsLocked?"disabled":""} title="${lyricsLocked?"Conoscenza già registrata: non modificabile":"Quanto conoscevi già il testo"}">`;
+      return `<div class="fan-catalog-row" data-song-id="${esc(s?.id||"")}" data-base-original="${baseOriginal?"1":"0"}">
+        <div class="fan-catalog-song">
+          <div class="fan-catalog-title">${esc(s?.title||"Senza titolo")}</div>
+          <div class="fan-catalog-meta">Base: ${esc(baseMeta)} · Testo: ${esc(lyricsMeta)}</div>
+        </div>
+        <div class="fan-catalog-cell"><input class="catalog-molesti" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${esc(v?.molesti_score??"")}"></div>
+        <div class="fan-catalog-cell"><input class="catalog-base-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${esc(v?.base_score??"")}"></div>
+        <div class="fan-catalog-cell"><input class="catalog-lyrics-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${esc(v?.lyrics_score??"")}"></div>
+        <div class="fan-catalog-cell">${baseFam}</div>
+        <div class="fan-catalog-cell">${lyricsFam}</div>
+      </div>`;
+    }).join("");
+
+    box.innerHTML=`<div class="fan-catalog-scroll">
+      <div class="fan-catalog-head"><div>Brano</div><div>Molesti*</div><div>Base</div><div>Testo</div><div>Con. base</div><div>Con. testo</div></div>
+      <div id="fanCatalogRows">${bodyHtml}</div>
+    </div>
+    <div class="fan-catalog-actions">
+      <div id="fanCatalogStatus" class="fan-catalog-status">${rows.length} brani · * Molesti obbligatorio solo se vuoi salvare anche i voti Base/Testo. La conoscenza può essere salvata anche da sola.</div>
+      <button id="saveFanCatalogVotes" class="fan-catalog-save" type="button" disabled>SALVA MODIFICHE</button>
+    </div>`;
+
+    document.querySelectorAll("#fanCatalogRows .fan-catalog-row").forEach(row=>{
+      row.querySelectorAll("input:not(:disabled)").forEach(input=>input.addEventListener("input",()=>{
+        row.classList.add("catalog-dirty");
+        row.classList.remove("row-error","row-saved");
+        const save=$("saveFanCatalogVotes");
+        if(save)save.disabled=false;
+        const status=$("fanCatalogStatus");
+        if(status)status.textContent="Modifiche non ancora salvate.";
+      }));
     });
-    $("saveFanCatalogVotes").onclick=savePublicCatalogVotes;
-  }catch(err){box.innerHTML=`<div class="empty">${esc(err.message)}</div>`}
+    const save=$("saveFanCatalogVotes");
+    if(save)save.onclick=savePublicCatalogVotes;
+  }catch(err){
+    console.error("Errore catalogo fan",err);
+    box.innerHTML=`<div class="empty"><strong>Errore caricamento catalogo</strong><br>${esc(err?.message||String(err))}<br><br><button id="retryFanCatalog" class="small-btn" type="button">RIPROVA</button></div>`;
+    const retry=$("retryFanCatalog");
+    if(retry)retry.onclick=loadPublicCatalog;
+  }
 }
 function catalogValue(row,selector){const el=row.querySelector(selector);if(!el||el.disabled)return null;const raw=String(el.value??"").trim();return raw===""?null:Number(raw)}
 function catalogValueValid(v){return v==null||(Number.isFinite(v)&&v>=1&&v<=10)}
