@@ -1,39 +1,1869 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>John & i Molesti — Setlist</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 
-
   <style>
-
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     :root {
-      --bg: #111;
+      --bg: #101010;
       --panel: #181818;
-      --row: #242424;
-      --row2: #2b2b2b;
-      --border: #353535;
-      --text: #fff;
+      --row: #232323;
+      --row-2: #292929;
+      --border: #363636;
+      --text: #f7f7f7;
       --muted: #888;
       --accent: #f0cf21;
-      --danger: #b94d4d;
-      --success: #4f9b68;
+      --danger: #a84545;
+      --success: #377e50;
+      --info: #325d83;
     }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select, textarea { font-family: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: default; opacity: .45; }
+    .hidden { display: none !important; }
+
+    /* LOGIN */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-box {
+      width: min(370px, 100%);
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+
+    .login-box h1 { margin: 0; font-size: 25px; }
+    .login-subtitle { margin: 4px 0 24px; color: var(--muted); font-size: 13px; }
+    .login-box label { display: block; margin: 12px 0 5px; color: #aaa; font-size: 12px; }
+    .login-box input {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #222;
+      color: white;
+      font-size: 16px;
+    }
+    .login-box input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+    #loginButton {
+      width: 100%;
+      margin-top: 18px;
+      padding: 11px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #111;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    #loginMessage { min-height: 18px; margin-top: 12px; color: #e59a9a; font-size: 12px; line-height: 1.4; }
+    .login-note { margin-top: 14px; color: #666; font-size: 10px; text-align: center; line-height: 1.4; }
+
+    /* APP */
+    #appScreen { display: none; }
+
+    header {
+      min-height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 5px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+    .brand h1 { margin: 0; font-size: 17px; }
+    .brand p { margin: 1px 0 0; color: #777; font-size: 10px; }
+    .user-area { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 11px; }
+    #logoutButton { padding: 5px 8px; border: 1px solid #444; border-radius: 5px; background: #282828; color: #ddd; font-size: 10px; }
+
+    .nav {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: flex;
+      gap: 2px;
+      padding: 5px 10px 0;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .nav-button {
+      flex: 0 0 auto;
+      padding: 7px 11px;
+      border: 1px solid #333;
+      border-bottom: 0;
+      border-radius: 5px 5px 0 0;
+      background: #1c1c1c;
+      color: #999;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .nav-button.active { border-color: var(--accent); background: var(--accent); color: #111; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 16px;
+      height: 16px;
+      margin-left: 4px;
+      padding: 0 4px;
+      border-radius: 8px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 9px;
+    }
+
+    main { width: min(1500px, 100%); margin: 0 auto; padding: 6px 10px 16px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+    .toolbar input, .toolbar select {
+      min-width: 0;
+      height: 31px;
+      padding: 4px 8px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      background: #222;
+      color: #fff;
+      font-size: 12px;
+    }
+    .toolbar input.grow { flex: 1 1 220px; }
+    .toolbar button {
+      min-height: 31px;
+      padding: 4px 11px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--accent);
+      color: #111;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .toolbar button.secondary { border: 1px solid #444; background: #2b2b2b; color: #ddd; }
+    .toolbar button.danger { background: #5a2929; color: #f2b5b5; }
+    .toolbar button.success { background: #28563a; color: #a9e8bb; }
+
+    .columns { display: grid; grid-template-columns: 3fr 1fr; gap: 6px; }
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .panel { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); }
+    .panel-header {
+      min-height: 29px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 7px;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-header h2 { margin: 0; font-size: 11px; }
+    .counter { color: #777; font-size: 9px; }
+    .empty { padding: 24px 10px; color: #666; text-align: center; font-size: 10px; }
+    .section-note { margin: 0 0 7px; color: #777; font-size: 10px; line-height: 1.5; }
+
+    /* SONG TABLE / SETLIST */
+    .song-list { min-height: 90px; padding: 2px; }
+    .song-row {
+      min-height: 23px;
+      display: grid;
+      grid-template-columns: 15px 25px 42px minmax(150px, 1fr) 48px 58px minmax(80px, .65fr) minmax(80px, .65fr) auto;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 1px;
+      padding: 2px 4px;
+      border: 1px solid #333;
+      border-radius: 3px;
+      background: var(--row);
+      font-size: 10px;
+    }
+    .song-row.header-row {
+      min-height: 24px;
+      border: 0;
+      border-bottom: 1px solid #333;
+      border-radius: 0;
+      background: #1c1c1c;
+      color: #777;
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .song-row.excluded { opacity: .55; }
+    .drag-handle { color: #666; cursor: grab; user-select: none; font-size: 12px; }
+    .position { color: #aaa; font-size: 9px; text-align: right; }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
+      font-size: 9px;
+      font-weight: 800;
+      color: #111;
+      background: #aaa;
+    }
+    .score-badge.top { background: #87d59e; }
+    .score-badge.good { background: #d5ca71; }
+    .score-badge.mid { background: #d0a56c; }
+    .score-badge.low { background: #c98282; }
+    .song-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 700; }
+    .song-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #aaa; }
+    .song-actions { display: flex; justify-content: flex-end; gap: 2px; }
+    .song-actions button { min-width: 20px; height: 18px; padding: 0 4px; border: 0; border-radius: 3px; background: #383838; color: #ddd; font-size: 9px; }
+    .sortable-ghost { opacity: .2; }
+    .sortable-chosen { border-color: var(--accent); }
+
+    /* GENERAL ROWS */
+    .list { padding: 2px; }
+    .list-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 30px;
+      margin-bottom: 2px;
+      padding: 5px 7px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: var(--row);
+      font-size: 10px;
+    }
+    .list-main { flex: 1; min-width: 0; }
+    .list-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 11px; }
+    .small-info { margin-top: 2px; color: #777; font-size: 9px; line-height: 1.3; }
+    .row-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 3px; }
+    .small-button { padding: 4px 7px; border: 0; border-radius: 3px; background: #3b3b3b; color: #ddd; font-size: 9px; }
+    .small-button.primary { background: var(--accent); color: #111; font-weight: 700; }
+    .small-button.danger { background: #5b2929; color: #f2b5b5; }
+    .small-button.success { background: #28563a; color: #a9e8bb; }
+    .small-button.info { background: #294b67; color: #b8d9f2; }
+    .status { flex: 0 0 auto; padding: 3px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; }
+    .status.pending { background: #64581e; color: #f6dc55; }
+    .status.approved { background: #234c30; color: #8ed9a6; }
+    .status.rejected { background: #522828; color: #e89a9a; }
+    .status.draft { background: #3b3b3b; color: #bbb; }
+    .status.confirmed { background: #294b67; color: #b8d9f2; }
+    .status.completed { background: #28563a; color: #a9e8bb; }
+
+    /* MEMBER TABS */
+    .member-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+    .member-tab { padding: 6px 10px; border: 1px solid #444; border-radius: 5px; background: #222; color: #aaa; font-size: 10px; }
+    .member-tab.active { border-color: var(--accent); background: var(--accent); color: #111; font-weight: 700; }
+    .member-tab.unavailable { opacity: .4; }
+
+    /* PROPOSAL ALGORITHM */
+    .proposal-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .summary-card { padding: 8px; border: 1px solid #333; border-radius: 5px; background: #1c1c1c; }
+    .summary-label { color: #777; font-size: 8px; text-transform: uppercase; }
+    .summary-value { margin-top: 2px; font-size: 14px; font-weight: 800; }
+    .sequence-tag { display: inline-block; margin-left: 4px; padding: 2px 4px; border-radius: 3px; background: #343434; color: #bbb; font-size: 7px; vertical-align: middle; }
+    .sequence-tag.accent { background: #685c18; color: #f6dc55; }
+    .sequence-tag.final { background: #572929; color: #efabab; }
+    .sequence-tag.bridge { background: #294b67; color: #b8d9f2; }
+
+    /* RANKINGS */
+    .ranking-row {
+      display: grid;
+      grid-template-columns: 42px 46px minmax(170px, 1fr) 90px 90px 90px;
+      align-items: center;
+      gap: 6px;
+      min-height: 31px;
+      margin-bottom: 2px;
+      padding: 4px 7px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      background: var(--row);
+      font-size: 10px;
+    }
+    .ranking-row.header-row { border: 0; border-bottom: 1px solid #333; border-radius: 0; background: #1c1c1c; color: #777; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+    .rank { text-align: center; font-weight: 800; font-size: 12px; }
+
+    /* CONCERTS */
+    .concert-layout { display: grid; grid-template-columns: minmax(250px, .75fr) minmax(0, 2fr); gap: 6px; }
+    .concert-row.selected { border-color: var(--accent); }
+    .concert-detail { padding: 7px; }
+    .concert-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 7px; color: #aaa; font-size: 10px; }
+    .fan-average { color: #9ec5e3; font-size: 8px; }
+
+    /* MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.78);
+    }
+    .modal.open { display: flex; }
+    .modal-card { width: min(760px, 100%); max-height: 90vh; overflow-y: auto; border: 1px solid #444; border-radius: 8px; background: #1a1a1a; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #333; }
+    .modal-header h2 { margin: 0; font-size: 14px; }
+    .modal-close { border: 0; background: transparent; color: #aaa; font-size: 20px; }
+    .form-body { padding: 12px; }
+    .form-section { margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #303030; }
+    .form-section h3 { margin: 0 0 8px; color: var(--accent); font-size: 10px; text-transform: uppercase; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label { display: block; margin-bottom: 3px; color: #888; font-size: 9px; }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+      padding: 7px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #242424;
+      color: #fff;
+      font-size: 12px;
+    }
+    .form-field textarea { min-height: 70px; resize: vertical; }
+    .checkbox-row { display: flex; flex-wrap: wrap; gap: 14px; }
+    .checkbox-row label { display: flex; align-items: center; gap: 5px; color: #bbb; font-size: 10px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 5px; margin-top: 10px; }
+    .modal-actions button { padding: 7px 12px; border: 0; border-radius: 4px; font-size: 10px; }
+    .modal-save { background: var(--accent); color: #111; font-weight: 700; }
+    .modal-cancel { background: #333; color: #ddd; }
+
+    /* PRINT */
+    .print-only { display: none; }
+
+    @media (max-width: 900px) {
+      .song-row { grid-template-columns: 15px 24px 40px minmax(135px, 1fr) 44px 55px auto; }
+      .song-row > .base-artist-col, .song-row > .lyrics-artist-col { display: none; }
+      .proposal-summary { grid-template-columns: 1fr 1fr; }
+      .concert-layout { grid-template-columns: 1fr; }
+      .ranking-row { grid-template-columns: 35px 42px minmax(140px, 1fr) 75px; }
+      .ranking-row > :nth-child(5), .ranking-row > :nth-child(6) { display: none; }
+    }
+
+    @media (max-width: 700px) {
+      header { min-height: 48px; }
+      .columns, .two-columns { grid-template-columns: 1fr; }
+      .toolbar input { font-size: 16px; }
+      .song-row {
+        grid-template-columns: 20px 26px 42px minmax(0, 1fr) auto;
+        min-height: 40px;
+        padding: 4px 5px;
+      }
+      .song-row.header-row { display: none; }
+      .song-row > .bpm-col, .song-row > .key-col, .song-row > .base-artist-col, .song-row > .lyrics-artist-col { display: none; }
+      .song-title { white-space: normal; line-height: 1.2; font-size: 12px; }
+      .song-title::after { content: attr(data-mobile-meta); display: block; margin-top: 2px; color: #777; font-size: 8px; font-weight: 400; }
+      .song-actions button { min-width: 30px; height: 28px; font-size: 12px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .proposal-summary { grid-template-columns: 1fr 1fr; }
+      .ranking-row { grid-template-columns: 30px 42px minmax(0, 1fr); }
+      .ranking-row.header-row { display: none; }
+      .ranking-row > :nth-child(n+4) { grid-column: 3; font-size: 8px; color: #aaa; }
+    }
+  </style>
+</head>
+
+<body>
+<section id="loginScreen">
+  <form id="loginForm" class="login-box">
+    <h1>John & i Molesti</h1>
+    <div class="login-subtitle">Setlist Builder</div>
+
+    <label for="username">Username</label>
+    <input id="username" type="text" autocomplete="username" autocapitalize="none" required>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" minlength="6" required>
+
+    <button id="loginButton" type="submit">ACCEDI</button>
+    <div id="loginMessage"></div>
+    <div class="login-note">Al primo accesso la password inserita viene associata al membro.</div>
+  </form>
+</section>
+
+<section id="appScreen">
+  <header>
+    <div class="brand">
+      <h1>John & i Molesti</h1>
+      <p>Setlist Builder</p>
+    </div>
+    <div class="user-area">
+      <strong id="currentUser"></strong>
+      <button id="logoutButton" type="button">Esci</button>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
+    <button class="nav-button" data-page="proposalPage">PROPOSTA FINALE</button>
+    <button class="nav-button" data-page="catalogPage">BRANI & PROPOSTE <span id="proposalBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-page="membersPage">SCALETTE MEMBRI</button>
+    <button class="nav-button" data-page="concertsPage">CONCERTI</button>
+    <button class="nav-button" data-page="songRankingPage">CLASSIFICA BRANI</button>
+    <button class="nav-button" data-page="fansPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
+  </nav>
+
+  <main>
+    <!-- MY SETLIST -->
+    <section id="mySetlistPage" class="page active">
+      <div class="columns">
+        <section class="panel">
+          <div class="panel-header"><h2>LA MIA SCALETTA</h2><span id="setlistCounter" class="counter"></span></div>
+          <div id="mySetlistHeader"></div>
+          <div id="setlist" class="song-list"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>ESCLUSE</h2><span id="excludedCounter" class="counter"></span></div>
+          <div id="excluded" class="song-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- PROPOSAL -->
+    <section id="proposalPage" class="page">
+      <p class="section-note">La proposta usa preferenze dei membri, score dei brani, funzione live, varietà di artisti e sequenze consecutive ricorrenti nelle scalette personali. Lo score misura quanto è forte un pezzo; l'algoritmo decide quando giocarselo.</p>
+      <div id="proposalSummary" class="proposal-summary"></div>
+      <div class="columns">
+        <section class="panel">
+          <div class="panel-header"><h2>PROPOSTA AUTOMATICA</h2><span id="algorithmCounter" class="counter"></span></div>
+          <div id="algorithmHeader"></div>
+          <div id="algorithmList" class="song-list"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2>ESCLUSE SUGGERITE</h2><span id="algorithmExcludedCounter" class="counter"></span></div>
+          <div id="algorithmExcluded" class="song-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- CATALOG -->
+    <section id="catalogPage" class="page">
+      <form id="newSongForm" class="toolbar">
+        <input id="newSongTitle" class="grow" type="text" placeholder="Titolo nuova canzone..." autocomplete="off" required>
+        <button id="newSongButton" type="submit">+ AGGIUNGI</button>
+      </form>
+      <div class="two-columns">
+        <section class="panel">
+          <div class="panel-header"><h2>CATALOGO UFFICIALE</h2><span id="catalogCounter" class="counter"></span></div>
+          <div id="catalogList" class="list"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2 id="proposalSectionTitle">PROPOSTE</h2><span id="proposalCounter" class="counter"></span></div>
+          <div id="proposalList" class="list"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- MEMBERS -->
+    <section id="membersPage" class="page">
+      <div id="memberTabs" class="member-tabs"></div>
+      <section class="panel">
+        <div class="panel-header"><h2 id="memberSetlistTitle">SCALETTA</h2><span id="memberSetlistCounter" class="counter"></span></div>
+        <div id="memberSetlistHeader"></div>
+        <div id="memberSetlist" class="song-list"></div>
+      </section>
+    </section>
+
+    <!-- CONCERTS -->
+    <section id="concertsPage" class="page">
+      <div id="concertAdminToolbar" class="toolbar hidden">
+        <button id="newConcertButton" type="button">+ NUOVO CONCERTO</button>
+      </div>
+      <div class="concert-layout">
+        <section class="panel">
+          <div class="panel-header"><h2>CONCERTI</h2><span id="concertCounter" class="counter"></span></div>
+          <div id="concertList" class="list"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header"><h2 id="concertDetailTitle">SCALETTA CONCERTO</h2><span id="concertDetailCounter" class="counter"></span></div>
+          <div id="concertDetail" class="concert-detail"><div class="empty">Seleziona un concerto.</div></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- SONG RANKING -->
+    <section id="songRankingPage" class="page">
+      <p class="section-note">Lo score 1–100 combina dati interni e giudizi fan. I voti individuali dei fan non sono visibili: vengono usate soltanto medie aggregate.</p>
+      <section class="panel">
+        <div class="panel-header"><h2>CLASSIFICA BRANI</h2><span id="songRankingCounter" class="counter"></span></div>
+        <div id="songRankingList" class="list"></div>
+      </section>
+    </section>
+
+    <!-- FANS -->
+    <section id="fansPage" class="page">
+      <div class="two-columns">
+        <section class="panel">
+          <div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="fanRankingCounter" class="counter"></span></div>
+          <div id="fanRankingList" class="list"></div>
+        </section>
+        <section id="fanAdminPanel" class="panel hidden">
+          <div class="panel-header"><h2>RICHIESTE UNIFICAZIONE</h2><span id="mergeRequestCounter" class="counter"></span></div>
+          <div id="mergeRequestList" class="list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- SONG MODAL -->
+<div id="songModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-header"><h2>Scheda canzone</h2><button id="closeSongModal" class="modal-close" type="button">×</button></div>
+    <form id="songEditForm" class="form-body">
+      <input id="editSongId" type="hidden">
+
+      <div class="form-section">
+        <h3>Canzone Molesta</h3>
+        <div class="form-grid">
+          <div class="form-field full"><label>Titolo</label><input id="editTitle" required></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Base musicale</h3>
+        <div class="form-grid">
+          <div class="form-field"><label>Titolo</label><input id="editBaseTitle"></div>
+          <div class="form-field"><label>Artista</label><input id="editBaseArtist"></div>
+          <div class="form-field"><label>Anno</label><input id="editBaseYear" type="number" min="1900" max="2100"></div>
+          <div class="form-field"><label>BPM</label><input id="editBpm" type="number" min="20" max="400" step="0.01"></div>
+          <div class="form-field"><label>Nota</label><input id="editKeyNote" placeholder="Es. A, C#, Bb"></div>
+          <div class="form-field"><label>Scala</label><select id="editKeyMode"><option value="">—</option><option value="major">Maggiore</option><option value="minor">Minore</option></select></div>
+          <div class="form-field"><label>Popolarità base 0–10</label><input id="editBasePopularity" type="number" min="0" max="10" step="0.1"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Testo</h3>
+        <div class="form-grid">
+          <div class="form-field"><label>Titolo</label><input id="editLyricsTitle"></div>
+          <div class="form-field"><label>Artista</label><input id="editLyricsArtist"></div>
+          <div class="form-field"><label>Anno</label><input id="editLyricsYear" type="number" min="1900" max="2100"></div>
+          <div class="form-field"><label>Popolarità testo 0–10</label><input id="editLyricsPopularity" type="number" min="0" max="10" step="0.1"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Versione Molesta / Live</h3>
+        <div class="form-grid">
+          <div class="form-field"><label>Durata in secondi</label><input id="editDuration" type="number" min="1"></div>
+          <div class="form-field"><label>Apprezzamento generale 0–10</label><input id="editGeneralRating" type="number" min="0" max="10" step="0.1"></div>
+          <div class="form-field"><label>Coinvolgimento 0–10</label><input id="editEngagement" type="number" min="0" max="10" step="0.1"></div>
+          <div class="form-field"><label>Curiosità / capacità di attirare 0–10</label><input id="editCuriosity" type="number" min="0" max="10" step="0.1"></div>
+          <div class="form-field"><label>Esplosività 0–10</label><input id="editExplosiveness" type="number" min="0" max="10" step="0.1"></div>
+          <div class="form-field"><label>Capacità di stacco / transizione 0–10</label><input id="editTransition" type="number" min="0" max="10" step="0.1"></div>
+          <div class="form-field full"><label>Note</label><textarea id="editNotes"></textarea></div>
+          <div class="form-field full">
+            <div class="checkbox-row">
+              <label><input id="editActive" type="checkbox"> Brano attivo</label>
+              <label><input id="editCanOpen" type="checkbox"> Può aprire</label>
+              <label><input id="editIsBridge" type="checkbox"> Brano di stacco</label>
+              <label><input id="editCanClose" type="checkbox"> Può chiudere</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelSongEdit" class="modal-cancel" type="button">ANNULLA</button>
+        <button class="modal-save" type="submit">SALVA</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CONCERT MODAL -->
+<div id="concertModal" class="modal">
+  <div class="modal-card" style="width:min(560px,100%)">
+    <div class="modal-header"><h2 id="concertModalTitle">Concerto</h2><button id="closeConcertModal" class="modal-close" type="button">×</button></div>
+    <form id="concertForm" class="form-body">
+      <input id="editConcertId" type="hidden">
+      <div class="form-grid">
+        <div class="form-field full"><label>Nome concerto / evento</label><input id="concertName" required></div>
+        <div class="form-field"><label>Data</label><input id="concertDate" type="date" required></div>
+        <div class="form-field"><label>Stato</label><select id="concertStatus"><option value="draft">Bozza</option><option value="confirmed">Confermato</option><option value="completed">Concluso</option></select></div>
+        <div class="form-field"><label>Locale / evento</label><input id="concertVenue"></div>
+        <div class="form-field"><label>Città</label><input id="concertCity"></div>
+        <div class="form-field full"><label class="checkbox-row"><span><input id="concertVotingOpen" type="checkbox"> Votazione fan aperta</span></label></div>
+      </div>
+      <div class="modal-actions">
+        <button id="cancelConcertEdit" class="modal-cancel" type="button">ANNULLA</button>
+        <button class="modal-save" type="submit">SALVA</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://etzwybamvfpeitkttwrc.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const BAND_MEMBERS = [
+    { username: "ema", displayName: "Ema" },
+    { username: "kekko", displayName: "Kekko" },
+    { username: "gianni", displayName: "Gianni" },
+    { username: "carlo", displayName: "Carlo" },
+    { username: "ale", displayName: "Ale" }
+  ];
+
+  let currentUser = null;
+  let currentProfile = null;
+  let currentSetlistId = null;
+  let songs = [];
+  let songScores = [];
+  let setlistItems = [];
+  let proposals = [];
+  let profiles = [];
+  let idealSetlists = [];
+  let communityItems = [];
+  let concerts = [];
+  let selectedConcertId = null;
+  let selectedMemberUsername = null;
+  let algorithmResult = { included: [], excluded: [], stats: {} };
+  let fanRanking = [];
+  let mergeRequests = [];
+  let adminFans = [];
+  let concertSortable = null;
+
+  const loginScreen = document.getElementById("loginScreen");
+  const appScreen = document.getElementById("appScreen");
+  const loginForm = document.getElementById("loginForm");
+  const loginButton = document.getElementById("loginButton");
+  const loginMessage = document.getElementById("loginMessage");
+  const usernameInput = document.getElementById("username");
+  const passwordInput = document.getElementById("password");
+  const setlistElement = document.getElementById("setlist");
+  const excludedElement = document.getElementById("excluded");
+
+  function isEma() {
+    return currentProfile?.username?.toLowerCase() === "ema";
+  }
+
+  function isFanAdmin() {
+    return ["ema", "kekko"].includes(currentProfile?.username?.toLowerCase());
+  }
+
+  function activeSongs() {
+    return songs.filter(song => song.active);
+  }
+
+  function songScore(songId) {
+    const row = songScores.find(item => item.song_id === songId);
+    const value = Number(row?.score);
+    return Number.isFinite(value) ? value : 50;
+  }
+
+  function scoreClass(score) {
+    if (score >= 90) return "top";
+    if (score >= 80) return "good";
+    if (score >= 65) return "mid";
+    return "low";
+  }
+
+  function scoreBadge(songId) {
+    const score = songScore(songId);
+    return `<span class="score-badge ${scoreClass(score)}">${score.toFixed(0)}</span>`;
+  }
+
+  function keyLabel(song) {
+    if (!song.key_note) return "—";
+    const mode = song.key_mode === "major" ? "Maj" : song.key_mode === "minor" ? "Min" : "";
+    return `${song.key_note}${mode ? " " + mode : ""}`;
+  }
+
+  function formatDate(value) {
+    if (!value) return "—";
+    const [y, m, d] = String(value).slice(0, 10).split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  function formatDuration(seconds) {
+    const n = Number(seconds);
+    if (!Number.isFinite(n) || n <= 0) return "—";
+    const h = Math.floor(n / 3600);
+    const m = Math.floor((n % 3600) / 60);
+    const s = Math.round(n % 60);
+    return h ? `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}` : `${m}:${String(s).padStart(2,"0")}`;
+  }
+
+  function emptyToNull(value) {
+    const text = String(value ?? "").trim();
+    return text === "" ? null : text;
+  }
+
+  function numberOrNull(value) {
+    if (value === "" || value === null || value === undefined) return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function normalizeArtist(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function getProfileById(id) {
+    return profiles.find(profile => profile.id === id);
+  }
+
+  function makeSongHeader() {
+    return `
+      <div class="song-row header-row">
+        <div></div><div>#</div><div>Score</div><div>Brano</div><div class="bpm-col">BPM</div><div class="key-col">Key</div><div class="base-artist-col">Base</div><div class="lyrics-artist-col">Testo</div><div></div>
+      </div>`;
+  }
+
+  function mobileMeta(song) {
+    const bits = [];
+    if (song.bpm) bits.push(`${song.bpm} BPM`);
+    if (song.key_note) bits.push(keyLabel(song));
+    if (song.base_artist) bits.push(`Base: ${song.base_artist}`);
+    if (song.lyrics_artist) bits.push(`Testo: ${song.lyrics_artist}`);
+    return bits.join(" · ");
+  }
+
+  function createSongRow(song, index, options = {}) {
+    const {
+      draggable = false,
+      excluded = false,
+      actions = [],
+      tags = []
+    } = options;
+
+    const row = document.createElement("div");
+    row.className = `song-row${excluded ? " excluded" : ""}`;
+    row.dataset.id = song.id;
+
+    const handle = document.createElement("div");
+    handle.className = "drag-handle";
+    handle.textContent = draggable ? "☰" : "";
+
+    const pos = document.createElement("div");
+    pos.className = "position";
+    pos.textContent = index === null || index === undefined ? "—" : index + 1;
+
+    const score = document.createElement("div");
+    score.innerHTML = scoreBadge(song.id);
+
+    const title = document.createElement("div");
+    title.className = "song-title";
+    title.textContent = song.title;
+    title.title = song.title;
+    title.dataset.mobileMeta = mobileMeta(song);
+    tags.forEach(tag => {
+      const span = document.createElement("span");
+      span.className = `sequence-tag ${tag.className || ""}`.trim();
+      span.textContent = tag.text;
+      title.appendChild(span);
+    });
+
+    const bpm = document.createElement("div");
+    bpm.className = "song-meta bpm-col";
+    bpm.textContent = song.bpm ?? "—";
+
+    const key = document.createElement("div");
+    key.className = "song-meta key-col";
+    key.textContent = keyLabel(song);
+
+    const baseArtist = document.createElement("div");
+    baseArtist.className = "song-meta base-artist-col";
+    baseArtist.textContent = song.base_artist || "—";
+    baseArtist.title = song.base_artist || "";
+
+    const lyricsArtist = document.createElement("div");
+    lyricsArtist.className = "song-meta lyrics-artist-col";
+    lyricsArtist.textContent = song.lyrics_artist || "—";
+    lyricsArtist.title = song.lyrics_artist || "";
+
+    const actionBox = document.createElement("div");
+    actionBox.className = "song-actions";
+    actions.forEach(action => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = action.label;
+      button.title = action.title || "";
+      button.addEventListener("click", action.onClick);
+      actionBox.appendChild(button);
+    });
+
+    row.append(handle, pos, score, title, bpm, key, baseArtist, lyricsArtist, actionBox);
+    return row;
+  }
+
+  /* NAV */
+  document.querySelectorAll(".nav-button").forEach(button => {
+    button.addEventListener("click", async () => {
+      document.querySelectorAll(".nav-button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById(button.dataset.page).classList.add("active");
+
+      try {
+        if (button.dataset.page === "proposalPage") {
+          await loadCommunityData();
+          calculateAlgorithm();
+          renderAlgorithm();
+        }
+        if (button.dataset.page === "catalogPage") {
+          await loadProposals();
+          renderCatalog();
+          renderProposals();
+        }
+        if (button.dataset.page === "membersPage") {
+          await loadCommunityData();
+          renderMemberTabs();
+          renderSelectedMember();
+        }
+        if (button.dataset.page === "concertsPage") {
+          await loadConcerts();
+          renderConcerts();
+          if (selectedConcertId) await renderConcertDetail(selectedConcertId);
+        }
+        if (button.dataset.page === "songRankingPage") {
+          await loadSongScores();
+          renderSongRanking();
+        }
+        if (button.dataset.page === "fansPage") {
+          await loadFanArea();
+          renderFanArea();
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Errore: " + error.message);
+      }
+    });
+  });
+
+  /* LOGIN */
+  loginForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    const username = usernameInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+
+    if (!username) {
+      loginMessage.textContent = "Inserisci lo username.";
+      return;
+    }
+    if (password.length < 6) {
+      loginMessage.textContent = "La password deve contenere almeno 6 caratteri.";
+      return;
+    }
+
+    loginButton.disabled = true;
+    loginMessage.textContent = "Accesso in corso...";
+
+    try {
+      const { data: memberData, error: memberError } = await supabaseClient.rpc("check_member", { p_username: username });
+      if (memberError) throw memberError;
+      if (!memberData?.length) {
+        loginMessage.textContent = "Username non riconosciuto.";
+        return;
+      }
+
+      const member = memberData[0];
+      const email = `${username}@johnimolesti.app`;
+
+      if (!member.activated) {
+        loginMessage.textContent = "Primo accesso: creazione account...";
+        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+
+        if (signUpError) {
+          const { error: recoveryError } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (recoveryError) throw signUpError;
+        } else if (!signUpData.session) {
+          loginMessage.textContent = "Account creato, ma Supabase richiede la conferma email.";
+          return;
+        }
+
+        const { error: claimError } = await supabaseClient.rpc("claim_member", { p_username: username });
+        if (claimError) throw claimError;
+      } else {
+        const { error: signInError } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (signInError) {
+          loginMessage.textContent = "Password errata.";
+          return;
+        }
+      }
+
+      loginMessage.textContent = "";
+      await startApp();
+    } catch (error) {
+      console.error(error);
+      loginMessage.textContent = error?.message || "Errore durante l'accesso.";
+    } finally {
+      loginButton.disabled = false;
+    }
+  });
+
+  async function startApp() {
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (error) throw error;
+    if (!data.user) return showLogin();
+
+    currentUser = data.user;
+    const { data: profile, error: profileError } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
+    if (profileError) {
+      await supabaseClient.auth.signOut();
+      showLogin();
+      loginMessage.textContent = "Profilo utente non trovato.";
+      return;
+    }
+
+    currentProfile = profile;
+    document.getElementById("currentUser").textContent = profile.display_name;
+    document.getElementById("newSongButton").textContent = isEma() ? "+ AGGIUNGI" : "+ PROPONI";
+    document.getElementById("proposalSectionTitle").textContent = isEma() ? "PROPOSTE DA VALUTARE" : "LE MIE PROPOSTE";
+    document.getElementById("concertAdminToolbar").classList.toggle("hidden", !isEma());
+    document.getElementById("fanAdminPanel").classList.toggle("hidden", !isFanAdmin());
+
+    showApp();
+    await ensureDefaultSetlist();
+    await refreshCore();
+  }
+
+  async function ensureDefaultSetlist() {
+    const { data, error } = await supabaseClient.from("setlists").select("id").eq("owner_id", currentUser.id).eq("name", "Scaletta ideale").limit(1);
+    if (error) throw error;
+    if (data?.length) {
+      currentSetlistId = data[0].id;
+      return;
+    }
+
+    const { data: created, error: createError } = await supabaseClient.from("setlists").insert({ owner_id: currentUser.id, name: "Scaletta ideale" }).select("id").single();
+    if (createError) throw createError;
+    currentSetlistId = created.id;
+  }
+
+  async function loadSongs() {
+    const { data, error } = await supabaseClient.from("songs").select("*").order("created_at", { ascending: true });
+    if (error) throw error;
+    songs = data || [];
+  }
+
+  async function loadSongScores() {
+    const { data, error } = await supabaseClient.rpc("get_song_scores");
+    if (error) throw error;
+    songScores = data || [];
+  }
+
+  async function loadSetlistItems() {
+    const { data, error } = await supabaseClient.from("setlist_items").select("*").eq("setlist_id", currentSetlistId);
+    if (error) throw error;
+    setlistItems = data || [];
+  }
+
+  async function ensureInitialItems() {
+    await loadSetlistItems();
+    if (setlistItems.length) return;
+    const available = activeSongs();
+    if (!available.length) return;
+    const rows = available.map((song, index) => ({ setlist_id: currentSetlistId, song_id: song.id, position: index, included: true }));
+    const { error } = await supabaseClient.from("setlist_items").insert(rows);
+    if (error) throw error;
+  }
+
+  async function loadProfiles() {
+    const { data, error } = await supabaseClient.from("profiles").select("*");
+    if (error) throw error;
+    profiles = data || [];
+  }
+
+  async function loadProposals() {
+    const { data, error } = await supabaseClient.from("song_proposals").select("*").order("created_at", { ascending: false });
+    if (error) throw error;
+    proposals = data || [];
+    updateBadges();
+  }
+
+  async function refreshCore() {
+    await loadSongs();
+    await loadSongScores();
+    await ensureInitialItems();
+    await loadSetlistItems();
+    await loadProfiles();
+    await loadProposals();
+    renderMySetlist();
+    renderCatalog();
+    renderProposals();
+    renderSongRanking();
+  }
+
+  /* MY SETLIST */
+  function getItemsMap() {
+    return new Map(setlistItems.map(item => [item.song_id, item]));
+  }
+
+  function getIncludedSongs() {
+    const map = getItemsMap();
+    return activeSongs().filter(song => map.get(song.id)?.included).sort((a, b) => (map.get(a.id)?.position ?? 9999) - (map.get(b.id)?.position ?? 9999));
+  }
+
+  function getExcludedSongs() {
+    const map = getItemsMap();
+    return activeSongs().filter(song => !map.get(song.id)?.included).sort((a, b) => a.title.localeCompare(b.title, "it"));
+  }
+
+  function renderMySetlist() {
+    document.getElementById("mySetlistHeader").innerHTML = makeSongHeader();
+    setlistElement.innerHTML = "";
+    excludedElement.innerHTML = "";
+    const included = getIncludedSongs();
+    const excluded = getExcludedSongs();
+
+    included.forEach((song, index) => {
+      setlistElement.appendChild(createSongRow(song, index, {
+        draggable: true,
+        actions: [{ label: "×", title: "Escludi", onClick: () => setSongIncluded(song.id, false) }]
+      }));
+    });
+
+    excluded.forEach(song => {
+      excludedElement.appendChild(createSongRow(song, null, {
+        draggable: true,
+        excluded: true,
+        actions: [{ label: "+", title: "Inserisci", onClick: () => setSongIncluded(song.id, true) }]
+      }));
+    });
+
+    if (!included.length) setlistElement.innerHTML = '<div class="empty">Nessun brano in scaletta</div>';
+    if (!excluded.length) excludedElement.innerHTML = '<div class="empty">Nessun brano escluso</div>';
+    document.getElementById("setlistCounter").textContent = `${included.length} brani`;
+    document.getElementById("excludedCounter").textContent = `${excluded.length} brani`;
+  }
+
+  async function setSongIncluded(songId, included) {
+    const position = included ? getIncludedSongs().length : null;
+    const { error } = await supabaseClient.from("setlist_items").upsert({ setlist_id: currentSetlistId, song_id: songId, included, position });
+    if (error) return alert("Errore: " + error.message);
+    await loadSetlistItems();
+    renderMySetlist();
+  }
+
+  async function syncFromDOM() {
+    const includedIds = Array.from(setlistElement.querySelectorAll(".song-row")).map(el => el.dataset.id);
+    const excludedIds = Array.from(excludedElement.querySelectorAll(".song-row")).map(el => el.dataset.id);
+    const rows = [];
+    includedIds.forEach((songId, index) => rows.push({ setlist_id: currentSetlistId, song_id: songId, included: true, position: index }));
+    excludedIds.forEach(songId => rows.push({ setlist_id: currentSetlistId, song_id: songId, included: false, position: null }));
+    if (!rows.length) return;
+    const { error } = await supabaseClient.from("setlist_items").upsert(rows);
+    if (error) alert("Errore salvataggio: " + error.message);
+    await loadSetlistItems();
+    renderMySetlist();
+  }
+
+  new Sortable(setlistElement, { group: "songs", animation: 120, handle: ".drag-handle", onEnd: syncFromDOM });
+  new Sortable(excludedElement, { group: "songs", animation: 120, handle: ".drag-handle", onEnd: syncFromDOM });
+
+  /* SONGS & PROPOSALS */
+  document.getElementById("newSongForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const input = document.getElementById("newSongTitle");
+    const title = input.value.trim();
+    if (!title) return;
+
+    if (isEma()) {
+      const { error } = await supabaseClient.from("songs").insert({ title });
+      if (error) return alert("Errore: " + error.message);
+    } else {
+      const { error } = await supabaseClient.from("song_proposals").insert({ proposed_by: currentUser.id, title });
+      if (error) return alert("Errore proposta: " + error.message);
+    }
+
+    input.value = "";
+    await refreshCore();
+  });
+
+  function renderCatalog() {
+    const container = document.getElementById("catalogList");
+    container.innerHTML = "";
+    const ordered = [...songs].sort((a, b) => a.title.localeCompare(b.title, "it"));
+
+    ordered.forEach(song => {
+      const row = document.createElement("div");
+      row.className = "list-row";
+      const main = document.createElement("div");
+      main.className = "list-main";
+      main.innerHTML = `<div class="list-title">${scoreBadge(song.id)} &nbsp;${escapeHtml(song.title)}</div><div class="small-info">${song.bpm ?? "—"} BPM · ${escapeHtml(keyLabel(song))} · Base: ${escapeHtml(song.base_artist || "—")} · Testo: ${escapeHtml(song.lyrics_artist || "—")}</div>`;
+      row.appendChild(main);
+
+      if (!song.active) {
+        const inactive = document.createElement("span");
+        inactive.className = "status draft";
+        inactive.textContent = "INATTIVA";
+        row.appendChild(inactive);
+      }
+
+      if (isEma()) {
+        const buttons = document.createElement("div");
+        buttons.className = "row-buttons";
+        const edit = document.createElement("button");
+        edit.type = "button"; edit.className = "small-button"; edit.textContent = "MODIFICA"; edit.addEventListener("click", () => openSongModal(song));
+        const remove = document.createElement("button");
+        remove.type = "button"; remove.className = "small-button danger"; remove.textContent = "ELIMINA"; remove.addEventListener("click", () => deleteOfficialSong(song));
+        buttons.append(edit, remove);
+        row.appendChild(buttons);
+      }
+      container.appendChild(row);
+    });
+
+    if (!ordered.length) container.innerHTML = '<div class="empty">Nessuna canzone</div>';
+    document.getElementById("catalogCounter").textContent = `${ordered.length} brani`;
+  }
+
+  function updateBadges() {
+    const proposalBadge = document.getElementById("proposalBadge");
+    const proposalCount = isEma() ? proposals.filter(p => p.status === "pending").length : 0;
+    proposalBadge.textContent = proposalCount;
+    proposalBadge.classList.toggle("hidden", !proposalCount);
+
+    const mergeBadge = document.getElementById("mergeBadge");
+    const mergeCount = isFanAdmin() ? mergeRequests.filter(r => r.status === "pending").length : 0;
+    mergeBadge.textContent = mergeCount;
+    mergeBadge.classList.toggle("hidden", !mergeCount);
+  }
+
+  function renderProposals() {
+    const container = document.getElementById("proposalList");
+    container.innerHTML = "";
+    const visible = [...proposals].sort((a,b) => (a.status === "pending" ? -1 : 0) - (b.status === "pending" ? -1 : 0) || new Date(b.created_at) - new Date(a.created_at));
+
+    visible.forEach(proposal => {
+      const row = document.createElement("div"); row.className = "list-row";
+      const proposer = getProfileById(proposal.proposed_by);
+      const main = document.createElement("div"); main.className = "list-main";
+      main.innerHTML = `<div class="list-title">${escapeHtml(proposal.title)}</div><div class="small-info">${proposer ? "Proposta da " + escapeHtml(proposer.display_name) : "Proposta"}${proposal.review_note ? " · " + escapeHtml(proposal.review_note) : ""}</div>`;
+      row.appendChild(main);
+      const status = document.createElement("span"); status.className = `status ${proposal.status}`; status.textContent = ({ pending:"IN ATTESA", approved:"APPROVATA", rejected:"RIFIUTATA" })[proposal.status]; row.appendChild(status);
+
+      const buttons = document.createElement("div"); buttons.className = "row-buttons";
+      if (isEma() && proposal.status === "pending") {
+        const approve = document.createElement("button"); approve.className = "small-button success"; approve.type="button"; approve.textContent="APPROVA"; approve.addEventListener("click", () => approveProposal(proposal.id));
+        const reject = document.createElement("button"); reject.className = "small-button danger"; reject.type="button"; reject.textContent="RIFIUTA"; reject.addEventListener("click", () => rejectProposal(proposal.id));
+        buttons.append(approve, reject);
+      } else if (!isEma() && proposal.status === "pending") {
+        const edit = document.createElement("button"); edit.className="small-button"; edit.type="button"; edit.textContent="MODIFICA"; edit.addEventListener("click", () => editProposal(proposal));
+        const remove = document.createElement("button"); remove.className="small-button danger"; remove.type="button"; remove.textContent="RITIRA"; remove.addEventListener("click", () => deleteProposal(proposal));
+        buttons.append(edit, remove);
+      }
+      if (buttons.children.length) row.appendChild(buttons);
+      container.appendChild(row);
+    });
+
+    if (!visible.length) container.innerHTML = '<div class="empty">Nessuna proposta</div>';
+    document.getElementById("proposalCounter").textContent = `${visible.length} proposte`;
+  }
+
+  async function approveProposal(id) {
+    const { error } = await supabaseClient.rpc("approve_song_proposal", { p_proposal_id: id });
+    if (error) return alert("Errore: " + error.message);
+    await refreshCore();
+  }
+
+  async function rejectProposal(id) {
+    const note = prompt("Motivo del rifiuto (facoltativo):", "");
+    if (note === null) return;
+    const { error } = await supabaseClient.rpc("reject_song_proposal", { p_proposal_id: id, p_note: note });
+    if (error) return alert("Errore: " + error.message);
+    await refreshCore();
+  }
+
+  async function editProposal(proposal) {
+    const title = prompt("Modifica proposta:", proposal.title);
+    if (title === null || !title.trim()) return;
+    const { error } = await supabaseClient.from("song_proposals").update({ title: title.trim() }).eq("id", proposal.id);
+    if (error) return alert("Errore: " + error.message);
+    await loadProposals(); renderProposals();
+  }
+
+  async function deleteProposal(proposal) {
+    if (!confirm(`Ritirare la proposta "${proposal.title}"?`)) return;
+    const { error } = await supabaseClient.from("song_proposals").delete().eq("id", proposal.id);
+    if (error) return alert("Errore: " + error.message);
+    await loadProposals(); renderProposals();
+  }
+
+  /* SONG EDIT MODAL */
+  function openSongModal(song) {
+    if (!isEma()) return;
+    document.getElementById("editSongId").value = song.id;
+    document.getElementById("editTitle").value = song.title || "";
+    document.getElementById("editBaseTitle").value = song.base_title || "";
+    document.getElementById("editBaseArtist").value = song.base_artist || "";
+    document.getElementById("editBaseYear").value = song.base_year || "";
+    document.getElementById("editBpm").value = song.bpm || "";
+    document.getElementById("editKeyNote").value = song.key_note || "";
+    document.getElementById("editKeyMode").value = song.key_mode || "";
+    document.getElementById("editBasePopularity").value = song.base_popularity ?? "";
+    document.getElementById("editLyricsTitle").value = song.lyrics_title || "";
+    document.getElementById("editLyricsArtist").value = song.lyrics_artist || "";
+    document.getElementById("editLyricsYear").value = song.lyrics_year || "";
+    document.getElementById("editLyricsPopularity").value = song.lyrics_popularity ?? "";
+    document.getElementById("editDuration").value = song.duration_seconds || "";
+    document.getElementById("editGeneralRating").value = song.general_rating ?? "";
+    document.getElementById("editEngagement").value = song.engagement ?? "";
+    document.getElementById("editCuriosity").value = song.curiosity_score ?? "";
+    document.getElementById("editExplosiveness").value = song.explosiveness_score ?? "";
+    document.getElementById("editTransition").value = song.transition_score ?? "";
+    document.getElementById("editNotes").value = song.notes || "";
+    document.getElementById("editActive").checked = Boolean(song.active);
+    document.getElementById("editCanOpen").checked = Boolean(song.can_open);
+    document.getElementById("editIsBridge").checked = Boolean(song.is_bridge);
+    document.getElementById("editCanClose").checked = Boolean(song.can_close);
+    document.getElementById("songModal").classList.add("open");
+  }
+
+  function closeSongModal() { document.getElementById("songModal").classList.remove("open"); }
+  document.getElementById("closeSongModal").addEventListener("click", closeSongModal);
+  document.getElementById("cancelSongEdit").addEventListener("click", closeSongModal);
+
+  document.getElementById("songEditForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!isEma()) return;
+    const id = document.getElementById("editSongId").value;
+    const payload = {
+      title: document.getElementById("editTitle").value.trim(),
+      base_title: emptyToNull(document.getElementById("editBaseTitle").value),
+      base_artist: emptyToNull(document.getElementById("editBaseArtist").value),
+      base_year: numberOrNull(document.getElementById("editBaseYear").value),
+      bpm: numberOrNull(document.getElementById("editBpm").value),
+      key_note: emptyToNull(document.getElementById("editKeyNote").value),
+      key_mode: emptyToNull(document.getElementById("editKeyMode").value),
+      base_popularity: numberOrNull(document.getElementById("editBasePopularity").value),
+      lyrics_title: emptyToNull(document.getElementById("editLyricsTitle").value),
+      lyrics_artist: emptyToNull(document.getElementById("editLyricsArtist").value),
+      lyrics_year: numberOrNull(document.getElementById("editLyricsYear").value),
+      lyrics_popularity: numberOrNull(document.getElementById("editLyricsPopularity").value),
+      duration_seconds: numberOrNull(document.getElementById("editDuration").value),
+      general_rating: numberOrNull(document.getElementById("editGeneralRating").value),
+      engagement: numberOrNull(document.getElementById("editEngagement").value),
+      curiosity_score: numberOrNull(document.getElementById("editCuriosity").value),
+      explosiveness_score: numberOrNull(document.getElementById("editExplosiveness").value),
+      transition_score: numberOrNull(document.getElementById("editTransition").value),
+      notes: emptyToNull(document.getElementById("editNotes").value),
+      active: document.getElementById("editActive").checked,
+      can_open: document.getElementById("editCanOpen").checked,
+      is_bridge: document.getElementById("editIsBridge").checked,
+      can_close: document.getElementById("editCanClose").checked,
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabaseClient.from("songs").update(payload).eq("id", id);
+    if (error) return alert("Errore: " + error.message);
+    closeSongModal();
+    await refreshCore();
+  });
+
+  async function deleteOfficialSong(song) {
+    if (!confirm(`Eliminare definitivamente "${song.title}" dal catalogo di tutti?`)) return;
+    const { error } = await supabaseClient.from("songs").delete().eq("id", song.id);
+    if (error) return alert("Errore: " + error.message);
+    await refreshCore();
+  }
+
+  /* COMMUNITY */
+  async function loadCommunityData() {
+    await loadProfiles();
+    const { data: setlistData, error: setlistError } = await supabaseClient.from("setlists").select("*").eq("name", "Scaletta ideale");
+    if (setlistError) throw setlistError;
+    idealSetlists = setlistData || [];
+    if (!idealSetlists.length) { communityItems = []; return; }
+    const ids = idealSetlists.map(item => item.id);
+    const { data: itemData, error: itemError } = await supabaseClient.from("setlist_items").select("*").in("setlist_id", ids);
+    if (itemError) throw itemError;
+    communityItems = itemData || [];
+  }
+
+  function getMemberData(username) {
+    const profile = profiles.find(item => item.username?.toLowerCase() === username.toLowerCase());
+    if (!profile) return null;
+    const setlist = idealSetlists.find(item => item.owner_id === profile.id);
+    if (!setlist) return { profile, setlist: null, items: [] };
+    return { profile, setlist, items: communityItems.filter(item => item.setlist_id === setlist.id) };
+  }
+
+  function renderMemberTabs() {
+    const container = document.getElementById("memberTabs");
+    container.innerHTML = "";
+    if (!selectedMemberUsername) selectedMemberUsername = currentProfile.username;
+
+    BAND_MEMBERS.forEach(member => {
+      const data = getMemberData(member.username);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "member-tab";
+      if (member.username === selectedMemberUsername) button.classList.add("active");
+      if (!data?.setlist) button.classList.add("unavailable");
+      button.textContent = member.displayName;
+      button.addEventListener("click", () => { selectedMemberUsername = member.username; renderMemberTabs(); renderSelectedMember(); });
+      container.appendChild(button);
+    });
+  }
+
+  function renderSelectedMember() {
+    const container = document.getElementById("memberSetlist");
+    const title = document.getElementById("memberSetlistTitle");
+    const counter = document.getElementById("memberSetlistCounter");
+    document.getElementById("memberSetlistHeader").innerHTML = makeSongHeader();
+    const info = BAND_MEMBERS.find(m => m.username === selectedMemberUsername);
+    title.textContent = `SCALETTA DI ${(info?.displayName || "").toUpperCase()}`;
+    const data = getMemberData(selectedMemberUsername);
+    if (!data?.setlist) {
+      container.innerHTML = '<div class="empty">Questo membro non ha ancora attivato la propria scaletta.</div>';
+      counter.textContent = "";
+      return;
+    }
+
+    const map = new Map(data.items.map(item => [item.song_id, item]));
+    const included = activeSongs().filter(song => map.get(song.id)?.included).sort((a,b) => (map.get(a.id)?.position ?? 9999) - (map.get(b.id)?.position ?? 9999));
+    const excluded = activeSongs().filter(song => !map.get(song.id)?.included).sort((a,b) => a.title.localeCompare(b.title,"it"));
+    container.innerHTML = "";
+    included.forEach((song,index) => container.appendChild(createSongRow(song,index)));
+    excluded.forEach(song => container.appendChild(createSongRow(song,null,{excluded:true})));
+    if (!included.length && !excluded.length) container.innerHTML = '<div class="empty">Nessun brano.</div>';
+    counter.textContent = `${included.length} incluse · ${excluded.length} escluse`;
+  }
+
+  /* ALGORITHM */
+  function buildMemberStats() {
+    const members = BAND_MEMBERS.map(m => getMemberData(m.username)).filter(d => d?.setlist);
+    const songStats = new Map();
+    const directPairs = new Map();
+    const unorderedPairs = new Map();
+
+    activeSongs().forEach(song => songStats.set(song.id, { includedCount: 0, rankTotal: 0, rankSamples: 0 }));
+
+    members.forEach(member => {
+      const includedItems = member.items.filter(i => i.included).sort((a,b) => (a.position ?? 9999) - (b.position ?? 9999));
+      const n = Math.max(includedItems.length, 1);
+      includedItems.forEach((item, index) => {
+        const stat = songStats.get(item.song_id);
+        if (!stat) return;
+        stat.includedCount += 1;
+        const rankNorm = n <= 1 ? 100 : 100 * (1 - index / (n - 1));
+        stat.rankTotal += rankNorm;
+        stat.rankSamples += 1;
+      });
+
+      for (let i = 0; i < includedItems.length - 1; i++) {
+        const a = includedItems[i].song_id;
+        const b = includedItems[i+1].song_id;
+        const directKey = `${a}|${b}`;
+        directPairs.set(directKey, (directPairs.get(directKey) || 0) + 1);
+        const unorderedKey = [a,b].sort().join("|");
+        unorderedPairs.set(unorderedKey, (unorderedPairs.get(unorderedKey) || 0) + 1);
+      }
+    });
+
+    songStats.forEach(stat => {
+      const inclusionPct = members.length ? 100 * stat.includedCount / members.length : 100;
+      const rankAvg = stat.rankSamples ? stat.rankTotal / stat.rankSamples : 0;
+      stat.inclusionPct = inclusionPct;
+      stat.rankAvg = rankAvg;
+      stat.memberScore = 0.70 * inclusionPct + 0.30 * rankAvg;
+    });
+
+    return { members, songStats, directPairs, unorderedPairs };
+  }
+
+  function pairBonus(previous, candidate, stats) {
+    if (!previous) return 0;
+    const direct = stats.directPairs.get(`${previous.id}|${candidate.id}`) || 0;
+    const unordered = stats.unorderedPairs.get([previous.id,candidate.id].sort().join("|")) || 0;
+    return direct * 8 + Math.max(0, unordered - direct) * 3;
+  }
+
+  function artistPenalty(sequence, candidate) {
+    let penalty = 0;
+    const base = normalizeArtist(candidate.base_artist);
+    const lyrics = normalizeArtist(candidate.lyrics_artist);
+    const prev1 = sequence.at(-1);
+    const prev2 = sequence.at(-2);
+    const prev3 = sequence.at(-3);
+
+    if (prev1) {
+      if (base && base === normalizeArtist(prev1.base_artist)) penalty += 18;
+      if (lyrics && lyrics === normalizeArtist(prev1.lyrics_artist)) penalty += 18;
+    }
+    if (prev2) {
+      if (base && base === normalizeArtist(prev2.base_artist)) penalty += 7;
+      if (lyrics && lyrics === normalizeArtist(prev2.lyrics_artist)) penalty += 7;
+    }
+    if (prev3) {
+      if (base && base === normalizeArtist(prev3.base_artist)) penalty += 3;
+      if (lyrics && lyrics === normalizeArtist(prev3.lyrics_artist)) penalty += 3;
+    }
+    return penalty;
+  }
+
+  function musicalTransitionBonus(previous, candidate) {
+    if (!previous) return 0;
+    let bonus = 0;
+    const a = Number(previous.bpm);
+    const b = Number(candidate.bpm);
+    if (Number.isFinite(a) && Number.isFinite(b)) {
+      const diff = Math.abs(a-b);
+      if (diff <= 8) bonus += 3;
+      else if (diff <= 18) bonus += 1.5;
+      else if (diff >= 55) bonus -= 2;
+    }
+    if (previous.key_note && candidate.key_note && previous.key_note.toLowerCase() === candidate.key_note.toLowerCase()) {
+      bonus += previous.key_mode === candidate.key_mode ? 2 : 1;
+    }
+    return bonus;
+  }
+
+  function calculateAlgorithm() {
+    const stats = buildMemberStats();
+    const memberCount = stats.members.length;
+    const thresholdCount = memberCount ? Math.max(1, Math.ceil(memberCount * 0.5)) : 1;
+
+    const candidates = [];
+    const excluded = [];
+
+    activeSongs().forEach(song => {
+      const s = stats.songStats.get(song.id) || { includedCount: 0, inclusionPct: 100, memberScore: 70 };
+      const score = songScore(song.id);
+      const include = memberCount === 0 || s.includedCount >= thresholdCount || (s.inclusionPct >= 40 && score >= 90);
+      (include ? candidates : excluded).push(song);
+    });
+
+    const scoresSorted = candidates.map(s => songScore(s.id)).sort((a,b) => a-b);
+    const topThreshold = scoresSorted.length ? scoresSorted[Math.max(0, Math.floor(scoresSorted.length * 0.80))] : 90;
+    const remaining = [...candidates];
+    const sequence = [];
+    let bridgeUsed = false;
+
+    while (remaining.length) {
+      const i = sequence.length;
+      const n = candidates.length;
+      const p = n <= 1 ? 1 : i / (n - 1);
+      const previous = sequence.at(-1);
+
+      let bestIndex = 0;
+      let bestValue = -Infinity;
+
+      remaining.forEach((song, idx) => {
+        const stat = stats.songStats.get(song.id) || { memberScore: 70, inclusionPct: 100 };
+        const strength = songScore(song.id);
+        const curiosity = Number(song.curiosity_score ?? 5);
+        const explosive = Number(song.explosiveness_score ?? 5);
+        const transition = Number(song.transition_score ?? 5);
+        let value = 0.55 * strength + 0.45 * stat.memberScore;
+
+        if (i === 0) {
+          value += curiosity * 4;
+          if (song.can_open) value += 16;
+          if (strength >= topThreshold && !song.can_open) value -= 10;
+          if (strength > 96 && !song.can_open) value -= 8;
+          value -= Math.abs(explosive - 7) * 1.2;
+        } else if (p < 0.25) {
+          value += curiosity * 2.2;
+          value -= Math.abs(explosive - 6.2) * 1.1;
+          if (strength >= topThreshold) value -= 12;
+        } else if (p < 0.58) {
+          value += strength * 0.08;
+          value -= Math.abs(explosive - 6.8) * 0.7;
+        } else if (p < 0.76) {
+          value += transition * 2.3;
+          if (song.is_bridge && !bridgeUsed) value += 18;
+          if (song.is_bridge && bridgeUsed) value += 5;
+        } else {
+          const finalProgress = (p - 0.76) / 0.24;
+          value += explosive * (2.2 + 2.8 * finalProgress);
+          value += strength * (0.12 + 0.28 * finalProgress);
+          if (song.can_close) value += p > 0.92 ? 24 : 8;
+          if (strength >= topThreshold) value += 7 + 14 * finalProgress;
+          if (song.is_bridge) value -= 6;
+        }
+
+        if (p < 0.55 && strength >= topThreshold && !(i === 0 && song.can_open)) value -= 6;
+        value += pairBonus(previous, song, stats);
+        value += musicalTransitionBonus(previous, song);
+        value -= artistPenalty(sequence, song);
+
+        if (value > bestValue || (value === bestValue && song.title.localeCompare(remaining[bestIndex].title, "it") < 0)) {
+          bestValue = value;
+          bestIndex = idx;
+        }
+      });
+
+      const chosen = remaining.splice(bestIndex, 1)[0];
+      if (chosen.is_bridge && sequence.length / Math.max(1,candidates.length-1) >= .50) bridgeUsed = true;
+      sequence.push(chosen);
+    }
+
+    const totalDuration = sequence.reduce((sum, song) => sum + (Number(song.duration_seconds) || 0), 0);
+    const avgScore = sequence.length ? sequence.reduce((sum, song) => sum + songScore(song.id), 0) / sequence.length : 0;
+    const pairMatches = sequence.slice(1).reduce((sum, song, idx) => {
+      const prev = sequence[idx];
+      const count = stats.directPairs.get(`${prev.id}|${song.id}`) || 0;
+      return sum + (count >= 2 ? 1 : 0);
+    }, 0);
+
+    algorithmResult = {
+      included: sequence,
+      excluded: excluded.sort((a,b) => songScore(b.id) - songScore(a.id)),
+      stats: { memberCount, totalDuration, avgScore, pairMatches, directPairs: stats.directPairs }
+    };
+  }
+
+  function renderAlgorithm() {
+    document.getElementById("algorithmHeader").innerHTML = makeSongHeader();
+    const list = document.getElementById("algorithmList");
+    const excludedBox = document.getElementById("algorithmExcluded");
+    const summary = document.getElementById("proposalSummary");
+    list.innerHTML = "";
+    excludedBox.innerHTML = "";
+
+    algorithmResult.included.forEach((song,index) => {
+      const p = algorithmResult.included.length <= 1 ? 1 : index / (algorithmResult.included.length - 1);
+      const tags = [];
+      if (index === 0) tags.push({ text:"INTRO", className:"accent" });
+      if (song.is_bridge && p >= .48 && p <= .82) tags.push({ text:"STACCO", className:"bridge" });
+      if (p >= .80) tags.push({ text:"FINALE", className:"final" });
+      if (index > 0) {
+        const prev = algorithmResult.included[index-1];
+        const pairCount = algorithmResult.stats.directPairs?.get(`${prev.id}|${song.id}`) || 0;
+        if (pairCount >= 2) tags.push({ text:`COPPIA ${pairCount}×`, className:"accent" });
+      }
+      list.appendChild(createSongRow(song,index,{tags}));
+    });
+
+    algorithmResult.excluded.forEach(song => excludedBox.appendChild(createSongRow(song,null,{excluded:true})));
+    if (!algorithmResult.included.length) list.innerHTML = '<div class="empty">Nessun brano candidato.</div>';
+    if (!algorithmResult.excluded.length) excludedBox.innerHTML = '<div class="empty">Nessuna esclusione suggerita.</div>';
+
+    document.getElementById("algorithmCounter").textContent = `${algorithmResult.included.length} brani`;
+    document.getElementById("algorithmExcludedCounter").textContent = `${algorithmResult.excluded.length} brani`;
+    summary.innerHTML = `
+      <div class="summary-card"><div class="summary-label">Membri considerati</div><div class="summary-value">${algorithmResult.stats.memberCount || 0}</div></div>
+      <div class="summary-card"><div class="summary-label">Score medio</div><div class="summary-value">${(algorithmResult.stats.avgScore || 0).toFixed(1)}</div></div>
+      <div class="summary-card"><div class="summary-label">Durata nota</div><div class="summary-value">${formatDuration(algorithmResult.stats.totalDuration)}</div></div>
+      <div class="summary-card"><div class="summary-label">Sequenze condivise mantenute</div><div class="summary-value">${algorithmResult.stats.pairMatches || 0}</div></div>`;
+  }
+
+  /* SONG RANKING */
+  function renderSongRanking() {
+    const container = document.getElementById("songRankingList");
+    container.innerHTML = `
+      <div class="ranking-row header-row"><div>#</div><div>Score</div><div>Brano</div><div>Fan</div><div>Band</div><div>Voti fan</div></div>`;
+
+    [...songScores].sort((a,b) => Number(b.score) - Number(a.score)).forEach((row,index) => {
+      const div = document.createElement("div");
+      div.className = "ranking-row";
+      div.innerHTML = `
+        <div class="rank">${index+1}</div>
+        <div>${scoreBadge(row.song_id)}</div>
+        <div class="list-title">${escapeHtml(row.title)}</div>
+        <div>${row.fan_score == null ? "—" : Number(row.fan_score).toFixed(1)}</div>
+        <div>${row.internal_score == null ? "—" : Number(row.internal_score).toFixed(1)}</div>
+        <div>${row.fan_vote_count ?? 0}</div>`;
+      container.appendChild(div);
+    });
+
+    document.getElementById("songRankingCounter").textContent = `${songScores.length} brani`;
+  }
+
+  /* CONCERTS */
+  async function loadConcerts() {
+    const { data, error } = await supabaseClient.from("concerts").select("*").order("concert_date", { ascending: false });
+    if (error) throw error;
+    concerts = data || [];
+    if (!selectedConcertId && concerts.length) selectedConcertId = concerts[0].id;
+  }
+
+  function renderConcerts() {
+    const container = document.getElementById("concertList");
+    container.innerHTML = "";
+    concerts.forEach(concert => {
+      const row = document.createElement("div");
+      row.className = `list-row concert-row${concert.id === selectedConcertId ? " selected" : ""}`;
+      const main = document.createElement("div"); main.className = "list-main";
+      main.innerHTML = `<div class="list-title">${escapeHtml(concert.name)}</div><div class="small-info">${formatDate(concert.concert_date)}${concert.venue ? " · " + escapeHtml(concert.venue) : ""}${concert.city ? " · " + escapeHtml(concert.city) : ""}</div>`;
+      const status = document.createElement("span"); status.className = `status ${concert.status}`; status.textContent = ({draft:"BOZZA", confirmed:"CONFERMATO", completed:"CONCLUSO"})[concert.status] || concert.status;
+      row.append(main,status);
+      row.addEventListener("click", async () => { selectedConcertId = concert.id; renderConcerts(); await renderConcertDetail(concert.id); });
+      container.appendChild(row);
+    });
+    if (!concerts.length) container.innerHTML = '<div class="empty">Nessun concerto.</div>';
+    document.getElementById("concertCounter").textContent = `${concerts.length} concerti`;
+  }
+
+  document.getElementById("newConcertButton").addEventListener("click", () => openConcertModal(null));
+  document.getElementById("closeConcertModal").addEventListener("click", closeConcertModal);
+  document.getElementById("cancelConcertEdit").addEventListener("click", closeConcertModal);
+
+  function openConcertModal(concert) {
+    if (!isEma()) return;
+    document.getElementById("concertModalTitle").textContent = concert ? "Modifica concerto" : "Nuovo concerto";
+    document.getElementById("editConcertId").value = concert?.id || "";
+    document.getElementById("concertName").value = concert?.name || "";
+    document.getElementById("concertDate").value = concert?.concert_date || "";
+    document.getElementById("concertStatus").value = concert?.status || "draft";
+    document.getElementById("concertVenue").value = concert?.venue || "";
+    document.getElementById("concertCity").value = concert?.city || "";
+    document.getElementById("concertVotingOpen").checked = Boolean(concert?.fan_voting_open);
+    document.getElementById("concertModal").classList.add("open");
+  }
+
+  function closeConcertModal() { document.getElementById("concertModal").classList.remove("open"); }
+
+  document.getElementById("concertForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!isEma()) return;
+    const id = document.getElementById("editConcertId").value;
+    const payload = {
+      name: document.getElementById("concertName").value.trim(),
+      concert_date: document.getElementById("concertDate").value,
+      venue: emptyToNull(document.getElementById("concertVenue").value),
+      city: emptyToNull(document.getElementById("concertCity").value),
+      status: document.getElementById("concertStatus").value,
+      fan_voting_open: document.getElementById("concertVotingOpen").checked
+    };
+
+    let error;
+    if (id) ({ error } = await supabaseClient.from("concerts").update(payload).eq("id", id));
+    else {
+      const result = await supabaseClient.from("concerts").insert(payload).select("id").single();
+      error = result.error;
+      if (!error) selectedConcertId = result.data.id;
+    }
+    if (error) return alert("Errore: " + error.message);
+    closeConcertModal();
+    await loadConcerts(); renderConcerts();
+    if (selectedConcertId) await renderConcertDetail(selectedConcertId);
+  });
+
+  async function getConcertSetlist(concertId) {
+    const { data, error } = await supabaseClient.from("concert_setlist_items").select("*").eq("concert_id", concertId).order("position", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function getConcertFanAverages(concertId) {
+    const { data, error } = await supabaseClient.rpc("get_concert_fan_averages", { p_concert_id: concertId });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function renderConcertDetail(concertId) {
+    const concert = concerts.find(c => c.id === concertId);
+    const box = document.getElementById("concertDetail");
+    if (!concert) { box.innerHTML = '<div class="empty">Concerto non trovato.</div>'; return; }
+    document.getElementById("concertDetailTitle").textContent = concert.name.toUpperCase();
+
+    const items = await getConcertSetlist(concertId);
+    const fanAverages = await getConcertFanAverages(concertId);
+    const averageMap = new Map(fanAverages.map(a => [a.song_id, a]));
+    const orderedSongs = items.map(item => songs.find(s => s.id === item.song_id)).filter(Boolean);
+    const totalDuration = orderedSongs.reduce((sum,s) => sum + (Number(s.duration_seconds)||0), 0);
+
+    box.innerHTML = "";
+    const meta = document.createElement("div"); meta.className = "concert-meta";
+    meta.innerHTML = `<strong>${formatDate(concert.concert_date)}</strong>${concert.venue ? `<span>${escapeHtml(concert.venue)}</span>` : ""}${concert.city ? `<span>${escapeHtml(concert.city)}</span>` : ""}<span>Durata nota: ${formatDuration(totalDuration)}</span><span>Fan voting: ${concert.fan_voting_open ? "APERTO" : "chiuso"}</span>`;
+    box.appendChild(meta);
+
+    const buttons = document.createElement("div"); buttons.className = "toolbar";
+    const printButton = document.createElement("button"); printButton.type="button"; printButton.className="secondary"; printButton.textContent="STAMPA / PDF"; printButton.addEventListener("click", () => printConcert(concert, orderedSongs)); buttons.appendChild(printButton);
+
+    if (isEma()) {
+      const edit = document.createElement("button"); edit.type="button"; edit.className="secondary"; edit.textContent="MODIFICA CONCERTO"; edit.addEventListener("click", () => openConcertModal(concert));
+      const useProposal = document.createElement("button"); useProposal.type="button"; useProposal.textContent="USA PROPOSTA AUTOMATICA"; useProposal.addEventListener("click", () => useAlgorithmForConcert(concert.id));
+      buttons.prepend(edit, useProposal);
+    }
+    box.appendChild(buttons);
+
+    const header = document.createElement("div"); header.innerHTML = makeSongHeader(); box.appendChild(header);
+    const list = document.createElement("div"); list.className="song-list"; list.id="concertSetlistLive";
+    orderedSongs.forEach((song,index) => {
+      const avg = averageMap.get(song.id);
+      const row = createSongRow(song,index,{ draggable:isEma() });
+      if (avg?.molesti_votes) {
+        const title = row.querySelector(".song-title");
+        const fan = document.createElement("span"); fan.className="sequence-tag bridge"; fan.textContent=`Fan ${Number(avg.molesti_average).toFixed(1)} (${avg.molesti_votes})`; title.appendChild(fan);
+      }
+      list.appendChild(row);
+    });
+    if (!orderedSongs.length) list.innerHTML='<div class="empty">Nessuna scaletta confermata per questo concerto.</div>';
+    box.appendChild(list);
+    document.getElementById("concertDetailCounter").textContent = `${orderedSongs.length} brani`;
+
+    if (concertSortable) { concertSortable.destroy(); concertSortable = null; }
+    if (isEma() && orderedSongs.length) {
+      concertSortable = new Sortable(list,{animation:120,handle:".drag-handle",onEnd:() => saveConcertOrder(concert.id,list)});
+    }
+  }
+
+  async function useAlgorithmForConcert(concertId) {
+    await loadCommunityData();
+    calculateAlgorithm();
+    if (!algorithmResult.included.length) return alert("La proposta automatica è vuota.");
+    if (!confirm("Sostituire la scaletta del concerto con la proposta automatica attuale?")) return;
+
+    const { error: deleteError } = await supabaseClient.from("concert_setlist_items").delete().eq("concert_id", concertId);
+    if (deleteError) return alert("Errore: " + deleteError.message);
+    const rows = algorithmResult.included.map((song,index) => ({ concert_id: concertId, song_id: song.id, position:index }));
+    const { error } = await supabaseClient.from("concert_setlist_items").insert(rows);
+    if (error) return alert("Errore: " + error.message);
+    await renderConcertDetail(concertId);
+  }
+
+  async function saveConcertOrder(concertId, list) {
+    const ids = Array.from(list.querySelectorAll(".song-row")).map(el => el.dataset.id);
+    const rows = ids.map((songId,index) => ({ concert_id: concertId, song_id: songId, position:index }));
+    const { error } = await supabaseClient.from("concert_setlist_items").upsert(rows);
+    if (error) alert("Errore: " + error.message);
+    await renderConcertDetail(concertId);
+  }
+
+  function printConcert(concert, orderedSongs) {
+    const totalDuration = orderedSongs.reduce((sum,s) => sum + (Number(s.duration_seconds)||0), 0);
+    const rows = orderedSongs.map((song,index) => `<tr><td>${index+1}</td><td><strong>${escapeHtml(song.title)}</strong></td><td>${song.bpm ?? "—"}</td><td>${escapeHtml(keyLabel(song))}</td><td>${escapeHtml(song.base_artist || "—")}</td><td>${escapeHtml(song.lyrics_artist || "—")}</td></tr>`).join("");
+    const w = window.open("", "_blank");
+    if (!w) return alert("Il browser ha bloccato la finestra di stampa.");
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(concert.name)}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{margin:0 0 4px}p{margin:4px 0 14px;color:#555}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px;border-bottom:1px solid #ddd;text-align:left}th{font-size:10px;text-transform:uppercase;color:#666}@media print{button{display:none}}</style></head><body><h1>John & i Molesti</h1><h2>${escapeHtml(concert.name)}</h2><p>${formatDate(concert.concert_date)}${concert.venue ? " · "+escapeHtml(concert.venue):""}${concert.city ? " · "+escapeHtml(concert.city):""} · Durata nota: ${formatDuration(totalDuration)}</p><table><thead><tr><th>#</th><th>Brano</th><th>BPM</th><th>Key</th><th>Base</th><th>Testo</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);
+    w.document.close();
+  }
+
+  /* FAN AREA */
+  async function loadFanArea() {
+    const { data: rankingData, error: rankingError } = await supabaseClient.rpc("get_fan_ranking");
+    if (rankingError) throw rankingError;
+    fanRanking = rankingData || [];
+
+    if (isFanAdmin()) {
+      const [{ data: requestData, error: requestError }, { data: fanData, error: fanError }] = await Promise.all([
+        supabaseClient.from("fan_merge_requests").select("*").eq("status","pending").order("created_at",{ascending:true}),
+        supabaseClient.from("fans").select("id,display_name,nickname,merged_into").is("merged_into", null)
+      ]);
+      if (requestError) throw requestError;
+      if (fanError) throw fanError;
+      mergeRequests = requestData || [];
+      adminFans = fanData || [];
+    } else {
+      mergeRequests = [];
+      adminFans = [];
+    }
+    updateBadges();
+  }
+
+  function renderFanArea() {
+    const rankingBox = document.getElementById("fanRankingList");
+    rankingBox.innerHTML = "";
+    fanRanking.forEach(row => {
+      const div = document.createElement("div"); div.className="list-row";
+      div.innerHTML = `<div class="rank" style="width:28px">${row.ranking_position}</div><div class="list-main"><div class="list-title">${escapeHtml(row.fan_name)}</div><div class="small-info">Fan dal ${formatDate(row.fan_since)} · ${row.attendance_count} presenze · ${row.rated_song_count} brani votati</div></div><strong>${row.points} pt</strong>`;
+      rankingBox.appendChild(div);
+    });
+    if (!fanRanking.length) rankingBox.innerHTML='<div class="empty">Nessun fan in classifica.</div>';
+    document.getElementById("fanRankingCounter").textContent=`${fanRanking.length} fan`;
+
+    if (isFanAdmin()) renderMergeRequests();
+  }
+
+  function fanLabel(id) {
+    const rank = fanRanking.find(f => f.fan_id === id);
+    if (rank) return `${rank.fan_name} — fan dal ${formatDate(rank.fan_since)}`;
+    const fan = adminFans.find(f => f.id === id);
+    return fan ? (fan.nickname || fan.display_name) : "Profilo sconosciuto";
+  }
+
+  function renderMergeRequests() {
+    const box = document.getElementById("mergeRequestList");
+    box.innerHTML="";
+    mergeRequests.forEach(request => {
+      const row=document.createElement("div"); row.className="list-row";
+      const main=document.createElement("div"); main.className="list-main";
+      main.innerHTML=`<div class="list-title">${escapeHtml(request.requested_nickname)}</div><div class="small-info">Nuovo profilo: ${escapeHtml(fanLabel(request.requester_fan_id))}<br>Propone: ${escapeHtml(fanLabel(request.suggested_fan_id))}</div>`;
+      const buttons=document.createElement("div"); buttons.className="row-buttons";
+      const approve=document.createElement("button"); approve.type="button"; approve.className="small-button success"; approve.textContent="UNIFICA"; approve.addEventListener("click",()=>approveMergeRequest(request));
+      const reject=document.createElement("button"); reject.type="button"; reject.className="small-button danger"; reject.textContent="RIFIUTA"; reject.addEventListener("click",()=>rejectMergeRequest(request));
+      buttons.append(approve,reject); row.append(main,buttons); box.appendChild(row);
+    });
+    if(!mergeRequests.length) box.innerHTML='<div class="empty">Nessuna richiesta.</div>';
+    document.getElementById("mergeRequestCounter").textContent=`${mergeRequests.length} richieste`;
+  }
+
+  async function approveMergeRequest(request) {
+    const options = adminFans.filter(f => f.id !== request.requester_fan_id).map(f => `${f.id} | ${f.nickname || f.display_name}`).join("\n");
+    const suggested = request.suggested_fan_id || "";
+    const targetId = prompt(`ID del profilo da mantenere.\nSuggerito: ${fanLabel(suggested)}\n\nProfili disponibili:\n${options}`, suggested);
+    if (targetId === null || !targetId.trim()) return;
+    const nickname = prompt("Nickname finale univoco:", request.requested_nickname || fanLabel(targetId.trim()).split(" — ")[0]);
+    if (nickname === null || !nickname.trim()) return;
+    const { error } = await supabaseClient.rpc("merge_fans", {
+      p_source_fan_id: request.requester_fan_id,
+      p_target_fan_id: targetId.trim(),
+      p_final_nickname: nickname.trim(),
+      p_request_id: request.id
+    });
+    if (error) return alert("Errore unificazione: " + error.message);
+    await loadFanArea(); renderFanArea();
+  }
+
+  async function rejectMergeRequest(request) {
+    const note = prompt("Nota per il rifiuto (facoltativa):", "");
+    if (note === null) return;
+    const { error } = await supabaseClient.rpc("reject_fan_merge_request", { p_request_id: request.id, p_note: note });
+    if (error) return alert("Errore: " + error.message);
+    await loadFanArea(); renderFanArea();
+  }
+
+  /* LOGOUT / SCREEN */
+  document.getElementById("logoutButton").addEventListener("click", async () => {
+    await supabaseClient.auth.signOut();
+    currentUser = null; currentProfile = null; currentSetlistId = null;
+    passwordInput.value = "";
+    showLogin();
+  });
+
+  function showLogin() { loginScreen.style.display="flex"; appScreen.style.display="none"; }
+  function showApp() { loginScreen.style.display="none"; appScreen.style.display="block"; }
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+  }
+
+  async function init() {
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      if (data.session) await startApp(); else showLogin();
+    } catch (error) {
+      console.error(error);
+      loginMessage.textContent = "Errore di connessione: " + error.message;
+      showLogin();
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
 
     html,
     body {
