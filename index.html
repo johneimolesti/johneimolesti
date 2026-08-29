@@ -594,7 +594,7 @@ $("fanLogout").onclick=()=>{currentFan=null;showOnly("welcomeScreen")};
 $("fanApp").querySelectorAll("[data-fan-page]").forEach(btn=>btn.onclick=async()=>{$("fanApp").querySelectorAll("[data-fan-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("fanApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.fanPage).classList.add("active");if(btn.dataset.fanPage==="fanCatalogPage")await loadPublicCatalog();if(btn.dataset.fanPage==="fanRankingsPage")await renderPublicRankings()});
 async function loadFanFrontend(){await Promise.all([loadPublicCatalog(),loadPublicConcerts()])}
 async function loadPublicCatalog(){
-  const box=$("publicCatalogList");
+  const box=$("fanCatalogList");
   box.innerHTML='<div class="empty">Caricamento catalogo...</div>';
   try{
     const data=await fanApi("catalog");
