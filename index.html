@@ -293,7 +293,127 @@ function renderFanArea(){const box=$("fanRankingList");box.innerHTML="";fanRanki
 function renderAdminFanManagement(){const panel=$("adminFanPanel"),box=$("adminFanList");if(!isFanAdmin()){panel.hidden=true;return}panel.hidden=false;box.innerHTML="";const rankingMap=new Map(fanRanking.map(r=>[r.fan_id,r]));[...adminFans].sort((a,b)=>(a.nickname||a.display_name).localeCompare(b.nickname||b.display_name,"it")).forEach(f=>{const r=rankingMap.get(f.id),name=f.nickname||f.display_name,row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(name)}</div><div class="small-info">${f.claimed_at?"Profilo attivo":"Non ancora registrato"} · ${r?`${r.attendance_count} presenze · ${r.points} pt`:"0 presenze · senza punteggio"}</div></div><span class="status ${f.claimed_at?"approved":"draft"}">${f.claimed_at?"ATTIVO":"DA RIVENDICARE"}</span>`;const actions=document.createElement("div");actions.className="row-buttons";actions.innerHTML='<button class="small-btn">MODIFICA</button><button class="small-btn">+ PRESENZA</button><button class="small-btn danger">UNISCI</button>';actions.children[0].onclick=()=>editAdminFan(f);actions.children[1].onclick=()=>addAdminFanAttendance(f);actions.children[2].onclick=()=>manualMergeFan(f);row.appendChild(actions);box.appendChild(row)});if(!adminFans.length)box.innerHTML='<div class="empty">Nessun profilo fan.</div>';$("adminFanCounter").textContent=`${adminFans.length} profili`}
 async function editAdminFan(f){const name=prompt("Nome fan:",f.display_name||"");if(name===null||!name.trim())return;const nick=prompt("Nickname pubblico facoltativo:",f.nickname||"");if(nick===null)return;const {error}=await sb.rpc("admin_update_fan",{p_fan_id:f.id,p_display_name:name.trim(),p_nickname:emptyToNull(nick)});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
 async function addAdminFanAttendance(f){if(!concerts.length)await loadConcerts();if(!concerts.length)return alert("Non ci sono concerti disponibili.");const list=[...concerts].sort((a,b)=>b.concert_date.localeCompare(a.concert_date));const lines=list.map((c,i)=>`${i+1}) ${formatDate(c.concert_date)} · ${c.name}`).join("\n");const ans=prompt(`A quale concerto vuoi aggiungere ${f.nickname||f.display_name}?\n\n${lines}\n\nScrivi il numero:`);if(!ans)return;const c=list[Number(ans)-1];if(!c)return alert("Selezione non valida.");const {error}=await sb.rpc("admin_add_fan_attendance",{p_fan_id:f.id,p_concert_id:c.id});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
-async function manualMergeFan(source){const targets=adminFans.filter(f=>f.id!==source.id);if(!targets.length)return alert("Nessun altro profilo disponibile.");const lines=targets.map((f,i)=>`${i+1}) ${f.nickname||f.display_name}${f.claimed_at?" · attivo":" · da rivendicare"}`).join("\n");const ans=prompt(`Unisci “${source.nickname||source.display_name}” dentro quale profilo?\n\n${lines}\n\nScrivi il numero:`);if(!ans)return;const target=targets[Number(ans)-1];if(!target)return alert("Selezione non valida.");if(!confirm(`Confermi l'unificazione di “${source.nickname||source.display_name}” in “${target.nickname||target.display_name}”?`))return;const {error}=await sb.rpc("merge_fans",{p_source_fan_id:source.id,p_target_fan_id:target.id,p_final_nickname:target.nickname||null,p_request_id:null});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
+function chooseFanMergeTarget(source){
+  return new Promise(resolve=>{
+    const targets=adminFans
+      .filter(f=>f.id!==source.id)
+      .sort((a,b)=>(a.display_name||"").localeCompare(b.display_name||"","it"));
+
+    if(!targets.length){
+      alert("Nessun altro profilo disponibile.");
+      resolve(null);
+      return;
+    }
+
+    const overlay=document.createElement("div");
+    overlay.className="modal open";
+    overlay.style.zIndex="100";
+
+    const card=document.createElement("div");
+    card.className="modal-card";
+    card.style.width="min(520px,100%)";
+
+    const header=document.createElement("div");
+    header.className="modal-header";
+    header.innerHTML=`<h2>UNISCI PROFILO FAN</h2>`;
+
+    const close=document.createElement("button");
+    close.type="button";
+    close.className="modal-close";
+    close.textContent="×";
+    header.appendChild(close);
+
+    const body=document.createElement("div");
+    body.className="form-body";
+
+    const sourceName=source.display_name||"Fan";
+    const sourceNick=source.nickname?` · ${source.nickname}`:"";
+    const info=document.createElement("div");
+    info.className="section-note";
+    info.style.marginBottom="12px";
+    info.textContent=`Stai unendo: ${sourceName}${sourceNick}. Scegli il profilo da mantenere.`;
+
+    const field=document.createElement("div");
+    field.className="form-field";
+    const label=document.createElement("label");
+    label.textContent="Profilo da mantenere";
+    const select=document.createElement("select");
+
+    const placeholder=document.createElement("option");
+    placeholder.value="";
+    placeholder.textContent="Seleziona un fan…";
+    select.appendChild(placeholder);
+
+    targets.forEach(f=>{
+      const option=document.createElement("option");
+      option.value=f.id;
+      const nick=f.nickname?` · nick: ${f.nickname}`:"";
+      const status=f.claimed_at?" · attivo":" · da rivendicare";
+      const pres=Number(f.attendance_count||0);
+      option.textContent=`${f.display_name||"Fan"}${nick}${status} · ${pres} presenz${pres===1?"a":"e"}`;
+      select.appendChild(option);
+    });
+
+    field.append(label,select);
+
+    const preview=document.createElement("div");
+    preview.className="section-note";
+    preview.style.marginTop="9px";
+    preview.textContent="Il profilo scelto verrà mantenuto; presenze, voti, dispositivi e alias dell'altro profilo saranno trasferiti.";
+
+    const actions=document.createElement("div");
+    actions.className="modal-actions";
+    const cancel=document.createElement("button");
+    cancel.type="button";
+    cancel.className="modal-cancel";
+    cancel.textContent="ANNULLA";
+    const confirmBtn=document.createElement("button");
+    confirmBtn.type="button";
+    confirmBtn.className="modal-save";
+    confirmBtn.textContent="CONTINUA";
+
+    actions.append(cancel,confirmBtn);
+    body.append(info,field,preview,actions);
+    card.append(header,body);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    const finish=value=>{
+      overlay.remove();
+      resolve(value);
+    };
+
+    close.onclick=()=>finish(null);
+    cancel.onclick=()=>finish(null);
+    overlay.onclick=e=>{if(e.target===overlay)finish(null)};
+    confirmBtn.onclick=()=>{
+      const id=select.value;
+      if(!id){alert("Seleziona il profilo da mantenere.");return}
+      finish(targets.find(f=>f.id===id)||null);
+    };
+  });
+}
+
+async function manualMergeFan(source){
+  const target=await chooseFanMergeTarget(source);
+  if(!target)return;
+
+  const sourceLabel=source.nickname?`${source.display_name} (${source.nickname})`:source.display_name;
+  const targetLabel=target.nickname?`${target.display_name} (${target.nickname})`:target.display_name;
+
+  if(!confirm(`Confermi l'unificazione di “${sourceLabel}” nel profilo “${targetLabel}”?\n\nVerrà mantenuto il profilo “${targetLabel}”.`))return;
+
+  const {error}=await sb.rpc("merge_fans",{
+    p_source_fan_id:source.id,
+    p_target_fan_id:target.id,
+    p_final_nickname:target.nickname||null,
+    p_request_id:null
+  });
+
+  if(error)return alert(error.message);
+  await loadFanArea();
+  renderFanArea();
+}
 function fillAdminConcertSelect(){$("adminFanConcert").innerHTML='<option value="">Nessuna presenza iniziale</option>'+concerts.map(c=>`<option value="${c.id}">${formatDate(c.concert_date)} · ${esc(c.name)}</option>`).join("")}
 $("adminCreateFanButton").onclick=async()=>{const name=$("adminFanName").value.trim();if(!name)return alert("Inserisci il nome.");const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull($("adminFanNickname").value),p_concert_id:emptyToNull($("adminFanConcert").value)});if(error)return alert(error.message);$("adminFanName").value=$("adminFanNickname").value="";await loadFanArea();renderFanArea()};
 function fanLabel(id){const r=fanRanking.find(x=>x.fan_id===id);if(r)return `${r.fan_name} — fan dal ${formatDate(r.fan_since)}`;const f=adminFans.find(x=>x.id===id);return f?(f.nickname||f.display_name):"Profilo sconosciuto"}
