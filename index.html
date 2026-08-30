@@ -194,7 +194,7 @@
   <div class="form-section" style="margin-top:10px"><h3>Gusto personale</h3><div class="form-grid"><div class="form-field full"><label>Versione Molesti 1–10</label><input id="fanAdvancedMolesti" type="number" min="1" max="10" step="0.1" placeholder="1–10"></div><div class="form-field"><label>Gusto Base 1–10</label><input id="fanAdvancedBaseScore" type="number" min="1" max="10" step="0.1" placeholder="facoltativo"></div><div class="form-field"><label>Gusto Testo 1–10</label><input id="fanAdvancedLyricsScore" type="number" min="1" max="10" step="0.1" placeholder="facoltativo"></div></div></div>
   <div class="form-section"><h3>Quanto la conoscevi già</h3><div class="form-grid"><div class="form-field"><label>Conoscevi la canzone che fa da base strumentale?</label><input id="fanAdvancedBaseFam" type="number" min="1" max="10" step="0.1" placeholder="1–10"><div id="fanAdvancedBaseFamNote" class="one-shot-note"></div></div><div class="form-field"><label>Quanto conoscevi il testo di questa canzone?</label><input id="fanAdvancedLyricsFam" type="number" min="1" max="10" step="0.1" placeholder="1–10"><div id="fanAdvancedLyricsFamNote" class="one-shot-note"></div></div></div><div class="section-note" style="margin-top:7px"><strong>Importante:</strong> rispondi pensando a <em>prima</em> di conoscere la versione dei Molesti. I due valori sono una tantum per fan e canzone: dopo il primo salvataggio non possono essere cambiati. Puoi lasciarli vuoti e inserirli in seguito, anche dalla votazione di un concerto.</div></div>
   <div id="fanAdvancedVoteStatus" class="section-note"></div>
-  <div class="modal-actions"><button id="cancelFanAdvancedVote" type="button" class="modal-cancel">ANNULLA</button><button class="modal-save" type="submit">SALVA VOTO</button></div>
+  <div class="modal-actions"><button id="cancelFanAdvancedVote" type="button" class="modal-cancel">CHIUDI</button></div>
 </form></div></div>
 
 <!-- MODAL CONCERTO -->
@@ -700,7 +700,7 @@ async function loadPublicCatalog(){
       const v=s?.my_vote||{};
       const baseMeta=[s?.base_artist,s?.base_title].filter(Boolean).join(" — ")||"Base non indicata";
       const lyricsMeta=[s?.lyrics_artist,s?.lyrics_title].filter(Boolean).join(" — ")||"Testo non indicato";
-      return `<div class="fan-catalog-row" data-song-id="${esc(s?.id||"")}" data-base-score="${esc(v?.base_score??"")}" data-lyrics-score="${esc(v?.lyrics_score??"")}">
+      return `<div class="fan-catalog-row" data-song-id="${esc(s?.id||"")}" data-base-score="${esc(v?.base_score??"")}" data-lyrics-score="${esc(v?.lyrics_score??"")}" data-saved-molesti="${esc(v?.molesti_score??"")}">
         <div class="fan-catalog-song"><div class="fan-catalog-title">${esc(s?.title||"Senza titolo")}</div><div class="fan-catalog-meta">Base: ${esc(baseMeta)} · Testo: ${esc(lyricsMeta)}</div></div>
         <div class="fan-catalog-cell"><input class="catalog-molesti" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${esc(v?.molesti_score??"")}" title="Voto rapido alla versione Molesti"></div>
         <div class="fan-catalog-cell"><button class="fan-advanced-btn" type="button">AVANZATO</button></div>
@@ -708,14 +708,14 @@ async function loadPublicCatalog(){
     }).join("");
 
     box.innerHTML=`<div class="fan-catalog-scroll"><div class="fan-catalog-head"><div>Brano</div><div>Voto rapido</div><div></div></div><div id="fanCatalogRows">${bodyHtml}</div></div>
-    <div class="fan-catalog-actions"><div id="fanCatalogStatus" class="fan-catalog-status">${rows.length} brani · Voto rapido = giudizio generale sulla versione Molesti.</div><button id="saveFanCatalogVotes" class="fan-catalog-save" type="button" disabled>SALVA VOTI RAPIDI</button></div>`;
+    <div class="fan-catalog-actions"><div id="fanCatalogStatus" class="fan-catalog-status">${rows.length} brani · Voto rapido = giudizio generale sulla versione Molesti · salvataggio automatico quando esci dalla casella.</div></div>`;
 
     document.querySelectorAll("#fanCatalogRows .fan-catalog-row").forEach(row=>{
       const input=row.querySelector(".catalog-molesti");
-      input?.addEventListener("input",()=>{row.classList.add("catalog-dirty");row.classList.remove("row-error","row-saved");const save=$("saveFanCatalogVotes");if(save)save.disabled=false;const status=$("fanCatalogStatus");if(status)status.textContent="Modifiche non ancora salvate."});
+      input?.addEventListener("input",()=>{row.classList.add("catalog-dirty");row.classList.remove("row-error","row-saved");const status=$("fanCatalogStatus");if(status)status.textContent="Voto modificato · verrà salvato appena esci dalla casella."});
+      input?.addEventListener("blur",()=>autosaveCatalogQuick(row));
       row.querySelector(".fan-advanced-btn")?.addEventListener("click",()=>openFanAdvancedVote(row.dataset.songId));
     });
-    const save=$("saveFanCatalogVotes");if(save)save.onclick=savePublicCatalogVotes;
   }catch(err){
     console.error("Errore catalogo fan",err);
     box.innerHTML=`<div class="empty"><strong>Errore caricamento catalogo</strong><br>${esc(err?.message||String(err))}<br><br><button id="retryFanCatalog" class="small-btn" type="button">RIPROVA</button></div>`;
@@ -723,25 +723,21 @@ async function loadPublicCatalog(){
   }
 }
 function catalogValueValid(v){return v==null||(Number.isFinite(v)&&v>=1&&v<=10)}
-async function savePublicCatalogVotes(){
-  const button=$("saveFanCatalogVotes"),status=$("fanCatalogStatus"),dirty=[...document.querySelectorAll("#fanCatalogRows .fan-catalog-row.catalog-dirty")];
-  if(!dirty.length){button.disabled=true;status.textContent="Nessuna modifica da salvare.";return}
-  const jobs=[];let invalid=0;
-  dirty.forEach(row=>{
-    row.classList.remove("row-error","row-saved");
-    const raw=String(row.querySelector(".catalog-molesti")?.value??"").trim(),mol=raw===""?null:Number(raw);
-    const baseRaw=String(row.dataset.baseScore??"").trim(),lyricsRaw=String(row.dataset.lyricsScore??"").trim();
-    const base=baseRaw===""?null:Number(baseRaw),lyrics=lyricsRaw===""?null:Number(lyricsRaw);
-    if(!catalogValueValid(mol)||(mol==null&&(base!=null||lyrics!=null))){row.classList.add("row-error");invalid++;return}
-    jobs.push({row,payload:{song_id:row.dataset.songId,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:null,lyrics_familiarity:null}})
-  });
-  if(invalid){status.textContent=`${invalid} riga${invalid===1?"":"he"} da correggere: voto rapido da 1 a 10.`;return}
-  button.disabled=true;button.textContent="SALVATAGGIO...";status.textContent=`Salvataggio di ${jobs.length} voti...`;
-  let errors=0;
-  for(const job of jobs){try{await fanApi("catalog_vote",job.payload);job.row.classList.remove("catalog-dirty");job.row.classList.add("row-saved")}catch(err){errors++;job.row.classList.add("row-error");job.row.dataset.error=err.message||"Errore"}}
-  button.textContent="SALVA VOTI RAPIDI";
-  if(errors){button.disabled=false;status.textContent=`Salvataggio parziale: ${errors} voto${errors===1?"":"i"} non salvato${errors===1?"":"i"}.`}
-  else{status.textContent="Salvato ✓";setTimeout(loadPublicCatalog,450)}
+async function autosaveCatalogQuick(row){
+  const input=row?.querySelector(".catalog-molesti"),status=$("fanCatalogStatus");if(!input)return;
+  const raw=String(input.value??"").trim(),saved=String(row.dataset.savedMolesti??"").trim();
+  if(raw===saved){row.classList.remove("catalog-dirty");return}
+  const mol=raw===""?null:Number(raw),baseRaw=String(row.dataset.baseScore??"").trim(),lyricsRaw=String(row.dataset.lyricsScore??"").trim();
+  const base=baseRaw===""?null:Number(baseRaw),lyrics=lyricsRaw===""?null:Number(lyricsRaw);
+  if(!catalogValueValid(mol)||(mol==null&&(base!=null||lyrics!=null))){row.classList.add("row-error");if(status)status.textContent=mol==null&&(base!=null||lyrics!=null)?"Il voto Molesti non può essere vuoto se hai già votato Base/Testo.":"Inserisci un voto da 1 a 10.";return}
+  input.disabled=true;row.classList.remove("row-error","row-saved");if(status)status.textContent="Salvataggio automatico...";
+  try{
+    await fanApi("catalog_vote",{song_id:row.dataset.songId,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:null,lyrics_familiarity:null});
+    row.dataset.savedMolesti=raw;row.classList.remove("catalog-dirty");row.classList.add("row-saved");
+    const song=publicCatalogSongs.find(x=>x.id===row.dataset.songId);if(song){song.my_vote=song.my_vote||{};song.my_vote.molesti_score=mol}
+    if(status)status.textContent="Voto salvato ✓";
+  }catch(err){row.classList.add("row-error");if(status)status.textContent=err.message||"Errore durante il salvataggio"}
+  finally{input.disabled=false}
 }
 function openFanAdvancedVote(songId){
   const song=publicCatalogSongs.find(s=>s.id===songId);if(!song)return;
@@ -756,17 +752,41 @@ function openFanAdvancedVote(songId){
   $("fanAdvancedLyricsFam").value=f.lyrics_familiarity??"";$("fanAdvancedLyricsFam").disabled=lyricsKnown;
   $("fanAdvancedBaseFamNote").textContent=baseOriginal?"Non applicabile: base originale dei Molesti.":baseKnown?`Già registrata (${f.base_familiarity}/10): valore bloccato.`:"Una tantum: dopo il salvataggio non sarà modificabile.";
   $("fanAdvancedLyricsFamNote").textContent=lyricsKnown?`Già registrata (${f.lyrics_familiarity}/10): valore bloccato.`:"Una tantum: dopo il salvataggio non sarà modificabile.";
-  $("fanAdvancedVoteStatus").textContent="";openModal("fanAdvancedVoteModal");
+  ["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].forEach(fid=>{const el=$(fid);if(el)el.dataset.savedValue=String(el.value??"")});
+  $("fanAdvancedVoteStatus").textContent="Salvataggio automatico: ogni campo viene registrato quando esci dalla casella.";openModal("fanAdvancedVoteModal");
 }
 $("closeFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");$("cancelFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");
-$("fanAdvancedVoteForm").addEventListener("submit",async e=>{
-  e.preventDefault();const id=$("fanAdvancedSongId").value;
-  const val=id=>{const el=$(id);if(!el||el.disabled)return null;const raw=String(el.value??"").trim();return raw===""?null:Number(raw)};
+async function autosaveFanAdvancedVote(changedId=null){
+  const id=$("fanAdvancedSongId").value;if(!id)return false;
+  const changed=changedId?$(changedId):null;
+  if(changed&&String(changed.value??"")===String(changed.dataset.savedValue??""))return true;
+  const val=fid=>{const el=$(fid);if(!el||el.disabled)return null;const raw=String(el.value??"").trim();return raw===""?null:Number(raw)};
   const mol=val("fanAdvancedMolesti"),base=val("fanAdvancedBaseScore"),lyrics=val("fanAdvancedLyricsScore"),baseFam=val("fanAdvancedBaseFam"),lyricsFam=val("fanAdvancedLyricsFam");
-  if(![mol,base,lyrics,baseFam,lyricsFam].every(catalogValueValid)){return $("fanAdvancedVoteStatus").textContent="Inserisci solo valori da 1 a 10."}
-  if(mol==null&&(base!=null||lyrics!=null)){return $("fanAdvancedVoteStatus").textContent="Per dare un voto di gusto a Base o Testo, inserisci anche il voto generale Molesti."}
-  const submit=e.currentTarget.querySelector('button[type="submit"]');submit.disabled=true;$("fanAdvancedVoteStatus").textContent="Salvataggio...";
-  try{await fanApi("catalog_vote",{song_id:id,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:baseFam,lyrics_familiarity:lyricsFam});closeModal("fanAdvancedVoteModal");await loadPublicCatalog()}catch(err){$("fanAdvancedVoteStatus").textContent=err.message||"Errore durante il salvataggio"}finally{submit.disabled=false}
+  const status=$("fanAdvancedVoteStatus");
+  if(![mol,base,lyrics,baseFam,lyricsFam].every(catalogValueValid)){status.textContent="Inserisci solo valori da 1 a 10.";return false}
+  if(mol==null&&(base!=null||lyrics!=null)){status.textContent="Per dare un voto di gusto a Base o Testo, inserisci anche il voto generale Molesti.";return false}
+  const controls=["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].map(fid=>$(fid)).filter(Boolean);
+  status.textContent="Salvataggio automatico...";
+  try{
+    await fanApi("catalog_vote",{song_id:id,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:baseFam,lyrics_familiarity:lyricsFam});
+    controls.forEach(el=>el.dataset.savedValue=String(el.value??""));
+    const song=publicCatalogSongs.find(x=>x.id===id);if(song){
+      song.my_vote=song.my_vote||{};song.my_vote.molesti_score=mol;song.my_vote.base_score=base;song.my_vote.lyrics_score=lyrics;
+      song.my_familiarity=song.my_familiarity||{};
+      if(baseFam!=null)song.my_familiarity.base_familiarity=baseFam;
+      if(lyricsFam!=null)song.my_familiarity.lyrics_familiarity=lyricsFam;
+    }
+    const row=document.querySelector(`#fanCatalogRows .fan-catalog-row[data-song-id="${id}"]`);
+    if(row){row.dataset.savedMolesti=mol??"";row.dataset.baseScore=base??"";row.dataset.lyricsScore=lyrics??"";const q=row.querySelector(".catalog-molesti");if(q)q.value=mol??""}
+    if(baseFam!=null&&!$("fanAdvancedBaseFam").disabled){$("fanAdvancedBaseFam").disabled=true;$("fanAdvancedBaseFam").classList.add("familiarity-locked");$("fanAdvancedBaseFamNote").textContent=`Registrata (${baseFam}/10): valore bloccato.`}
+    if(lyricsFam!=null&&!$("fanAdvancedLyricsFam").disabled){$("fanAdvancedLyricsFam").disabled=true;$("fanAdvancedLyricsFam").classList.add("familiarity-locked");$("fanAdvancedLyricsFamNote").textContent=`Registrata (${lyricsFam}/10): valore bloccato.`}
+    status.textContent="Salvato automaticamente ✓";return true;
+  }catch(err){status.textContent=err.message||"Errore durante il salvataggio";return false}
+}
+$("fanAdvancedVoteForm").addEventListener("submit",e=>e.preventDefault());
+["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].forEach(fid=>{
+  $(fid)?.addEventListener("input",()=>{$("fanAdvancedVoteStatus").textContent="Modifica non ancora salvata · esci dalla casella per registrarla."});
+  $(fid)?.addEventListener("blur",()=>autosaveFanAdvancedVote(fid));
 });
 function setConcertScope(owner,scope){const isFan=owner==="fan",publicBox=$(isFan?"publicConcertList":"guestConcertList"),privateBox=$(isFan?"privateConcertList":"guestPrivateConcertList"),detail=$(isFan?"publicConcertDetail":"guestConcertDetail");if(publicBox)publicBox.hidden=scope!=="public";if(privateBox)privateBox.hidden=scope!=="private";document.querySelectorAll(`.concert-scope-tab[data-concert-owner="${owner}"]`).forEach(b=>b.classList.toggle("active",b.dataset.concertScope===scope));if(detail)detail.innerHTML=""}
 document.querySelectorAll(".concert-scope-tab").forEach(btn=>btn.onclick=()=>setConcertScope(btn.dataset.concertOwner,btn.dataset.concertScope));
@@ -825,7 +845,7 @@ async function openPublicConcert(id,voteMode=false){
     }
 
     const canVote=!!data.voting_open;
-    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><div><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Compila tutto qui sotto in una sola volta. Le conoscenze Base/Testo sono una tantum e, se non le hai ancora registrate, valgono +5 pt ciascuna anche da qui.</div></div><input id="fanGeneralLiveScore" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${general??""}" ${canVote?"":"disabled"}><button id="saveFanLiveFeedback" class="live-save-button" ${canVote?"":"disabled"}>SALVA VALUTAZIONE LIVE</button></div><div class="live-feedback"><div class="live-feedback-head"><div>#</div><div>Brano</div><div>Voto</div><div>Con. base</div><div>Con. testo</div><div>Pogo</div><div>Cantata</div><div>Goduta</div></div><div id="fanLiveFeedbackRows"></div></div></div></section>`;
+    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><div><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Salvataggio automatico: i voti vengono registrati quando esci dalla casella; Pogo/Cantata/Goduta vengono salvati subito. Le conoscenze Base/Testo sono una tantum e valgono +5 pt ciascuna la prima volta.</div><div id="fanLiveAutosaveStatus" class="live-save-note"></div></div><input id="fanGeneralLiveScore" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${general??""}" ${canVote?"":"disabled"}></div><div class="live-feedback"><div class="live-feedback-head"><div>#</div><div>Brano</div><div>Voto</div><div>Con. base</div><div>Con. testo</div><div>Pogo</div><div>Cantata</div><div>Goduta</div></div><div id="fanLiveFeedbackRows"></div></div></div></section>`;
 
     const rowsBox=$("fanLiveFeedbackRows");
     songRows.forEach((song,i)=>{
@@ -838,15 +858,18 @@ async function openPublicConcert(id,voteMode=false){
       rowsBox.appendChild(row);
     });
     if(!songRows.length)rowsBox.innerHTML='<div class="empty">Nessun brano in scaletta.</div>';
-    if(canVote)$("saveFanLiveFeedback").onclick=()=>savePublicLiveFeedback(c.id);
+    if(canVote)bindLiveFeedbackAutosave(box,c);
     const back=box.querySelector(".concert-back-setlist-button");if(back)back.onclick=()=>openPublicConcert(c.id,false);
     bindConcertRefresh(box,()=>openPublicConcert(c.id,true),c.id);startConcertRevealTimer("fan",c,c.id,openPublicConcert,true);
     bindFanAttendance(box,c,true);bindAutoAttendanceFromLiveFeedback(box,c);
   }catch(err){alert(err.message)}
 }
-async function savePublicLiveFeedback(concertId){
-  const button=$("saveFanLiveFeedback"),generalRaw=$("fanGeneralLiveScore")?.value??"",box=$("publicConcertDetail");
-  const songRows=[...document.querySelectorAll("#fanLiveFeedbackRows .live-feedback-row[data-song-id]")].map(row=>({
+const liveFeedbackSaveChains=new Map();
+function liveFeedbackControls(box){return [...(box||document).querySelectorAll("#fanGeneralLiveScore,#fanLiveFeedbackRows .live-song-score,#fanLiveFeedbackRows .live-base-familiarity:not(:disabled),#fanLiveFeedbackRows .live-lyrics-familiarity:not(:disabled),#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")]}
+function liveControlValue(el){return el.type==="checkbox"?(el.checked?"1":"0"):String(el.value??"")}
+function collectLiveFeedback(box){
+  const generalRaw=box?.querySelector("#fanGeneralLiveScore")?.value??"";
+  const songs=[...box.querySelectorAll("#fanLiveFeedbackRows .live-feedback-row[data-song-id]")].map(row=>({
     song_id:row.dataset.songId,
     performance_score:row.querySelector(".live-song-score")?.value?.trim()||null,
     base_familiarity:row.querySelector(".live-base-familiarity:not(:disabled)")?.value?.trim()||null,
@@ -855,11 +878,44 @@ async function savePublicLiveFeedback(concertId){
     sang_along:!!row.querySelector(".live-sang")?.checked,
     enjoyed:!!row.querySelector(".live-enjoyed")?.checked
   }));
-  const hasFeedback=String(generalRaw).trim()!==""||songRows.some(r=>r.performance_score!=null||r.base_familiarity!=null||r.lyrics_familiarity!=null||r.pogo||r.sang_along||r.enjoyed);
-  if(!hasFeedback){alert("Inserisci almeno una valutazione prima di salvare.");return}
-  button.disabled=true;button.textContent="SALVATAGGIO...";
-  try{const attended=await ensureLiveAttendance(concertId,box);if(!attended){button.disabled=false;button.textContent="SALVA VALUTAZIONE LIVE";return}await fanApi("save_live_feedback",{concert_id:concertId,performance_score:generalRaw.trim()||null,songs:songRows});button.textContent="SALVATO ✓";setTimeout(()=>openPublicConcert(concertId),450)}catch(err){alert(err.message);button.disabled=false;button.textContent="SALVA VALUTAZIONE LIVE"}
+  return {performance_score:String(generalRaw).trim()||null,songs};
 }
+async function performLiveFeedbackAutosave(concertId,box){
+  const status=box?.querySelector("#fanLiveAutosaveStatus"),controls=liveFeedbackControls(box);
+  const numeric=[...box.querySelectorAll('#fanGeneralLiveScore,#fanLiveFeedbackRows input[type="number"]:not(:disabled)')];
+  if(numeric.some(el=>{const raw=String(el.value??"").trim();if(raw==="")return false;const n=Number(raw);return !Number.isFinite(n)||n<1||n>10})){if(status)status.textContent="Valore non valido: usa solo voti da 1 a 10.";return false}
+  if(status)status.textContent="Salvataggio automatico...";
+  const attended=await ensureLiveAttendance(concertId,box);if(!attended){if(status)status.textContent="Presenza non registrata: voto non salvato.";return false}
+  try{
+    const payload=collectLiveFeedback(box);
+    await fanApi("save_live_feedback",{concert_id:concertId,...payload});
+    controls.forEach(el=>el.dataset.savedValue=liveControlValue(el));
+    [...box.querySelectorAll(".live-base-familiarity:not(:disabled),.live-lyrics-familiarity:not(:disabled)")].forEach(el=>{
+      if(String(el.value??"").trim()!==""){el.disabled=true;el.classList.add("familiarity-locked")}
+    });
+    if(status)status.textContent="Salvato ✓";return true;
+  }catch(err){if(status)status.textContent=err.message||"Errore durante il salvataggio";return false}
+}
+function queueLiveFeedbackAutosave(concertId,box){
+  const previous=liveFeedbackSaveChains.get(concertId)||Promise.resolve();
+  const next=previous.catch(()=>{}).then(()=>performLiveFeedbackAutosave(concertId,box));
+  liveFeedbackSaveChains.set(concertId,next);
+  next.finally(()=>{if(liveFeedbackSaveChains.get(concertId)===next)liveFeedbackSaveChains.delete(concertId)});
+  return next;
+}
+function bindLiveFeedbackAutosave(box,c){
+  const controls=liveFeedbackControls(box);
+  controls.forEach(el=>{
+    el.dataset.savedValue=liveControlValue(el);
+    if(el.type==="checkbox"){
+      el.addEventListener("change",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box)})
+    }else{
+      el.addEventListener("input",()=>{const status=box.querySelector("#fanLiveAutosaveStatus");if(status&&liveControlValue(el)!==String(el.dataset.savedValue??""))status.textContent="Modifica non ancora salvata · esci dalla casella per registrarla."});
+      el.addEventListener("blur",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box)})
+    }
+  });
+}
+async function savePublicLiveFeedback(concertId){const box=$("publicConcertDetail");return queueLiveFeedbackAutosave(concertId,box)}
 function renderConcertRankingRows(rows,box,openFn){box.innerHTML="";(rows||[]).forEach(r=>{const row=document.createElement("div");row.className="list-row";const pu=posterUrl(r.poster_path);row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="rank" style="width:24px">${r.ranking_position}</div><div class="list-main"><div class="list-title detail-link">${esc(r.concert_name)}</div><div class="small-info">${formatDate(r.concert_date)} · ${r.attendance_count} presenti${r.average_rating!=null?` · voto ${Number(r.average_rating).toFixed(1)}`:""} · ${r.pogo_count} pogo · ${Number(r.sang_count||0)+Number(r.enjoyed_count||0)} partecipazioni</div></div><strong class="ranking-concert-score">${Number(r.score||0).toFixed(1)}</strong>`;row.querySelector(".detail-link").onclick=()=>openFn(r.concert_id);box.appendChild(row)});if(!rows?.length)box.innerHTML='<div class="empty">Nessun concerto ancora classificabile.</div>'}
 function renderRankingData(data,fanBox,songBox,concertBox,concertOpen){
   publicRankingFans=data.fans||[];publicRankingSongs=data.songs||[];publicRankingConcerts=data.concerts||[];
