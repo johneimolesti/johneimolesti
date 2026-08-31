@@ -77,7 +77,7 @@
     .rating-scale button{min-width:0;height:30px;padding:0;border:1px solid #444;border-radius:4px;background:#242424;color:#bbb;font-size:10px;font-weight:800;cursor:pointer}
     .rating-scale button:hover:not(:disabled){border-color:var(--accent);color:#fff;background:#2d2d2d}.rating-scale button.selected{background:var(--accent);border-color:var(--accent);color:#111}.rating-scale.is-saving button{opacity:.45;cursor:wait}.rating-scale.is-saving button.selected{opacity:1}.rating-scale.is-disabled button{opacity:.3;cursor:default}
     .fan-catalog-head,.fan-catalog-row{grid-template-columns:minmax(220px,1fr) minmax(270px,360px) 92px;min-width:650px}.quick-vote-cell{min-width:0}.quick-vote-cell .rating-scale{margin-top:0}.quick-vote-cell .rating-scale button{height:27px;font-size:9px}
-    .permission-toolbar{display:flex;align-items:center;gap:8px}.permission-matrix-scroll{overflow-x:auto}.permission-matrix-row{display:grid;grid-template-columns:minmax(230px,1fr) 90px 90px 90px;gap:6px;align-items:center;min-width:560px;padding:7px 9px;border-bottom:1px solid #303030;font-size:10px}.permission-matrix-row.header{background:#1c1c1c;color:#777;font-size:8px;font-weight:800;text-transform:uppercase}.permission-matrix-row:last-child{border-bottom:0}.permission-label{font-weight:800}.permission-description{margin-top:2px;color:#777;font-size:8px;line-height:1.35}.permission-cell{text-align:center}.permission-cell input{width:17px;height:17px;accent-color:var(--accent)}.permission-na{color:#555}.permission-saving{opacity:.55}
+    .permission-toolbar{display:flex;align-items:center;gap:8px}.permission-matrix-scroll{overflow-x:auto}.permission-matrix-row{display:grid;grid-template-columns:minmax(230px,1fr) 90px 90px 90px;gap:6px;align-items:center;min-width:560px;padding:7px 9px;border-bottom:1px solid #303030;font-size:10px}.permission-matrix-row.header{background:#1c1c1c;color:#777;font-size:8px;font-weight:800;text-transform:uppercase}.permission-matrix-row:last-child{border-bottom:0}.permission-label{font-weight:800}.permission-description{margin-top:2px;color:#777;font-size:8px;line-height:1.35}.permission-cell{text-align:center}.permission-cell input{width:17px;height:17px;accent-color:var(--accent)}.permission-cell select{width:100%;min-width:82px;height:28px;padding:2px 5px;background:#202020;border:1px solid #444;border-radius:5px;color:#eee;font-size:9px;font-weight:800}.permission-cell select:focus{outline:1px solid var(--accent);border-color:var(--accent)}.permission-member-note{display:block;margin-top:2px;color:#666;font-size:7px;line-height:1.2}.permission-na{color:#555}.permission-saving{opacity:.55}
     .live-general-box{display:block;margin:8px 0;padding:8px;border:1px solid #333;border-radius:6px;background:#202020}.live-general-box .rating-scale{max-width:560px}.live-general-box .rating-scale button{height:28px}
     .live-feedback-head{display:none}.live-feedback-row{display:block;min-height:0;padding:7px;border-top:1px solid #303030;background:#242424}.live-feedback-main{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:7px;align-items:center}.live-feedback-main .lf-reactions{display:flex;gap:12px;align-items:center}.live-song-rating-line{display:grid;grid-template-columns:95px minmax(0,560px);gap:8px;align-items:center;margin:6px 0 2px;padding-left:35px}.live-score-label{color:#999;font-size:8px;font-weight:800}.live-rating-scale{margin-top:0}.live-rating-scale button{height:25px;font-size:8px}.live-feedback-row .lf-familiarity{grid-column:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:7px 0 2px 35px}
     @media(max-width:650px){.rating-scale{gap:2px}.rating-scale button{height:32px;font-size:10px}.fan-catalog-scroll{overflow:visible}.fan-catalog-head{display:none}.fan-catalog-row{grid-template-columns:minmax(0,1fr) 88px;min-width:0;gap:6px}.fan-catalog-row .fan-catalog-song{grid-column:1}.fan-catalog-row .quick-vote-cell{grid-column:1/-1;grid-row:2}.fan-catalog-row .fan-catalog-cell:last-child{grid-column:2;grid-row:1}.quick-vote-cell .rating-scale button{height:30px;font-size:9px}.live-feedback-main{grid-template-columns:24px minmax(0,1fr)}.live-feedback-main .lf-reactions{grid-column:2;flex-wrap:wrap;margin-top:4px}.live-song-rating-line{grid-template-columns:1fr;padding-left:31px}.live-feedback-row .lf-familiarity{grid-template-columns:1fr;padding-left:31px}.permission-matrix-row{grid-template-columns:minmax(190px,1fr) 72px 72px 72px;min-width:480px}}
@@ -186,7 +186,7 @@
 
     <section id="permissionsPage" class="page">
       <div class="fan-hero"><h2>Matrice permessi</h2><div class="section-note">Gestisce cosa possono fare i <strong>membri non admin</strong>, i <strong>fan</strong> e gli <strong>ospiti / “Sono solo curioso”</strong>. Ema e Kekko restano super-admin con tutti i permessi, indipendentemente dalle spunte qui sotto. Le modifiche vengono salvate subito.</div></div>
-      <section class="panel"><div class="panel-header"><h2>PERMESSI PER RUOLO</h2><div class="permission-toolbar"><span id="permissionMatrixStatus" class="counter"></span><button id="resetPermissionMatrix" class="small-btn" type="button">RIPRISTINA DEFAULT</button></div></div><div class="permission-matrix-scroll"><div id="permissionMatrix"></div></div></section>
+      <section class="panel"><div class="panel-header"><h2>PERMESSI PER RUOLO</h2><div class="permission-toolbar"><span id="permissionMatrixStatus" class="counter"></span><button id="resetPermissionMatrix" class="small-btn" type="button">RIPRISTINA DEFAULT</button></div></div><div class="section-note" style="margin:8px">Per i <strong>Membri</strong>: <strong>NO</strong> nasconde la funzione, <strong>VISUALIZZA</strong> la rende sola lettura, <strong>MODIFICA</strong> abilita anche le azioni previste per i membri. Le funzioni senza azioni modificabili offrono solo NO/VISUALIZZA. Ema e Kekko restano sempre super-admin.</div><div class="permission-matrix-scroll"><div id="permissionMatrix"></div></div></section>
     </section>
   </main>
 </section>
@@ -254,6 +254,7 @@
 </form></div></div>
 
 <script>
+// Frontend V3.24
 const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
@@ -296,6 +297,38 @@ function hasPermission(role,key){if(role==="member"&&isEma())return true;const m
 function canMember(key){return hasPermission("member",key)}
 function canFan(key){return hasPermission("fan",key)}
 function canGuest(key){return hasPermission("guest",key)}
+const MEMBER_PERMISSION_FEATURES={
+  member_setlist_view:{feature:"my_setlist",viewKey:"member_setlist_view",editKeys:["member_setlist_edit"],editable:true},
+  proposals_view:{feature:"proposals",viewKey:"proposals_view",editKeys:[],editable:false},
+  catalog_view:{feature:"catalog",viewKey:"catalog_view",editKeys:["catalog_vote","catalog_advanced_vote","song_propose"],editable:true},
+  member_setlists_view:{feature:"member_setlists",viewKey:"member_setlists_view",editKeys:[],editable:false},
+  concerts_view:{feature:"concerts",viewKey:"concerts_view",editKeys:[],editable:false},
+  private_shows_view:{feature:"private_shows",viewKey:"private_shows_view",editKeys:[],editable:false},
+  concert_setlist_view:{feature:"concert_setlist",viewKey:"concert_setlist_view",editKeys:[],editable:false},
+  rankings_view:{feature:"rankings",viewKey:"rankings_view",editKeys:[],editable:false},
+  song_detail_view:{feature:"song_detail",viewKey:"song_detail_view",editKeys:[],editable:false},
+  fan_section_view:{feature:"fan_section",viewKey:"fan_section_view",editKeys:[],editable:false}
+};
+const MEMBER_BUNDLED_PERMISSION_KEYS=new Set(["member_setlist_edit","song_propose"]);
+const MEMBER_BUNDLED_CELL_KEYS=new Set(["catalog_vote","catalog_advanced_vote"]);
+function permissionMatrixRow(key){return permissionMatrixRows.find(r=>r.permission_key===key)}
+function memberFeatureAccess(spec){
+  const view=!!permissionMatrixRow(spec.viewKey)?.member_allowed;
+  if(!view)return "none";
+  if(!spec.editable)return "view";
+  const values=spec.editKeys.map(k=>!!permissionMatrixRow(k)?.member_allowed);
+  if(values.length&&values.every(Boolean))return "edit";
+  if(values.some(Boolean))return "custom";
+  return "view";
+}
+function memberAccessSelectHtml(row){
+  const spec=MEMBER_PERMISSION_FEATURES[row.permission_key];
+  if(!spec)return '<span class="permission-na">—</span>';
+  const value=memberFeatureAccess(spec),opts=[['none','NO'],['view','VISUALIZZA']];
+  if(spec.editable)opts.push(['edit','MODIFICA']);
+  if(value==='custom')opts.push(['custom','PERSONALIZZATO']);
+  return `<select class="member-access-select" data-feature="${esc(spec.feature)}" aria-label="${esc(row.label)} - Membri">${opts.map(([v,l])=>`<option value="${v}" ${value===v?'selected':''} ${v==='custom'?'disabled':''}>${l}</option>`).join('')}</select>${spec.editable?'<span class="permission-member-note">MODIFICA include le azioni della sezione</span>':''}`;
+}
 function permissionApplies(role,key){
   const memberOnly=new Set(["member_setlist_view","member_setlist_edit","proposals_view","song_propose","member_setlists_view","fan_section_view"]);
   const fanOnly=new Set(["live_attendance","live_vote"]);
@@ -341,7 +374,27 @@ async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!
 $("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{if(btn.classList.contains("hidden")||btn.hidden)return;$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await loadCommunityData();calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadSongScores();await loadConcertHistoryItems();renderSongRanking()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}if(btn.dataset.page==="permissionsPage"&&isEma())await loadPermissionMatrix()}catch(err){console.error(err);alert(err.message)}});
 
 async function loadPermissionMatrix(){if(!isEma())return;const status=$("permissionMatrixStatus");if(status)status.textContent="Caricamento...";const {data,error}=await sb.rpc("admin_get_permission_matrix");if(error){if(status)status.textContent=error.message;throw error}permissionMatrixRows=data||[];renderPermissionMatrix();if(status)status.textContent="Modifiche salvate automaticamente"}
-function renderPermissionMatrix(){const box=$("permissionMatrix");if(!box)return;const head='<div class="permission-matrix-row header"><div>Funzione</div><div>Membri</div><div>Fan</div><div>Ospiti</div></div>';const rows=(permissionMatrixRows||[]).map(r=>`<div class="permission-matrix-row" data-permission-key="${esc(r.permission_key)}"><div><div class="permission-label">${esc(r.label)}</div><div class="permission-description">${esc(r.description||"")}</div></div>${["member","fan","guest"].map(role=>permissionApplies(role,r.permission_key)?`<div class="permission-cell"><input type="checkbox" data-role="${role}" ${r[role+"_allowed"]?"checked":""} aria-label="${esc(r.label)} - ${role}"></div>`:'<div class="permission-cell"><span class="permission-na">—</span></div>').join("")}</div>`).join("");box.innerHTML=head+rows;box.querySelectorAll('input[type="checkbox"][data-role]').forEach(ch=>ch.onchange=()=>savePermissionToggle(ch))}
+function renderPermissionMatrix(){
+  const box=$("permissionMatrix");if(!box)return;
+  const head='<div class="permission-matrix-row header"><div>Funzione</div><div>Membri</div><div>Fan</div><div>Ospiti</div></div>';
+  const rows=(permissionMatrixRows||[]).filter(r=>!MEMBER_BUNDLED_PERMISSION_KEYS.has(r.permission_key)&&!MEMBER_BUNDLED_CELL_KEYS.has(r.permission_key)||permissionApplies("fan",r.permission_key)||permissionApplies("guest",r.permission_key)).map(r=>{
+    const memberCell=MEMBER_PERMISSION_FEATURES[r.permission_key]
+      ?`<div class="permission-cell">${memberAccessSelectHtml(r)}</div>`
+      :(permissionApplies("member",r.permission_key)?'<div class="permission-cell"><span class="permission-na">gestito dalla sezione</span></div>':'<div class="permission-cell"><span class="permission-na">—</span></div>');
+    const otherCells=["fan","guest"].map(role=>permissionApplies(role,r.permission_key)?`<div class="permission-cell"><input type="checkbox" data-role="${role}" ${r[role+"_allowed"]?"checked":""} aria-label="${esc(r.label)} - ${role}"></div>`:'<div class="permission-cell"><span class="permission-na">—</span></div>').join("");
+    return `<div class="permission-matrix-row" data-permission-key="${esc(r.permission_key)}"><div><div class="permission-label">${esc(r.label)}</div><div class="permission-description">${esc(r.description||"")}</div></div>${memberCell}${otherCells}</div>`;
+  }).join("");
+  box.innerHTML=head+rows;
+  box.querySelectorAll('input[type="checkbox"][data-role]').forEach(ch=>ch.onchange=()=>savePermissionToggle(ch));
+  box.querySelectorAll('.member-access-select').forEach(sel=>sel.onchange=()=>saveMemberAccess(sel));
+}
+async function saveMemberAccess(sel){
+  const feature=sel.dataset.feature,level=sel.value,row=sel.closest(".permission-matrix-row"),status=$("permissionMatrixStatus");if(!feature||!level||level==="custom")return;
+  sel.disabled=true;row?.classList.add("permission-saving");if(status)status.textContent="Salvataggio...";
+  try{const {error}=await sb.rpc("admin_set_member_access",{p_feature:feature,p_access:level});if(error)throw error;await loadPermissionMatrix();if(status)status.textContent="Salvato ✓"}
+  catch(err){if(status)status.textContent=err.message||"Errore";alert(err.message);await loadPermissionMatrix().catch(()=>{})}
+  finally{sel.disabled=false;row?.classList.remove("permission-saving")}
+}
 async function savePermissionToggle(ch){const row=ch.closest(".permission-matrix-row"),key=row?.dataset.permissionKey,role=ch.dataset.role,status=$("permissionMatrixStatus");if(!key||!role)return;ch.disabled=true;row.classList.add("permission-saving");if(status)status.textContent="Salvataggio...";try{const {error}=await sb.rpc("admin_set_permission",{p_role:role,p_permission_key:key,p_allowed:ch.checked});if(error)throw error;const r=permissionMatrixRows.find(x=>x.permission_key===key);if(r)r[role+"_allowed"]=ch.checked;if(status)status.textContent="Salvato ✓"}catch(err){ch.checked=!ch.checked;if(status)status.textContent=err.message||"Errore";alert(err.message)}finally{ch.disabled=false;row.classList.remove("permission-saving")}}
 $("resetPermissionMatrix").onclick=async()=>{if(!isEma()||!confirm("Ripristinare la matrice permessi ai valori predefiniti?"))return;const b=$("resetPermissionMatrix"),status=$("permissionMatrixStatus");b.disabled=true;if(status)status.textContent="Ripristino...";try{const {error}=await sb.rpc("admin_reset_permission_matrix");if(error)throw error;await loadPermissionMatrix()}catch(err){alert(err.message);if(status)status.textContent=err.message}finally{b.disabled=false}};
 
