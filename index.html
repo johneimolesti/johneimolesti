@@ -47,6 +47,30 @@
     .future-concert-row{min-height:58px;border-left:3px solid var(--accent);background:#282719}.future-concert-row .list-title{font-size:12px}.future-concert-mainmeta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:5px}.future-concert-date{color:var(--accent);font-size:11px;font-weight:900}.future-concert-place{color:#ddd;font-size:10px;font-weight:700}.future-concert-note{margin-top:3px;color:#888;font-size:8px}
     .concert-detail-head-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}.concert-attend-quick{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid #444;border-radius:4px;background:#222;color:#ccc;font-size:8px;font-weight:800;white-space:nowrap;cursor:pointer}.concert-attend-quick input{width:14px;height:14px;margin:0;accent-color:var(--accent)}.concert-attend-quick:has(input:checked){border-color:#6d6529;background:#302d18;color:var(--accent)}.concert-refresh-button,.concert-vote-button,.concert-back-setlist-button{padding:5px 8px;border:1px solid #444;border-radius:4px;background:#292929;color:#ddd;font-size:8px;font-weight:800}.concert-refresh-button:hover,.concert-vote-button:hover,.concert-back-setlist-button:hover{border-color:var(--accent);color:var(--accent)}.concert-vote-button{border-color:#665e27;background:#292713;color:#d8cb72}.concert-back-setlist-button{background:#242424;color:#aaa}.concert-readonly-row{cursor:default}.concert-readonly-row .detail-link{display:inline-block}.concert-readonly-row .detail-link:hover{color:var(--accent)}.concert-auto-note{margin:6px 0;color:#777;font-size:8px}.concert-spoiler-content{transition:filter .35s ease,opacity .35s ease}.concert-spoiler-content.is-blurred{filter:blur(6px);opacity:.58;user-select:none;pointer-events:none}.concert-reveal-status{margin:6px 0;padding:6px 8px;border:1px solid #333;border-radius:5px;background:#1d1d1d;color:#999;font-size:9px}.concert-reveal-status strong{color:var(--accent)}
     @media print{.no-print{display:none!important}}
+  
+    /* V3.22 — conoscenza Base/Testo con scala 1–10 a pulsanti */
+    .familiarity-scale{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;width:100%;margin-top:5px}
+    .familiarity-scale button{min-width:0;height:30px;padding:0;border:1px solid #444;border-radius:4px;background:#242424;color:#bbb;font-size:10px;font-weight:800;cursor:pointer}
+    .familiarity-scale button:hover:not(:disabled){border-color:var(--accent);color:#fff;background:#2d2d2d}
+    .familiarity-scale button.selected{background:var(--accent);border-color:var(--accent);color:#111}
+    .familiarity-scale.is-saving button{opacity:.45;cursor:wait}.familiarity-scale.is-saving button.selected{opacity:1}
+    .familiarity-scale.is-locked button{cursor:default}.familiarity-scale.is-locked button:not(.selected){opacity:.28}
+    .fan-fam-question{padding:7px 0}.fan-fam-question>label{font-weight:700;color:#ddd;line-height:1.35}
+    .live-feedback-head,.live-feedback-row{grid-template-columns:28px minmax(135px,1fr) 62px 48px 58px 52px}
+    .live-feedback-row .lf-reactions{display:contents}
+    .live-feedback-row .lf-familiarity{grid-column:2/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:7px 0 2px}
+    .live-fam-question{min-width:0;padding:6px 7px;border:1px solid #333;border-radius:5px;background:#202020}
+    .live-fam-question-title{display:block;margin-bottom:2px;color:#999;font-size:8px;line-height:1.3}
+    .live-familiarity-scale button{height:25px;font-size:8px}
+    .live-fam-saved{color:#caae65;font-size:8px;line-height:1.3}
+    @media(max-width:650px){
+      .familiarity-scale{gap:2px}.familiarity-scale button{height:32px;font-size:10px}
+      .live-feedback-row{grid-template-columns:24px minmax(0,1fr) 62px;grid-template-areas:"pos title score" "pos reactions reactions" "pos familiarity familiarity"}
+      .live-feedback-row .lf-pos{grid-area:pos}.live-feedback-row .lf-title{grid-area:title}.live-feedback-row .lf-score{grid-area:score}
+      .live-feedback-row .lf-reactions{grid-area:reactions;display:flex;gap:12px;padding-top:5px}
+      .live-feedback-row .lf-familiarity{grid-area:familiarity;display:grid;grid-template-columns:1fr;gap:6px;padding-top:6px}
+      .live-familiarity-scale button{height:29px;font-size:9px}
+    }
   </style>
 </head>
 <body>
@@ -192,7 +216,7 @@
   <div id="fanAdvancedSongMeta" class="section-note" style="margin-bottom:9px"></div>
   <div class="fan-vote-help"><strong>Come votare</strong><br>Il voto <strong>Molesti</strong> è lo stesso del voto rapido e assegna +10 pt la prima volta. I quattro campi avanzati assegnano <strong>+5 pt ciascuno</strong> la prima volta che vengono compilati.<div class="fan-vote-legend"><div><b>Molesti</b>Giudizio complessivo sulla versione di John & i Molesti: arrangiamento, resa e piacere generale.</div><div><b>Gusto Base</b>Quanto ti piace la canzone usata come base strumentale, indipendentemente dal testo sovrapposto.</div><div><b>Gusto Testo</b>Quanto ti piace il testo/cantato originale, indipendentemente dalla base musicale.</div><div><b>Conoscenza Base</b>Rispondi a: <strong>“Conoscevi la canzone che fa da base strumentale?”</strong>, pensando a prima di conoscere la versione dei Molesti. È una tantum.</div><div><b>Conoscenza Testo</b>Rispondi a: <strong>“Quanto conoscevi il testo di questa canzone?”</strong>, pensando a prima di conoscere la versione dei Molesti. È una tantum.</div></div></div>
   <div class="form-section" style="margin-top:10px"><h3>Gusto personale</h3><div class="form-grid"><div class="form-field full"><label>Versione Molesti 1–10</label><input id="fanAdvancedMolesti" type="number" min="1" max="10" step="0.1" placeholder="1–10"></div><div class="form-field"><label>Gusto Base 1–10</label><input id="fanAdvancedBaseScore" type="number" min="1" max="10" step="0.1" placeholder="facoltativo"></div><div class="form-field"><label>Gusto Testo 1–10</label><input id="fanAdvancedLyricsScore" type="number" min="1" max="10" step="0.1" placeholder="facoltativo"></div></div></div>
-  <div class="form-section"><h3>Quanto la conoscevi già</h3><div class="form-grid"><div class="form-field"><label>Conoscevi la canzone che fa da base strumentale?</label><input id="fanAdvancedBaseFam" type="number" min="1" max="10" step="0.1" placeholder="1–10"><div id="fanAdvancedBaseFamNote" class="one-shot-note"></div></div><div class="form-field"><label>Quanto conoscevi il testo di questa canzone?</label><input id="fanAdvancedLyricsFam" type="number" min="1" max="10" step="0.1" placeholder="1–10"><div id="fanAdvancedLyricsFamNote" class="one-shot-note"></div></div></div><div class="section-note" style="margin-top:7px"><strong>Importante:</strong> rispondi pensando a <em>prima</em> di conoscere la versione dei Molesti. I due valori sono una tantum per fan e canzone: dopo il primo salvataggio non possono essere cambiati. Puoi lasciarli vuoti e inserirli in seguito, anche dalla votazione di un concerto.</div></div>
+  <div class="form-section"><h3>Quanto la conoscevi già</h3><div class="form-grid"><div class="form-field full fan-fam-question"><label>Conoscevi la canzone che fa da base strumentale?</label><input id="fanAdvancedBaseFam" type="hidden"><div id="fanAdvancedBaseFamScale" class="familiarity-scale" aria-label="Conoscenza base da 1 a 10"></div><div id="fanAdvancedBaseFamNote" class="one-shot-note"></div></div><div class="form-field full fan-fam-question"><label>Quanto conoscevi il testo di questa canzone?</label><input id="fanAdvancedLyricsFam" type="hidden"><div id="fanAdvancedLyricsFamScale" class="familiarity-scale" aria-label="Conoscenza testo da 1 a 10"></div><div id="fanAdvancedLyricsFamNote" class="one-shot-note"></div></div></div><div class="section-note" style="margin-top:7px"><strong>Importante:</strong> rispondi pensando a <em>prima</em> di conoscere la versione dei Molesti. Tocca direttamente un numero da 1 a 10: il valore viene salvato subito. I due valori sono una tantum per fan e canzone e, dopo il salvataggio, non possono essere cambiati.</div></div>
   <div id="fanAdvancedVoteStatus" class="section-note"></div>
   <div class="modal-actions"><button id="cancelFanAdvancedVote" type="button" class="modal-cancel">CHIUDI</button></div>
 </form></div></div>
@@ -739,6 +763,30 @@ async function autosaveCatalogQuick(row){
   }catch(err){row.classList.add("row-error");if(status)status.textContent=err.message||"Errore durante il salvataggio"}
   finally{input.disabled=false}
 }
+function familiarityButtonsMarkup(value,locked=false){
+  const n=value==null||value===""?null:Number(value);
+  return Array.from({length:10},(_,i)=>{const v=i+1,sel=n===v;return `<button type="button" data-value="${v}" class="${sel?"selected":""}" ${locked?"disabled":""} aria-pressed="${sel?"true":"false"}">${v}</button>`}).join("")
+}
+function paintFamiliarityScale(scale,value,state="ready"){
+  if(!scale)return;const locked=state==="locked"||state==="saving";
+  scale.classList.toggle("is-locked",state==="locked");scale.classList.toggle("is-saving",state==="saving");
+  scale.innerHTML=familiarityButtonsMarkup(value,locked);
+}
+function setupAdvancedFamiliarity(kind,value,locked=false){
+  const isBase=kind==="base",input=$(isBase?"fanAdvancedBaseFam":"fanAdvancedLyricsFam"),scale=$(isBase?"fanAdvancedBaseFamScale":"fanAdvancedLyricsFamScale");
+  if(!input||!scale)return;input.value=value??"";input.disabled=!!locked;input.dataset.savedValue=String(value??"");paintFamiliarityScale(scale,value,locked?"locked":"ready");
+  if(!locked)scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=()=>saveAdvancedFamiliarity(kind,Number(btn.dataset.value)))
+}
+async function saveAdvancedFamiliarity(kind,value){
+  const isBase=kind==="base",input=$(isBase?"fanAdvancedBaseFam":"fanAdvancedLyricsFam"),scale=$(isBase?"fanAdvancedBaseFamScale":"fanAdvancedLyricsFamScale"),note=$(isBase?"fanAdvancedBaseFamNote":"fanAdvancedLyricsFamNote"),status=$("fanAdvancedVoteStatus"),id=$("fanAdvancedSongId").value;
+  if(!id||!input||input.disabled)return false;const previous=String(input.dataset.savedValue??"");input.value=String(value);input.disabled=true;paintFamiliarityScale(scale,value,"saving");if(note)note.textContent="Salvataggio...";if(status)status.textContent="Salvataggio conoscenza...";
+  try{
+    await fanApi("catalog_vote",{song_id:id,molesti_score:null,base_score:null,lyrics_score:null,base_familiarity:isBase?value:null,lyrics_familiarity:isBase?null:value});
+    input.dataset.savedValue=String(value);paintFamiliarityScale(scale,value,"locked");if(note)note.textContent=`Registrata (${value}/10): valore bloccato.`;
+    const song=publicCatalogSongs.find(x=>x.id===id);if(song){song.my_familiarity=song.my_familiarity||{};song.my_familiarity[isBase?"base_familiarity":"lyrics_familiarity"]=value}
+    if(status)status.textContent=`Conoscenza ${isBase?"Base":"Testo"} salvata ✓`;return true;
+  }catch(err){input.disabled=false;input.value=previous;paintFamiliarityScale(scale,previous,"ready");scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=()=>saveAdvancedFamiliarity(kind,Number(btn.dataset.value)));if(note)note.textContent="Non salvata: riprova selezionando un numero.";if(status)status.textContent=err.message||"Errore durante il salvataggio";return false}
+}
 function openFanAdvancedVote(songId){
   const song=publicCatalogSongs.find(s=>s.id===songId);if(!song)return;
   const v=song.my_vote||{},f=song.my_familiarity||{},row=document.querySelector(`#fanCatalogRows .fan-catalog-row[data-song-id="${songId}"]`);
@@ -748,43 +796,31 @@ function openFanAdvancedVote(songId){
   $("fanAdvancedSongId").value=song.id;$("fanAdvancedVoteTitle").textContent=`Voto avanzato — ${song.title}`;$("fanAdvancedSongMeta").innerHTML=`Base: <strong>${esc(baseMeta)}</strong><br>Testo: <strong>${esc(lyricsMeta)}</strong>`;
   $("fanAdvancedMolesti").value=quick!==undefined&&String(quick).trim()!==""?quick:(v.molesti_score??"");$("fanAdvancedBaseScore").value=baseOriginal?"":(v.base_score??"");$("fanAdvancedBaseScore").disabled=baseOriginal;$("fanAdvancedLyricsScore").value=v.lyrics_score??"";
   const baseKnown=f.base_familiarity!=null,lyricsKnown=f.lyrics_familiarity!=null;
-  $("fanAdvancedBaseFam").value=baseOriginal?"":(f.base_familiarity??"");$("fanAdvancedBaseFam").disabled=baseOriginal||baseKnown;
-  $("fanAdvancedLyricsFam").value=f.lyrics_familiarity??"";$("fanAdvancedLyricsFam").disabled=lyricsKnown;
-  $("fanAdvancedBaseFamNote").textContent=baseOriginal?"Non applicabile: base originale dei Molesti.":baseKnown?`Già registrata (${f.base_familiarity}/10): valore bloccato.`:"Una tantum: dopo il salvataggio non sarà modificabile.";
-  $("fanAdvancedLyricsFamNote").textContent=lyricsKnown?`Già registrata (${f.lyrics_familiarity}/10): valore bloccato.`:"Una tantum: dopo il salvataggio non sarà modificabile.";
-  ["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].forEach(fid=>{const el=$(fid);if(el)el.dataset.savedValue=String(el.value??"")});
-  $("fanAdvancedVoteStatus").textContent="Salvataggio automatico: ogni campo viene registrato quando esci dalla casella.";openModal("fanAdvancedVoteModal");
+  setupAdvancedFamiliarity("base",baseOriginal?"":(f.base_familiarity??""),baseOriginal||baseKnown);setupAdvancedFamiliarity("lyrics",f.lyrics_familiarity??"",lyricsKnown);
+  $("fanAdvancedBaseFamNote").textContent=baseOriginal?"Non applicabile: base originale dei Molesti.":baseKnown?`Già registrata (${f.base_familiarity}/10): valore bloccato.`:"Tocca un numero: viene salvato subito e diventa definitivo.";
+  $("fanAdvancedLyricsFamNote").textContent=lyricsKnown?`Già registrata (${f.lyrics_familiarity}/10): valore bloccato.`:"Tocca un numero: viene salvato subito e diventa definitivo.";
+  ["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore"].forEach(fid=>{const el=$(fid);if(el)el.dataset.savedValue=String(el.value??"")});
+  $("fanAdvancedVoteStatus").textContent="Gusto personale: salvataggio quando esci dalla casella. Conoscenza: salvataggio immediato al tocco.";openModal("fanAdvancedVoteModal");
 }
 $("closeFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");$("cancelFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");
 async function autosaveFanAdvancedVote(changedId=null){
   const id=$("fanAdvancedSongId").value;if(!id)return false;
-  const changed=changedId?$(changedId):null;
-  if(changed&&String(changed.value??"")===String(changed.dataset.savedValue??""))return true;
+  const changed=changedId?$(changedId):null;if(changed&&String(changed.value??"")===String(changed.dataset.savedValue??""))return true;
   const val=fid=>{const el=$(fid);if(!el||el.disabled)return null;const raw=String(el.value??"").trim();return raw===""?null:Number(raw)};
-  const mol=val("fanAdvancedMolesti"),base=val("fanAdvancedBaseScore"),lyrics=val("fanAdvancedLyricsScore"),baseFam=val("fanAdvancedBaseFam"),lyricsFam=val("fanAdvancedLyricsFam");
-  const status=$("fanAdvancedVoteStatus");
-  if(![mol,base,lyrics,baseFam,lyricsFam].every(catalogValueValid)){status.textContent="Inserisci solo valori da 1 a 10.";return false}
+  const mol=val("fanAdvancedMolesti"),base=val("fanAdvancedBaseScore"),lyrics=val("fanAdvancedLyricsScore"),status=$("fanAdvancedVoteStatus");
+  if(![mol,base,lyrics].every(catalogValueValid)){status.textContent="Inserisci solo valori da 1 a 10.";return false}
   if(mol==null&&(base!=null||lyrics!=null)){status.textContent="Per dare un voto di gusto a Base o Testo, inserisci anche il voto generale Molesti.";return false}
-  const controls=["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].map(fid=>$(fid)).filter(Boolean);
-  status.textContent="Salvataggio automatico...";
+  const snapshot={fanAdvancedMolesti:mol,fanAdvancedBaseScore:base,fanAdvancedLyricsScore:lyrics};status.textContent="Salvataggio automatico...";
   try{
-    await fanApi("catalog_vote",{song_id:id,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:baseFam,lyrics_familiarity:lyricsFam});
-    controls.forEach(el=>el.dataset.savedValue=String(el.value??""));
-    const song=publicCatalogSongs.find(x=>x.id===id);if(song){
-      song.my_vote=song.my_vote||{};song.my_vote.molesti_score=mol;song.my_vote.base_score=base;song.my_vote.lyrics_score=lyrics;
-      song.my_familiarity=song.my_familiarity||{};
-      if(baseFam!=null)song.my_familiarity.base_familiarity=baseFam;
-      if(lyricsFam!=null)song.my_familiarity.lyrics_familiarity=lyricsFam;
-    }
-    const row=document.querySelector(`#fanCatalogRows .fan-catalog-row[data-song-id="${id}"]`);
-    if(row){row.dataset.savedMolesti=mol??"";row.dataset.baseScore=base??"";row.dataset.lyricsScore=lyrics??"";const q=row.querySelector(".catalog-molesti");if(q)q.value=mol??""}
-    if(baseFam!=null&&!$("fanAdvancedBaseFam").disabled){$("fanAdvancedBaseFam").disabled=true;$("fanAdvancedBaseFam").classList.add("familiarity-locked");$("fanAdvancedBaseFamNote").textContent=`Registrata (${baseFam}/10): valore bloccato.`}
-    if(lyricsFam!=null&&!$("fanAdvancedLyricsFam").disabled){$("fanAdvancedLyricsFam").disabled=true;$("fanAdvancedLyricsFam").classList.add("familiarity-locked");$("fanAdvancedLyricsFamNote").textContent=`Registrata (${lyricsFam}/10): valore bloccato.`}
+    await fanApi("catalog_vote",{song_id:id,molesti_score:mol,base_score:base,lyrics_score:lyrics,base_familiarity:null,lyrics_familiarity:null});
+    Object.entries(snapshot).forEach(([fid,val])=>{const el=$(fid),norm=val==null?"":String(val);if(el&&String(el.value??"").trim()===norm)el.dataset.savedValue=norm});
+    const song=publicCatalogSongs.find(x=>x.id===id);if(song){song.my_vote=song.my_vote||{};song.my_vote.molesti_score=mol;song.my_vote.base_score=base;song.my_vote.lyrics_score=lyrics}
+    const row=document.querySelector(`#fanCatalogRows .fan-catalog-row[data-song-id="${id}"]`);if(row){row.dataset.savedMolesti=mol??"";row.dataset.baseScore=base??"";row.dataset.lyricsScore=lyrics??"";const q=row.querySelector(".catalog-molesti");if(q)q.value=mol??""}
     status.textContent="Salvato automaticamente ✓";return true;
   }catch(err){status.textContent=err.message||"Errore durante il salvataggio";return false}
 }
 $("fanAdvancedVoteForm").addEventListener("submit",e=>e.preventDefault());
-["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore","fanAdvancedBaseFam","fanAdvancedLyricsFam"].forEach(fid=>{
+["fanAdvancedMolesti","fanAdvancedBaseScore","fanAdvancedLyricsScore"].forEach(fid=>{
   $(fid)?.addEventListener("input",()=>{$("fanAdvancedVoteStatus").textContent="Modifica non ancora salvata · esci dalla casella per registrarla."});
   $(fid)?.addEventListener("blur",()=>autosaveFanAdvancedVote(fid));
 });
@@ -816,7 +852,7 @@ async function ensureLiveAttendance(concertId,box){
 }
 function bindAutoAttendanceFromLiveFeedback(box,c){
   if(!box||!c||box.querySelector("#fanAttendCheck")?.checked)return;
-  const controls=[...box.querySelectorAll("#fanGeneralLiveScore,#fanLiveFeedbackRows .live-song-score,#fanLiveFeedbackRows .live-base-familiarity:not(:disabled),#fanLiveFeedbackRows .live-lyrics-familiarity:not(:disabled),#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")];
+  const controls=[...box.querySelectorAll("#fanGeneralLiveScore,#fanLiveFeedbackRows .live-song-score,#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")];
   const activate=e=>{const el=e.currentTarget,meaningful=el.type==="checkbox"?el.checked:String(el.value??"").trim()!=="";if(meaningful)ensureLiveAttendance(c.id,box)};
   controls.forEach(el=>{el.addEventListener(el.type==="checkbox"?"change":"input",activate)})
 }
@@ -845,27 +881,27 @@ async function openPublicConcert(id,voteMode=false){
     }
 
     const canVote=!!data.voting_open;
-    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><div><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Salvataggio automatico: i voti vengono registrati quando esci dalla casella; Pogo/Cantata/Goduta vengono salvati subito. Le conoscenze Base/Testo sono una tantum e valgono +5 pt ciascuna la prima volta.</div><div id="fanLiveAutosaveStatus" class="live-save-note"></div></div><input id="fanGeneralLiveScore" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${general??""}" ${canVote?"":"disabled"}></div><div class="live-feedback"><div class="live-feedback-head"><div>#</div><div>Brano</div><div>Voto</div><div>Con. base</div><div>Con. testo</div><div>Pogo</div><div>Cantata</div><div>Goduta</div></div><div id="fanLiveFeedbackRows"></div></div></div></section>`;
+    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><div><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Salvataggio automatico: i voti vengono registrati quando esci dalla casella; Pogo/Cantata/Goduta vengono salvati subito. Per Base/Testo tocca direttamente un numero da 1 a 10: la conoscenza viene salvata immediatamente ed è una tantum (+5 pt la prima volta).</div><div id="fanLiveAutosaveStatus" class="live-save-note"></div></div><input id="fanGeneralLiveScore" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${general??""}" ${canVote?"":"disabled"}></div><div class="live-feedback"><div class="live-feedback-head"><div>#</div><div>Brano</div><div>Voto</div><div>Pogo</div><div>Cantata</div><div>Goduta</div></div><div id="fanLiveFeedbackRows"></div></div></div></section>`;
 
     const rowsBox=$("fanLiveFeedbackRows");
     songRows.forEach((song,i)=>{
       const explicit=song.my_vote?.molesti_score??null,re=song.my_reactions||{},fam=song.my_familiarity||{},baseOriginal=!!song.base_is_original||isMolestiArtist(song.base_artist),row=document.createElement("div");
       const baseKnown=fam.base_familiarity!=null,lyricsKnown=fam.lyrics_familiarity!=null;
       row.className="live-feedback-row";row.dataset.songId=song.id;row.dataset.liveRevealIndex=String(i);
-      const baseFam=baseOriginal?'<span class="live-fam-na" title="Base originale Molesti">—</span>':`<input class="live-base-familiarity${baseKnown?" familiarity-locked":""}" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${baseKnown?fam.base_familiarity:""}" ${(canVote&&!baseKnown)?"":"disabled"} title="${baseKnown?"Conoscenza già registrata: non modificabile":"Conoscevi la canzone che fa da base strumentale?"}">`;
-      const lyricsFam=`<input class="live-lyrics-familiarity${lyricsKnown?" familiarity-locked":""}" type="number" min="1" max="10" step="0.1" placeholder="1–10" value="${lyricsKnown?fam.lyrics_familiarity:""}" ${(canVote&&!lyricsKnown)?"":"disabled"} title="${lyricsKnown?"Conoscenza già registrata: non modificabile":"Quanto conoscevi il testo di questa canzone?"}">`;
-      row.innerHTML=`<div class="lf-pos" style="color:#888">${i+1}</div><div class="lf-title"><div class="concert-spoiler-content"><strong>${esc(song.title)}</strong></div>${explicit==null&&general!=null?`<div class="small-info">userà il voto generale ${Number(general).toFixed(1)}</div>`:""}</div><div class="lf-score"><input class="live-song-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${explicit??""}" ${canVote?"":"disabled"}></div><div class="lf-familiarity"><label><span class="lf-mobile-label">Base</span>${baseFam}</label><label><span class="lf-mobile-label">Testo</span>${lyricsFam}</label></div><div class="lf-reactions"><label class="live-check"><input class="live-pogo" type="checkbox" ${re.pogo?"checked":""} ${canVote?"":"disabled"}> Pogo</label><label class="live-check"><input class="live-sang" type="checkbox" ${re.sang_along?"checked":""} ${canVote?"":"disabled"}> Cantata</label><label class="live-check"><input class="live-enjoyed" type="checkbox" ${re.enjoyed?"checked":""} ${canVote?"":"disabled"}> Goduta</label></div>`;
+      const baseFam=baseOriginal?`<div class="live-fam-question"><span class="live-fam-question-title">Conoscevi la canzone che fa da base strumentale?</span><span class="live-fam-saved">Non applicabile: base originale dei Molesti.</span></div>`:`<div class="live-fam-question"><span class="live-fam-question-title">Conoscevi la canzone che fa da base strumentale?</span><input class="live-base-familiarity" type="hidden" value="${baseKnown?fam.base_familiarity:""}" ${(canVote&&!baseKnown)?"":"disabled"}><div class="familiarity-scale live-familiarity-scale${baseKnown?" is-locked":""}" data-kind="base">${familiarityButtonsMarkup(baseKnown?fam.base_familiarity:"",baseKnown||!canVote)}</div><div class="live-fam-saved">${baseKnown?`Registrata ${fam.base_familiarity}/10 · definitiva`:`Tocca un numero: salvataggio immediato`}</div></div>`;
+      const lyricsFam=`<div class="live-fam-question"><span class="live-fam-question-title">Quanto conoscevi il testo di questa canzone?</span><input class="live-lyrics-familiarity" type="hidden" value="${lyricsKnown?fam.lyrics_familiarity:""}" ${(canVote&&!lyricsKnown)?"":"disabled"}><div class="familiarity-scale live-familiarity-scale${lyricsKnown?" is-locked":""}" data-kind="lyrics">${familiarityButtonsMarkup(lyricsKnown?fam.lyrics_familiarity:"",lyricsKnown||!canVote)}</div><div class="live-fam-saved">${lyricsKnown?`Registrata ${fam.lyrics_familiarity}/10 · definitiva`:`Tocca un numero: salvataggio immediato`}</div></div>`;
+      row.innerHTML=`<div class="lf-pos" style="color:#888">${i+1}</div><div class="lf-title"><div class="concert-spoiler-content"><strong>${esc(song.title)}</strong></div>${explicit==null&&general!=null?`<div class="small-info">userà il voto generale ${Number(general).toFixed(1)}</div>`:""}</div><div class="lf-score"><input class="live-song-score" type="number" min="1" max="10" step="0.1" placeholder="—" value="${explicit??""}" ${canVote?"":"disabled"}></div><div class="lf-reactions"><label class="live-check"><input class="live-pogo" type="checkbox" ${re.pogo?"checked":""} ${canVote?"":"disabled"}> Pogo</label><label class="live-check"><input class="live-sang" type="checkbox" ${re.sang_along?"checked":""} ${canVote?"":"disabled"}> Cantata</label><label class="live-check"><input class="live-enjoyed" type="checkbox" ${re.enjoyed?"checked":""} ${canVote?"":"disabled"}> Goduta</label></div><div class="lf-familiarity">${baseFam}${lyricsFam}</div>`;
       rowsBox.appendChild(row);
     });
     if(!songRows.length)rowsBox.innerHTML='<div class="empty">Nessun brano in scaletta.</div>';
-    if(canVote)bindLiveFeedbackAutosave(box,c);
+    if(canVote){bindLiveFeedbackAutosave(box,c);bindLiveFamiliarityScales(box,c)};
     const back=box.querySelector(".concert-back-setlist-button");if(back)back.onclick=()=>openPublicConcert(c.id,false);
     bindConcertRefresh(box,()=>openPublicConcert(c.id,true),c.id);startConcertRevealTimer("fan",c,c.id,openPublicConcert,true);
     bindFanAttendance(box,c,true);bindAutoAttendanceFromLiveFeedback(box,c);
   }catch(err){alert(err.message)}
 }
 const liveFeedbackSaveChains=new Map();
-function liveFeedbackControls(box){return [...(box||document).querySelectorAll("#fanGeneralLiveScore,#fanLiveFeedbackRows .live-song-score,#fanLiveFeedbackRows .live-base-familiarity:not(:disabled),#fanLiveFeedbackRows .live-lyrics-familiarity:not(:disabled),#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")]}
+function liveFeedbackControls(box){return [...(box||document).querySelectorAll("#fanGeneralLiveScore,#fanLiveFeedbackRows .live-song-score,#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")]}
 function liveControlValue(el){return el.type==="checkbox"?(el.checked?"1":"0"):String(el.value??"")}
 function collectLiveFeedback(box){
   const generalRaw=box?.querySelector("#fanGeneralLiveScore")?.value??"";
@@ -880,40 +916,34 @@ function collectLiveFeedback(box){
   }));
   return {performance_score:String(generalRaw).trim()||null,songs};
 }
-async function performLiveFeedbackAutosave(concertId,box){
-  const status=box?.querySelector("#fanLiveAutosaveStatus"),controls=liveFeedbackControls(box);
-  const numeric=[...box.querySelectorAll('#fanGeneralLiveScore,#fanLiveFeedbackRows input[type="number"]:not(:disabled)')];
-  if(numeric.some(el=>{const raw=String(el.value??"").trim();if(raw==="")return false;const n=Number(raw);return !Number.isFinite(n)||n<1||n>10})){if(status)status.textContent="Valore non valido: usa solo voti da 1 a 10.";return false}
-  if(status)status.textContent="Salvataggio automatico...";
-  const attended=await ensureLiveAttendance(concertId,box);if(!attended){if(status)status.textContent="Presenza non registrata: voto non salvato.";return false}
-  try{
-    const payload=collectLiveFeedback(box);
-    await fanApi("save_live_feedback",{concert_id:concertId,...payload});
-    controls.forEach(el=>el.dataset.savedValue=liveControlValue(el));
-    [...box.querySelectorAll(".live-base-familiarity:not(:disabled),.live-lyrics-familiarity:not(:disabled)")].forEach(el=>{
-      if(String(el.value??"").trim()!==""){el.disabled=true;el.classList.add("familiarity-locked")}
-    });
-    if(status)status.textContent="Salvato ✓";return true;
-  }catch(err){if(status)status.textContent=err.message||"Errore durante il salvataggio";return false}
+function livePayloadValid(payload){
+  const values=[payload?.performance_score,...(payload?.songs||[]).flatMap(x=>[x.performance_score,x.base_familiarity,x.lyrics_familiarity])];
+  return values.every(raw=>{if(raw==null||raw==="")return true;const n=Number(raw);return Number.isFinite(n)&&n>=1&&n<=10})
 }
-function queueLiveFeedbackAutosave(concertId,box){
-  const previous=liveFeedbackSaveChains.get(concertId)||Promise.resolve();
-  const next=previous.catch(()=>{}).then(()=>performLiveFeedbackAutosave(concertId,box));
-  liveFeedbackSaveChains.set(concertId,next);
-  next.finally(()=>{if(liveFeedbackSaveChains.get(concertId)===next)liveFeedbackSaveChains.delete(concertId)});
-  return next;
+function applyLiveSavedSnapshot(payload,box){
+  const general=box?.querySelector("#fanGeneralLiveScore"),g=payload.performance_score==null?"":String(payload.performance_score);if(general&&String(general.value??"").trim()===g)general.dataset.savedValue=g;
+  (payload.songs||[]).forEach(snap=>{const row=box?.querySelector(`.live-feedback-row[data-song-id="${snap.song_id}"]`);if(!row)return;const score=row.querySelector(".live-song-score"),sv=snap.performance_score==null?"":String(snap.performance_score);if(score&&String(score.value??"").trim()===sv)score.dataset.savedValue=sv;[[".live-pogo",snap.pogo],[".live-sang",snap.sang_along],[".live-enjoyed",snap.enjoyed]].forEach(([sel,val])=>{const el=row.querySelector(sel);if(el&&el.checked===!!val)el.dataset.savedValue=val?"1":"0"})})
+}
+async function performLiveFeedbackAutosave(concertId,box,payload){
+  const status=box?.querySelector("#fanLiveAutosaveStatus");if(!livePayloadValid(payload)){if(status)status.textContent="Valore non valido: usa solo voti da 1 a 10.";return false}
+  if(status)status.textContent="Salvataggio automatico...";const attended=await ensureLiveAttendance(concertId,box);if(!attended){if(status)status.textContent="Presenza non registrata: voto non salvato.";return false}
+  try{await fanApi("save_live_feedback",{concert_id:concertId,...payload});applyLiveSavedSnapshot(payload,box);if(status)status.textContent="Salvato ✓";return true}catch(err){if(status)status.textContent=err.message||"Errore durante il salvataggio";return false}
+}
+function queueLiveFeedbackAutosave(concertId,box,payload=collectLiveFeedback(box)){
+  const snapshot=JSON.parse(JSON.stringify(payload)),previous=liveFeedbackSaveChains.get(concertId)||Promise.resolve();
+  const next=previous.catch(()=>{}).then(()=>performLiveFeedbackAutosave(concertId,box,snapshot));liveFeedbackSaveChains.set(concertId,next);next.finally(()=>{if(liveFeedbackSaveChains.get(concertId)===next)liveFeedbackSaveChains.delete(concertId)});return next
 }
 function bindLiveFeedbackAutosave(box,c){
-  const controls=liveFeedbackControls(box);
-  controls.forEach(el=>{
-    el.dataset.savedValue=liveControlValue(el);
-    if(el.type==="checkbox"){
-      el.addEventListener("change",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box)})
-    }else{
-      el.addEventListener("input",()=>{const status=box.querySelector("#fanLiveAutosaveStatus");if(status&&liveControlValue(el)!==String(el.dataset.savedValue??""))status.textContent="Modifica non ancora salvata · esci dalla casella per registrarla."});
-      el.addEventListener("blur",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box)})
-    }
-  });
+  const controls=liveFeedbackControls(box);controls.forEach(el=>{el.dataset.savedValue=liveControlValue(el);if(el.type==="checkbox"){el.addEventListener("change",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box,collectLiveFeedback(box))})}else{el.addEventListener("input",()=>{const status=box.querySelector("#fanLiveAutosaveStatus");if(status&&liveControlValue(el)!==String(el.dataset.savedValue??""))status.textContent="Modifica non ancora salvata · esci dalla casella per registrarla."});el.addEventListener("blur",()=>{if(liveControlValue(el)!==String(el.dataset.savedValue??""))queueLiveFeedbackAutosave(c.id,box,collectLiveFeedback(box))})}})
+}
+function bindLiveFamiliarityScales(box,c){
+  box.querySelectorAll(".live-familiarity-scale:not(.is-locked)").forEach(scale=>{scale.querySelectorAll("button[data-value]:not(:disabled)").forEach(btn=>btn.onclick=()=>saveLiveFamiliarityChoice(c,box,scale,Number(btn.dataset.value)))})
+}
+async function saveLiveFamiliarityChoice(c,box,scale,value){
+  const row=scale.closest(".live-feedback-row"),kind=scale.dataset.kind,input=row?.querySelector(kind==="base"?".live-base-familiarity":".live-lyrics-familiarity"),note=scale.parentElement?.querySelector(".live-fam-saved");if(!row||!input||input.disabled)return false;
+  const previous=String(input.value??"");input.value=String(value);const payload=collectLiveFeedback(box);input.disabled=true;paintFamiliarityScale(scale,value,"saving");if(note)note.textContent="Salvataggio...";
+  const ok=await queueLiveFeedbackAutosave(c.id,box,payload);if(ok){paintFamiliarityScale(scale,value,"locked");scale.classList.add("is-locked");if(note)note.textContent=`Registrata ${value}/10 · definitiva`;return true}
+  input.disabled=false;input.value=previous;paintFamiliarityScale(scale,previous,"ready");scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=()=>saveLiveFamiliarityChoice(c,box,scale,Number(btn.dataset.value)));if(note)note.textContent="Non salvata: tocca di nuovo un numero.";return false
 }
 async function savePublicLiveFeedback(concertId){const box=$("publicConcertDetail");return queueLiveFeedbackAutosave(concertId,box)}
 function renderConcertRankingRows(rows,box,openFn){box.innerHTML="";(rows||[]).forEach(r=>{const row=document.createElement("div");row.className="list-row";const pu=posterUrl(r.poster_path);row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="rank" style="width:24px">${r.ranking_position}</div><div class="list-main"><div class="list-title detail-link">${esc(r.concert_name)}</div><div class="small-info">${formatDate(r.concert_date)} · ${r.attendance_count} presenti${r.average_rating!=null?` · voto ${Number(r.average_rating).toFixed(1)}`:""} · ${r.pogo_count} pogo · ${Number(r.sang_count||0)+Number(r.enjoyed_count||0)} partecipazioni</div></div><strong class="ranking-concert-score">${Number(r.score||0).toFixed(1)}</strong>`;row.querySelector(".detail-link").onclick=()=>openFn(r.concert_id);box.appendChild(row)});if(!rows?.length)box.innerHTML='<div class="empty">Nessun concerto ancora classificabile.</div>'}
