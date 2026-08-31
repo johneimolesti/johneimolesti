@@ -360,6 +360,25 @@ function setConcertScope(owner,scope){
 }
 document.querySelectorAll(".concert-scope-tab[data-concert-owner]").forEach(btn=>btn.onclick=()=>setConcertScope(btn.dataset.concertOwner,btn.dataset.concertScope));
 
+function renderConcertCollection(rows,box,openFn,emptyText){
+  if(!box)return;
+  box.innerHTML="";
+  (rows||[]).forEach(c=>box.appendChild(publicConcertRow(c,openFn)));
+  if(!rows?.length)box.innerHTML=`<div class="empty">${esc(emptyText)}</div>`;
+}
+function publicConcertRow(c,openFn){
+  const row=document.createElement("div");
+  row.className=`list-row concert-row-with-poster${c.status==="future"?" future-concert-row":""}`;
+  const pu=posterUrl(c.poster_path),statusClass=concertStatusClass(c),label=concertStatusLabel(c);
+  const place=[c.venue,c.city].filter(Boolean).map(esc).join(" · ")||"Luogo da definire";
+  const futureMeta=c.status==="future"
+    ? `<div class="future-concert-mainmeta"><span class="future-concert-date">${formatDate(c.concert_date)} · ${formatTime(c.start_time)}</span><span class="future-concert-place">${place}</span></div>${!c.setlist_available?`<div class="future-concert-note">Scaletta disponibile dall'inizio del live</div>`:""}`
+    : `<div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}</div>`;
+  row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="list-title">${esc(c.name)}</div>${futureMeta}</div><span class="status ${statusClass}">${label}</span>`;
+  row.onclick=()=>openFn(c.id);
+  return row;
+}
+
 function activeSongs(){return songs.filter(s=>s.active)}
 function scoreRow(id){return songScores.find(r=>r.song_id===id)||{ranking_score:50,setlist_score:50,score:50}}
 function getScore(id,mode="setlist"){const r=scoreRow(id);const n=Number(mode==="ranking"?(r.ranking_score??r.score):(r.setlist_score??r.score));return Number.isFinite(n)?n:50}
