@@ -90,7 +90,32 @@
     .fan-profile-card{padding:12px}.fan-profile-name{font-size:16px;font-weight:900;color:#fff}.fan-profile-sub{margin-top:2px;color:#777;font-size:9px}.fan-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.fan-profile-field{padding:9px;border:1px solid #343434;border-radius:6px;background:#202020}.fan-profile-field.full{grid-column:1/-1}.fan-profile-label{display:block;margin-bottom:4px;color:#777;font-size:8px;font-weight:900;text-transform:uppercase}.fan-profile-value{color:#ddd;font-size:10px;line-height:1.45}.fan-profile-top3{display:grid;gap:5px}.fan-profile-song{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid #333;border-radius:5px;background:#242424}.fan-profile-song-rank{width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#333;color:#aaa;font-size:8px;font-weight:900}.fan-profile-song.absolute{border-color:#655b22}.fan-profile-song.absolute .fan-profile-song-rank{background:var(--accent);color:#111}.fan-profile-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}.fan-profile-edit{padding:8px 11px;border:1px solid #5a5123;border-radius:5px;background:#302d18;color:var(--accent);font-size:9px;font-weight:900}.fan-profile-empty{padding:15px;color:#888;font-size:10px;line-height:1.5}.fan-onboarding-close{margin-left:auto}
     @media(max-width:650px){.fan-profile-grid{grid-template-columns:1fr}.fan-profile-field.full{grid-column:auto}}
 
-  </style>
+  
+    /* Fan / guest concert status: resta sul lato opposto, ma usa la stessa
+       pill compatta delle altre label dell'app. */
+    .concert-row-with-poster>.status{
+      align-self:center;flex:0 0 auto;margin-left:auto;min-width:0;height:auto;
+      padding:3px 7px;border-radius:999px;line-height:1.15;white-space:nowrap
+    }
+
+    /* Onboarding fan — selezione presenze e passaggio alla valutazione live. */
+    .fan-onboarding-concert-groups{display:grid;gap:12px}
+    .fan-onboarding-concert-group{display:grid;gap:6px}
+    .fan-onboarding-concert-group-title{color:#8f97a3;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .fan-onboarding-concert-list{display:grid;gap:5px}
+    .fan-onboarding-concert-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.035);cursor:pointer}
+    .fan-onboarding-concert-row:has(input:checked){border-color:rgba(243,210,52,.38);background:rgba(243,210,52,.075)}
+    .fan-onboarding-concert-main{min-width:0;display:grid;gap:2px}
+    .fan-onboarding-concert-name{color:#eef0f3;font-size:10px;font-weight:900}
+    .fan-onboarding-concert-meta{color:#848c98;font-size:8px;line-height:1.35}
+    .fan-onboarding-concert-check{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:5px 7px;border:1px solid rgba(255,255,255,.10);border-radius:999px;background:rgba(255,255,255,.04);color:#b8bec8;font-size:8px;font-weight:900;white-space:nowrap}
+    .fan-onboarding-concert-check input{width:14px;height:14px;margin:0;accent-color:var(--accent)}
+    .fan-onboarding-step-note{margin:0 0 10px;color:#8e96a2;font-size:9px;line-height:1.5}
+    .fan-onboarding-rating-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .fan-onboarding-rating-choice button{min-height:40px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(255,255,255,.045);color:#dfe2e7;font-size:9px;font-weight:900}
+    .fan-onboarding-rating-choice button.primary{border-color:rgba(243,210,52,.40);background:rgba(243,210,52,.12);color:#f5dc62}
+    @media(max-width:650px){.fan-onboarding-concert-row{align-items:flex-start}.fan-onboarding-concert-check{margin-top:1px}.fan-onboarding-rating-choice{grid-template-columns:1fr}}
+</style>
 
   <style id="v2-glass-theme">
     /* V2 TEST — Glassmorphism + modern minimalist. Funzioni applicative invariate. */
@@ -1053,97 +1078,118 @@ async function openFanOnboardingQuestionnaire(data,options={}){
   return new Promise(resolve=>{
     const overlay=document.createElement("div");overlay.className="modal open fan-onboarding-modal";
     const card=document.createElement("div");card.className="modal-card fan-onboarding-card";
-    const songOptions=songs.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join("");
-    card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${editMode?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
-      <div class="form-body">
-        <div class="fan-onboarding-intro">${editMode?"I gusti cambiano: puoi aggiornare queste risposte quando vuoi. Le statistiche useranno sempre l'ultima versione salvata.":'Prima di entrare ti rubiamo un minuto per un piccolo questionario. Viene mostrato <strong>una sola volta</strong> in automatico e ci aiuta a capire come vengono scoperti i Molesti e quali pezzi funzionano di più.'}</div>
-        <section class="fan-onboarding-question">
-          <h3>Sei mai stato/a a un concerto dei Molesti? <span class="fan-onboarding-required">*</span></h3>
-          <div class="fan-onboarding-yesno"><button type="button" data-attended="true">SÌ</button><button type="button" data-attended="false">NO</button></div>
-          <div class="fan-onboarding-answer" id="fanOnboardingReaction" hidden></div>
-        </section>
-        <div id="fanOnboardingNoOnly" hidden>
-          <section class="fan-onboarding-question">
-            <h3>Come conosci i Molesti? <span class="fan-onboarding-required">*</span></h3>
-            <div class="fan-onboarding-choice-row">
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="friend_member"> Amico/a di un membro</label>
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="seen_online"> Li ho visti online</label>
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="heard_about"> Ne ho sentito parlare</label>
-            </div>
-          </section>
-          <section class="fan-onboarding-question">
-            <h3>Hai già avuto occasione di sentire qualche pezzo? Se sì, come? <span class="fan-onboarding-required">*</span></h3>
-            <div class="fan-onboarding-choice-row" id="fanOnboardingHeardChoices">
-              <label class="fan-onboarding-choice"><input type="checkbox" value="social_live_clips"> Spezzoni dei live sui social</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="private_recordings"> Registrazioni o video girati privatamente</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="shared_by_someone"> Me li ha fatti sentire qualcuno</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="never_heard"> Non avevo ancora sentito nessun pezzo</label>
-            </div>
-          </section>
-        </div>
-        <section class="fan-onboarding-question">
-          <h3>Quali canzoni terresti nella tua Top 3?</h3>
-          <div class="fan-onboarding-top-note">Scegline fino a tre. L'ordine non conta; se vuoi, puoi indicarne una come <strong>N.1 assoluta</strong>. Puoi cambiare queste preferenze in futuro dalla sezione Profilo.</div>
-          ${[1,2,3].map(i=>`<div class="fan-top-pick" data-top-slot="${i}"><div class="fan-top-pick-label">BRANO ${i}</div><select><option value="">— scegli un brano —</option>${songOptions}</select><label class="fan-top-absolute"><input type="checkbox"> ★ N.1 ASSOLUTA</label></div>`).join("")}
-        </section>
-        <div class="fan-onboarding-status" id="fanOnboardingStatus"></div>
-        <div class="modal-actions"><button type="button" class="modal-save fan-onboarding-submit">${editMode?"SALVA MODIFICHE":"ENTRA NELL'AREA FAN"}</button></div>
-      </div>`;
     overlay.appendChild(card);document.body.appendChild(overlay);
-    let attended=typeof existing?.attended_concert==="boolean"?existing.attended_concert:null;
-    const reaction=card.querySelector("#fanOnboardingReaction"),noOnly=card.querySelector("#fanOnboardingNoOnly");
-    const setAttended=(value,clearConditional=true)=>{
-      attended=value;
-      card.querySelectorAll("[data-attended]").forEach(b=>b.classList.toggle("selected",b.dataset.attended===String(value)));
-      reaction.hidden=false;reaction.textContent=value?"Mi dispiace tantissimo... ormai però è successo.":"Beh, non ti sei perso nulla, però...";
-      noOnly.hidden=value;
-      if(value&&clearConditional){card.querySelectorAll('input[name="fanDiscovery"]').forEach(x=>x.checked=false);card.querySelectorAll("#fanOnboardingHeardChoices input").forEach(x=>x.checked=false)}
-    };
-    card.querySelectorAll("[data-attended]").forEach(btn=>btn.onclick=()=>setAttended(btn.dataset.attended==="true",true));
-    const heard=[...card.querySelectorAll("#fanOnboardingHeardChoices input")];
-    heard.forEach(ch=>ch.onchange=()=>{
-      if(!ch.checked)return;
-      if(ch.value==="never_heard")heard.filter(x=>x!==ch).forEach(x=>x.checked=false);
-      else heard.filter(x=>x.value==="never_heard").forEach(x=>x.checked=false);
+    const songOptions=songs.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join("");
+
+    const payloadAsExisting=payload=>({
+      attended_concert:payload.attended_concert,
+      discovery_source:payload.discovery_source,
+      heard_sources:payload.heard_sources,
+      top_songs:(payload.top_song_ids||[]).map((song_id,i)=>({song_id,slot:i+1,is_absolute:song_id===payload.absolute_song_id}))
     });
-    const pickRows=[...card.querySelectorAll(".fan-top-pick")],selects=pickRows.map(r=>r.querySelector("select")),stars=pickRows.map(r=>r.querySelector('input[type="checkbox"]'));
-    const syncTopPicks=()=>{
-      const selected=selects.map(x=>x.value).filter(Boolean);
-      selects.forEach(sel=>[...sel.options].forEach(opt=>{if(!opt.value)return;opt.disabled=selected.includes(opt.value)&&opt.value!==sel.value}));
-      stars.forEach((star,i)=>{star.disabled=!selects[i].value;if(!selects[i].value)star.checked=false});
+    const pastConcerts=()=>{
+      const now=Date.now();
+      return [...(publicConcerts||[])].filter(c=>{
+        if(c.status==="future")return false;
+        const start=concertStartMs(c);
+        return c.status==="completed"||!Number.isFinite(start)||start<now;
+      }).sort((a,b)=>String(b.concert_date||"").localeCompare(String(a.concert_date||"")));
     };
-    selects.forEach(sel=>sel.onchange=syncTopPicks);
-    stars.forEach((star,i)=>star.onchange=()=>{if(star.checked)stars.forEach((x,j)=>{if(j!==i)x.checked=false})});
-    if(existing){
-      if(attended!==null)setAttended(attended,false);
-      if(existing.discovery_source){const r=card.querySelector(`input[name="fanDiscovery"][value="${CSS.escape(existing.discovery_source)}"]`);if(r)r.checked=true}
-      const savedHeard=Array.isArray(existing.heard_sources)?existing.heard_sources:[];
-      heard.forEach(x=>x.checked=savedHeard.includes(x.value));
-      const tops=Array.isArray(existing.top_songs)?[...existing.top_songs].sort((a,b)=>Number(a.slot)-Number(b.slot)):[];
-      tops.forEach((row,i)=>{if(selects[i])selects[i].value=row.song_id||"";if(stars[i])stars[i].checked=!!row.is_absolute});
-    }
-    syncTopPicks();
-    card.querySelector(".fan-onboarding-close")?.addEventListener("click",()=>{overlay.remove();resolve(false)});
-    card.querySelector(".fan-onboarding-submit").onclick=async()=>{
-      const status=card.querySelector("#fanOnboardingStatus"),submit=card.querySelector(".fan-onboarding-submit");
-      if(attended===null){status.textContent="Rispondi prima alla domanda sul concerto.";return}
-      let discovery=null,heardSources=[];
-      if(!attended){
-        discovery=card.querySelector('input[name="fanDiscovery"]:checked')?.value||null;
-        heardSources=heard.filter(x=>x.checked).map(x=>x.value);
-        if(!discovery){status.textContent="Indica come hai conosciuto i Molesti.";return}
-        if(!heardSources.length){status.textContent="Indica se e come avevi già sentito qualche pezzo.";return}
-      }
-      const topIds=selects.map(x=>x.value).filter(Boolean);
-      if(new Set(topIds).size!==topIds.length){status.textContent="Nella Top 3 ogni brano può comparire una sola volta.";return}
-      const absoluteIndex=stars.findIndex(x=>x.checked),absoluteId=absoluteIndex>=0?selects[absoluteIndex].value:null;
-      if(absoluteIndex>=0&&!absoluteId){status.textContent="Per indicare la N.1 assoluta scegli prima il brano.";return}
-      submit.disabled=true;status.textContent="Salvataggio...";
-      try{
-        await fanApi("submit_onboarding",{attended_concert:attended,discovery_source:discovery,heard_sources:heardSources,top_song_ids:topIds,absolute_song_id:absoluteId});
-        status.textContent="Salvato ✓";setTimeout(()=>{overlay.remove();resolve(true)},220);
-      }catch(err){status.textContent=err.message||"Errore durante il salvataggio";submit.disabled=false}
+    const concertRowHtml=c=>{
+      const meta=[formatDate(c.concert_date),c.start_time?formatTime(c.start_time):null,c.venue,c.city].filter(Boolean).map(esc).join(" · ");
+      return `<label class="fan-onboarding-concert-row"><span class="fan-onboarding-concert-main"><span class="fan-onboarding-concert-name">${esc(c.name)}</span><span class="fan-onboarding-concert-meta">${meta}</span></span><span class="fan-onboarding-concert-check"><input type="checkbox" data-onboarding-concert="${esc(c.id)}"> Io c'ero</span></label>`;
     };
+    const finish=()=>{overlay.remove();resolve(true)};
+
+    const renderRatingStep=selectedConcerts=>{
+      const eligible=selectedConcerts.filter(c=>c.voting_available&&canFan("live_vote")&&canFan("live_attendance")&&canFan("concerts_view"));
+      card.innerHTML=`<div class="modal-header"><h2>PRESENZE SALVATE ✓</h2></div><div class="form-body">
+        <div class="fan-onboarding-intro">Le presenze che hai indicato sono state aggiunte alla tua classifica fan.</div>
+        <section class="fan-onboarding-question"><h3>Vuoi anche valutare ${selectedConcerts.length===1?"questo live":"questi live"}?</h3>
+          <div class="fan-onboarding-step-note">Puoi dare il voto generale, valutare i singoli brani e indicare Pogo / Cantata / Goduta. Puoi farlo anche più tardi dalla sezione Concerti.</div>
+          ${eligible.length?`<div class="fan-onboarding-rating-choice"><button type="button" class="primary" data-onboarding-rate>VALUTA ${eligible.length===1?"IL LIVE":"I LIVE"}</button><button type="button" data-onboarding-skip>SKIP PER ORA</button></div>`:`<div class="fan-onboarding-answer">I live selezionati non sono attualmente aperti alle valutazioni. Potrai consultarli dalla sezione Concerti.</div><div class="fan-onboarding-rating-choice"><button type="button" data-onboarding-skip>ENTRA NELL'AREA FAN</button></div>`}
+        </section></div>`;
+      card.querySelector("[data-onboarding-skip]").onclick=finish;
+      const rate=card.querySelector("[data-onboarding-rate]");
+      if(rate)rate.onclick=()=>{
+        const first=eligible[0];finish();
+        setTimeout(async()=>{
+          const nav=document.querySelector('#fanApp [data-fan-page="fanConcertsPage"]');if(nav)nav.click();
+          setConcertScope("fan",first.private_show?"private":"public");
+          await openPublicConcert(first.id,true);
+          $("publicConcertDetail")?.scrollIntoView({behavior:"smooth",block:"start"});
+        },80);
+      };
+    };
+
+    const renderAttendanceStep=payload=>{
+      const rows=pastConcerts(),pub=rows.filter(c=>!c.private_show),priv=rows.filter(c=>c.private_show),canAttend=canFan("live_attendance")&&canFan("concerts_view");
+      const group=(title,list)=>list.length?`<section class="fan-onboarding-concert-group"><div class="fan-onboarding-concert-group-title">${title}</div><div class="fan-onboarding-concert-list">${list.map(concertRowHtml).join("")}</div></section>`:"";
+      card.innerHTML=`<div class="modal-header"><h2>DOVE CI HAI SOPPORTATO?</h2></div><div class="form-body">
+        <div class="fan-onboarding-intro">Hai detto di averci già visti live. Segna i concerti a cui eri presente.</div>
+        <div class="fan-onboarding-step-note">Ogni <strong>Io c'ero</strong> viene registrato come una normale presenza e quindi contribuisce alla <strong>classifica fan</strong>. Nei private show resta il peso ridotto già previsto.</div>
+        ${canAttend?(rows.length?`<div class="fan-onboarding-concert-groups">${group("CONCERTI PUBBLICI",pub)}${group("PRIVATE SHOW",priv)}</div>`:'<div class="fan-onboarding-answer">Non risultano ancora concerti passati disponibili nell’app.</div>'):'<div class="fan-onboarding-answer">La registrazione delle presenze non è attualmente abilitata per i fan.</div>'}
+        <div class="fan-onboarding-status" id="fanOnboardingAttendanceStatus"></div>
+        <div class="modal-actions"><button type="button" class="modal-cancel" data-onboarding-back>INDIETRO</button><button type="button" class="modal-save" data-onboarding-attendance-next>${canAttend&&rows.length?"SALVA PRESENZE E CONTINUA":"CONTINUA"}</button></div>
+      </div>`;
+      card.querySelector("[data-onboarding-back]").onclick=()=>renderQuestions(payloadAsExisting(payload));
+      card.querySelector("[data-onboarding-attendance-next]").onclick=async()=>{
+        const status=card.querySelector("#fanOnboardingAttendanceStatus"),btn=card.querySelector("[data-onboarding-attendance-next]");
+        const selectedIds=[...card.querySelectorAll("[data-onboarding-concert]:checked")].map(x=>x.dataset.onboardingConcert),selected=rows.filter(c=>selectedIds.includes(c.id));
+        if(canAttend&&rows.length&&!selected.length){status.textContent="Hai indicato di essere stato/a a un live: selezionane almeno uno.";return}
+        btn.disabled=true;status.textContent="Salvataggio...";
+        try{
+          for(const c of selected)await fanApi("attend",{concert_id:c.id,attended:true});
+          await fanApi("submit_onboarding",payload);
+          if(canFan("rankings_view"))renderPublicRankings().catch(()=>{});
+          if(selected.length)renderRatingStep(selected);else finish();
+        }catch(err){status.textContent=err.message||"Errore durante il salvataggio";btn.disabled=false}
+      };
+    };
+
+    const renderQuestions=(prefill=existing)=>{
+      card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${editMode?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
+        <div class="form-body">
+          <div class="fan-onboarding-intro">${editMode?"I gusti cambiano: puoi aggiornare queste risposte quando vuoi. Le statistiche useranno sempre l'ultima versione salvata.":'Prima di entrare ti rubiamo un minuto per un piccolo questionario. Viene mostrato <strong>una sola volta</strong> in automatico e ci aiuta a capire come vengono scoperti i Molesti e quali pezzi funzionano di più.'}</div>
+          <section class="fan-onboarding-question">
+            <h3>Sei mai stato/a a un concerto dei Molesti? <span class="fan-onboarding-required">*</span></h3>
+            <div class="fan-onboarding-yesno"><button type="button" data-attended="true">SÌ</button><button type="button" data-attended="false">NO</button></div>
+            <div class="fan-onboarding-answer" id="fanOnboardingReaction" hidden></div>
+          </section>
+          <div id="fanOnboardingNoOnly" hidden>
+            <section class="fan-onboarding-question"><h3>Come conosci i Molesti? <span class="fan-onboarding-required">*</span></h3><div class="fan-onboarding-choice-row"><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="friend_member"> Amico/a di un membro</label><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="seen_online"> Li ho visti online</label><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="heard_about"> Ne ho sentito parlare</label></div></section>
+            <section class="fan-onboarding-question"><h3>Hai già avuto occasione di sentire qualche pezzo? Se sì, come? <span class="fan-onboarding-required">*</span></h3><div class="fan-onboarding-choice-row" id="fanOnboardingHeardChoices"><label class="fan-onboarding-choice"><input type="checkbox" value="social_live_clips"> Spezzoni dei live sui social</label><label class="fan-onboarding-choice"><input type="checkbox" value="private_recordings"> Registrazioni o video girati privatamente</label><label class="fan-onboarding-choice"><input type="checkbox" value="shared_by_someone"> Me li ha fatti sentire qualcuno</label><label class="fan-onboarding-choice"><input type="checkbox" value="never_heard"> Non avevo ancora sentito nessun pezzo</label></div></section>
+          </div>
+          <section class="fan-onboarding-question"><h3>Quali canzoni terresti nella tua Top 3?</h3><div class="fan-onboarding-top-note">Scegline fino a tre. L'ordine non conta; se vuoi, puoi indicarne una come <strong>N.1 assoluta</strong>. Puoi cambiare queste preferenze in futuro dalla sezione Profilo.</div>${[1,2,3].map(i=>`<div class="fan-top-pick" data-top-slot="${i}"><div class="fan-top-pick-label">BRANO ${i}</div><select><option value="">— scegli un brano —</option>${songOptions}</select><label class="fan-top-absolute"><input type="checkbox"> ★ N.1 ASSOLUTA</label></div>`).join("")}</section>
+          <div class="fan-onboarding-status" id="fanOnboardingStatus"></div>
+          <div class="modal-actions"><button type="button" class="modal-save fan-onboarding-submit">${editMode?"SALVA MODIFICHE":"CONTINUA"}</button></div>
+        </div>`;
+      let attended=typeof prefill?.attended_concert==="boolean"?prefill.attended_concert:null;
+      const reaction=card.querySelector("#fanOnboardingReaction"),noOnly=card.querySelector("#fanOnboardingNoOnly");
+      const setAttended=(value,clearConditional=true)=>{attended=value;card.querySelectorAll("[data-attended]").forEach(b=>b.classList.toggle("selected",b.dataset.attended===String(value)));reaction.hidden=false;reaction.textContent=value?"Mi dispiace tantissimo... ormai però è successo.":"Beh, non ti sei perso nulla, però...";noOnly.hidden=value;if(value&&clearConditional){card.querySelectorAll('input[name="fanDiscovery"]').forEach(x=>x.checked=false);card.querySelectorAll("#fanOnboardingHeardChoices input").forEach(x=>x.checked=false)}};
+      card.querySelectorAll("[data-attended]").forEach(btn=>btn.onclick=()=>setAttended(btn.dataset.attended==="true",true));
+      const heard=[...card.querySelectorAll("#fanOnboardingHeardChoices input")];
+      heard.forEach(ch=>ch.onchange=()=>{if(!ch.checked)return;if(ch.value==="never_heard")heard.filter(x=>x!==ch).forEach(x=>x.checked=false);else heard.filter(x=>x.value==="never_heard").forEach(x=>x.checked=false)});
+      const pickRows=[...card.querySelectorAll(".fan-top-pick")],selects=pickRows.map(r=>r.querySelector("select")),stars=pickRows.map(r=>r.querySelector('input[type="checkbox"]'));
+      const syncTopPicks=()=>{const selected=selects.map(x=>x.value).filter(Boolean);selects.forEach(sel=>[...sel.options].forEach(opt=>{if(!opt.value)return;opt.disabled=selected.includes(opt.value)&&opt.value!==sel.value}));stars.forEach((star,i)=>{star.disabled=!selects[i].value;if(!selects[i].value)star.checked=false})};
+      selects.forEach(sel=>sel.onchange=syncTopPicks);stars.forEach((star,i)=>star.onchange=()=>{if(star.checked)stars.forEach((x,j)=>{if(j!==i)x.checked=false})});
+      if(prefill){if(attended!==null)setAttended(attended,false);if(prefill.discovery_source){const r=card.querySelector(`input[name="fanDiscovery"][value="${CSS.escape(prefill.discovery_source)}"]`);if(r)r.checked=true}const savedHeard=Array.isArray(prefill.heard_sources)?prefill.heard_sources:[];heard.forEach(x=>x.checked=savedHeard.includes(x.value));const tops=Array.isArray(prefill.top_songs)?[...prefill.top_songs].sort((a,b)=>Number(a.slot)-Number(b.slot)):[];tops.forEach((row,i)=>{if(selects[i])selects[i].value=row.song_id||"";if(stars[i])stars[i].checked=!!row.is_absolute})}
+      syncTopPicks();card.querySelector(".fan-onboarding-close")?.addEventListener("click",()=>{overlay.remove();resolve(false)});
+      card.querySelector(".fan-onboarding-submit").onclick=async()=>{
+        const status=card.querySelector("#fanOnboardingStatus"),submit=card.querySelector(".fan-onboarding-submit");
+        if(attended===null){status.textContent="Rispondi prima alla domanda sul concerto.";return}
+        let discovery=null,heardSources=[];
+        if(!attended){discovery=card.querySelector('input[name="fanDiscovery"]:checked')?.value||null;heardSources=heard.filter(x=>x.checked).map(x=>x.value);if(!discovery){status.textContent="Indica come hai conosciuto i Molesti.";return}if(!heardSources.length){status.textContent="Indica se e come avevi già sentito qualche pezzo.";return}}
+        const topIds=selects.map(x=>x.value).filter(Boolean);if(new Set(topIds).size!==topIds.length){status.textContent="Nella Top 3 ogni brano può comparire una sola volta.";return}
+        const absoluteIndex=stars.findIndex(x=>x.checked),absoluteId=absoluteIndex>=0?selects[absoluteIndex].value:null;if(absoluteIndex>=0&&!absoluteId){status.textContent="Per indicare la N.1 assoluta scegli prima il brano.";return}
+        const payload={attended_concert:attended,discovery_source:discovery,heard_sources:heardSources,top_song_ids:topIds,absolute_song_id:absoluteId};
+        if(!editMode&&attended){renderAttendanceStep(payload);return}
+        submit.disabled=true;status.textContent="Salvataggio...";
+        try{await fanApi("submit_onboarding",payload);status.textContent="Salvato ✓";if(canFan("rankings_view"))renderPublicRankings().catch(()=>{});setTimeout(finish,220)}catch(err){status.textContent=err.message||"Errore durante il salvataggio";submit.disabled=false}
+      };
+    };
+
+    renderQuestions(existing);
   });
 }
 async function loadFanProfile(){
