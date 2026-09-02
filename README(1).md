@@ -475,15 +475,3 @@ I valori sono modificabili dal Setup e quindi questa tabella descrive i default 
 | Prima Conoscenza Testo | 5 pt |
 
 ---
-
-# Deploy / aggiornamento
-
-Ordine consigliato:
-
-1. eseguire `patch_v2_4.sql` nel SQL Editor di Supabase;
-2. sostituire il codice della Edge Function `fan-api` con `fan-api-index.ts` e ridistribuirla;
-3. sostituire `index-v2.html` sulla GitHub Pages;
-4. mantenere `favicon.png` e `apple-touch-icon.png` nella stessa directory dell'HTML;
-5. fare un hard refresh del browser dopo il deploy.
-
-La patch è incrementale: non sostituisce le patch precedenti.
