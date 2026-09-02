@@ -2,8 +2,9 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>John & i Molesti — Setlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0d14">
+  <title>John & i Molesti — V2 Glass</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <style>
@@ -89,7 +90,233 @@
     .fan-profile-card{padding:12px}.fan-profile-name{font-size:16px;font-weight:900;color:#fff}.fan-profile-sub{margin-top:2px;color:#777;font-size:9px}.fan-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.fan-profile-field{padding:9px;border:1px solid #343434;border-radius:6px;background:#202020}.fan-profile-field.full{grid-column:1/-1}.fan-profile-label{display:block;margin-bottom:4px;color:#777;font-size:8px;font-weight:900;text-transform:uppercase}.fan-profile-value{color:#ddd;font-size:10px;line-height:1.45}.fan-profile-top3{display:grid;gap:5px}.fan-profile-song{display:flex;align-items:center;gap:7px;padding:7px;border:1px solid #333;border-radius:5px;background:#242424}.fan-profile-song-rank{width:21px;height:21px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#333;color:#aaa;font-size:8px;font-weight:900}.fan-profile-song.absolute{border-color:#655b22}.fan-profile-song.absolute .fan-profile-song-rank{background:var(--accent);color:#111}.fan-profile-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px}.fan-profile-edit{padding:8px 11px;border:1px solid #5a5123;border-radius:5px;background:#302d18;color:var(--accent);font-size:9px;font-weight:900}.fan-profile-empty{padding:15px;color:#888;font-size:10px;line-height:1.5}.fan-onboarding-close{margin-left:auto}
     @media(max-width:650px){.fan-profile-grid{grid-template-columns:1fr}.fan-profile-field.full{grid-column:auto}}
 
+  
+    /* Fan / guest concert status: resta sul lato opposto, ma usa la stessa
+       pill compatta delle altre label dell'app. */
+    .concert-row-with-poster>.status{
+      align-self:center;flex:0 0 auto;margin-left:auto;min-width:0;height:auto;
+      padding:3px 7px;border-radius:999px;line-height:1.15;white-space:nowrap
+    }
+
+    /* Onboarding fan — selezione presenze e passaggio alla valutazione live. */
+    .fan-onboarding-concert-groups{display:grid;gap:12px}
+    .fan-onboarding-concert-group{display:grid;gap:6px}
+    .fan-onboarding-concert-group-title{color:#8f97a3;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .fan-onboarding-concert-list{display:grid;gap:5px}
+    .fan-onboarding-concert-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.035);cursor:pointer}
+    .fan-onboarding-concert-row:has(input:checked){border-color:rgba(243,210,52,.38);background:rgba(243,210,52,.075)}
+    .fan-onboarding-concert-main{min-width:0;display:grid;gap:2px}
+    .fan-onboarding-concert-name{color:#eef0f3;font-size:10px;font-weight:900}
+    .fan-onboarding-concert-meta{color:#848c98;font-size:8px;line-height:1.35}
+    .fan-onboarding-concert-check{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:5px 7px;border:1px solid rgba(255,255,255,.10);border-radius:999px;background:rgba(255,255,255,.04);color:#b8bec8;font-size:8px;font-weight:900;white-space:nowrap}
+    .fan-onboarding-concert-check input{width:14px;height:14px;margin:0;accent-color:var(--accent)}
+    .fan-onboarding-step-note{margin:0 0 10px;color:#8e96a2;font-size:9px;line-height:1.5}
+    .fan-onboarding-rating-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .fan-onboarding-rating-choice button{min-height:40px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(255,255,255,.045);color:#dfe2e7;font-size:9px;font-weight:900}
+    .fan-onboarding-rating-choice button.primary{border-color:rgba(243,210,52,.40);background:rgba(243,210,52,.12);color:#f5dc62}
+    @media(max-width:650px){.fan-onboarding-concert-row{align-items:flex-start}.fan-onboarding-concert-check{margin-top:1px}.fan-onboarding-rating-choice{grid-template-columns:1fr}}
+</style>
+
+  <style id="v2-glass-theme">
+    /* V2 TEST — Glassmorphism + modern minimalist. Funzioni applicative invariate. */
+    :root{
+      --bg:#080a0f;
+      --panel:rgba(19,23,32,.68);
+      --row:rgba(255,255,255,.045);
+      --row2:rgba(255,255,255,.07);
+      --border:rgba(255,255,255,.105);
+      --text:#f6f7f9;
+      --muted:#959daa;
+      --accent:#f3d234;
+      --accent-soft:rgba(243,210,52,.13);
+      --danger:#e87373;
+      --success:#6fc58a;
+      --info:#76aee0;
+      --glass:rgba(20,24,34,.58);
+      --glass-strong:rgba(18,22,30,.82);
+      --glass-light:rgba(255,255,255,.055);
+      --shadow:0 22px 70px rgba(0,0,0,.30);
+      --shadow-soft:0 10px 32px rgba(0,0,0,.18);
+      --radius:18px;
+      --radius-sm:12px;
+    }
+
+    html{background:#080a0f;scroll-behavior:smooth}
+    html,body{min-height:100%;overflow-x:hidden}
+    body{
+      position:relative;
+      isolation:isolate;
+      background:
+        radial-gradient(circle at 12% -8%, rgba(243,210,52,.12), transparent 31rem),
+        radial-gradient(circle at 94% 17%, rgba(84,111,255,.09), transparent 28rem),
+        linear-gradient(145deg,#080a0f 0%,#0c0f16 48%,#090b10 100%);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+      letter-spacing:-.005em;
+    }
+    body::before,body::after{
+      content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:999px;filter:blur(1px)
+    }
+    body::before{width:28rem;height:28rem;left:-15rem;bottom:-13rem;background:radial-gradient(circle,rgba(243,210,52,.085),transparent 68%)}
+    body::after{width:34rem;height:34rem;right:-18rem;top:25%;background:radial-gradient(circle,rgba(95,115,255,.065),transparent 68%)}
+    ::selection{background:rgba(243,210,52,.28);color:#fff}
+    *{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.16) transparent}
+    *::-webkit-scrollbar{height:7px;width:7px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:20px}
+
+    button,input,select,textarea{font-family:inherit}
+    button{transition:transform .16s ease,background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease}
+    button:active{transform:scale(.975)}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(243,210,52,.75);outline-offset:2px}
+
+    .gate{padding:max(22px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom))}
+    .gate-card{
+      width:min(440px,100%);padding:30px;
+      border:1px solid var(--border);border-radius:26px;
+      background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+      -webkit-backdrop-filter:blur(24px) saturate(145%);backdrop-filter:blur(24px) saturate(145%);
+      box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.08)
+    }
+    .gate-card h1{font-size:30px;letter-spacing:-.035em}.gate-card h2{color:var(--muted);font-size:12px;letter-spacing:.03em}
+    .gate-actions{gap:10px}.big-btn{padding:14px 16px;border-radius:14px;background:var(--accent);box-shadow:0 8px 25px rgba(243,210,52,.10);font-size:12px;letter-spacing:.025em}
+    .big-btn.secondary,#chooseMember{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);color:#f3f4f6;box-shadow:none}
+    #chooseFan{border-color:transparent;background:var(--accent);color:#111}
+    .back-btn{color:var(--muted)}
+    .field label,.form-field label{color:#aab0bb;font-weight:650;letter-spacing:.015em}
+    .field input,.field select,.field textarea,.form-field input,.form-field select,.form-field textarea,.toolbar input,.toolbar select{
+      border:1px solid rgba(255,255,255,.10)!important;border-radius:12px!important;
+      background:rgba(255,255,255,.05)!important;color:#fff!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025);transition:border-color .16s ease,background .16s ease
+    }
+    .field input:focus,.field select:focus,.field textarea:focus,.form-field input:focus,.form-field select:focus,.form-field textarea:focus,.toolbar input:focus,.toolbar select:focus{border-color:rgba(243,210,52,.48)!important;background:rgba(255,255,255,.075)!important}
+
+    header{
+      position:sticky;top:0;z-index:50;min-height:64px;padding:10px 18px;
+      border:0;border-bottom:1px solid rgba(255,255,255,.075);
+      background:rgba(9,12,18,.72);-webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);
+      box-shadow:0 10px 28px rgba(0,0,0,.12)
+    }
+    .brand h1{font-size:19px;letter-spacing:-.025em}.brand p{margin-top:2px;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.16em}
+    .user-area{gap:10px;color:#b7bdc7;font-size:10px;font-weight:650}
+
+    .small-btn,.icon-btn,.concert-refresh-button,.concert-vote-button,.concert-back-setlist-button{
+      border:1px solid rgba(255,255,255,.11);border-radius:10px;background:rgba(255,255,255,.055);color:#e7e9ed;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
+    }
+    .small-btn:hover,.icon-btn:hover,.concert-refresh-button:hover,.concert-back-setlist-button:hover{border-color:rgba(255,255,255,.20);background:rgba(255,255,255,.085)}
+    .small-btn.primary,.toolbar button,.modal-save,.fan-catalog-save,.fan-onboarding-submit{border-color:transparent;background:var(--accent);color:#111;box-shadow:0 7px 20px rgba(243,210,52,.09)}
+    .small-btn.success{background:rgba(73,165,103,.13);border-color:rgba(111,197,138,.28);color:#9fe0b4}
+    .small-btn.danger{background:rgba(212,79,79,.12);border-color:rgba(232,115,115,.24);color:#f0a4a4}
+
+    .nav,.fan-bottom-nav{
+      position:relative;z-index:35;width:min(1500px,calc(100% - 20px));margin:10px auto 0;padding:6px;
+      gap:5px;border:1px solid rgba(255,255,255,.085);border-radius:16px;
+      background:rgba(17,21,29,.62);-webkit-backdrop-filter:blur(20px) saturate(145%);backdrop-filter:blur(20px) saturate(145%);
+      box-shadow:var(--shadow-soft),inset 0 1px 0 rgba(255,255,255,.045);overflow:visible;flex-wrap:wrap
+    }
+    .nav-button,.fan-bottom-nav button{
+      flex:1 1 auto;min-height:34px;padding:8px 11px;border:1px solid transparent!important;border-radius:11px!important;
+      background:transparent!important;color:#929aa7!important;font-size:9px;font-weight:800;letter-spacing:.045em;white-space:nowrap
+    }
+    .nav-button:hover,.fan-bottom-nav button:hover{background:rgba(255,255,255,.045)!important;color:#d9dde4!important}
+    .nav-button.active,.fan-bottom-nav button.active{
+      background:linear-gradient(180deg,rgba(243,210,52,.98),rgba(236,198,34,.98))!important;color:#111!important;
+      border-color:rgba(255,255,255,.14)!important;box-shadow:0 7px 20px rgba(243,210,52,.12),inset 0 1px 0 rgba(255,255,255,.45)
+    }
+    .fan-bottom-nav{width:min(900px,calc(100% - 20px))}
+    .badge{background:#d75b5b;border:1px solid rgba(255,255,255,.12);box-shadow:0 3px 9px rgba(0,0,0,.18)}
+
+    main,.fan-main{padding:12px 10px 34px}
+    .page.active{animation:v2PageIn .22s ease both}@keyframes v2PageIn{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .panel,.fan-hero,.fan-vote-help,.live-feedback,.fan-profile-card,.summary-card,.stat-card,.computed-item,.check-card,.fan-onboarding-card{
+      border:1px solid var(--border)!important;
+      background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.022))!important;
+      -webkit-backdrop-filter:blur(20px) saturate(135%);backdrop-filter:blur(20px) saturate(135%);
+      box-shadow:var(--shadow-soft),inset 0 1px 0 rgba(255,255,255,.035)
+    }
+    .panel{border-radius:var(--radius);overflow:hidden}.fan-hero{border-radius:var(--radius);padding:18px}.fan-hero h2{letter-spacing:-.025em}
+    .panel-header{min-height:46px;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018)}
+    .panel-header h2{font-size:11px;letter-spacing:.075em;text-transform:uppercase}.counter{color:#808895}
+    .section-note,.small-info{color:#89919d}.empty{color:#717986}
+    .columns,.two-columns,.three-columns,.concert-layout{gap:10px}
+    .toolbar{gap:7px;margin-bottom:10px}.toolbar button{border-radius:11px}.toolbar button.secondary{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);color:#e6e8ec}
+
+    .song-list,.list{padding:4px}
+    .song-row,.fan-catalog-row,.proposal-compact-row,.live-feedback-row,.activity-row,.ranking-row,.list-row,.permission-matrix-row{
+      border-color:rgba(255,255,255,.065)!important;background:rgba(255,255,255,.035)!important;transition:background .15s ease,border-color .15s ease
+    }
+    .song-row:hover,.fan-catalog-row:hover,.proposal-compact-row:hover,.ranking-row:hover,.list-row:hover{background:rgba(255,255,255,.055)!important}
+    .song-row{min-height:34px;margin-bottom:3px;padding:5px 6px;border-radius:9px}.song-row.header-row,.fan-catalog-head,.live-feedback-head{background:rgba(255,255,255,.025)!important;color:#7f8793;border-bottom-color:rgba(255,255,255,.07)!important}
+    .song-title,.list-title,.proposal-name,.ranking-title-line{letter-spacing:-.008em}.song-meta{color:#9ca3ae}.drag-handle{color:#707784}.position{color:#a8afb9}
+    .song-actions button{border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.045);color:#d8dce2}
+    .list-row{min-height:48px;padding:8px 10px}.list-row.selected{background:rgba(243,210,52,.075)!important;box-shadow:inset 2px 0 0 rgba(243,210,52,.65)}
+    .member-tabs,.proposal-tabs{gap:6px}.member-tab,.concert-scope-tab{border:1px solid rgba(255,255,255,.10)!important;border-radius:11px!important;background:rgba(255,255,255,.04)!important;color:#9ca3ae!important}
+    .member-tab.active,.concert-scope-tab.active{border-color:rgba(243,210,52,.42)!important;background:var(--accent-soft)!important;color:#f5dc62!important}
+
+    .summary{gap:8px}.summary-card{border-radius:14px;padding:11px}.summary-label{color:#858d99;letter-spacing:.08em}.summary-value{font-size:20px;letter-spacing:-.03em}
+    .proposal-panel .panel-header{background:rgba(255,255,255,.02)}.proposal-help{border-color:rgba(255,255,255,.065);color:#818996}.proposal-compact-row{min-height:38px;padding:6px 9px}
+
+    .score-badge{height:21px;border-radius:8px;background:rgba(255,255,255,.20);color:#10131a;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+    .score-badge.top{background:#92d8a5}.score-badge.good{background:#e1d37b}.score-badge.mid{background:#dbae70}.score-badge.low{background:#d68d8d}
+    .smart-badge,.sequence-tag,.status{border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+
+    .modal{background:rgba(2,4,8,.68);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom))}
+    .modal-card{
+      border:1px solid rgba(255,255,255,.11);border-radius:24px;background:rgba(15,19,27,.88);
+      -webkit-backdrop-filter:blur(28px) saturate(140%);backdrop-filter:blur(28px) saturate(140%);
+      box-shadow:0 28px 90px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden
+    }
+    .modal-header{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.025)}
+    .modal-header h2{letter-spacing:-.02em}.modal-close{border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.045);color:#dfe2e7}
+    .modal-actions{border-top-color:rgba(255,255,255,.07)}.modal-cancel{border:1px solid rgba(255,255,255,.1)!important;border-radius:11px!important;background:rgba(255,255,255,.045)!important;color:#dfe2e7!important}.modal-save{border-radius:11px!important}
+    .form-section{border-color:rgba(255,255,255,.07)!important;background:rgba(255,255,255,.02)!important;border-radius:15px!important}
+
+    .rating-scale,.familiarity-scale,.live-rating-scale,.live-familiarity-scale{gap:4px}
+    .rating-scale button,.familiarity-scale button,.live-rating-scale button,.live-familiarity-scale button{
+      border:1px solid rgba(255,255,255,.095)!important;border-radius:9px!important;background:rgba(255,255,255,.045)!important;color:#aeb5bf!important
+    }
+    .rating-scale button:hover,.familiarity-scale button:hover,.live-rating-scale button:hover,.live-familiarity-scale button:hover{border-color:rgba(243,210,52,.35)!important;color:#f3d85d!important}
+    .rating-scale button.active,.familiarity-scale button.active,.live-rating-scale button.active,.live-familiarity-scale button.active,
+    .rating-scale button.selected,.familiarity-scale button.selected,.live-rating-scale button.selected,.live-familiarity-scale button.selected{
+      border-color:rgba(243,210,52,.52)!important;background:rgba(243,210,52,.16)!important;color:#f7df66!important;box-shadow:inset 0 0 0 1px rgba(243,210,52,.08)
+    }
+
+    .fan-catalog-head,.fan-catalog-row{border-color:rgba(255,255,255,.065)}.fan-catalog-cell input{border-color:rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.045)}
+    .fan-catalog-actions{border-top-color:rgba(255,255,255,.07);background:rgba(255,255,255,.02)}.fan-advanced-btn{border-color:rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.05)}
+    .live-general-box input,.live-feedback-row input[type="number"]{border-color:rgba(255,255,255,.1);border-radius:9px;background:rgba(255,255,255,.045)}
+    .concert-detail,.future-concert-row,.concert-row-with-poster{border-color:rgba(255,255,255,.08)!important}.poster-thumb,.poster-hero,.poster-preview{border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+    .future-concert-row{border-radius:13px!important}.future-concert-date{color:#f2d85c}.future-concert-note{color:#8f97a4}
+    .concert-vote-button{border-color:rgba(243,210,52,.32);background:rgba(243,210,52,.10);color:#ead55f}
+
+    .rankings-grid{gap:10px}.stat-grid{gap:8px}.stat-card{border-radius:14px;padding:11px}.stat-card span{color:#858d99}.stat-card b{letter-spacing:-.02em}
+    .permission-matrix-scroll,.admin-ranking-scroll,.fan-catalog-scroll{border-radius:14px}.permission-toolbar{border-radius:14px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07)}
+    .permission-cell select{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.1)!important;border-radius:9px!important;color:#fff!important}
+
+    .fan-onboarding-modal{background:rgba(2,4,8,.76);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+    .fan-onboarding-card{border-radius:26px!important}.fan-onboarding-choice,.fan-top-pick{border-color:rgba(255,255,255,.09)!important;background:rgba(255,255,255,.035)!important;border-radius:13px!important}
+    .fan-onboarding-choice:hover,.fan-top-pick:hover{background:rgba(255,255,255,.055)!important}.fan-onboarding-choice:has(input:checked),.fan-top-pick:has(input:checked){border-color:rgba(243,210,52,.35)!important;background:rgba(243,210,52,.075)!important}
+    .fan-profile-card{border-radius:18px!important}.fan-profile-field{border-color:rgba(255,255,255,.07)!important;background:rgba(255,255,255,.025)!important;border-radius:13px!important}
+
+    @media (max-width:720px){
+      header{min-height:62px;padding:9px 12px}.brand h1{font-size:18px}.user-area{gap:6px}.user-area .small-btn{padding:7px 9px}
+      .nav,.fan-bottom-nav{width:calc(100% - 12px);margin-top:6px;padding:5px;border-radius:14px;display:grid;overflow:visible}
+      .nav{grid-template-columns:repeat(2,minmax(0,1fr))}.fan-bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.fan-bottom-nav:has(button:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+      .nav-button,.fan-bottom-nav button{min-width:0;min-height:36px;padding:7px 5px;overflow:hidden;text-overflow:ellipsis;font-size:8px;letter-spacing:.025em}
+      main,.fan-main{padding:8px 6px calc(22px + env(safe-area-inset-bottom))}.panel{border-radius:15px}.panel-header{min-height:43px;padding:8px 9px}.panel-header h2{font-size:10px}
+      .song-row{border-radius:9px}.list-row{padding:8px}.gate-card{padding:24px 20px;border-radius:22px}
+      .summary-card{padding:9px}.summary-value{font-size:18px}.modal-card{border-radius:20px}.form-body{padding:12px}
+      .rating-scale,.familiarity-scale,.live-rating-scale,.live-familiarity-scale{gap:3px}.rating-scale button,.familiarity-scale button,.live-rating-scale button,.live-familiarity-scale button{min-width:0}
+    }
+    @media (max-width:410px){
+      .fan-bottom-nav button{font-size:7px}.nav-button{font-size:7px}.brand h1{font-size:17px}.user-area{font-size:9px}
+    }
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
+
+
+<style id="v2-2-fan-badges-style">
+  .setup-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.55fr);gap:12px}.setup-add{display:flex;gap:7px;padding:10px}.setup-add input{flex:1}.venue-type-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}.venue-type-name{font-weight:900}.venue-type-slug{color:#7f8792;font-size:8px}.activity-row-v2{display:grid!important;grid-template-columns:minmax(130px,1fr) 90px minmax(240px,1.3fr) auto!important;gap:8px!important}.member-reaction-toggles{display:flex;flex-wrap:wrap;gap:5px}.member-reaction-toggle{display:inline-flex;align-items:center;gap:5px;padding:5px 7px;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:rgba(255,255,255,.035);font-size:8px;font-weight:850;color:#bac0c9}.member-reaction-toggle:has(input:checked){border-color:rgba(243,210,52,.38);color:#f5dc62;background:rgba(243,210,52,.08)}.member-reaction-toggle input{margin:0;accent-color:var(--accent)}
+  .review-queue-modal{z-index:175!important;background:rgba(2,4,8,.78);backdrop-filter:blur(15px)}.review-queue-card{width:min(620px,100%);border-radius:24px!important}.review-kind{display:inline-flex;padding:4px 7px;border-radius:999px;border:1px solid rgba(243,210,52,.28);background:rgba(243,210,52,.07);color:#f5dc62;font-size:8px;font-weight:900;letter-spacing:.08em}.review-main-title{margin:10px 0 4px;font-size:18px}.review-meta{color:#8c949f;font-size:9px;line-height:1.5}.review-explain{margin:12px 0;padding:10px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(255,255,255,.03);font-size:9px;line-height:1.5;color:#aab0b9}.review-actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}.review-scale{margin-top:10px}.badge-stat-note{color:#8e96a2;font-size:8px;margin-top:2px}
+  @media(max-width:720px){.setup-grid{grid-template-columns:1fr}.activity-row-v2{grid-template-columns:1fr!important}.member-reaction-toggles{order:3}.review-actions{display:grid;grid-template-columns:1fr}.review-actions button{width:100%}}
+</style>
 </head>
 <body>
 
@@ -143,7 +370,7 @@
     <button class="nav-button" data-page="concertsPage">CONCERTI</button>
     <button class="nav-button" data-page="songRankingPage">CLASSIFICA BRANI</button>
     <button class="nav-button" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
-    <button id="permissionsNavButton" class="nav-button hidden" data-page="permissionsPage">PERMESSI</button>
+    <button id="permissionsNavButton" class="nav-button hidden" data-page="permissionsPage">PERMESSI</button><button id="setupNavButton" class="nav-button hidden" data-page="setupPage">SETUP</button>
   </nav>
   <main>
     <section id="mySetlistPage" class="page active">
@@ -189,6 +416,15 @@
       <div class="two-columns">
         <section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="fanRankingCounter" class="counter"></span></div><div id="fanRankingList" class="admin-ranking-scroll"></div></section>
         <section id="mergePanel" class="panel hidden"><div class="panel-header"><h2>RICHIESTE UNIFICAZIONE</h2><span id="mergeCounter" class="counter"></span></div><div id="mergeList" class="list"></div></section>
+      </div>
+    </section>
+
+
+    <section id="setupPage" class="page">
+      <div class="fan-hero"><h2>Setup</h2><div class="section-note">Configurazioni condivise dell’app. Le tipologie venue possono essere aggiunte nel tempo e disattivate senza modificare i concerti storici.</div></div>
+      <div class="setup-grid">
+        <section class="panel"><div class="panel-header"><h2>TIPOLOGIE VENUE</h2><span id="venueTypeCounter" class="counter"></span></div><div id="venueTypeList"></div></section>
+        <section class="panel"><div class="panel-header"><h2>AGGIUNGI TIPOLOGIA</h2></div><div class="setup-add"><input id="newVenueTypeName" placeholder="Es. Festival"><button id="addVenueTypeButton" class="small-btn primary" type="button">AGGIUNGI</button></div><div id="venueTypeStatus" class="section-note" style="padding:0 10px 10px"></div></section>
       </div>
     </section>
 
@@ -254,7 +490,7 @@
     <div class="form-field"><label>Data</label><input id="concertDate" type="date" required></div>
     <div class="form-field"><label>Ora inizio live</label><input id="concertStartTime" type="time" value="21:30"><div class="section-note" style="margin-top:3px">Default 21:30. Se lasci vuoto verrà salvato 21:30; per lo stato Futuro da quest'ora si sbloccano scaletta e, se abilitate, votazioni.</div></div>
     <div class="form-field"><label>Stato</label><select id="concertStatus"><option value="draft">Bozza</option><option value="future">Futuro · pubblico</option><option value="confirmed">Confermato / live visibile</option><option value="completed">Concluso</option></select></div>
-    <div class="form-field"><label>Locale / evento</label><input id="concertVenue"></div>
+    <div class="form-field"><label>Locale / evento</label><input id="concertVenue"></div><div class="form-field"><label>Tipologia venue</label><select id="concertVenueType"><option value="">— non indicata —</option></select></div>
     <div class="form-field"><label>Città</label><input id="concertCity"></div>
     <div class="form-field full"><label>Locandina (immagine)</label><input id="concertPoster" type="file" accept="image/*"><div id="concertPosterPreview" class="poster-preview hidden"></div><label id="concertRemovePosterLabel" class="check-card hidden" style="margin-top:6px!important"><input id="concertRemovePoster" type="checkbox"> Rimuovi locandina attuale</label></div>
     <div class="form-field full"><div class="checkbox-grid"><label class="check-card"><input id="concertVotingOpen" type="checkbox"> Votazioni aperte — per i Futuri diventano disponibili automaticamente all'orario live</label><label class="check-card"><input id="concertPrivateShow" type="checkbox"> Private show — evento a inviti</label></div></div>
@@ -263,14 +499,14 @@
 </form></div></div>
 
 <script>
-// Frontend V3.26
+// Test frontend V2.2 — fan badge system / venue setup / review queue
 const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const BAND_MEMBERS=[{username:"ema",displayName:"Ema"},{username:"kekko",displayName:"Kekko"},{username:"gianni",displayName:"Gianni"},{username:"carlo",displayName:"Carlo"},{username:"ale",displayName:"Ale"}];
 let currentUser=null,currentProfile=null,currentSetlistId=null;
-let songs=[],songScores=[],memberVotes=[],memberSongPreferences=[],setlistItems=[],profiles=[],proposals=[],idealSetlists=[],communityItems=[],concerts=[],confirmations=[],concertHistoryItems=[];
+let songs=[],songScores=[],memberVotes=[],memberSongPreferences=[],setlistItems=[],profiles=[],proposals=[],idealSetlists=[],communityItems=[],concerts=[],confirmations=[],concertHistoryItems=[],venueTypes=[];
 let selectedMemberUsername=null,selectedConcertId=null,concertSortable=null;
 let proposalResults={media:[],pure:[],fused:[],stats:{},memberStats:null};
 let fanRanking=[],mergeRequests=[],adminFans=[],fanBadgeStats=[],fanOnboardingSongStats=[];
@@ -294,6 +530,9 @@ const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.get
 function formatDate(v){if(!v)return"—";const [y,m,d]=String(v).slice(0,10).split("-");return `${d}/${m}/${y}`}
 function formatTime(v){if(!v)return"—";return String(v).slice(0,5)}
 function posterUrl(path){if(!path)return null;try{return sb.storage.from("concert-posters").getPublicUrl(path).data.publicUrl||null}catch{return null}}
+function venueTypeFor(c){if(c?.venue_types)return Array.isArray(c.venue_types)?c.venue_types[0]:c.venue_types;return venueTypes.find(v=>v.id===c?.venue_type_id)||null}
+function venueTypeLabel(c){return venueTypeFor(c)?.name||""}
+function venueTypeSlug(name){return String(name||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")||`tipo-${Date.now()}`}
 function concertStatusLabel(c){if(c.status==="draft")return"BOZZA";if(c.status==="future")return c.live_started?"LIVE":"FUTURO";if(c.status==="confirmed")return"CONFERMATO";return"CONCLUSO"}
 function concertStatusClass(c){return c.status==="future"&&c.live_started?"live-now":c.status}
 function formatDuration(sec){const n=Number(sec);if(!Number.isFinite(n)||n<=0)return"—";const h=Math.floor(n/3600),m=Math.floor((n%3600)/60),s=Math.round(n%60);return h?`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`:`${m}:${String(s).padStart(2,"0")}`}
@@ -350,7 +589,7 @@ function permissionApplies(role,key){
 async function loadMemberPermissions(){try{const {data,error}=await sb.rpc("get_my_app_permissions");if(error)throw error;memberPermissions=Object.fromEntries((data||[]).map(r=>[r.permission_key,!!r.allowed]))}catch(err){console.warn("Permessi membro: uso default",err);memberPermissions={...DEFAULT_UI_PERMISSIONS.member}}}
 async function loadPublicPermissions(role){try{const data=await fanApi("permissions",role==="guest"?{guest:true}:{});const map=data?.permissions||{};if(role==="fan")fanPermissions=map;else guestPermissions=map}catch(err){console.warn(`Permessi ${role}: uso default`,err);if(role==="fan")fanPermissions={...DEFAULT_UI_PERMISSIONS.fan};else guestPermissions={...DEFAULT_UI_PERMISSIONS.guest}}}
 function activateFirstVisibleNav(appId,buttonSelector,pageAttr){const app=$(appId),buttons=[...app.querySelectorAll(buttonSelector)].filter(b=>!b.hidden&&!b.classList.contains("hidden")),main=app.querySelector("main");let empty=app.querySelector(".permission-empty-state");if(!buttons.length){app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));if(!empty&&main){empty=document.createElement("div");empty.className="panel empty permission-empty-state";empty.textContent="Nessuna sezione abilitata per questo tipo di accesso.";main.prepend(empty)}return}if(empty)empty.remove();let active=buttons.find(b=>b.classList.contains("active"));if(!active){active=buttons[0];app.querySelectorAll(buttonSelector).forEach(b=>b.classList.remove("active"));active.classList.add("active")}app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));const pageId=active.dataset[pageAttr];if(pageId&&$(pageId))$(pageId).classList.add("active")}
-function applyMemberPermissionsUI(){const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};$("memberNav").querySelectorAll("[data-page]").forEach(btn=>{if(btn.dataset.page==="permissionsPage"){btn.classList.toggle("hidden",!isEma());return}const key=map[btn.dataset.page];btn.classList.toggle("hidden",key&&!canMember(key))});$("newSongForm").classList.toggle("hidden",!isEma()&&!canMember("song_propose"));$("concertAdminToolbar").classList.toggle("hidden",!isEma());$("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());$("mergePanel").classList.toggle("hidden",!isFanAdmin());activateFirstVisibleNav("memberApp","#memberNav .nav-button","page")}
+function applyMemberPermissionsUI(){const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};$("memberNav").querySelectorAll("[data-page]").forEach(btn=>{if(["permissionsPage","setupPage"].includes(btn.dataset.page)){btn.classList.toggle("hidden",!isEma());return}const key=map[btn.dataset.page];btn.classList.toggle("hidden",key&&!canMember(key))});$("newSongForm").classList.toggle("hidden",!isEma()&&!canMember("song_propose"));$("concertAdminToolbar").classList.toggle("hidden",!isEma());$("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());$("mergePanel").classList.toggle("hidden",!isFanAdmin());activateFirstVisibleNav("memberApp","#memberNav .nav-button","page")}
 function applyPublicPermissionsUI(role){const appId=role==="fan"?"fanApp":"guestApp",attr=role==="fan"?"fanPage":"guestPage",selector=role==="fan"?"[data-fan-page]":"[data-guest-page]",map=role==="fan"?{fanCatalogPage:"catalog_view",fanConcertsPage:"concerts_view",fanRankingsPage:"rankings_view"}:{guestConcertsPage:"concerts_view",guestRankingsPage:"rankings_view"};$(appId).querySelectorAll(selector).forEach(btn=>{const page=btn.dataset[attr],key=map[page];btn.hidden=!!key&&!hasPermission(role,key)});$(appId).querySelectorAll(`.concert-scope-tab[data-concert-owner="${role}"][data-concert-scope="private"]`).forEach(btn=>btn.hidden=!hasPermission(role,"private_shows_view"));activateFirstVisibleNav(appId,selector,attr)}
 function setConcertScope(owner,scope){
   if(scope==="private"&&!hasPermission(owner,"private_shows_view"))scope="public";
@@ -373,7 +612,7 @@ function publicConcertRow(c,openFn){
   const place=[c.venue,c.city].filter(Boolean).map(esc).join(" · ")||"Luogo da definire";
   const futureMeta=c.status==="future"
     ? `<div class="future-concert-mainmeta"><span class="future-concert-date">${formatDate(c.concert_date)} · ${formatTime(c.start_time)}</span><span class="future-concert-place">${place}</span></div>${!c.setlist_available?`<div class="future-concert-note">Scaletta disponibile dall'inizio del live</div>`:""}`
-    : `<div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}</div>`;
+    : `<div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${venueTypeLabel(c)?` · ${esc(venueTypeLabel(c))}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}</div>`;
   row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="list-title">${esc(c.name)}</div>${futureMeta}</div><span class="status ${statusClass}">${label}</span>`;
   row.onclick=()=>openFn(c.id);
   return row;
@@ -399,7 +638,7 @@ $("memberLogout").onclick=async()=>{await sb.auth.signOut();currentUser=currentP
 async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;await loadMemberPermissions();$("proposalTitle").textContent=isEma()?"PROPOSTE DA VALUTARE":"LE MIE PROPOSTE";showOnly("memberApp");applyMemberPermissionsUI();await refreshAll();applyMemberPermissionsUI();}
 
 /* MEMBER NAV */
-$("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{if(btn.classList.contains("hidden")||btn.hidden)return;$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await loadCommunityData();calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadSongScores();await loadConcertHistoryItems();renderSongRanking()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}if(btn.dataset.page==="permissionsPage"&&isEma())await loadPermissionMatrix()}catch(err){console.error(err);alert(err.message)}});
+$("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{if(btn.classList.contains("hidden")||btn.hidden)return;$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await loadCommunityData();calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadSongScores();await loadConcertHistoryItems();renderSongRanking()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}if(btn.dataset.page==="permissionsPage"&&isEma())await loadPermissionMatrix();if(btn.dataset.page==="setupPage"&&isEma())await loadSetupPage()}catch(err){console.error(err);alert(err.message)}});
 
 async function loadPermissionMatrix(){if(!isEma())return;const status=$("permissionMatrixStatus");if(status)status.textContent="Caricamento...";const {data,error}=await sb.rpc("admin_get_permission_matrix");if(error){if(status)status.textContent=error.message;throw error}permissionMatrixRows=data||[];renderPermissionMatrix();if(status)status.textContent="Modifiche salvate automaticamente"}
 function renderPermissionMatrix(){
@@ -436,7 +675,13 @@ async function ensureInitialItems(){await loadSetlistItems();if(setlistItems.len
 async function loadMemberVotes(){const {data,error}=await sb.from("member_votes").select("*").eq("member_id",currentUser.id);if(error)throw error;memberVotes=data||[]}
 async function loadMemberSongPreferences(){const {data,error}=await sb.rpc("get_member_song_preferences");if(error)throw error;memberSongPreferences=data||[]}
 async function loadProposals(){const {data,error}=await sb.from("song_proposals").select("*").order("created_at",{ascending:false});if(error)throw error;proposals=data||[];updateBadges()}
-async function loadConcerts(){const {data,error}=await sb.from("concerts").select("*").order("concert_date",{ascending:false});if(error)throw error;concerts=data||[];if(!selectedConcertId&&concerts.length)selectedConcertId=concerts[0].id;fillAdminConcertSelect()}
+async function loadVenueTypes(){const {data,error}=await sb.from("venue_types").select("*").order("name");if(error)throw error;venueTypes=data||[];fillVenueTypeSelect()}
+function fillVenueTypeSelect(){const sel=$("concertVenueType");if(!sel)return;const current=sel.value;sel.innerHTML='<option value="">— non indicata —</option>'+venueTypes.filter(v=>v.active).map(v=>`<option value="${esc(v.id)}">${esc(v.name)}</option>`).join("");if([...sel.options].some(o=>o.value===current))sel.value=current}
+async function loadSetupPage(){if(!isEma())return;await loadVenueTypes();renderVenueTypeSetup()}
+function renderVenueTypeSetup(){const box=$("venueTypeList");if(!box)return;box.innerHTML="";venueTypes.forEach(v=>{const row=document.createElement("div");row.className="venue-type-row";row.innerHTML=`<div><div class="venue-type-name">${esc(v.name)}</div><div class="venue-type-slug">${esc(v.slug)}</div></div><label class="member-reaction-toggle"><input type="checkbox" ${v.active?"checked":""}> ATTIVA</label>`;row.querySelector("input").onchange=async e=>{const {error}=await sb.from("venue_types").update({active:e.target.checked}).eq("id",v.id);if(error){e.target.checked=!e.target.checked;return alert(error.message)}await loadVenueTypes();renderVenueTypeSetup()};box.appendChild(row)});if(!venueTypes.length)box.innerHTML='<div class="empty">Nessuna tipologia.</div>';$("venueTypeCounter").textContent=`${venueTypes.length} tipologie`}
+async function addVenueType(){if(!isEma())return;const input=$("newVenueTypeName"),status=$("venueTypeStatus"),name=input.value.trim();if(!name)return;status.textContent="Salvataggio...";const {error}=await sb.from("venue_types").insert({name,slug:venueTypeSlug(name),active:true});if(error){status.textContent=error.message;return}input.value="";status.textContent="Aggiunta ✓";await loadVenueTypes();renderVenueTypeSetup()}
+$("addVenueTypeButton")?.addEventListener("click",addVenueType);$("newVenueTypeName")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addVenueType()}});
+async function loadConcerts(){if(!venueTypes.length)await loadVenueTypes();const {data,error}=await sb.from("concerts").select("*").order("concert_date",{ascending:false});if(error)throw error;concerts=data||[];if(!selectedConcertId&&concerts.length)selectedConcertId=concerts[0].id;fillAdminConcertSelect()}
 async function loadConcertHistoryItems(){const completedIds=new Set(concerts.filter(c=>c.status==="completed").map(c=>c.id));if(!completedIds.size){concertHistoryItems=[];return}const {data,error}=await sb.from("concert_setlist_items").select("*");if(error)throw error;concertHistoryItems=(data||[]).filter(x=>completedIds.has(x.concert_id))}
 async function refreshAll(){await loadSongs();await loadSongScores();await loadFanOnboardingSongStats();await loadProfiles();await ensureMySetlist();await ensureInitialItems();await loadMemberVotes();await loadMemberSongPreferences();await loadProposals();await loadConcerts();await loadConcertHistoryItems();renderMySetlist();renderCatalog();renderSongProposals();renderSongRanking()}
 
@@ -628,18 +873,38 @@ function badgesForSongRow(r,rows=songScores,publicMode=false,winners=null){
 function songRankingBadges(r,index,rows=songScores,winners=null){return badgesForSongRow(r,rows,false,winners)}
 function publicSongBadges(r,rows=publicRankingSongs,winners=null){return badgesForSongRow(r,rows,true,winners)}
 function fanStatsRow(id){return fanBadgeStats.find(x=>x.fan_id===id)||{}}
+function fanBadgeMerged(r){return {...r,...fanStatsRow(r.fan_id)}}
+function topFanIds(rows,metric,eligible=()=>true,tieMetric=()=>0,n=3){return new Set((rows||[]).map(fanBadgeMerged).filter(eligible).sort((a,b)=>Number(metric(b))-Number(metric(a))||Number(tieMetric(b))-Number(tieMetric(a))||String(a.fan_name||"").localeCompare(String(b.fan_name||""),"it")).slice(0,n).map(x=>x.fan_id))}
 function fanBadges(r,allRows=fanRanking){
-  const st={...r,...fanStatsRow(r.fan_id)},out=[],rated=Number(r.rated_song_count||0),activity=Number(st.activity_average),eligible=Number(st.eligible_public_count||0),publicAtt=Number(st.public_attendance_count||0),react=Number(st.reaction_count||0),first=st.first_live?new Date(st.first_live+"T00:00:00"):null;
-  const maxRated=Math.max(0,...allRows.map(x=>Number(x.rated_song_count||0)));
+  const st=fanBadgeMerged(r),all=(allRows||[]).map(fanBadgeMerged),out=[];
   const add=(label,cls,cond=true)=>{if(cond&&!out.some(x=>x.label===label)&&out.length<2)out.push({label,cls})};
-  add("TOP FAN","topfan",Number(r.ranking_position)===1&&Number(r.points||0)>0);
-  add("FEDELISSIMO","loyal",eligible>=3&&publicAtt/eligible>=.80);
-  add("ANIMA LIVE","live",Number.isFinite(activity)&&activity>=8.5&&Number(st.activity_concert_count||0)>=2);
-  add("POGO MASTER","pogo",Number(st.pogo_count||0)>=5&&react>=5&&Number(st.pogo_count||0)/react>=.55);
-  add("UGOLA D'ORO","intro",Number(st.sang_count||0)>=5&&react>=5&&Number(st.sang_count||0)/react>=.60);
-  add("SE LA GODE","popular",Number(st.enjoyed_count||0)>=8&&react>=8&&Number(st.enjoyed_count||0)/react>=.70);
-  add("RECENSORE","critic",rated>=8&&rated>=Math.max(8,Math.ceil(maxRated*.65)));
-  add("VETERANO","cult",first&&Number(st.attendance_count||r.attendance_count||0)>=3&&((Date.now()-first.getTime())/(86400000))>=365);
+  const attendanceSorted=[...all].sort((a,b)=>Number(b.attendance_count||0)-Number(a.attendance_count||0));const fifth=attendanceSorted.length>=5?Number(attendanceSorted[4].attendance_count||0):attendanceSorted.length?Number(attendanceSorted.at(-1).attendance_count||0):Infinity;
+  const topFiveAttendance=Number(st.attendance_count||0)>0&&Number(st.attendance_count||0)>=fifth;
+  const topPogo=topFanIds(allRows,x=>x.pogo_concert_count,x=>Number(x.pogo_concert_count||0)>0,x=>x.pogo_rate,3);
+  const topSang=topFanIds(allRows,x=>x.sang_concert_count,x=>Number(x.sang_concert_count||0)>0,x=>x.sang_rate,3);
+  const topMoving=topFanIds(allRows,x=>x.moving_concert_count,x=>Number(x.moving_concert_count||0)>=3,x=>x.moving_rate,3);
+  const topReviewer=topFanIds(allRows,x=>(Number(x.catalog_review_coverage||0)+Number(x.concert_review_coverage||0))/2,x=>Number(x.catalog_review_coverage||0)>=.75&&Number(x.concert_review_coverage||0)>=.75,x=>x.concert_reviewed_count,3);
+  const topSagra=topFanIds(allRows,x=>x.sagra_attendance_count,x=>Number(x.sagra_attendance_count||0)>=3,x=>x.sagra_rate,3);
+  const maxStreak=Math.max(0,...all.map(x=>Number(x.current_streak||0)));
+  const first=st.first_live?String(st.first_live).slice(0,10):null,recent5=Math.max(1,Number(st.recent5_public_count||5)),last5Rate=Number(st.last5_attendance_count||0)/recent5;
+  const oldEnough=!!first&&first<="2024-07-01"&&Number(st.attendance_count||0)>=3&&last5Rate>=.20&&Number(st.last3_attendance_count||0)>=1;
+  const dawn=!!first&&first<="2020-12-31"&&Number(st.attendance_count||0)>=3&&last5Rate>=.20&&Number(st.last3_attendance_count||0)>=1;
+  const veteran=oldEnough&&last5Rate>=.50;
+  const latest=st.latest_completed_public_date?new Date(String(st.latest_completed_public_date)+"T12:00:00"):null,lastSeenLive=st.last_live?new Date(String(st.last_live)+"T12:00:00"):null,missingYear=latest&&lastSeenLive&&((latest-lastSeenLive)/86400000)>=365;
+  add("TOP FAN","topfan",topFiveAttendance&&Number(st.activity_average)>=7.7&&Number(st.activity_member_count||0)>=2);
+  add("VETERANO","cult",veteran);
+  add("DAGLI ALBORI","intro",dawn);
+  add("FAN DI VECCHIA DATA","loyal",oldEnough&&!dawn);
+  add("FEDELISSIMO","loyal",Number(st.eligible_public_count||0)>=5&&Number(st.public_attendance_since_first||0)/Number(st.eligible_public_count||1)>=.80);
+  add("STILL ROWING","live",maxStreak>=3&&Number(st.current_streak||0)===maxStreak);
+  add("RE DELLE SAGRE","popular",topSagra.has(st.fan_id));
+  add("ANIMA LIVE","live",Number(st.activity_average)>=8.5&&Number(st.activity_concert_count||0)>=3&&Number(st.activity_member_count||0)>=2);
+  add("POGO MASTER","pogo",topPogo.has(st.fan_id));
+  add("UGOLA D'ORO","intro",topSang.has(st.fan_id));
+  add("TICKETTIO","hit",topMoving.has(st.fan_id));
+  add("RECENSORE","critic",topReviewer.has(st.fan_id));
+  add("CHI L'HA VISTO?","final",Number(st.attendance_count||0)>0&&!!missingYear);
+  add("CHI ZE?","breath",Number(st.attendance_count||0)===0);
   return out;
 }
 function openStatsModal(title,html){const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="130";overlay.innerHTML=`<div class="modal-card" style="width:min(620px,100%)"><div class="modal-header"><h2>${esc(title)}</h2><button type="button" class="modal-close">×</button></div><div class="form-body">${html}</div></div>`;document.body.appendChild(overlay);const close=()=>overlay.remove();overlay.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()}}
@@ -650,9 +915,9 @@ function memberSongDetail(r){
   const badges=songRankingBadges(r,0),avgPos=entries.length?entries.reduce((a,x)=>a+x.position,0)/entries.length:null,first=entries[0],last=entries.at(-1);
   openStatsModal(song.title,`<div class="stat-grid">${statCard("Prima volta live",first?`${formatDate(first.concert.concert_date)} · ${first.concert.name}`:"—")}${statCard("Ultimo live",last?`${formatDate(last.concert.concert_date)} · ${last.concert.name}`:"—")}${statCard("Presenze live",entries.length)}${statCard("Posizione media",avgPos?avgPos.toFixed(1):"—")}${statCard("Media fan",r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1))}${statCard("Media band",r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1))}${statCard("Score classifica",Number(r.ranking_score??r.score??50).toFixed(0))}${statCard("Score scaletta",Number(r.setlist_score??r.score??50).toFixed(0))}${statCard("Top 3 fan",`${Number(survey.top3_count||0)}${Number(survey.respondent_count||0)?` / ${Number(survey.respondent_count)}`:""}`)}${statCard("N.1 assoluta fan",Number(survey.absolute_count||0))}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)
 }
-function memberFanDetail(r){const st={...r,...fanStatsRow(r.fan_id)},badges=fanBadges(r,fanRanking);openStatsModal(r.fan_name,`<div class="stat-grid">${statCard("Prima volta live",st.first_live?formatDate(st.first_live):"—")}${statCard("Ultimo live",st.last_live?formatDate(st.last_live):"—")}${statCard("Presenze totali",st.attendance_count??r.attendance_count??0)}${statCard("Punti",r.points??0)}${statCard("Media attività live",st.activity_average==null?"—":Number(st.activity_average).toFixed(1))}${statCard("Brani valutati",r.rated_song_count??0)}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)}
+function memberFanDetail(r){const st={...r,...fanStatsRow(r.fan_id)},badges=fanBadges(r,fanRanking);openStatsModal(r.fan_name,`<div class="stat-grid">${statCard("Prima volta live",st.first_live?formatDate(st.first_live):"—")}${statCard("Ultimo live",st.last_live?formatDate(st.last_live):"—")}${statCard("Presenze totali",st.attendance_count??r.attendance_count??0)}${statCard("Punti",r.points??0)}${statCard("Media attività live",st.activity_average==null?"—":Number(st.activity_average).toFixed(1))}${statCard("Apprezzamento catalogo",st.catalog_average==null?"—":Number(st.catalog_average).toFixed(1))}${statCard("Copertura catalogo",st.catalog_review_coverage==null?"—":`${Math.round(Number(st.catalog_review_coverage)*100)}%`)}${statCard("Live recensiti",st.concert_review_coverage==null?"—":`${Math.round(Number(st.concert_review_coverage)*100)}%`)}${statCard("Brani valutati",r.rated_song_count??0)}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)}
 function publicSongDetail(r){const badges=publicSongBadges(r,publicRankingSongs);openStatsModal(r.title,`${rankingArtistsHtml(r)}<div class="stat-grid">${statCard("Prima volta live",r.first_live_date?`${formatDate(r.first_live_date)}${r.first_live_name?` · ${r.first_live_name}`:""}`:"—")}${statCard("Ultimo live",r.last_live_date?`${formatDate(r.last_live_date)}${r.last_live_name?` · ${r.last_live_name}`:""}`:"—")}${statCard("Presenze live",r.history_appearances??0)}${statCard("Posizione media",r.history_avg_position==null?"—":Number(r.history_avg_position).toFixed(1))}${statCard("Media fan",r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1))}${statCard("Media band",r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1))}${statCard("Score",r.ranking_score??"—")}${statCard("Top 3 fan",`${Number(r.survey_top3_count||0)}${Number(r.survey_respondent_count||0)?` / ${Number(r.survey_respondent_count)}`:""}`)}${statCard("N.1 assoluta fan",Number(r.survey_absolute_count||0))}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)}
-function publicFanDetail(r){const badges=fanBadges(r,publicRankingFans);openStatsModal(r.fan_name,`<div class="stat-grid">${statCard("Prima volta live",r.first_live?formatDate(r.first_live):"—")}${statCard("Ultimo live",r.last_live?formatDate(r.last_live):"—")}${statCard("Presenze totali",r.attendance_count??0)}${statCard("Punti",r.points??0)}${statCard("Media attività live",r.activity_average==null?"—":Number(r.activity_average).toFixed(1))}${statCard("Brani valutati",r.rated_song_count??0)}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)}
+function publicFanDetail(r){const badges=fanBadges(r,publicRankingFans);openStatsModal(r.fan_name,`<div class="stat-grid">${statCard("Prima volta live",r.first_live?formatDate(r.first_live):"—")}${statCard("Ultimo live",r.last_live?formatDate(r.last_live):"—")}${statCard("Presenze totali",r.attendance_count??0)}${statCard("Punti",r.points??0)}${statCard("Media attività live",r.activity_average==null?"—":Number(r.activity_average).toFixed(1))}${statCard("Apprezzamento catalogo",r.catalog_average==null?"—":Number(r.catalog_average).toFixed(1))}${statCard("Copertura catalogo",r.catalog_review_coverage==null?"—":`${Math.round(Number(r.catalog_review_coverage)*100)}%`)}${statCard("Live recensiti",r.concert_review_coverage==null?"—":`${Math.round(Number(r.concert_review_coverage)*100)}%`)}${statCard("Brani valutati",r.rated_song_count??0)}</div><div class="detail-badges"><div class="section-note">Badge attuali</div>${badges.length?badgesHtml(badges):'<span class="section-note">Nessun badge assegnato.</span>'}</div>`)}
 function calculateAllProposals(){const st=buildMemberStats(),media=mediaMembersProposal(st),pure=pureAlgorithmProposal(st.target,st.members.length),fused=fusedProposal(media,pure,st);proposalResults={media,pure,fused,stats:{memberCount:st.members.length,target:st.target},memberStats:st}}
 function renderProposalList(id,list,mode){const box=$(id);box.innerHTML="";list.forEach((s,i)=>{const row=document.createElement("div");row.className="proposal-compact-row";const n=getScore(s.id,"setlist"),badges=proposalBadges(s,i,list,mode);row.innerHTML=`<div class="position">${i+1}</div><div class="proposal-title"><span class="proposal-name">${esc(s.title)}</span>${badgesHtml(badges)}</div><div class="proposal-score"><span class="score-badge ${scoreClass(n)}">${n.toFixed(0)}</span></div>`;box.appendChild(row)});if(!list.length)box.innerHTML='<div class="empty">Nessuna proposta.</div>'}
 function renderProposalsPage(){renderProposalList("mediaList",proposalResults.media,"media");renderProposalList("pureList",proposalResults.pure,"pure");renderProposalList("fusedList",proposalResults.fused,"fused");$("mediaCounter").textContent=`${proposalResults.media.length} brani`;$("pureCounter").textContent=`${proposalResults.pure.length} brani`;$("fusedCounter").textContent=`${proposalResults.fused.length} brani`;const avg=list=>list.length?list.reduce((a,s)=>a+getScore(s.id,"setlist"),0)/list.length:0,total=list=>list.reduce((a,s)=>a+(Number(s.duration_seconds)||0),0);$("proposalSummary").innerHTML=`<div class="summary-card"><div class="summary-label">Membri considerati</div><div class="summary-value">${proposalResults.stats.memberCount}</div></div><div class="summary-card"><div class="summary-label">Brani target</div><div class="summary-value">${proposalResults.stats.target}</div></div><div class="summary-card"><div class="summary-label">Score medio Media Fusa</div><div class="summary-value">${avg(proposalResults.fused).toFixed(1)}</div></div><div class="summary-card"><div class="summary-label">Durata Media Fusa</div><div class="summary-value">${formatDuration(total(proposalResults.fused))}</div></div>`}
@@ -676,25 +941,25 @@ function renderSongRanking(){
 }
 
 /* CONCERTS */
-function renderConcerts(){const box=$("concertList");box.innerHTML="";const visibleConcerts=concerts.filter(c=>isEma()||!c.private_show||canMember("private_shows_view"));visibleConcerts.forEach(c=>{const row=document.createElement("div");row.className=`list-row${c.id===selectedConcertId?" selected":""}`;const pu=posterUrl(c.poster_path);row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}</div></div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;row.onclick=async()=>{selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id)};box.appendChild(row)});if(!visibleConcerts.length)box.innerHTML='<div class="empty">Nessun concerto.</div>';$("concertCounter").textContent=`${visibleConcerts.length} concerti`}
+function renderConcerts(){const box=$("concertList");box.innerHTML="";const visibleConcerts=concerts.filter(c=>isEma()||!c.private_show||canMember("private_shows_view"));visibleConcerts.forEach(c=>{const row=document.createElement("div");row.className=`list-row${c.id===selectedConcertId?" selected":""}`;const pu=posterUrl(c.poster_path);row.innerHTML=`${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${venueTypeLabel(c)?` · ${esc(venueTypeLabel(c))}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}</div></div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;row.onclick=async()=>{selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id)};box.appendChild(row)});if(!visibleConcerts.length)box.innerHTML='<div class="empty">Nessun concerto.</div>';$("concertCounter").textContent=`${visibleConcerts.length} concerti`}
 $("newConcertButton").onclick=()=>openConcertModal(null,false);$("closeConcertModal").onclick=()=>closeModal("concertModal");$("cancelConcertEdit").onclick=()=>closeModal("concertModal");
 function updateConcertDateMin(){const status=$("concertStatus").value;$("concertDate").min=status==="completed"?"":todayISO()}
 $("concertStatus").onchange=()=>{updateConcertDateMin();if($("concertStatus").value==="future"&&!$("concertStartTime").value)$("concertStartTime").focus()};
 function renderConcertPosterPreview(path){const box=$("concertPosterPreview"),url=posterUrl(path);if(!url){box.classList.add("hidden");box.innerHTML="";return}box.classList.remove("hidden");box.innerHTML=`<img src="${esc(url)}" alt=""><span class="section-note">Locandina attuale</span>`}
-function openConcertModal(c,opt={}){const copying=!!opt.copy;$("concertModalTitle").textContent=copying?"Copia live":c?"Modifica concerto":"Nuovo concerto";$("editConcertId").value=copying?"":c?.id||"";$("copyFromConcertId").value=copying?c?.id||"":"";$("concertName").value=c?.name||"";$("concertDate").value=copying?"":c?.concert_date||"";$("concertStartTime").value=copying?DEFAULT_LIVE_START_TIME:(c?.start_time?String(c.start_time).slice(0,5):DEFAULT_LIVE_START_TIME);$("concertStatus").value=copying?"draft":c?.status||"draft";$("concertVenue").value=copying?"":c?.venue||"";$("concertCity").value=copying?"":c?.city||"";$("concertVotingOpen").checked=copying?false:!!c?.fan_voting_open;$("concertPrivateShow").checked=copying?false:!!c?.private_show;$("concertPoster").value="";const oldPath=copying?"":c?.poster_path||"";$("existingPosterPath").value=oldPath;$("concertRemovePoster").checked=false;$("concertRemovePosterLabel").classList.toggle("hidden",!oldPath);renderConcertPosterPreview(oldPath);updateConcertDateMin();openModal("concertModal")}
+function openConcertModal(c,opt={}){const copying=!!opt.copy;$("concertModalTitle").textContent=copying?"Copia live":c?"Modifica concerto":"Nuovo concerto";$("editConcertId").value=copying?"":c?.id||"";$("copyFromConcertId").value=copying?c?.id||"":"";$("concertName").value=c?.name||"";$("concertDate").value=copying?"":c?.concert_date||"";$("concertStartTime").value=copying?DEFAULT_LIVE_START_TIME:(c?.start_time?String(c.start_time).slice(0,5):DEFAULT_LIVE_START_TIME);$("concertStatus").value=copying?"draft":c?.status||"draft";$("concertVenue").value=copying?"":c?.venue||"";fillVenueTypeSelect();$("concertVenueType").value=copying?"":c?.venue_type_id||"";$("concertCity").value=copying?"":c?.city||"";$("concertVotingOpen").checked=copying?false:!!c?.fan_voting_open;$("concertPrivateShow").checked=copying?false:!!c?.private_show;$("concertPoster").value="";const oldPath=copying?"":c?.poster_path||"";$("existingPosterPath").value=oldPath;$("concertRemovePoster").checked=false;$("concertRemovePosterLabel").classList.toggle("hidden",!oldPath);renderConcertPosterPreview(oldPath);updateConcertDateMin();openModal("concertModal")}
 async function applyConcertPoster(concertId,oldPath){const file=$("concertPoster").files?.[0]||null,remove=$("concertRemovePoster").checked;if(file&&!String(file.type||"").startsWith("image/"))throw new Error("La locandina deve essere un'immagine.");let finalPath=oldPath||null;if(file){const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg",path=`${concertId}/${Date.now()}.${ext}`;const {error}=await sb.storage.from("concert-posters").upload(path,file,{contentType:file.type||undefined,upsert:false});if(error)throw error;finalPath=path;const {error:ue}=await sb.from("concerts").update({poster_path:path}).eq("id",concertId);if(ue){await sb.storage.from("concert-posters").remove([path]);throw ue}if(oldPath&&oldPath!==path)await sb.storage.from("concert-posters").remove([oldPath])}else if(remove&&oldPath){const {error:ue}=await sb.from("concerts").update({poster_path:null}).eq("id",concertId);if(ue)throw ue;await sb.storage.from("concert-posters").remove([oldPath]);finalPath=null}return finalPath}
-$("concertForm").addEventListener("submit",async e=>{e.preventDefault();const id=$("editConcertId").value,copyFrom=$("copyFromConcertId").value,status=$("concertStatus").value,date=$("concertDate").value,startTime=emptyToNull($("concertStartTime").value)||DEFAULT_LIVE_START_TIME;if(status!=="completed"&&date<todayISO())return alert("Per inserire una data passata imposta lo stato su Concluso.");const payload={name:$("concertName").value.trim(),concert_date:date,start_time:startTime,status,venue:emptyToNull($("concertVenue").value),city:emptyToNull($("concertCity").value),fan_voting_open:$("concertVotingOpen").checked,private_show:$("concertPrivateShow").checked};let error,newId=null,targetId=id||null;if(id)({error}=await sb.from("concerts").update(payload).eq("id",id));else{const res=await sb.from("concerts").insert(payload).select("id").single();error=res.error;if(res.data){newId=res.data.id;targetId=newId;selectedConcertId=newId}}if(error)return alert(error.message);if(newId&&copyFrom){const {data:sourceItems,error:se}=await sb.from("concert_setlist_items").select("song_id,position").eq("concert_id",copyFrom).order("position");if(se)return alert("Concerto creato, ma errore nella copia della scaletta: "+se.message);if(sourceItems?.length){const {error:ce}=await sb.from("concert_setlist_items").insert(sourceItems.map(x=>({concert_id:newId,song_id:x.song_id,position:x.position})));if(ce)return alert("Concerto creato, ma errore nella copia della scaletta: "+ce.message)}}try{if(targetId)await applyConcertPoster(targetId,$("existingPosterPath").value||null)}catch(err){return alert("Concerto salvato, ma errore locandina: "+err.message)}closeModal("concertModal");await loadConcerts();await loadConcertHistoryItems();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)});
+$("concertForm").addEventListener("submit",async e=>{e.preventDefault();const id=$("editConcertId").value,copyFrom=$("copyFromConcertId").value,status=$("concertStatus").value,date=$("concertDate").value,startTime=emptyToNull($("concertStartTime").value)||DEFAULT_LIVE_START_TIME;if(status!=="completed"&&date<todayISO())return alert("Per inserire una data passata imposta lo stato su Concluso.");const payload={name:$("concertName").value.trim(),concert_date:date,start_time:startTime,status,venue:emptyToNull($("concertVenue").value),venue_type_id:emptyToNull($("concertVenueType").value),city:emptyToNull($("concertCity").value),fan_voting_open:$("concertVotingOpen").checked,private_show:$("concertPrivateShow").checked};let error,newId=null,targetId=id||null;if(id)({error}=await sb.from("concerts").update(payload).eq("id",id));else{const res=await sb.from("concerts").insert(payload).select("id").single();error=res.error;if(res.data){newId=res.data.id;targetId=newId;selectedConcertId=newId}}if(error)return alert(error.message);if(newId&&copyFrom){const {data:sourceItems,error:se}=await sb.from("concert_setlist_items").select("song_id,position").eq("concert_id",copyFrom).order("position");if(se)return alert("Concerto creato, ma errore nella copia della scaletta: "+se.message);if(sourceItems?.length){const {error:ce}=await sb.from("concert_setlist_items").insert(sourceItems.map(x=>({concert_id:newId,song_id:x.song_id,position:x.position})));if(ce)return alert("Concerto creato, ma errore nella copia della scaletta: "+ce.message)}}try{if(targetId)await applyConcertPoster(targetId,$("existingPosterPath").value||null)}catch(err){return alert("Concerto salvato, ma errore locandina: "+err.message)}closeModal("concertModal");await loadConcerts();await loadConcertHistoryItems();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)});
 async function getConcertItems(id){const {data,error}=await sb.from("concert_setlist_items").select("*").eq("concert_id",id).order("position");if(error)throw error;return data||[]}
 async function getFanAverages(id){const {data,error}=await sb.rpc("get_concert_fan_averages",{p_concert_id:id});if(error)throw error;return data||[]}
 async function getConcertConfirmations(id){const {data,error}=await sb.from("member_setlist_confirmations").select("*").eq("concert_id",id).order("position");if(error)throw error;return data||[]}
-async function renderConcertDetail(id){const c=concerts.find(x=>x.id===id),box=$("concertDetail");if(!c)return;$("concertDetailTitle").textContent=c.name.toUpperCase();const showSetlist=isEma()||canMember("concert_setlist_view"),items=showSetlist?await getConcertItems(id):[],avg=showSetlist?await getFanAverages(id):[],avgMap=new Map(avg.map(x=>[x.song_id,x])),ordered=items.map(i=>songs.find(s=>s.id===i.song_id)).filter(Boolean);box.innerHTML="";const pu=posterUrl(c.poster_path);if(pu){const img=document.createElement("img");img.className="poster-hero";img.src=pu;img.alt=`Locandina ${c.name}`;box.appendChild(img)}const meta=document.createElement("div");meta.className="concert-meta";meta.innerHTML=`<strong>${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}</strong><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>${c.venue?`<span>${esc(c.venue)}</span>`:""}${c.city?`<span>${esc(c.city)}</span>`:""}${c.private_show?`<span><strong>PRIVATE SHOW</strong> · punti fan 33%</span>`:""}${c.status==="future"?`<span>Scaletta fan bloccata fino alle ${formatTime(c.start_time)}</span>`:""}${showSetlist?`<span>${ordered.length} brani</span><span>Durata ${formatDuration(ordered.reduce((a,s)=>a+(Number(s.duration_seconds)||0),0))}</span>`:""}`;box.appendChild(meta);const tools=document.createElement("div");tools.className="toolbar no-print";const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA / PDF";print.onclick=()=>printConcert(c,ordered);tools.appendChild(print);if(isEma()){const edit=document.createElement("button");edit.className="secondary";edit.textContent="MODIFICA CONCERTO";edit.onclick=()=>openConcertModal(c);tools.appendChild(edit);const copy=document.createElement("button");copy.className="secondary";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);await loadCommunityData();const select=document.createElement("select");select.id="concertImportSource";select.innerHTML='<option value="fused">Importa: Media Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';const cf=await getConcertConfirmations(id);const grouped=new Map();cf.forEach(x=>{if(!grouped.has(x.member_id))grouped.set(x.member_id,[]);grouped.get(x.member_id).push(x)});BAND_MEMBERS.forEach(m=>{const p=profiles.find(x=>x.username?.toLowerCase()===m.username.toLowerCase());if(!p)return;const setlist=idealSetlists.find(s=>s.owner_id===p.id),idealRows=setlist?communityItems.filter(i=>i.setlist_id===setlist.id&&i.included).sort((a,b)=>(a.position??9999)-(b.position??9999)):[];const confirmedRows=(grouped.get(p.id)||[]).sort((a,b)=>a.position-b.position);if(confirmedRows.length){const o=document.createElement("option");o.value=`member-confirmed:${p.id}`;o.textContent=`Importa: ${p.display_name} · confermata`;select.appendChild(o)}if(idealRows.length){const o=document.createElement("option");o.value=`member-ideal:${p.id}`;o.textContent=`Importa: ${p.display_name} · scaletta attuale`;select.appendChild(o)}});tools.appendChild(select);const imp=document.createElement("button");imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);const addSelect=document.createElement("select");addSelect.id="manualSongSelect";addSelect.innerHTML='<option value="">+ aggiungi brano...</option>'+activeSongs().filter(s=>!ordered.some(o=>o.id===s.id)).map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join("");tools.appendChild(addSelect);const add=document.createElement("button");add.textContent="AGGIUNGI";add.onclick=()=>manualAddSong(c.id,addSelect.value,items.length);tools.appendChild(add)}box.appendChild(tools);const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";if(isEma()||canMember("concert_setlist_view")){ordered.forEach((s,i)=>{const a=avgMap.get(s.id),tags=[];if(a?.molesti_votes)tags.push({text:`Fan ${Number(a.molesti_average).toFixed(1)} (${a.molesti_votes})`,className:""});list.appendChild(createSongRow(s,i,{draggable:isEma(),tags,actions:isEma()?[{label:"×",title:"Rimuovi",onClick:()=>removeConcertSong(c.id,s.id)}]:[]}))});if(!ordered.length)list.innerHTML='<div class="empty">Scaletta vuota: puoi importarla o inserirla manualmente.</div>'}else list.innerHTML='<div class="empty">Visualizzazione scaletta non abilitata per i membri.</div>';box.appendChild(list);$("concertDetailCounter").textContent=(isEma()||canMember("concert_setlist_view"))?`${ordered.length} brani`:"";if(concertSortable){concertSortable.destroy();concertSortable=null}if(isEma()&&ordered.length)concertSortable=new Sortable(list,{animation:120,handle:".drag-handle",onEnd:()=>saveConcertOrder(c.id,list)});if(c.status==="completed")await renderLiveActivity(c.id,box)}
+async function renderConcertDetail(id){const c=concerts.find(x=>x.id===id),box=$("concertDetail");if(!c)return;$("concertDetailTitle").textContent=c.name.toUpperCase();const showSetlist=isEma()||canMember("concert_setlist_view"),items=showSetlist?await getConcertItems(id):[],avg=showSetlist?await getFanAverages(id):[],avgMap=new Map(avg.map(x=>[x.song_id,x])),ordered=items.map(i=>songs.find(s=>s.id===i.song_id)).filter(Boolean);box.innerHTML="";const pu=posterUrl(c.poster_path);if(pu){const img=document.createElement("img");img.className="poster-hero";img.src=pu;img.alt=`Locandina ${c.name}`;box.appendChild(img)}const meta=document.createElement("div");meta.className="concert-meta";meta.innerHTML=`<strong>${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}</strong><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>${venueTypeLabel(c)?`<span>${esc(venueTypeLabel(c))}</span>`:""}${c.venue?`<span>${esc(c.venue)}</span>`:""}${c.city?`<span>${esc(c.city)}</span>`:""}${c.private_show?`<span><strong>PRIVATE SHOW</strong> · punti fan 33%</span>`:""}${c.status==="future"?`<span>Scaletta fan bloccata fino alle ${formatTime(c.start_time)}</span>`:""}${showSetlist?`<span>${ordered.length} brani</span><span>Durata ${formatDuration(ordered.reduce((a,s)=>a+(Number(s.duration_seconds)||0),0))}</span>`:""}`;box.appendChild(meta);const tools=document.createElement("div");tools.className="toolbar no-print";const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA / PDF";print.onclick=()=>printConcert(c,ordered);tools.appendChild(print);if(isEma()){const edit=document.createElement("button");edit.className="secondary";edit.textContent="MODIFICA CONCERTO";edit.onclick=()=>openConcertModal(c);tools.appendChild(edit);const copy=document.createElement("button");copy.className="secondary";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);await loadCommunityData();const select=document.createElement("select");select.id="concertImportSource";select.innerHTML='<option value="fused">Importa: Media Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';const cf=await getConcertConfirmations(id);const grouped=new Map();cf.forEach(x=>{if(!grouped.has(x.member_id))grouped.set(x.member_id,[]);grouped.get(x.member_id).push(x)});BAND_MEMBERS.forEach(m=>{const p=profiles.find(x=>x.username?.toLowerCase()===m.username.toLowerCase());if(!p)return;const setlist=idealSetlists.find(s=>s.owner_id===p.id),idealRows=setlist?communityItems.filter(i=>i.setlist_id===setlist.id&&i.included).sort((a,b)=>(a.position??9999)-(b.position??9999)):[];const confirmedRows=(grouped.get(p.id)||[]).sort((a,b)=>a.position-b.position);if(confirmedRows.length){const o=document.createElement("option");o.value=`member-confirmed:${p.id}`;o.textContent=`Importa: ${p.display_name} · confermata`;select.appendChild(o)}if(idealRows.length){const o=document.createElement("option");o.value=`member-ideal:${p.id}`;o.textContent=`Importa: ${p.display_name} · scaletta attuale`;select.appendChild(o)}});tools.appendChild(select);const imp=document.createElement("button");imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);const addSelect=document.createElement("select");addSelect.id="manualSongSelect";addSelect.innerHTML='<option value="">+ aggiungi brano...</option>'+activeSongs().filter(s=>!ordered.some(o=>o.id===s.id)).map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join("");tools.appendChild(addSelect);const add=document.createElement("button");add.textContent="AGGIUNGI";add.onclick=()=>manualAddSong(c.id,addSelect.value,items.length);tools.appendChild(add)}box.appendChild(tools);const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";if(isEma()||canMember("concert_setlist_view")){ordered.forEach((s,i)=>{const a=avgMap.get(s.id),tags=[];if(a?.molesti_votes)tags.push({text:`Fan ${Number(a.molesti_average).toFixed(1)} (${a.molesti_votes})`,className:""});list.appendChild(createSongRow(s,i,{draggable:isEma(),tags,actions:isEma()?[{label:"×",title:"Rimuovi",onClick:()=>removeConcertSong(c.id,s.id)}]:[]}))});if(!ordered.length)list.innerHTML='<div class="empty">Scaletta vuota: puoi importarla o inserirla manualmente.</div>'}else list.innerHTML='<div class="empty">Visualizzazione scaletta non abilitata per i membri.</div>';box.appendChild(list);$("concertDetailCounter").textContent=(isEma()||canMember("concert_setlist_view"))?`${ordered.length} brani`:"";if(concertSortable){concertSortable.destroy();concertSortable=null}if(isEma()&&ordered.length)concertSortable=new Sortable(list,{animation:120,handle:".drag-handle",onEnd:()=>saveConcertOrder(c.id,list)});if(c.status==="completed")await renderLiveActivity(c.id,box)}
 async function ensureProposalsReady(){await loadCommunityData();calculateAllProposals()}
 async function importConcertSetlist(concertId,source,grouped){if(!confirm("Sostituire la scaletta ufficiale del concerto?"))return;let list=[];if(source.startsWith("member-confirmed:")){const id=source.split(":")[1];list=(grouped.get(id)||[]).sort((a,b)=>a.position-b.position).map(x=>songs.find(s=>s.id===x.song_id)).filter(Boolean)}else if(source.startsWith("member-ideal:")){const id=source.split(":")[1],setlist=idealSetlists.find(s=>s.owner_id===id),rows=setlist?communityItems.filter(i=>i.setlist_id===setlist.id&&i.included).sort((a,b)=>(a.position??9999)-(b.position??9999)):[];list=rows.map(x=>songs.find(s=>s.id===x.song_id)).filter(Boolean)}else{await ensureProposalsReady();list=proposalResults[source]||[]}const {error:de}=await sb.from("concert_setlist_items").delete().eq("concert_id",concertId);if(de)return alert(de.message);if(list.length){const {error}=await sb.from("concert_setlist_items").insert(list.map((s,i)=>({concert_id:concertId,song_id:s.id,position:i})));if(error)return alert(error.message)}await renderConcertDetail(concertId)}
 async function manualAddSong(concertId,songId,pos){if(!songId)return;const {error}=await sb.from("concert_setlist_items").insert({concert_id:concertId,song_id:songId,position:pos});if(error)return alert(error.message);await renderConcertDetail(concertId)}
 async function removeConcertSong(concertId,songId){const {error}=await sb.from("concert_setlist_items").delete().eq("concert_id",concertId).eq("song_id",songId);if(error)return alert(error.message);const items=await getConcertItems(concertId);await sb.from("concert_setlist_items").upsert(items.map((x,i)=>({...x,position:i})));await renderConcertDetail(concertId)}
 async function saveConcertOrder(concertId,list){const ids=[...list.querySelectorAll(".song-row[data-id]")].map(x=>x.dataset.id);const {error}=await sb.from("concert_setlist_items").upsert(ids.map((id,i)=>({concert_id:concertId,song_id:id,position:i})));if(error)alert(error.message);await renderConcertDetail(concertId)}
 function printConcert(c,list){const rows=list.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.title)}</td><td>${esc(keyLabel(s))}</td><td>${s.bpm??"—"}</td></tr>`).join("");const w=window.open("","_blank");w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(c.name)}</title><style>body{font-family:Arial;padding:24px;color:#111}h1{margin:0}h2{margin:4px 0 18px;font-size:15px;color:#555}table{width:100%;border-collapse:collapse}th,td{padding:7px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}th{font-size:9px;text-transform:uppercase;color:#666}</style></head><body><h1>John & i Molesti</h1><h2>${esc(c.name)} · ${formatDate(c.concert_date)}</h2><table><thead><tr><th>#</th><th>Brano Molesto</th><th>Tonalità</th><th>BPM</th></tr></thead><tbody>${rows}</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>`);w.document.close()}
-async function renderLiveActivity(concertId,parent){try{const {data,error}=await sb.rpc("get_concert_fans_for_member",{p_concert_id:concertId});if(error)throw error;const wrap=document.createElement("div");wrap.className="activity-list";wrap.innerHTML='<div class="panel-header" style="padding-left:0"><h2>ATTIVITÀ LIVE DEI FAN</h2><span class="counter">1–10 · solo fan presenti</span></div>';if(!data?.length)wrap.insertAdjacentHTML("beforeend",'<div class="empty">Nessun fan ha segnato “Io c\'ero”.</div>');(data||[]).forEach(f=>{const row=document.createElement("div");row.className="activity-row";row.innerHTML=`<div><strong>${esc(f.fan_name)}</strong><div class="small-info">Fan dal ${formatDate(f.fan_since)}</div></div><input type="number" min="1" max="10" step="0.1" value="${f.my_activity_score??""}" placeholder="1–10"><button class="small-btn">SALVA</button>`;row.querySelector("button").onclick=async()=>{const val=numberOrNull(row.querySelector("input").value);if(val==null)return alert("Inserisci un voto da 1 a 10.");const {error}=await sb.rpc("set_my_fan_live_rating",{p_concert_id:concertId,p_fan_id:f.fan_id,p_score:val});if(error)return alert(error.message);row.querySelector("button").textContent="OK"};wrap.appendChild(row)});parent.appendChild(wrap)}catch(err){const d=document.createElement("div");d.className="section-note";d.textContent=`Voto attività fan non disponibile: ${err.message}`;parent.appendChild(d)}}
+async function renderLiveActivity(concertId,parent){try{const [{data,error},{data:reactions,error:re}]=await Promise.all([sb.rpc("get_concert_fans_for_member",{p_concert_id:concertId}),sb.rpc("get_concert_fan_reactions_for_member",{p_concert_id:concertId})]);if(error)throw error;if(re)throw re;const reactionMap=new Map((reactions||[]).map(r=>[r.fan_id,r]));const wrap=document.createElement("div");wrap.className="activity-list";wrap.innerHTML='<div class="panel-header" style="padding-left:0"><h2>ATTIVITÀ LIVE DEI FAN</h2><span class="counter">Voto 1–10 + reazioni osservabili</span></div>';if(!data?.length)wrap.insertAdjacentHTML("beforeend",'<div class="empty">Nessun fan ha segnato “Io c\'ero”.</div>');(data||[]).forEach(f=>{const rx=reactionMap.get(f.fan_id)||{};const row=document.createElement("div");row.className="activity-row activity-row-v2";row.innerHTML=`<div><strong>${esc(f.fan_name)}</strong><div class="small-info">Fan dal ${formatDate(f.fan_since)}</div></div><input class="activity-score" type="number" min="1" max="10" step="0.1" value="${f.my_activity_score??""}" placeholder="1–10"><div class="member-reaction-toggles"><label class="member-reaction-toggle"><input class="rx-pogo" type="checkbox" ${rx.my_pogo?"checked":""}> POGO</label><label class="member-reaction-toggle"><input class="rx-sang" type="checkbox" ${rx.my_sang_along?"checked":""}> CANTATA</label><label class="member-reaction-toggle"><input class="rx-moving" type="checkbox" ${rx.my_moving?"checked":""}> NON STAVA FERMO/A</label></div><button class="small-btn">SALVA</button>`;row.querySelector("button").onclick=async()=>{const val=numberOrNull(row.querySelector(".activity-score").value),jobs=[sb.rpc("set_my_fan_concert_reactions",{p_concert_id:concertId,p_fan_id:f.fan_id,p_pogo:row.querySelector(".rx-pogo").checked,p_sang_along:row.querySelector(".rx-sang").checked,p_moving:row.querySelector(".rx-moving").checked})];if(val!=null)jobs.unshift(sb.rpc("set_my_fan_live_rating",{p_concert_id:concertId,p_fan_id:f.fan_id,p_score:val}));const results=await Promise.all(jobs),failed=results.find(x=>x.error);if(failed?.error)return alert(failed.error.message);row.querySelector("button").textContent="OK ✓"};wrap.appendChild(row)});parent.appendChild(wrap)}catch(err){const d=document.createElement("div");d.className="section-note";d.textContent=`Voto attività/reazioni fan non disponibile: ${err.message}`;parent.appendChild(d)}}
 
 /* FAN RANKING + ADMIN */
 async function loadFanArea(){const [{data:r,error},{data:bs,error:be}]=await Promise.all([sb.rpc("get_fan_ranking"),sb.rpc("get_fan_badge_stats")]);if(error)throw error;if(be)throw be;fanRanking=r||[];fanBadgeStats=bs||[];mergeRequests=[];adminFans=[];if(isFanAdmin()){const [{data:mr,error:me},{data:fa,error:fe}]=await Promise.all([sb.from("fan_merge_requests").select("*").eq("status","pending").order("created_at"),sb.rpc("admin_list_fans")]);if(me)throw me;if(fe)throw fe;mergeRequests=mr||[];adminFans=fa||[]}updateBadges()}
@@ -857,97 +1122,118 @@ async function openFanOnboardingQuestionnaire(data,options={}){
   return new Promise(resolve=>{
     const overlay=document.createElement("div");overlay.className="modal open fan-onboarding-modal";
     const card=document.createElement("div");card.className="modal-card fan-onboarding-card";
-    const songOptions=songs.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join("");
-    card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${editMode?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
-      <div class="form-body">
-        <div class="fan-onboarding-intro">${editMode?"I gusti cambiano: puoi aggiornare queste risposte quando vuoi. Le statistiche useranno sempre l'ultima versione salvata.":'Prima di entrare ti rubiamo un minuto per un piccolo questionario. Viene mostrato <strong>una sola volta</strong> in automatico e ci aiuta a capire come vengono scoperti i Molesti e quali pezzi funzionano di più.'}</div>
-        <section class="fan-onboarding-question">
-          <h3>Sei mai stato/a a un concerto dei Molesti? <span class="fan-onboarding-required">*</span></h3>
-          <div class="fan-onboarding-yesno"><button type="button" data-attended="true">SÌ</button><button type="button" data-attended="false">NO</button></div>
-          <div class="fan-onboarding-answer" id="fanOnboardingReaction" hidden></div>
-        </section>
-        <div id="fanOnboardingNoOnly" hidden>
-          <section class="fan-onboarding-question">
-            <h3>Come conosci i Molesti? <span class="fan-onboarding-required">*</span></h3>
-            <div class="fan-onboarding-choice-row">
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="friend_member"> Amico/a di un membro</label>
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="seen_online"> Li ho visti online</label>
-              <label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="heard_about"> Ne ho sentito parlare</label>
-            </div>
-          </section>
-          <section class="fan-onboarding-question">
-            <h3>Hai già avuto occasione di sentire qualche pezzo? Se sì, come? <span class="fan-onboarding-required">*</span></h3>
-            <div class="fan-onboarding-choice-row" id="fanOnboardingHeardChoices">
-              <label class="fan-onboarding-choice"><input type="checkbox" value="social_live_clips"> Spezzoni dei live sui social</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="private_recordings"> Registrazioni o video girati privatamente</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="shared_by_someone"> Me li ha fatti sentire qualcuno</label>
-              <label class="fan-onboarding-choice"><input type="checkbox" value="never_heard"> Non avevo ancora sentito nessun pezzo</label>
-            </div>
-          </section>
-        </div>
-        <section class="fan-onboarding-question">
-          <h3>Quali canzoni terresti nella tua Top 3?</h3>
-          <div class="fan-onboarding-top-note">Scegline fino a tre. L'ordine non conta; se vuoi, puoi indicarne una come <strong>N.1 assoluta</strong>. Puoi cambiare queste preferenze in futuro dalla sezione Profilo.</div>
-          ${[1,2,3].map(i=>`<div class="fan-top-pick" data-top-slot="${i}"><div class="fan-top-pick-label">BRANO ${i}</div><select><option value="">— scegli un brano —</option>${songOptions}</select><label class="fan-top-absolute"><input type="checkbox"> ★ N.1 ASSOLUTA</label></div>`).join("")}
-        </section>
-        <div class="fan-onboarding-status" id="fanOnboardingStatus"></div>
-        <div class="modal-actions"><button type="button" class="modal-save fan-onboarding-submit">${editMode?"SALVA MODIFICHE":"ENTRA NELL'AREA FAN"}</button></div>
-      </div>`;
     overlay.appendChild(card);document.body.appendChild(overlay);
-    let attended=typeof existing?.attended_concert==="boolean"?existing.attended_concert:null;
-    const reaction=card.querySelector("#fanOnboardingReaction"),noOnly=card.querySelector("#fanOnboardingNoOnly");
-    const setAttended=(value,clearConditional=true)=>{
-      attended=value;
-      card.querySelectorAll("[data-attended]").forEach(b=>b.classList.toggle("selected",b.dataset.attended===String(value)));
-      reaction.hidden=false;reaction.textContent=value?"Mi dispiace tantissimo... ormai però è successo.":"Beh, non ti sei perso nulla, però...";
-      noOnly.hidden=value;
-      if(value&&clearConditional){card.querySelectorAll('input[name="fanDiscovery"]').forEach(x=>x.checked=false);card.querySelectorAll("#fanOnboardingHeardChoices input").forEach(x=>x.checked=false)}
-    };
-    card.querySelectorAll("[data-attended]").forEach(btn=>btn.onclick=()=>setAttended(btn.dataset.attended==="true",true));
-    const heard=[...card.querySelectorAll("#fanOnboardingHeardChoices input")];
-    heard.forEach(ch=>ch.onchange=()=>{
-      if(!ch.checked)return;
-      if(ch.value==="never_heard")heard.filter(x=>x!==ch).forEach(x=>x.checked=false);
-      else heard.filter(x=>x.value==="never_heard").forEach(x=>x.checked=false);
+    const songOptions=songs.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join("");
+
+    const payloadAsExisting=payload=>({
+      attended_concert:payload.attended_concert,
+      discovery_source:payload.discovery_source,
+      heard_sources:payload.heard_sources,
+      top_songs:(payload.top_song_ids||[]).map((song_id,i)=>({song_id,slot:i+1,is_absolute:song_id===payload.absolute_song_id}))
     });
-    const pickRows=[...card.querySelectorAll(".fan-top-pick")],selects=pickRows.map(r=>r.querySelector("select")),stars=pickRows.map(r=>r.querySelector('input[type="checkbox"]'));
-    const syncTopPicks=()=>{
-      const selected=selects.map(x=>x.value).filter(Boolean);
-      selects.forEach(sel=>[...sel.options].forEach(opt=>{if(!opt.value)return;opt.disabled=selected.includes(opt.value)&&opt.value!==sel.value}));
-      stars.forEach((star,i)=>{star.disabled=!selects[i].value;if(!selects[i].value)star.checked=false});
+    const pastConcerts=()=>{
+      const now=Date.now();
+      return [...(publicConcerts||[])].filter(c=>{
+        if(c.status==="future")return false;
+        const start=concertStartMs(c);
+        return c.status==="completed"||!Number.isFinite(start)||start<now;
+      }).sort((a,b)=>String(b.concert_date||"").localeCompare(String(a.concert_date||"")));
     };
-    selects.forEach(sel=>sel.onchange=syncTopPicks);
-    stars.forEach((star,i)=>star.onchange=()=>{if(star.checked)stars.forEach((x,j)=>{if(j!==i)x.checked=false})});
-    if(existing){
-      if(attended!==null)setAttended(attended,false);
-      if(existing.discovery_source){const r=card.querySelector(`input[name="fanDiscovery"][value="${CSS.escape(existing.discovery_source)}"]`);if(r)r.checked=true}
-      const savedHeard=Array.isArray(existing.heard_sources)?existing.heard_sources:[];
-      heard.forEach(x=>x.checked=savedHeard.includes(x.value));
-      const tops=Array.isArray(existing.top_songs)?[...existing.top_songs].sort((a,b)=>Number(a.slot)-Number(b.slot)):[];
-      tops.forEach((row,i)=>{if(selects[i])selects[i].value=row.song_id||"";if(stars[i])stars[i].checked=!!row.is_absolute});
-    }
-    syncTopPicks();
-    card.querySelector(".fan-onboarding-close")?.addEventListener("click",()=>{overlay.remove();resolve(false)});
-    card.querySelector(".fan-onboarding-submit").onclick=async()=>{
-      const status=card.querySelector("#fanOnboardingStatus"),submit=card.querySelector(".fan-onboarding-submit");
-      if(attended===null){status.textContent="Rispondi prima alla domanda sul concerto.";return}
-      let discovery=null,heardSources=[];
-      if(!attended){
-        discovery=card.querySelector('input[name="fanDiscovery"]:checked')?.value||null;
-        heardSources=heard.filter(x=>x.checked).map(x=>x.value);
-        if(!discovery){status.textContent="Indica come hai conosciuto i Molesti.";return}
-        if(!heardSources.length){status.textContent="Indica se e come avevi già sentito qualche pezzo.";return}
-      }
-      const topIds=selects.map(x=>x.value).filter(Boolean);
-      if(new Set(topIds).size!==topIds.length){status.textContent="Nella Top 3 ogni brano può comparire una sola volta.";return}
-      const absoluteIndex=stars.findIndex(x=>x.checked),absoluteId=absoluteIndex>=0?selects[absoluteIndex].value:null;
-      if(absoluteIndex>=0&&!absoluteId){status.textContent="Per indicare la N.1 assoluta scegli prima il brano.";return}
-      submit.disabled=true;status.textContent="Salvataggio...";
-      try{
-        await fanApi("submit_onboarding",{attended_concert:attended,discovery_source:discovery,heard_sources:heardSources,top_song_ids:topIds,absolute_song_id:absoluteId});
-        status.textContent="Salvato ✓";setTimeout(()=>{overlay.remove();resolve(true)},220);
-      }catch(err){status.textContent=err.message||"Errore durante il salvataggio";submit.disabled=false}
+    const concertRowHtml=c=>{
+      const meta=[formatDate(c.concert_date),c.start_time?formatTime(c.start_time):null,c.venue,c.city].filter(Boolean).map(esc).join(" · ");
+      return `<label class="fan-onboarding-concert-row"><span class="fan-onboarding-concert-main"><span class="fan-onboarding-concert-name">${esc(c.name)}</span><span class="fan-onboarding-concert-meta">${meta}</span></span><span class="fan-onboarding-concert-check"><input type="checkbox" data-onboarding-concert="${esc(c.id)}"> Io c'ero</span></label>`;
     };
+    const finish=()=>{overlay.remove();resolve(true)};
+
+    const renderRatingStep=selectedConcerts=>{
+      const eligible=selectedConcerts.filter(c=>c.voting_available&&canFan("live_vote")&&canFan("live_attendance")&&canFan("concerts_view"));
+      card.innerHTML=`<div class="modal-header"><h2>PRESENZE SALVATE ✓</h2></div><div class="form-body">
+        <div class="fan-onboarding-intro">Le presenze che hai indicato sono state aggiunte alla tua classifica fan.</div>
+        <section class="fan-onboarding-question"><h3>Vuoi anche valutare ${selectedConcerts.length===1?"questo live":"questi live"}?</h3>
+          <div class="fan-onboarding-step-note">Puoi dare il voto generale, valutare i singoli brani e indicare Pogo / Cantata / Non riuscivo a stare fermo/a / Goduta. Puoi farlo anche più tardi dalla sezione Concerti.</div>
+          ${eligible.length?`<div class="fan-onboarding-rating-choice"><button type="button" class="primary" data-onboarding-rate>VALUTA ${eligible.length===1?"IL LIVE":"I LIVE"}</button><button type="button" data-onboarding-skip>SKIP PER ORA</button></div>`:`<div class="fan-onboarding-answer">I live selezionati non sono attualmente aperti alle valutazioni. Potrai consultarli dalla sezione Concerti.</div><div class="fan-onboarding-rating-choice"><button type="button" data-onboarding-skip>ENTRA NELL'AREA FAN</button></div>`}
+        </section></div>`;
+      card.querySelector("[data-onboarding-skip]").onclick=async()=>{await Promise.all(selectedConcerts.map(c=>fanApi("review_seen",{item_type:"concert",item_id:c.id,skipped:true}).catch(()=>null)));finish()};
+      const rate=card.querySelector("[data-onboarding-rate]");
+      if(rate)rate.onclick=async()=>{
+        const first=eligible[0];await Promise.all(selectedConcerts.map(c=>fanApi("review_seen",{item_type:"concert",item_id:c.id,skipped:false}).catch(()=>null)));finish();
+        setTimeout(async()=>{
+          const nav=document.querySelector('#fanApp [data-fan-page="fanConcertsPage"]');if(nav)nav.click();
+          setConcertScope("fan",first.private_show?"private":"public");
+          await openPublicConcert(first.id,true);
+          $("publicConcertDetail")?.scrollIntoView({behavior:"smooth",block:"start"});
+        },80);
+      };
+    };
+
+    const renderAttendanceStep=payload=>{
+      const rows=pastConcerts(),pub=rows.filter(c=>!c.private_show),priv=rows.filter(c=>c.private_show),canAttend=canFan("live_attendance")&&canFan("concerts_view");
+      const group=(title,list)=>list.length?`<section class="fan-onboarding-concert-group"><div class="fan-onboarding-concert-group-title">${title}</div><div class="fan-onboarding-concert-list">${list.map(concertRowHtml).join("")}</div></section>`:"";
+      card.innerHTML=`<div class="modal-header"><h2>DOVE CI HAI SOPPORTATO?</h2></div><div class="form-body">
+        <div class="fan-onboarding-intro">Hai detto di averci già visti live. Segna i concerti a cui eri presente.</div>
+        <div class="fan-onboarding-step-note">Ogni <strong>Io c'ero</strong> viene registrato come una normale presenza e quindi contribuisce alla <strong>classifica fan</strong>. Nei private show resta il peso ridotto già previsto.</div>
+        ${canAttend?(rows.length?`<div class="fan-onboarding-concert-groups">${group("CONCERTI PUBBLICI",pub)}${group("PRIVATE SHOW",priv)}</div>`:'<div class="fan-onboarding-answer">Non risultano ancora concerti passati disponibili nell’app.</div>'):'<div class="fan-onboarding-answer">La registrazione delle presenze non è attualmente abilitata per i fan.</div>'}
+        <div class="fan-onboarding-status" id="fanOnboardingAttendanceStatus"></div>
+        <div class="modal-actions"><button type="button" class="modal-cancel" data-onboarding-back>INDIETRO</button><button type="button" class="modal-save" data-onboarding-attendance-next>${canAttend&&rows.length?"SALVA PRESENZE E CONTINUA":"CONTINUA"}</button></div>
+      </div>`;
+      card.querySelector("[data-onboarding-back]").onclick=()=>renderQuestions(payloadAsExisting(payload));
+      card.querySelector("[data-onboarding-attendance-next]").onclick=async()=>{
+        const status=card.querySelector("#fanOnboardingAttendanceStatus"),btn=card.querySelector("[data-onboarding-attendance-next]");
+        const selectedIds=[...card.querySelectorAll("[data-onboarding-concert]:checked")].map(x=>x.dataset.onboardingConcert),selected=rows.filter(c=>selectedIds.includes(c.id));
+        if(canAttend&&rows.length&&!selected.length){status.textContent="Hai indicato di essere stato/a a un live: selezionane almeno uno.";return}
+        btn.disabled=true;status.textContent="Salvataggio...";
+        try{
+          for(const c of selected)await fanApi("attend",{concert_id:c.id,attended:true});
+          await fanApi("submit_onboarding",payload);
+          if(canFan("rankings_view"))renderPublicRankings().catch(()=>{});
+          if(selected.length)renderRatingStep(selected);else finish();
+        }catch(err){status.textContent=err.message||"Errore durante il salvataggio";btn.disabled=false}
+      };
+    };
+
+    const renderQuestions=(prefill=existing)=>{
+      card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${editMode?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
+        <div class="form-body">
+          <div class="fan-onboarding-intro">${editMode?"I gusti cambiano: puoi aggiornare queste risposte quando vuoi. Le statistiche useranno sempre l'ultima versione salvata.":'Prima di entrare ti rubiamo un minuto per un piccolo questionario. Viene mostrato <strong>una sola volta</strong> in automatico e ci aiuta a capire come vengono scoperti i Molesti e quali pezzi funzionano di più.'}</div>
+          <section class="fan-onboarding-question">
+            <h3>Sei mai stato/a a un concerto dei Molesti? <span class="fan-onboarding-required">*</span></h3>
+            <div class="fan-onboarding-yesno"><button type="button" data-attended="true">SÌ</button><button type="button" data-attended="false">NO</button></div>
+            <div class="fan-onboarding-answer" id="fanOnboardingReaction" hidden></div>
+          </section>
+          <div id="fanOnboardingNoOnly" hidden>
+            <section class="fan-onboarding-question"><h3>Come conosci i Molesti? <span class="fan-onboarding-required">*</span></h3><div class="fan-onboarding-choice-row"><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="friend_member"> Amico/a di un membro</label><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="seen_online"> Li ho visti online</label><label class="fan-onboarding-choice"><input type="radio" name="fanDiscovery" value="heard_about"> Ne ho sentito parlare</label></div></section>
+            <section class="fan-onboarding-question"><h3>Hai già avuto occasione di sentire qualche pezzo? Se sì, come? <span class="fan-onboarding-required">*</span></h3><div class="fan-onboarding-choice-row" id="fanOnboardingHeardChoices"><label class="fan-onboarding-choice"><input type="checkbox" value="social_live_clips"> Spezzoni dei live sui social</label><label class="fan-onboarding-choice"><input type="checkbox" value="private_recordings"> Registrazioni o video girati privatamente</label><label class="fan-onboarding-choice"><input type="checkbox" value="shared_by_someone"> Me li ha fatti sentire qualcuno</label><label class="fan-onboarding-choice"><input type="checkbox" value="never_heard"> Non avevo ancora sentito nessun pezzo</label></div></section>
+          </div>
+          <section class="fan-onboarding-question"><h3>Quali canzoni terresti nella tua Top 3?</h3><div class="fan-onboarding-top-note">Scegline fino a tre. L'ordine non conta; se vuoi, puoi indicarne una come <strong>N.1 assoluta</strong>. Puoi cambiare queste preferenze in futuro dalla sezione Profilo.</div>${[1,2,3].map(i=>`<div class="fan-top-pick" data-top-slot="${i}"><div class="fan-top-pick-label">BRANO ${i}</div><select><option value="">— scegli un brano —</option>${songOptions}</select><label class="fan-top-absolute"><input type="checkbox"> ★ N.1 ASSOLUTA</label></div>`).join("")}</section>
+          <div class="fan-onboarding-status" id="fanOnboardingStatus"></div>
+          <div class="modal-actions"><button type="button" class="modal-save fan-onboarding-submit">${editMode?"SALVA MODIFICHE":"CONTINUA"}</button></div>
+        </div>`;
+      let attended=typeof prefill?.attended_concert==="boolean"?prefill.attended_concert:null;
+      const reaction=card.querySelector("#fanOnboardingReaction"),noOnly=card.querySelector("#fanOnboardingNoOnly");
+      const setAttended=(value,clearConditional=true)=>{attended=value;card.querySelectorAll("[data-attended]").forEach(b=>b.classList.toggle("selected",b.dataset.attended===String(value)));reaction.hidden=false;reaction.textContent=value?"Mi dispiace tantissimo... ormai però è successo.":"Beh, non ti sei perso nulla, però...";noOnly.hidden=value;if(value&&clearConditional){card.querySelectorAll('input[name="fanDiscovery"]').forEach(x=>x.checked=false);card.querySelectorAll("#fanOnboardingHeardChoices input").forEach(x=>x.checked=false)}};
+      card.querySelectorAll("[data-attended]").forEach(btn=>btn.onclick=()=>setAttended(btn.dataset.attended==="true",true));
+      const heard=[...card.querySelectorAll("#fanOnboardingHeardChoices input")];
+      heard.forEach(ch=>ch.onchange=()=>{if(!ch.checked)return;if(ch.value==="never_heard")heard.filter(x=>x!==ch).forEach(x=>x.checked=false);else heard.filter(x=>x.value==="never_heard").forEach(x=>x.checked=false)});
+      const pickRows=[...card.querySelectorAll(".fan-top-pick")],selects=pickRows.map(r=>r.querySelector("select")),stars=pickRows.map(r=>r.querySelector('input[type="checkbox"]'));
+      const syncTopPicks=()=>{const selected=selects.map(x=>x.value).filter(Boolean);selects.forEach(sel=>[...sel.options].forEach(opt=>{if(!opt.value)return;opt.disabled=selected.includes(opt.value)&&opt.value!==sel.value}));stars.forEach((star,i)=>{star.disabled=!selects[i].value;if(!selects[i].value)star.checked=false})};
+      selects.forEach(sel=>sel.onchange=syncTopPicks);stars.forEach((star,i)=>star.onchange=()=>{if(star.checked)stars.forEach((x,j)=>{if(j!==i)x.checked=false})});
+      if(prefill){if(attended!==null)setAttended(attended,false);if(prefill.discovery_source){const r=card.querySelector(`input[name="fanDiscovery"][value="${CSS.escape(prefill.discovery_source)}"]`);if(r)r.checked=true}const savedHeard=Array.isArray(prefill.heard_sources)?prefill.heard_sources:[];heard.forEach(x=>x.checked=savedHeard.includes(x.value));const tops=Array.isArray(prefill.top_songs)?[...prefill.top_songs].sort((a,b)=>Number(a.slot)-Number(b.slot)):[];tops.forEach((row,i)=>{if(selects[i])selects[i].value=row.song_id||"";if(stars[i])stars[i].checked=!!row.is_absolute})}
+      syncTopPicks();card.querySelector(".fan-onboarding-close")?.addEventListener("click",()=>{overlay.remove();resolve(false)});
+      card.querySelector(".fan-onboarding-submit").onclick=async()=>{
+        const status=card.querySelector("#fanOnboardingStatus"),submit=card.querySelector(".fan-onboarding-submit");
+        if(attended===null){status.textContent="Rispondi prima alla domanda sul concerto.";return}
+        let discovery=null,heardSources=[];
+        if(!attended){discovery=card.querySelector('input[name="fanDiscovery"]:checked')?.value||null;heardSources=heard.filter(x=>x.checked).map(x=>x.value);if(!discovery){status.textContent="Indica come hai conosciuto i Molesti.";return}if(!heardSources.length){status.textContent="Indica se e come avevi già sentito qualche pezzo.";return}}
+        const topIds=selects.map(x=>x.value).filter(Boolean);if(new Set(topIds).size!==topIds.length){status.textContent="Nella Top 3 ogni brano può comparire una sola volta.";return}
+        const absoluteIndex=stars.findIndex(x=>x.checked),absoluteId=absoluteIndex>=0?selects[absoluteIndex].value:null;if(absoluteIndex>=0&&!absoluteId){status.textContent="Per indicare la N.1 assoluta scegli prima il brano.";return}
+        const payload={attended_concert:attended,discovery_source:discovery,heard_sources:heardSources,top_song_ids:topIds,absolute_song_id:absoluteId};
+        if(!editMode&&attended){renderAttendanceStep(payload);return}
+        submit.disabled=true;status.textContent="Salvataggio...";
+        try{await fanApi("submit_onboarding",payload);status.textContent="Salvato ✓";if(canFan("rankings_view"))renderPublicRankings().catch(()=>{});setTimeout(finish,220)}catch(err){status.textContent=err.message||"Errore durante il salvataggio";submit.disabled=false}
+      };
+    };
+
+    renderQuestions(existing);
   });
 }
 async function loadFanProfile(){
@@ -977,7 +1263,13 @@ async function runFanOnboardingIfNeeded(){
     return true;
   }catch(err){console.error("Questionario fan",err);return false}
 }
-$("fanLoginForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("fanName").value.trim();if(!name)return;$("fanLoginButton").disabled=true;$("fanLoginMessage").textContent="Accesso in corso...";try{let data=await fanApi("enter",{display_name:name});data=await resolvePossibleFanMatches(data);currentFan=data.fan||data;$("currentFanName").textContent=currentFan.display_name||currentFan.nickname||name;await loadPublicPermissions("fan");showOnly("fanApp");applyPublicPermissionsUI("fan");await loadFanFrontend();await runFanOnboardingIfNeeded();if(data.is_new&&confirm("Vuoi impostare un nickname di recupero facoltativo? Serve solo se in futuro cambi telefono/browser e non è una nuova login.")){const value=prompt("Scegli un nickname facile da ricordare e possibilmente univoco. Puoi usare, ad esempio, il tuo username Instagram (es. @marketto178), perché è facile da ricordare e riscrivere:");if(value?.trim())await fanApi("set_recovery",{recovery_type:"nickname",recovery_value:value})}}catch(err){console.error(err);$("fanLoginMessage").textContent="Area fan non ancora collegata alla Edge Function: "+err.message}finally{$("fanLoginButton").disabled=false}});
+async function runFanReviewQueue(){
+  if(!currentFan)return false;let data;try{data=await fanApi("review_queue")}catch(err){console.warn("Coda recensioni",err);return false}const items=Array.isArray(data?.items)?data.items:[];if(!items.length)return false;
+  return new Promise(resolve=>{let idx=0;const overlay=document.createElement("div");overlay.className="modal open review-queue-modal";overlay.innerHTML='<div class="modal-card review-queue-card"></div>';document.body.appendChild(overlay);const card=overlay.querySelector(".review-queue-card");
+    const close=()=>{overlay.remove();resolve(true)};
+    const next=()=>{if(idx>=items.length)return close();const item=items[idx++],isSong=item.item_type==="song",obj=isSong?item.song:item.concert,title=isSong?obj?.title:obj?.name,meta=isSong?[obj?.base_artist,obj?.base_title].filter(Boolean).join(" — "):[formatDate(obj?.concert_date),obj?.venue,obj?.city].filter(Boolean).join(" · ");card.innerHTML=`<div class="modal-header"><div><span class="review-kind">${isSong?"NOVITÀ CATALOGO":"LIVE DA RECENSIRE"}</span><h2 class="review-main-title">${esc(title||"")}</h2><div class="review-meta">${esc(meta||"")}${obj?.private_show?" · PRIVATE SHOW":""}</div></div></div><div class="form-body"><div class="review-explain">${isSong?"Questo brano è entrato nel catalogo dopo la tua ultima presa visione. Puoi valutarlo ora oppure skippare: in entrambi i casi da questo momento entra pienamente nel calcolo del badge RECENSORE.":"Risulti presente a questo concerto terminato. Per RECENSORE conta solo il voto generale del live: puoi darlo ora oppure skippare."}</div><div class="rating-scale review-scale">${ratingButtonsMarkup("",false)}</div><div class="fan-onboarding-status review-status"></div><div class="review-actions"><button type="button" class="modal-cancel review-skip">SKIP PER ORA</button></div></div>`;const status=card.querySelector(".review-status"),scale=card.querySelector(".review-scale"),skip=card.querySelector(".review-skip");skip.onclick=async()=>{skip.disabled=true;status.textContent="Registrazione presa visione...";try{await fanApi("review_seen",{item_type:item.item_type,item_id:item.item_id,skipped:true});next()}catch(err){status.textContent=err.message;skip.disabled=false}};scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{const value=Number(btn.dataset.value);paintRatingScale(scale,value,"saving");status.textContent="Salvataggio...";try{if(isSong)await fanApi("catalog_vote",{song_id:item.item_id,molesti_score:value,preserve_advanced:true});else await fanApi("concert_rate",{concert_id:item.item_id,performance_score:value});next()}catch(err){status.textContent=err.message;paintRatingScale(scale,"","ready");scale.querySelectorAll("button[data-value]").forEach(b=>b.disabled=false)}})};next()})
+}
+$("fanLoginForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("fanName").value.trim();if(!name)return;$("fanLoginButton").disabled=true;$("fanLoginMessage").textContent="Accesso in corso...";try{let data=await fanApi("enter",{display_name:name});data=await resolvePossibleFanMatches(data);currentFan=data.fan||data;$("currentFanName").textContent=currentFan.display_name||currentFan.nickname||name;await loadPublicPermissions("fan");showOnly("fanApp");applyPublicPermissionsUI("fan");await loadFanFrontend();await runFanOnboardingIfNeeded();await runFanReviewQueue();if(data.is_new&&confirm("Vuoi impostare un nickname di recupero facoltativo? Serve solo se in futuro cambi telefono/browser e non è una nuova login.")){const value=prompt("Scegli un nickname facile da ricordare e possibilmente univoco. Puoi usare, ad esempio, il tuo username Instagram (es. @marketto178), perché è facile da ricordare e riscrivere:");if(value?.trim())await fanApi("set_recovery",{recovery_type:"nickname",recovery_value:value})}}catch(err){console.error(err);$("fanLoginMessage").textContent="Area fan non ancora collegata alla Edge Function: "+err.message}finally{$("fanLoginButton").disabled=false}});
 $("fanLogout").onclick=()=>{currentFan=null;showOnly("welcomeScreen")};
 $("fanApp").querySelectorAll("[data-fan-page]").forEach(btn=>btn.onclick=async()=>{if(btn.hidden)return;$("fanApp").querySelectorAll("[data-fan-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("fanApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.fanPage).classList.add("active");if(btn.dataset.fanPage==="fanCatalogPage")await loadPublicCatalog();if(btn.dataset.fanPage==="fanConcertsPage")await loadPublicConcerts();if(btn.dataset.fanPage==="fanRankingsPage")await renderPublicRankings();if(btn.dataset.fanPage==="fanProfilePage")await loadFanProfile()});
 $("guestApp").querySelectorAll("[data-guest-page]").forEach(btn=>btn.onclick=async()=>{if(btn.hidden)return;$("guestApp").querySelectorAll("[data-guest-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("guestApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.guestPage).classList.add("active");if(btn.dataset.guestPage==="guestConcertsPage")await loadGuestConcerts();if(btn.dataset.guestPage==="guestRankingsPage")await renderGuestRankings()});
@@ -1039,7 +1331,7 @@ function openFanAdvancedVote(songId){
 $("closeFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");$("cancelFanAdvancedVote").onclick=()=>closeModal("fanAdvancedVoteModal");$("fanAdvancedVoteForm").addEventListener("submit",e=>e.preventDefault());
 async function loadPublicConcerts(){try{const data=await fanApi("list_concerts");publicConcerts=data.concerts||[];renderConcertCollection(publicConcerts.filter(c=>!c.private_show),$("publicConcertList"),openPublicConcert,"Nessun concerto pubblico disponibile.");renderConcertCollection(publicConcerts.filter(c=>c.private_show),$("privateConcertList"),openPublicConcert,"Nessun private show disponibile.");setConcertScope("fan","public")}catch(err){$("publicConcertList").innerHTML=`<div class="empty">${esc(err.message)}</div>`;$("privateConcertList").innerHTML=`<div class="empty">${esc(err.message)}</div>`}}
 function concertPosterHtml(c){const pu=posterUrl(c.poster_path);return pu?`<img class="poster-hero" src="${esc(pu)}" alt="Locandina ${esc(c.name)}">`:""}
-function concertPublicMeta(c){return `${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}`}
+function concertPublicMeta(c){return `${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${venueTypeLabel(c)?` · ${esc(venueTypeLabel(c))}`:""}${c.venue?` · ${esc(c.venue)}`:""}${c.city?` · ${esc(c.city)}`:""}${c.private_show?` · PRIVATE SHOW`:""}`}
 const concertRevealTimers={fan:null,guest:null};
 function concertStartMs(c){if(c?.live_unlock_at){const n=Date.parse(c.live_unlock_at);if(Number.isFinite(n))return n}if(!c?.concert_date)return NaN;const t=c.start_time||DEFAULT_LIVE_START_TIME;const n=Date.parse(`${String(c.concert_date).slice(0,10)}T${String(t).slice(0,5)}:00`);return n}
 function concertRevealCount(c,total){if(c?.status!=="future")return total;const start=concertStartMs(c);if(!Number.isFinite(start)||Date.now()<start)return 0;return Math.max(0,Math.min(total,Math.floor((Date.now()-start)/(5*60*1000))+1))}
@@ -1061,7 +1353,7 @@ async function ensureLiveAttendance(concertId,box){
 }
 function bindAutoAttendanceFromLiveFeedback(box,c){
   if(!box||!c||box.querySelector("#fanAttendCheck")?.checked)return;
-  const controls=[...box.querySelectorAll("#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")];
+  const controls=[...box.querySelectorAll("#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-moving,#fanLiveFeedbackRows .live-enjoyed")];
   const activate=e=>{const el=e.currentTarget,meaningful=el.type==="checkbox"?el.checked:String(el.value??"").trim()!=="";if(meaningful)ensureLiveAttendance(c.id,box)};
   controls.forEach(el=>{el.addEventListener(el.type==="checkbox"?"change":"input",activate)})
 }
@@ -1091,7 +1383,7 @@ async function openPublicConcert(id,voteMode=false){
     }
 
     const canVote=!!data.voting_open&&canFan("live_vote")&&canFan("live_attendance");
-    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended&&canFan("live_attendance")?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Tocca direttamente un numero da 1 a 10: ogni voto viene salvato subito. Pogo/Cantata/Goduta vengono salvati al tocco. Le conoscenze Base/Testo restano una tantum (+5 pt la prima volta).</div><input id="fanGeneralLiveScore" type="hidden" value="${general??""}" ${canVote?"":"disabled"}><div id="fanGeneralLiveScoreScale" class="rating-scale live-rating-scale" data-rating-kind="general">${ratingButtonsMarkup(general??"",!canVote)}</div><div id="fanLiveAutosaveStatus" class="live-save-note"></div></div><div class="live-feedback"><div id="fanLiveFeedbackRows"></div></div></div></section>`;
+    box.innerHTML=`<section class="panel"><div class="panel-header"><h2>${esc(c.name)}</h2><div class="concert-detail-head-actions">${headActions}</div></div><div style="padding:8px">${concertPosterHtml(c)}<div class="section-note">${concertPublicMeta(c)}</div>${revealInfo}${c.private_show?`<div class="section-note"><strong>Private show:</strong> i punti ottenuti da questo evento valgono il 33%.</div>`:""}${data.voting_open&&!data.attended&&canFan("live_attendance")?'<div class="section-note">Se inizi a valutare il live, <strong>Io c\'ero</strong> verrà attivato automaticamente.</div>':""}<div class="live-general-box"><label>VOTO GENERALE DEL LIVE <span style="color:#777">(facoltativo: vale per i brani senza voto specifico)</span></label><div class="live-save-note">Tocca direttamente un numero da 1 a 10: ogni voto viene salvato subito. Pogo/Cantata/Non riuscivo a stare fermo/a/Goduta vengono salvati al tocco. Le conoscenze Base/Testo restano una tantum (+5 pt la prima volta).</div><input id="fanGeneralLiveScore" type="hidden" value="${general??""}" ${canVote?"":"disabled"}><div id="fanGeneralLiveScoreScale" class="rating-scale live-rating-scale" data-rating-kind="general">${ratingButtonsMarkup(general??"",!canVote)}</div><div id="fanLiveAutosaveStatus" class="live-save-note"></div></div><div class="live-feedback"><div id="fanLiveFeedbackRows"></div></div></div></section>`;
 
     const rowsBox=$("fanLiveFeedbackRows");
     songRows.forEach((song,i)=>{
@@ -1100,7 +1392,7 @@ async function openPublicConcert(id,voteMode=false){
       row.className="live-feedback-row";row.dataset.songId=song.id;row.dataset.liveRevealIndex=String(i);
       const baseFam=baseOriginal?`<div class="live-fam-question"><span class="live-fam-question-title">Conoscevi la canzone che fa da base strumentale?</span><span class="live-fam-saved">Non applicabile: base originale dei Molesti.</span></div>`:`<div class="live-fam-question"><span class="live-fam-question-title">Conoscevi la canzone che fa da base strumentale?</span><input class="live-base-familiarity" type="hidden" value="${baseKnown?fam.base_familiarity:""}" ${(canVote&&!baseKnown)?"":"disabled"}><div class="familiarity-scale live-familiarity-scale${baseKnown?" is-locked":""}" data-kind="base">${familiarityButtonsMarkup(baseKnown?fam.base_familiarity:"",baseKnown||!canVote)}</div><div class="live-fam-saved">${baseKnown?`Registrata ${fam.base_familiarity}/10 · definitiva`:`Tocca un numero: salvataggio immediato`}</div></div>`;
       const lyricsFam=`<div class="live-fam-question"><span class="live-fam-question-title">Quanto conoscevi il testo di questa canzone?</span><input class="live-lyrics-familiarity" type="hidden" value="${lyricsKnown?fam.lyrics_familiarity:""}" ${(canVote&&!lyricsKnown)?"":"disabled"}><div class="familiarity-scale live-familiarity-scale${lyricsKnown?" is-locked":""}" data-kind="lyrics">${familiarityButtonsMarkup(lyricsKnown?fam.lyrics_familiarity:"",lyricsKnown||!canVote)}</div><div class="live-fam-saved">${lyricsKnown?`Registrata ${fam.lyrics_familiarity}/10 · definitiva`:`Tocca un numero: salvataggio immediato`}</div></div>`;
-      row.innerHTML=`<div class="live-feedback-main"><div class="lf-pos" style="color:#888">${i+1}</div><div class="lf-title"><div class="concert-spoiler-content"><strong>${esc(song.title)}</strong></div>${explicit==null&&general!=null?`<div class="small-info">userà il voto generale ${Number(general).toFixed(1)}</div>`:""}</div><div class="lf-reactions"><label class="live-check"><input class="live-pogo" type="checkbox" ${re.pogo?"checked":""} ${canVote?"":"disabled"}> Pogo</label><label class="live-check"><input class="live-sang" type="checkbox" ${re.sang_along?"checked":""} ${canVote?"":"disabled"}> Cantata</label><label class="live-check"><input class="live-enjoyed" type="checkbox" ${re.enjoyed?"checked":""} ${canVote?"":"disabled"}> Goduta</label></div></div><div class="live-song-rating-line"><span class="live-score-label">VOTO BRANO</span><input class="live-song-score" type="hidden" value="${explicit??""}" ${canVote?"":"disabled"}><div class="rating-scale live-rating-scale live-song-score-scale" data-rating-kind="song">${ratingButtonsMarkup(explicit??"",!canVote)}</div></div><div class="lf-familiarity">${baseFam}${lyricsFam}</div>`;
+      row.innerHTML=`<div class="live-feedback-main"><div class="lf-pos" style="color:#888">${i+1}</div><div class="lf-title"><div class="concert-spoiler-content"><strong>${esc(song.title)}</strong></div>${explicit==null&&general!=null?`<div class="small-info">userà il voto generale ${Number(general).toFixed(1)}</div>`:""}</div><div class="lf-reactions"><label class="live-check"><input class="live-pogo" type="checkbox" ${re.pogo?"checked":""} ${canVote?"":"disabled"}> Pogo</label><label class="live-check"><input class="live-sang" type="checkbox" ${re.sang_along?"checked":""} ${canVote?"":"disabled"}> Cantata</label><label class="live-check"><input class="live-moving" type="checkbox" ${re.moving?"checked":""} ${canVote?"":"disabled"}> Non riuscivo a stare fermo/a</label><label class="live-check"><input class="live-enjoyed" type="checkbox" ${re.enjoyed?"checked":""} ${canVote?"":"disabled"}> Goduta</label></div></div><div class="live-song-rating-line"><span class="live-score-label">VOTO BRANO</span><input class="live-song-score" type="hidden" value="${explicit??""}" ${canVote?"":"disabled"}><div class="rating-scale live-rating-scale live-song-score-scale" data-rating-kind="song">${ratingButtonsMarkup(explicit??"",!canVote)}</div></div><div class="lf-familiarity">${baseFam}${lyricsFam}</div>`;
       rowsBox.appendChild(row);
     });
     if(!songRows.length)rowsBox.innerHTML='<div class="empty">Nessun brano in scaletta.</div>';
@@ -1111,7 +1403,7 @@ async function openPublicConcert(id,voteMode=false){
   }catch(err){alert(err.message)}
 }
 const liveFeedbackSaveChains=new Map();
-function liveFeedbackControls(box){return [...(box||document).querySelectorAll("#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-enjoyed")]}
+function liveFeedbackControls(box){return [...(box||document).querySelectorAll("#fanLiveFeedbackRows .live-pogo,#fanLiveFeedbackRows .live-sang,#fanLiveFeedbackRows .live-moving,#fanLiveFeedbackRows .live-enjoyed")]}
 function liveControlValue(el){return el.type==="checkbox"?(el.checked?"1":"0"):String(el.value??"")}
 function collectLiveFeedback(box){
   const generalRaw=box?.querySelector("#fanGeneralLiveScore")?.value??"";
@@ -1122,6 +1414,7 @@ function collectLiveFeedback(box){
     lyrics_familiarity:row.querySelector(".live-lyrics-familiarity:not(:disabled)")?.value?.trim()||null,
     pogo:!!row.querySelector(".live-pogo")?.checked,
     sang_along:!!row.querySelector(".live-sang")?.checked,
+    moving:!!row.querySelector(".live-moving")?.checked,
     enjoyed:!!row.querySelector(".live-enjoyed")?.checked
   }));
   return {performance_score:String(generalRaw).trim()||null,songs};
@@ -1132,7 +1425,7 @@ function livePayloadValid(payload){
 }
 function applyLiveSavedSnapshot(payload,box){
   const general=box?.querySelector("#fanGeneralLiveScore"),g=payload.performance_score==null?"":String(payload.performance_score);if(general&&String(general.value??"").trim()===g)general.dataset.savedValue=g;
-  (payload.songs||[]).forEach(snap=>{const row=box?.querySelector(`.live-feedback-row[data-song-id="${snap.song_id}"]`);if(!row)return;const score=row.querySelector(".live-song-score"),sv=snap.performance_score==null?"":String(snap.performance_score);if(score&&String(score.value??"").trim()===sv)score.dataset.savedValue=sv;[[".live-pogo",snap.pogo],[".live-sang",snap.sang_along],[".live-enjoyed",snap.enjoyed]].forEach(([sel,val])=>{const el=row.querySelector(sel);if(el&&el.checked===!!val)el.dataset.savedValue=val?"1":"0"})})
+  (payload.songs||[]).forEach(snap=>{const row=box?.querySelector(`.live-feedback-row[data-song-id="${snap.song_id}"]`);if(!row)return;const score=row.querySelector(".live-song-score"),sv=snap.performance_score==null?"":String(snap.performance_score);if(score&&String(score.value??"").trim()===sv)score.dataset.savedValue=sv;[[".live-pogo",snap.pogo],[".live-sang",snap.sang_along],[".live-moving",snap.moving],[".live-enjoyed",snap.enjoyed]].forEach(([sel,val])=>{const el=row.querySelector(sel);if(el&&el.checked===!!val)el.dataset.savedValue=val?"1":"0"})})
 }
 async function performLiveFeedbackAutosave(concertId,box,payload){
   const status=box?.querySelector("#fanLiveAutosaveStatus");if(!livePayloadValid(payload)){if(status)status.textContent="Valore non valido: usa solo voti da 1 a 10.";return false}
@@ -1200,5 +1493,87 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
 /* INIT */
 (async()=>{try{const {data:{session}}=await sb.auth.getSession();if(session?.user){await startMemberApp();return}}catch(err){console.error(err)}showOnly("welcomeScreen")})();
 </script>
+
+<script id="v2-hash-router">
+/* V2 hash routing: mantiene l'app a file singolo, ma rende ogni sezione navigabile con #route. */
+(()=>{
+  const ROUTES={
+    member:{
+      scaletta:"mySetlistPage",
+      proposte:"proposalsPage",
+      catalogo:"catalogPage",
+      "scalette-membri":"membersPage",
+      concerti:"concertsPage",
+      "classifica-brani":"songRankingPage",
+      fan:"fansAdminPage",
+      permessi:"permissionsPage",
+      setup:"setupPage"
+    },
+    fan:{catalogo:"fanCatalogPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",profilo:"fanProfilePage"},
+    guest:{concerti:"guestConcertsPage",classifiche:"guestRankingsPage"}
+  };
+  const SELECTORS={member:"#memberNav [data-page]",fan:"#fanApp [data-fan-page]",guest:"#guestApp [data-guest-page]"};
+  const DATAKEY={member:"page",fan:"fanPage",guest:"guestPage"};
+  let applying=false;
+
+  function visibleRole(){
+    const member=document.getElementById("memberApp"),fan=document.getElementById("fanApp"),guest=document.getElementById("guestApp");
+    if(member&&!member.hidden)return "member";
+    if(fan&&!fan.hidden)return "fan";
+    if(guest&&!guest.hidden)return "guest";
+    return null;
+  }
+  function slug(){return decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase())}
+  function routeForPage(role,page){return Object.keys(ROUTES[role]||{}).find(k=>ROUTES[role][k]===page)||null}
+  function currentButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&!b.hidden&&!b.classList.contains("hidden"))||null}
+  function replaceHash(value){history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
+  function syncActiveRoute(role,replace=false){
+    const btn=currentButton(role);if(!btn)return;
+    const page=btn.dataset[DATAKEY[role]],r=routeForPage(role,page);if(!r)return;
+    if(slug()===r)return;
+    if(replace)replaceHash(r);else location.hash=r;
+  }
+  function applyRoute(){
+    if(applying)return;
+    const role=visibleRole();if(!role)return;
+    const wanted=slug(),page=ROUTES[role]?.[wanted];
+    if(!page){syncActiveRoute(role,true);return}
+    const btn=[...document.querySelectorAll(SELECTORS[role])].find(b=>b.dataset[DATAKEY[role]]===page&&!b.hidden&&!b.classList.contains("hidden"));
+    if(!btn){syncActiveRoute(role,true);return}
+    if(btn.classList.contains("active"))return;
+    applying=true;
+    try{btn.click()}finally{setTimeout(()=>{applying=false},0)}
+  }
+
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest("[data-page],[data-fan-page],[data-guest-page]");if(!btn)return;
+    let role,page;
+    if(btn.dataset.page){role="member";page=btn.dataset.page}
+    else if(btn.dataset.fanPage){role="fan";page=btn.dataset.fanPage}
+    else if(btn.dataset.guestPage){role="guest";page=btn.dataset.guestPage}
+    const r=routeForPage(role,page);if(!r||slug()===r)return;
+    location.hash=r;
+  });
+
+  window.addEventListener("hashchange",applyRoute);
+
+  ["memberLogout","fanLogout","guestLogout"].forEach(id=>{
+    document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40));
+  });
+
+  const screens=["memberApp","fanApp","guestApp"].map(id=>document.getElementById(id)).filter(Boolean);
+  const observer=new MutationObserver(()=>{
+    const role=visibleRole();if(!role)return;
+    setTimeout(()=>{const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true)},30);
+  });
+  screens.forEach(el=>observer.observe(el,{attributes:true,attributeFilter:["hidden"]}));
+
+  // Se l'utente apre direttamente index-v2.html#concerti, la route verrà applicata appena entra nell'area corretta.
+  if(!location.hash)replaceHash("home");
+  setTimeout(()=>{const role=visibleRole();if(role){if(ROUTES[role]?.[slug()])applyRoute();else syncActiveRoute(role,true)}},120);
+  setTimeout(applyRoute,500);
+})();
+</script>
+
 </body>
 </html>
