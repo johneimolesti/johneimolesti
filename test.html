@@ -129,11 +129,14 @@
 
   
 /* V4 — concert execution model / setup */
-.setup-tabs{display:flex;gap:5px;margin:0 0 8px}.setup-tab{border:1px solid #3a3a3a;background:#222;color:#999}.setup-tab.active{border-color:var(--accent);color:var(--accent);background:#2c2a19}
+.setup-tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap;padding:4px;border:1px solid rgba(255,255,255,.075);border-radius:14px;background:rgba(17,21,29,.48)}
+.setup-tab{min-height:34px;padding:7px 12px;border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:#969eaa;font-size:9px;font-weight:900;letter-spacing:.045em}
+.setup-tab:hover{background:rgba(255,255,255,.05)!important;color:#e1e4e9}
+.setup-tab.active{border-color:rgba(243,210,52,.35)!important;background:rgba(243,210,52,.12)!important;color:#f5dc62!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
 .numeric-settings-list{display:grid;gap:1px}.numeric-setting-row{display:grid;grid-template-columns:minmax(220px,1fr) 110px 90px;gap:8px;align-items:center;padding:7px 9px;border-bottom:1px solid #303030}.numeric-setting-row .setting-label{font-size:10px;font-weight:800}.numeric-setting-row .setting-desc{font-size:8px;color:#777;margin-top:2px}.numeric-setting-row input{width:100%;text-align:right}
 .smart-badge.dynamic-label{background:color-mix(in srgb,var(--badge-color,#777) 14%,transparent)!important}
 .smart-badge.dynamic-label:hover{background:color-mix(in srgb,var(--badge-color,#777) 22%,transparent)!important}
-#memberSetlist{max-height:calc(100vh - 220px);overflow-y:auto;overscroll-behavior:contain}
+#memberSetlist{flex:1 1 0;min-height:0;max-height:none!important;overflow-y:auto!important;overflow-x:hidden;overscroll-behavior:contain}
 .concert-performance-layout{display:grid;grid-template-columns:minmax(0,1fr) clamp(270px,25vw,360px);gap:10px;align-items:start;width:100%;min-width:0}
 .concert-performance-layout>*{min-width:0}
 .concert-setlist-pane,.concert-catalog{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--panel);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
@@ -159,6 +162,31 @@
 .execution-skipped,.execution-truncated{opacity:.48;text-decoration:line-through}
 .setlist-confirm-state{font-size:8px;font-weight:900}.setlist-confirm-state.ok{color:#91c899}.setlist-confirm-state.edit{color:#e2ca69}
 .mode-warning{margin:6px 0;padding:6px 8px;border:1px solid #675c29;border-radius:5px;background:#2b2819;color:#d7c86d;font-size:8px}
+
+/* V4.1 — editor live compatto / fan admin */
+.concert-edit-compact-row{grid-template-columns:15px 26px minmax(150px,1fr) minmax(104px,128px) 27px!important;min-height:29px!important;padding:3px 5px!important;gap:5px!important}
+.concert-edit-compact-row .song-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.concert-edit-compact-row .execution-type-select{width:100%;min-width:0;height:24px}
+.concert-edit-remove{width:25px;height:23px;padding:0!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:7px!important;background:rgba(255,255,255,.04)!important;color:#c9ced6!important;font-size:11px!important}
+.concert-edit-remove:hover{border-color:rgba(232,115,115,.35)!important;color:#f0a4a4!important}
+.concert-catalog-title{justify-content:space-between;gap:7px}
+.concert-catalog-type{width:auto;min-width:112px;max-width:145px;height:25px;margin-left:auto}
+.approval-kind{display:inline-flex;align-items:center;padding:2px 6px;border:1px solid rgba(243,210,52,.25);border-radius:999px;background:rgba(243,210,52,.07);color:#e8d45f;font-size:6px;font-weight:900;letter-spacing:.07em;white-space:nowrap}
+.fan-admin-create{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:7px!important;align-items:center}
+.fan-admin-create input{width:100%}
+.fan-admin-create button{white-space:nowrap}
+.fan-attendance-dnd{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.fan-attendance-column{min-width:0;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025);overflow:hidden}
+.fan-attendance-head{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:39px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.07);color:#dfe2e7;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.fan-attendance-head span{color:#7f8792;font-size:8px}
+.fan-attendance-list{min-height:180px;max-height:52vh;padding:5px;overflow-y:auto;overscroll-behavior:contain}
+.fan-attendance-card{display:grid;gap:2px;margin-bottom:4px;padding:8px 9px;border:1px solid rgba(255,255,255,.075);border-radius:10px;background:rgba(255,255,255,.035);cursor:grab;user-select:none}
+.fan-attendance-card:last-child{margin-bottom:0}.fan-attendance-card:active{cursor:grabbing}
+.fan-attendance-card .fan-attendance-name{font-size:9px;font-weight:900;color:#e9ebef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fan-attendance-card .fan-attendance-meta{font-size:7px;color:#838b97;line-height:1.35}
+.fan-attendance-list .sortable-ghost{opacity:.22}.fan-attendance-list .sortable-chosen{border-color:rgba(243,210,52,.38);background:rgba(243,210,52,.08)}
+.fan-create-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fan-create-config-grid .full{grid-column:1/-1}
+@media(max-width:700px){.fan-attendance-dnd{grid-template-columns:1fr}.fan-create-config-grid{grid-template-columns:1fr}.fan-create-config-grid .full{grid-column:auto}.fan-admin-create{grid-template-columns:minmax(0,1fr) auto}}
 @media(max-width:1180px){.concert-performance-layout{grid-template-columns:minmax(0,1fr) minmax(250px,30vw)}.concert-setlist-pane .lyrics-artist-col{display:none}.concert-setlist-pane .song-row{grid-template-columns:15px 25px 48px minmax(130px,1fr) 48px 58px minmax(80px,.65fr) auto}}
 @media(max-width:980px){.concert-setlist-pane .base-artist-col{display:none}.concert-setlist-pane .song-row{grid-template-columns:15px 25px 48px minmax(130px,1fr) 48px 58px auto}}
 @media(max-width:900px){.concert-performance-layout{grid-template-columns:1fr}.concert-catalog-list{max-height:300px}.numeric-setting-row{grid-template-columns:1fr 90px}}
@@ -397,7 +425,10 @@
   #membersPage{display:none;flex-direction:column}
   #membersPage.active{display:flex}
   #membersPage>.member-tabs{flex:0 0 auto}
-  #membersPage>.panel{flex:1 1 auto}
+  #membersPage>.panel{flex:1 1 0;min-height:0;overflow:hidden}
+  #memberSetlistHeader{flex:0 0 auto}
+  #membersPage #memberSetlist{flex:1 1 0;min-height:0;max-height:none!important;overflow-y:auto!important}
+  #membersPage .member-global-grid{flex:1 1 0;min-height:0;overflow:auto}
   .fit-dense-list>.song-row,.fit-dense-list>.list-row{min-height:var(--fit-row-height,22px)}
   .fit-dense-list>.list-row{padding-top:2px;padding-bottom:2px}
   .fit-dense-list>.song-row{padding-top:1px;padding-bottom:1px}
@@ -535,8 +566,8 @@
     <section id="fansAdminPage" class="page">
       <div class="fan-admin-dashboard">
         <section class="panel fan-admin-ranking-panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="fanRankingCounter" class="counter"></span></div><div id="fanRankingList" class="admin-ranking-scroll"></div></section>
-        <section id="adminFanPanel" class="panel admin-fan-section fan-admin-management-panel" hidden><div class="panel-header"><h2>GESTIONE FAN</h2><span id="adminFanCounter" class="counter"></span></div><div id="fanAdminCreate" class="toolbar fan-admin-create hidden"><input id="adminFanName" class="grow" placeholder="Nuovo fan (nome)"><input id="adminFanNickname" placeholder="Nickname"><select id="adminFanConcert"><option value="">Nessuna presenza iniziale</option></select><button id="adminCreateFanButton">+ CREA FAN</button></div><div id="adminFanList" class="list"></div></section>
-        <section id="mergePanel" class="panel hidden fan-admin-merge-panel"><div class="panel-header"><h2>RICHIESTE UNIFICAZIONE</h2><span id="mergeCounter" class="counter"></span></div><div id="mergeList" class="list"></div></section>
+        <section id="adminFanPanel" class="panel admin-fan-section fan-admin-management-panel" hidden><div class="panel-header"><h2>GESTIONE FAN</h2><span id="adminFanCounter" class="counter"></span></div><div id="fanAdminCreate" class="toolbar fan-admin-create hidden"><input id="adminFanSearch" class="grow" type="search" autocomplete="off" placeholder="Cerca fan..."><button id="adminCreateFanButton" type="button">+ CREA FAN</button></div><div id="adminFanList" class="list"></div></section>
+        <section id="mergePanel" class="panel hidden fan-admin-merge-panel"><div class="panel-header"><h2>RICHIESTE DA APPROVARE</h2><span id="mergeCounter" class="counter"></span></div><div id="mergeList" class="list"></div></section>
       </div>
     </section>
 
@@ -1182,9 +1213,9 @@ function concertCatalogSongs(items){
 async function renderConcertDetail(id){
   const c=concerts.find(x=>x.id===id),box=$("concertDetail");if(!c)return;
   $("concertDetailTitle").textContent=c.name.toUpperCase();
-  const showSetlist=isEma()||canMember("concert_setlist_view"),editable=isEma()&&concertEditMode(c),items=showSetlist?await getConcertItems(id):[],avg=showSetlist?await getFanAverages(id):[],avgMap=new Map(avg.map(x=>[x.song_id,x]));
+  const showSetlist=isEma()||canMember("concert_setlist_view"),editable=isEma()&&concertEditMode(c),items=showSetlist?await getConcertItems(id):[],compactCompletedEdit=c.status==="completed"&&editable,avg=showSetlist&&!compactCompletedEdit?await getFanAverages(id):[],avgMap=new Map(avg.map(x=>[x.song_id,x]));
   let vibeMap=new Map();
-  if(c.status==="completed"&&showSetlist){try{const {data}=await sb.rpc("get_concert_song_vibes_for_member",{p_concert_id:id});vibeMap=new Map((data||[]).map(v=>[v.song_id,v]))}catch(err){console.warn(err)}}
+  if(c.status==="completed"&&showSetlist&&!compactCompletedEdit){try{const {data}=await sb.rpc("get_concert_song_vibes_for_member",{p_concert_id:id});vibeMap=new Map((data||[]).map(v=>[v.song_id,v]))}catch(err){console.warn(err)}}
   box.innerHTML="";
   const pu=posterUrl(c.poster_path);if(pu){const img=document.createElement("img");img.className="poster-hero";img.src=pu;img.alt=`Locandina ${c.name}`;box.appendChild(img)}
   const meta=document.createElement("div");meta.className="concert-meta";
@@ -1204,9 +1235,6 @@ async function renderConcertDetail(id){
       const cf=await getConcertConfirmations(id),grouped=new Map();cf.forEach(x=>{if(!grouped.has(x.member_id))grouped.set(x.member_id,[]);grouped.get(x.member_id).push(x)});
       BAND_MEMBERS.forEach(m=>{const p=profiles.find(x=>x.username?.toLowerCase()===m.username.toLowerCase());if(!p)return;const setlist=idealSetlists.find(s=>s.owner_id===p.id),idealRows=setlist?communityItems.filter(i=>i.setlist_id===setlist.id&&i.included).sort((a,b)=>(a.position??9999)-(b.position??9999)):[],confirmedRows=(grouped.get(p.id)||[]).sort((a,b)=>a.position-b.position);if(confirmedRows.length){const o=document.createElement("option");o.value=`member-confirmed:${p.id}`;o.textContent=`Importa: ${p.display_name} · confermata`;select.appendChild(o)}if(idealRows.length){const o=document.createElement("option");o.value=`member-ideal:${p.id}`;o.textContent=`Importa: ${p.display_name} · scaletta attuale`;select.appendChild(o)}});tools.appendChild(select);
       const imp=document.createElement("button");imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);
-      if(c.status==="completed"){
-        const typ=document.createElement("select");typ.id="newExecutionType";typ.innerHTML=executionTypeOptions("planned");tools.appendChild(typ);
-      }
     }
   }
   box.appendChild(tools);
@@ -1225,19 +1253,24 @@ async function renderConcertDetail(id){
     items.forEach((item,i)=>{
       const s=songForItem(item);if(!s)return;
       if(item.execution_type!==prevType){list.appendChild(executionDivider(item.execution_type));prevType=item.execution_type}
-      const a=avgMap.get(s.id),tags=[];
-      if(a?.molesti_votes)tags.push({text:`Fan ${Number(a.molesti_average).toFixed(1)} (${a.molesti_votes})`,className:""});
-      if(item.execution_type!=="planned")tags.push({text:EXECUTION_TYPES[item.execution_type],className:""});
-      const row=createSongRow(s,i,{draggable:editable,tags,labels:dynamicLabelsForSong(s.id,"setlist",c.id),actions:editable?[{label:"×",title:"Rimuovi esecuzione",onClick:()=>removeConcertExecution(c.id,item.id)}]:[]});
-      row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
-      row.classList.toggle("execution-skipped",item.execution_type==="skipped");row.classList.toggle("execution-truncated",item.execution_type==="truncated");
-      if(c.status==="completed"&&editable){
-        const actions=row.querySelector(".song-actions"),sel=document.createElement("select");sel.className="execution-type-select";sel.innerHTML=executionTypeOptions(item.execution_type);sel.onchange=()=>setExecutionType(c.id,item.id,sel.value);actions.prepend(sel)
-      }
-      if(c.status==="completed"){
-        const v=vibeMap.get(s.id)||{},actions=row.querySelector(".song-actions"),wrap=document.createElement("div");wrap.className="concert-row-vibes";
-        wrap.innerHTML=`<label class="concert-vibe-toggle" title="Pogo"><input class="v-pogo" type="checkbox" ${v.my_pogo?"checked":""}>P</label><label class="concert-vibe-toggle" title="Cantata"><input class="v-sang" type="checkbox" ${v.my_sang_along?"checked":""}>C</label><label class="concert-vibe-toggle" title="Ballata"><input class="v-dance" type="checkbox" ${v.my_danced?"checked":""}>B</label><span class="concert-vibe-status"></span>`;
-        const save=async()=>{const st=wrap.querySelector(".concert-vibe-status");st.textContent="…";const {error}=await sb.rpc("set_my_song_concert_vibes",{p_concert_id:c.id,p_song_id:s.id,p_pogo:wrap.querySelector(".v-pogo").checked,p_sang_along:wrap.querySelector(".v-sang").checked,p_danced:wrap.querySelector(".v-dance").checked});st.textContent=error?"!":"✓";if(error)alert(error.message)};wrap.querySelectorAll("input").forEach(ch=>{ch.onclick=e=>e.stopPropagation();ch.onchange=save});actions.appendChild(wrap)
+      let row;
+      if(compactCompletedEdit){
+        row=document.createElement("div");row.className="song-row concert-edit-compact-row";row.dataset.id=s.id;row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
+        row.innerHTML=`<div class="drag-handle">☰</div><div class="position">${i+1}</div><div class="song-title" title="${esc(s.title)}">${esc(s.title)}</div><select class="execution-type-select" aria-label="Tipo esecuzione">${executionTypeOptions(item.execution_type)}</select><button class="concert-edit-remove" type="button" title="Rimuovi esecuzione">×</button>`;
+        const sel=row.querySelector(".execution-type-select");sel.onchange=e=>{e.stopPropagation();setExecutionType(c.id,item.id,sel.value)};
+        row.querySelector(".concert-edit-remove").onclick=e=>{e.stopPropagation();removeConcertExecution(c.id,item.id)};
+      }else{
+        const a=avgMap.get(s.id),tags=[];
+        if(a?.molesti_votes)tags.push({text:`Fan ${Number(a.molesti_average).toFixed(1)} (${a.molesti_votes})`,className:""});
+        if(item.execution_type!=="planned")tags.push({text:EXECUTION_TYPES[item.execution_type],className:""});
+        row=createSongRow(s,i,{draggable:editable,tags,labels:dynamicLabelsForSong(s.id,"setlist",c.id),actions:editable?[{label:"×",title:"Rimuovi esecuzione",onClick:()=>removeConcertExecution(c.id,item.id)}]:[]});
+        row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
+        row.classList.toggle("execution-skipped",item.execution_type==="skipped");row.classList.toggle("execution-truncated",item.execution_type==="truncated");
+        if(c.status==="completed"){
+          const v=vibeMap.get(s.id)||{},actions=row.querySelector(".song-actions"),wrap=document.createElement("div");wrap.className="concert-row-vibes";
+          wrap.innerHTML=`<label class="concert-vibe-toggle" title="Pogo"><input class="v-pogo" type="checkbox" ${v.my_pogo?"checked":""}>P</label><label class="concert-vibe-toggle" title="Cantata"><input class="v-sang" type="checkbox" ${v.my_sang_along?"checked":""}>C</label><label class="concert-vibe-toggle" title="Ballata"><input class="v-dance" type="checkbox" ${v.my_danced?"checked":""}>B</label><span class="concert-vibe-status"></span>`;
+          const save=async()=>{const st=wrap.querySelector(".concert-vibe-status");st.textContent="…";const {error}=await sb.rpc("set_my_song_concert_vibes",{p_concert_id:c.id,p_song_id:s.id,p_pogo:wrap.querySelector(".v-pogo").checked,p_sang_along:wrap.querySelector(".v-sang").checked,p_danced:wrap.querySelector(".v-dance").checked});st.textContent=error?"!":"✓";if(error)alert(error.message)};wrap.querySelectorAll("input").forEach(ch=>{ch.onclick=e=>e.stopPropagation();ch.onchange=save});actions.appendChild(wrap)
+        }
       }
       list.appendChild(row)
     });
@@ -1245,9 +1278,10 @@ async function renderConcertDetail(id){
   }else list.innerHTML='<div class="empty">Visualizzazione scaletta non abilitata per i membri.</div>';
 
   if(isEma()&&editable){
-    const cat=document.createElement("aside");cat.className="concert-catalog";cat.innerHTML='<div class="concert-catalog-title">CATALOGO DISPONIBILE</div><div class="concert-catalog-list"></div>';
-    const catList=cat.querySelector(".concert-catalog-list");
-    concertCatalogSongs(items).forEach(({song,count})=>{const r=document.createElement("div");r.className=`concert-catalog-row${count?" used":""}`;r.innerHTML=`<span class="catalog-song-title">${esc(song.title)}</span><span class="concert-catalog-count">${count?`×${count}`:""}</span><button type="button">+</button>`;r.querySelector("button").onclick=()=>manualAddSong(c.id,song.id,items.length,c.status==="completed"?($("newExecutionType")?.value||"planned"):"planned");catList.appendChild(r)});
+    const cat=document.createElement("aside");cat.className="concert-catalog";
+    const catTitle=document.createElement("div");catTitle.className="concert-catalog-title";catTitle.innerHTML='<span>CATALOGO DISPONIBILE</span>';
+    const catList=document.createElement("div");catList.className="concert-catalog-list";cat.append(catTitle,catList);
+    concertCatalogSongs(items).forEach(({song,count})=>{const r=document.createElement("div");r.className=`concert-catalog-row${count?" used":""}`;r.innerHTML=`<span class="catalog-song-title">${esc(song.title)}</span><span class="concert-catalog-count">${count?`×${count}`:""}</span><button type="button">+</button>`;r.querySelector("button").onclick=()=>manualAddSong(c.id,song.id,items.length,"planned");catList.appendChild(r)});
     layout.appendChild(cat)
   }
   box.appendChild(layout);
@@ -1285,12 +1319,49 @@ function renderFanArea(){
   box.innerHTML=`<div class="fan-admin-ranking-row header-row"><div>${adminSortHeader("#","rank",adminFanRankingSort)}</div><div>${adminSortHeader("Fan","fan_name",adminFanRankingSort)}</div><div>${adminSortHeader("Fan dal","fan_since",adminFanRankingSort)}</div><div>${adminSortHeader("Presenze","attendance",adminFanRankingSort)}</div><div>${adminSortHeader("Brani votati","rated",adminFanRankingSort)}</div><div>${adminSortHeader("Bonus live","activity",adminFanRankingSort)}</div><div>${adminSortHeader("Punti","points",adminFanRankingSort)}</div></div>`;
   rows.forEach(r=>{const row=document.createElement("div");row.className="fan-admin-ranking-row";const badges=fanBadges(r,fanRanking,"members");row.innerHTML=`<div class="rank">${r.__rank}</div><div><div class="fan-title-line"><div class="list-title detail-link">${esc(r.fan_name)}</div>${badgesHtml(badges)}</div></div><div>${formatDate(r.fan_since)}</div><div>${r.attendance_count??0}</div><div>${r.rated_song_count??0}</div><div>${r.activity_points??0}</div><div><strong>${r.points??0}</strong></div>`;row.querySelector(".detail-link").onclick=()=>memberFanDetail(r);box.appendChild(row)});
   if(!fanRanking.length)box.innerHTML='<div class="empty">Nessun fan in classifica.</div>';else box.querySelectorAll(".sort-head").forEach(btn=>btn.onclick=()=>{toggleAdminRankingSort(adminFanRankingSort,btn.dataset.sort);renderFanArea()});
-  $("fanRankingCounter").textContent=`${fanRanking.length} fan`;renderAdminFanManagement();renderMergeRequests();
+  $("fanRankingCounter").textContent=`${fanRanking.length} fan`;renderAdminFanManagement();renderApprovalRequests();
 }
-function renderAdminFanManagement(){const panel=$("adminFanPanel"),box=$("adminFanList");if(!isFanAdmin()){panel.hidden=true;return}panel.hidden=false;box.innerHTML="";const rankingMap=new Map(fanRanking.map(r=>[r.fan_id,r]));[...adminFans].sort((a,b)=>(a.nickname||a.display_name).localeCompare(b.nickname||b.display_name,"it")).forEach(f=>{const r=rankingMap.get(f.id),name=f.nickname||f.display_name,row=document.createElement("div");row.className="list-row fan-manage-row";const aliases=Array.isArray(f.aliases)&&f.aliases.length?`<br>Alias admin: ${f.aliases.map(esc).join(" · ")}`:"";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(name)}</div><div class="small-info">${f.claimed_at?"Profilo attivo":"Non ancora registrato"} · ${r?`${r.attendance_count} presenze · ${r.points} pt`:"0 presenze · senza punteggio"}${aliases}</div></div><span class="status ${f.claimed_at?"approved":"draft"}">${f.claimed_at?"ATTIVO":"DA RIVENDICARE"}</span>`;const actions=document.createElement("div");actions.className="row-buttons";actions.innerHTML='<button class="small-btn">MODIFICA</button><button class="small-btn">ALIAS</button><button class="small-btn">PRESENZE</button><button class="small-btn danger">UNISCI</button>';actions.children[0].onclick=()=>editAdminFan(f);actions.children[1].onclick=()=>manageFanAliases(f);actions.children[2].onclick=()=>manageFanAttendances(f);actions.children[3].onclick=()=>manualMergeFan(f);row.appendChild(actions);box.appendChild(row)});if(!adminFans.length)box.innerHTML='<div class="empty">Nessun profilo fan.</div>';$("adminFanCounter").textContent=`${adminFans.length} profili`}
+function renderAdminFanManagement(){
+  const panel=$("adminFanPanel"),box=$("adminFanList");if(!isFanAdmin()){panel.hidden=true;return}panel.hidden=false;
+  const search=$("adminFanSearch"),query=String(search?.value||"").trim().toLowerCase(),rankingMap=new Map(fanRanking.map(r=>[r.fan_id,r]));
+  const visible=[...adminFans].filter(f=>{if(!query)return true;const hay=[f.display_name,f.nickname,...(Array.isArray(f.aliases)?f.aliases:[])].filter(Boolean).join(" ").toLowerCase();return hay.includes(query)}).sort((a,b)=>(a.nickname||a.display_name).localeCompare(b.nickname||b.display_name,"it"));
+  box.innerHTML="";
+  visible.forEach(f=>{const r=rankingMap.get(f.id),name=f.nickname||f.display_name,row=document.createElement("div");row.className="list-row fan-manage-row";const aliases=Array.isArray(f.aliases)&&f.aliases.length?`<br>Alias admin: ${f.aliases.map(esc).join(" · ")}`:"";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(name)}</div><div class="small-info">${f.claimed_at?"Profilo attivo":"Non ancora registrato"} · ${r?`${r.attendance_count} presenze · ${r.points} pt`:"0 presenze · senza punteggio"}${aliases}</div></div><span class="status ${f.claimed_at?"approved":"draft"}">${f.claimed_at?"ATTIVO":"DA RIVENDICARE"}</span>`;const actions=document.createElement("div");actions.className="row-buttons";actions.innerHTML='<button class="small-btn">MODIFICA</button><button class="small-btn">ALIAS</button><button class="small-btn">PRESENZE</button><button class="small-btn danger">UNISCI</button>';actions.children[0].onclick=()=>editAdminFan(f);actions.children[1].onclick=()=>manageFanAliases(f);actions.children[2].onclick=()=>manageFanAttendances(f);actions.children[3].onclick=()=>manualMergeFan(f);row.appendChild(actions);box.appendChild(row)});
+  if(!visible.length)box.innerHTML=`<div class="empty">${query?"Nessun fan corrisponde alla ricerca.":"Nessun profilo fan."}</div>`;
+  $("adminFanCounter").textContent=query?`${visible.length}/${adminFans.length} profili`:`${adminFans.length} profili`;
+}
 async function editAdminFan(f){const name=prompt("Nome fan:",f.display_name||"");if(name===null||!name.trim())return;const nick=prompt("Nickname pubblico facoltativo:",f.nickname||"");if(nick===null)return;const {error}=await sb.rpc("admin_update_fan",{p_fan_id:f.id,p_display_name:name.trim(),p_nickname:emptyToNull(nick)});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
 function modalSelect({title,note,label,options,confirmText="CONFERMA",selectedValue=""}){return new Promise(resolve=>{const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="110";const card=document.createElement("div");card.className="modal-card";card.style.width="min(540px,100%)";card.innerHTML=`<div class="modal-header"><h2>${esc(title)}</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="section-note" style="margin-bottom:12px">${esc(note||"")}</div><div class="form-field"><label>${esc(label)}</label><select class="choice-select"><option value="">Seleziona…</option>${options.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(selectedValue)?"selected":""}>${esc(o.label)}</option>`).join("")}</select></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="button" class="modal-save">${esc(confirmText)}</button></div></div>`;overlay.appendChild(card);document.body.appendChild(overlay);const finish=v=>{overlay.remove();resolve(v)};card.querySelector(".modal-close").onclick=()=>finish(null);card.querySelector(".modal-cancel").onclick=()=>finish(null);overlay.onclick=e=>{if(e.target===overlay)finish(null)};card.querySelector(".modal-save").onclick=()=>{const v=card.querySelector("select").value;if(!v)return alert("Seleziona una voce.");finish(v)}}) }
-async function manageFanAttendances(f){if(!concerts.length)await loadConcerts();const {data:att,error}=await sb.rpc("admin_get_fan_attendances",{p_fan_id:f.id});if(error)return alert(error.message);const present=new Set((att||[]).map(x=>x.concert_id));const addOptions=[...concerts].filter(c=>!present.has(c.id)).sort((a,b)=>b.concert_date.localeCompare(a.concert_date)).map(c=>({value:c.id,label:`${formatDate(c.concert_date)} · ${c.name}${c.city?` · ${c.city}`:""}`}));const removeOptions=(att||[]).map(c=>({value:c.concert_id,label:`${formatDate(c.concert_date)} · ${c.concert_name}${c.city?` · ${c.city}`:""}`}));const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="110";const card=document.createElement("div");card.className="modal-card";card.style.width="min(600px,100%)";card.innerHTML=`<div class="modal-header"><h2>PRESENZE — ${esc(f.nickname||f.display_name)}</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="form-section"><h3>AGGIUNGI PRESENZA</h3><div class="form-field"><label>Concerto</label><select id="fanAttendanceAdd"><option value="">Seleziona un concerto…</option>${addOptions.map(o=>`<option value="${o.value}">${esc(o.label)}</option>`).join("")}</select></div><div class="modal-actions"><button type="button" id="fanAttendanceAddBtn" class="modal-save">AGGIUNGI</button></div></div><div class="form-section"><h3>RIMUOVI PRESENZA ERRATA</h3><div class="form-field"><label>Concerto</label><select id="fanAttendanceRemove"><option value="">Seleziona una presenza…</option>${removeOptions.map(o=>`<option value="${o.value}">${esc(o.label)}</option>`).join("")}</select></div><div class="section-note">Rimuovendo una presenza verranno eliminati anche i voti relativi alla performance di quel live e il relativo bonus attività.</div><div class="modal-actions"><button type="button" id="fanAttendanceRemoveBtn" class="small-btn danger">RIMUOVI</button></div></div></div>`;overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};card.querySelector("#fanAttendanceAddBtn").onclick=async()=>{const id=card.querySelector("#fanAttendanceAdd").value;if(!id)return alert("Seleziona un concerto.");const {error}=await sb.rpc("admin_add_fan_attendance",{p_fan_id:f.id,p_concert_id:id});if(error)return alert(error.message);close();await loadFanArea();renderFanArea()};card.querySelector("#fanAttendanceRemoveBtn").onclick=async()=>{const id=card.querySelector("#fanAttendanceRemove").value;if(!id)return alert("Seleziona una presenza.");if(!confirm("Rimuovere questa presenza e i relativi dati live?"))return;const {error}=await sb.rpc("admin_remove_fan_attendance",{p_fan_id:f.id,p_concert_id:id});if(error)return alert(error.message);close();await loadFanArea();renderFanArea()}}
+async function manageFanAttendances(f){
+  if(!concerts.length)await loadConcerts();
+  const {data:att,error}=await sb.rpc("admin_get_fan_attendances",{p_fan_id:f.id});if(error)return alert(error.message);
+  const present=new Set((att||[]).map(x=>String(x.concert_id))),concertById=new Map(concerts.map(c=>[String(c.id),c]));
+  const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="110";
+  const card=document.createElement("div");card.className="modal-card";card.style.width="min(880px,100%)";
+  card.innerHTML=`<div class="modal-header"><div><h2>PRESENZE — ${esc(f.nickname||f.display_name)}</h2><div class="section-note" style="margin:3px 0 0">Trascina i concerti tra le due colonne. La modifica viene salvata al rilascio.</div></div><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="fan-attendance-dnd"><section class="fan-attendance-column"><div class="fan-attendance-head">PRESENZIATI <span id="fanAttPresentCount"></span></div><div id="fanAttPresent" class="fan-attendance-list"></div></section><section class="fan-attendance-column"><div class="fan-attendance-head">NON PRESENZIATI <span id="fanAttAbsentCount"></span></div><div id="fanAttAbsent" class="fan-attendance-list"></div></section></div><div class="section-note" style="margin-top:9px">Spostando un concerto da <strong>Presenziati</strong> a <strong>Non presenziati</strong> vengono eliminati anche i dati live collegati a quella presenza.</div></div>`;
+  overlay.appendChild(card);document.body.appendChild(overlay);
+  const presentBox=card.querySelector("#fanAttPresent"),absentBox=card.querySelector("#fanAttAbsent");
+  const concertCard=c=>`<div class="fan-attendance-card" data-concert-id="${esc(c.id)}"><div class="fan-attendance-name">${esc(c.name)}</div><div class="fan-attendance-meta">${formatDate(c.concert_date)}${c.city?` · ${esc(c.city)}`:""}${c.private_show?" · PRIVATE SHOW":""}</div></div>`;
+  const render=()=>{
+    const ordered=[...concerts].sort((a,b)=>String(b.concert_date||"").localeCompare(String(a.concert_date||""))||String(a.name||"").localeCompare(String(b.name||""),"it"));
+    presentBox.innerHTML=ordered.filter(c=>present.has(String(c.id))).map(concertCard).join("")||'<div class="empty">Nessuna presenza.</div>';
+    absentBox.innerHTML=ordered.filter(c=>!present.has(String(c.id))).map(concertCard).join("")||'<div class="empty">Tutti i concerti risultano presenziati.</div>';
+    card.querySelector("#fanAttPresentCount").textContent=present.size;card.querySelector("#fanAttAbsentCount").textContent=Math.max(0,concerts.length-present.size)
+  };
+  render();let busy=false;
+  const restore=()=>{render();wire()};
+  const move=async(evt,toPresent)=>{
+    if(busy)return restore();const id=String(evt.item?.dataset?.concertId||"");if(!id)return restore();
+    const c=concertById.get(id);busy=true;
+    try{
+      if(toPresent){const {error}=await sb.rpc("admin_add_fan_attendance",{p_fan_id:f.id,p_concert_id:id});if(error)throw error;present.add(id)}
+      else{if(!confirm(`Rimuovere la presenza a “${c?.name||"questo concerto"}” e i relativi dati live?`)){busy=false;return restore()}const {error}=await sb.rpc("admin_remove_fan_attendance",{p_fan_id:f.id,p_concert_id:id});if(error)throw error;present.delete(id)}
+      await loadFanArea();renderFanArea()
+    }catch(err){alert(err.message||String(err))}finally{busy=false;restore()}
+  };
+  let sortables=[];const wire=()=>{sortables.forEach(s=>s.destroy());sortables=[];sortables.push(new Sortable(presentBox,{group:"fan-attendance",animation:120,draggable:".fan-attendance-card",onAdd:e=>move(e,true)}),new Sortable(absentBox,{group:"fan-attendance",animation:120,draggable:".fan-attendance-card",onAdd:e=>move(e,false)}))};wire();
+  const close=()=>{sortables.forEach(s=>s.destroy());overlay.remove()};card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()}
+}
 async function manageFanAliases(f){const aliases=Array.isArray(f.aliases)?f.aliases:[];const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="110";const card=document.createElement("div");card.className="modal-card";card.style.width="min(560px,100%)";card.innerHTML=`<div class="modal-header"><h2>ALIAS — ${esc(f.nickname||f.display_name)}</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="section-note">Questi alias servono solo agli admin e al riconoscimento del nome inserito dal fan. Non sono dati di recupero.</div><div class="form-field"><label>Nuovo alias / soprannome</label><input id="newFanAlias" placeholder="es. Marchetto, Marco R., Marketto"></div><div class="modal-actions"><button type="button" id="addFanAliasBtn" class="modal-save">AGGIUNGI ALIAS</button></div><div class="form-section" style="margin-top:12px"><h3>ALIAS ATTUALI</h3><div id="fanAliasRows">${aliases.length?aliases.map(a=>`<div class="list-row"><div class="list-main"><div class="list-title">${esc(a)}</div></div><button type="button" class="small-btn danger" data-alias="${esc(a)}">RIMUOVI</button></div>`).join(""):'<div class="empty">Nessun alias aggiuntivo.</div>'}</div></div></div>`;overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};card.querySelector("#addFanAliasBtn").onclick=async()=>{const alias=card.querySelector("#newFanAlias").value.trim();if(!alias)return alert("Inserisci un alias.");const {error}=await sb.rpc("admin_add_fan_alias",{p_fan_id:f.id,p_alias:alias});if(error)return alert(error.message);close();await loadFanArea();renderFanArea()};card.querySelectorAll("[data-alias]").forEach(btn=>btn.onclick=async()=>{if(!confirm(`Rimuovere l'alias “${btn.dataset.alias}”?`))return;const {error}=await sb.rpc("admin_remove_fan_alias",{p_fan_id:f.id,p_alias:btn.dataset.alias});if(error)return alert(error.message);close();await loadFanArea();renderFanArea()})}
 function chooseFanMergeTarget(source,selectedId=""){
   return new Promise(resolve=>{
@@ -1415,10 +1486,20 @@ async function manualMergeFan(source){
   await loadFanArea();
   renderFanArea();
 }
-function fillAdminConcertSelect(){$("adminFanConcert").innerHTML='<option value="">Nessuna presenza iniziale</option>'+concerts.map(c=>`<option value="${c.id}">${formatDate(c.concert_date)} · ${esc(c.name)}</option>`).join("")}
-$("adminCreateFanButton").onclick=async()=>{const name=$("adminFanName").value.trim();if(!name)return alert("Inserisci il nome.");const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull($("adminFanNickname").value),p_concert_id:emptyToNull($("adminFanConcert").value)});if(error)return alert(error.message);$("adminFanName").value=$("adminFanNickname").value="";await loadFanArea();renderFanArea()};
+function fillAdminConcertSelect(){} // compatibilità: la creazione fan non usa più una tendina concerti.
+function openCreateFanPanel(){
+  const seed=$("adminFanSearch")?.value.trim()||"",overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="115";
+  const card=document.createElement("div");card.className="modal-card";card.style.width="min(620px,100%)";
+  card.innerHTML=`<div class="modal-header"><h2>NUOVO FAN</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="fan-create-config-grid"><div class="form-field full"><label>Nome</label><input id="newAdminFanName" value="${esc(seed)}" placeholder="Nome fan"></div><div class="form-field full"><label>Nickname pubblico (facoltativo)</label><input id="newAdminFanNickname" placeholder="Nickname"></div><div class="form-field full"><label>Alias admin (facoltativi)</label><input id="newAdminFanAliases" placeholder="Es. Marco R., Marchetto, Marketto"><div class="section-note" style="margin-top:4px">Puoi separare più alias con una virgola.</div></div></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="button" class="modal-save">CREA FAN</button></div></div>`;
+  overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;card.querySelector(".modal-cancel").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+  const nameInput=card.querySelector("#newAdminFanName");setTimeout(()=>{nameInput.focus();nameInput.select()},0);
+  card.querySelector(".modal-save").onclick=async()=>{const name=nameInput.value.trim(),nick=card.querySelector("#newAdminFanNickname").value.trim(),aliases=card.querySelector("#newAdminFanAliases").value.split(",").map(x=>x.trim()).filter(Boolean);if(!name)return alert("Inserisci il nome.");const save=card.querySelector(".modal-save"),before=new Set(adminFans.map(x=>String(x.id)));save.disabled=true;save.textContent="CREAZIONE...";const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull(nick),p_concert_id:null});if(error){save.disabled=false;save.textContent="CREA FAN";return alert(error.message)}await loadFanArea();let created=adminFans.find(x=>!before.has(String(x.id))&&String(x.display_name||"").trim().toLowerCase()===name.toLowerCase())||adminFans.find(x=>!before.has(String(x.id)));if(created&&aliases.length){for(const alias of aliases){const {error:ae}=await sb.rpc("admin_add_fan_alias",{p_fan_id:created.id,p_alias:alias});if(ae){console.warn("Alias non aggiunto",alias,ae)}}await loadFanArea()}if($("adminFanSearch"))$("adminFanSearch").value=name;close();renderFanArea()}
+}
+$("adminCreateFanButton").onclick=openCreateFanPanel;
+$("adminFanSearch")?.addEventListener("input",()=>renderAdminFanManagement());
 function fanLabel(id){const r=fanRanking.find(x=>x.fan_id===id);if(r)return `${r.fan_name} — fan dal ${formatDate(r.fan_since)}`;const f=adminFans.find(x=>x.id===id);return f?(f.nickname||f.display_name):"Profilo sconosciuto"}
-function renderMergeRequests(){const box=$("mergeList");if(!isFanAdmin())return;box.innerHTML="";mergeRequests.forEach(r=>{const row=document.createElement("div");row.className="list-row";row.innerHTML=`<div class="list-main"><div class="list-title">${esc(r.requested_nickname||"Richiesta unificazione")}</div><div class="small-info">Nuovo: ${esc(fanLabel(r.requester_fan_id))}<br>Proposto: ${esc(fanLabel(r.suggested_fan_id))}</div></div>`;const b=document.createElement("div");b.className="row-buttons";b.innerHTML='<button class="small-btn success">UNISCI</button><button class="small-btn danger">RIFIUTA</button>';b.children[0].onclick=()=>mergeFanRequest(r);b.children[1].onclick=()=>rejectFanRequest(r);row.appendChild(b);box.appendChild(row)});if(!mergeRequests.length)box.innerHTML='<div class="empty">Nessuna richiesta.</div>';$("mergeCounter").textContent=`${mergeRequests.length}`}
+function renderApprovalRequests(){const box=$("mergeList");if(!isFanAdmin())return;box.innerHTML="";mergeRequests.forEach(r=>{const row=document.createElement("div");row.className="list-row";row.innerHTML=`<span class="approval-kind">UNIFICAZIONE</span><div class="list-main"><div class="list-title">${esc(r.requested_nickname||"Richiesta unificazione")}</div><div class="small-info">Nuovo: ${esc(fanLabel(r.requester_fan_id))}<br>Proposto: ${esc(fanLabel(r.suggested_fan_id))}</div></div>`;const b=document.createElement("div");b.className="row-buttons";b.innerHTML='<button class="small-btn success">UNISCI</button><button class="small-btn danger">RIFIUTA</button>';b.children[0].onclick=()=>mergeFanRequest(r);b.children[1].onclick=()=>rejectFanRequest(r);row.appendChild(b);box.appendChild(row)});if(!mergeRequests.length)box.innerHTML='<div class="empty">Nessuna richiesta da approvare.</div>';$("mergeCounter").textContent=`${mergeRequests.length}`}
+function renderMergeRequests(){renderApprovalRequests()}
 async function mergeFanRequest(r){const source=adminFans.find(f=>f.id===r.requester_fan_id)||{id:r.requester_fan_id,display_name:fanLabel(r.requester_fan_id)};const target=await chooseFanMergeTarget(source,r.suggested_fan_id);if(!target)return;const finalNick=target.nickname||r.requested_nickname||null;if(!confirm(`Confermi l'unificazione nel profilo “${target.nickname||target.display_name}”?`))return;const {error}=await sb.rpc("merge_fans",{p_source_fan_id:r.requester_fan_id,p_target_fan_id:target.id,p_final_nickname:finalNick,p_request_id:r.id});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
 async function rejectFanRequest(r){const note=prompt("Nota (facoltativa):","");if(note===null)return;const {error}=await sb.rpc("reject_fan_merge_request",{p_request_id:r.id,p_note:note});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
 
@@ -1426,7 +1507,7 @@ async function rejectFanRequest(r){const note=prompt("Nota (facoltativa):","");i
 function getFanDeviceToken(){let t=localStorage.getItem("jm_fan_device_token");if(!t){t=crypto.randomUUID();localStorage.setItem("jm_fan_device_token",t)}return t}
 function fanFingerprint(){return [navigator.userAgent,navigator.language,Intl.DateTimeFormat().resolvedOptions().timeZone,screen.width,screen.height,window.devicePixelRatio||1].join("|")}
 function fitDenseList(el,maxNoScroll=30,minRow=20,maxRow=31){if(!el||el.offsetParent===null)return;const rows=[...el.children].filter(x=>x.matches?.(".song-row,.list-row,.member-global-song"));const n=rows.length;if(!n)return;el.classList.add("fit-dense-list");el.style.removeProperty("--fit-row-height");const available=el.clientHeight;if(available<=0)return;const desired=Math.floor((available-2)/n);if(n<=maxNoScroll&&desired>=minRow){el.style.setProperty("--fit-row-height",`${Math.min(maxRow,desired)}px`);el.style.overflowY="hidden"}else{el.style.setProperty("--fit-row-height",`${minRow}px`);el.style.overflowY="auto"}}
-function fitViewportLists(){fitDenseList($("setlist"),30,20,30);fitDenseList($("excluded"),30,20,30);fitDenseList($("catalogList"),30,22,32);if(selectedMemberUsername!=="__global__")fitDenseList($("memberSetlist"),30,20,30);document.querySelectorAll(".member-global-list").forEach(x=>fitDenseList(x,30,18,25))}
+function fitViewportLists(){fitDenseList($("setlist"),30,20,30);fitDenseList($("excluded"),30,20,30);fitDenseList($("catalogList"),30,22,32);if(selectedMemberUsername!=="__global__"){const m=$("memberSetlist");if(m){m.classList.add("fit-dense-list");m.style.setProperty("--fit-row-height","24px");m.style.overflowY="auto"}}document.querySelectorAll(".member-global-list").forEach(x=>fitDenseList(x,30,18,25))}
 let denseFitTimer=null;function scheduleDenseFit(){clearTimeout(denseFitTimer);denseFitTimer=setTimeout(()=>requestAnimationFrame(fitViewportLists),35)}
 window.addEventListener("resize",scheduleDenseFit);
 
