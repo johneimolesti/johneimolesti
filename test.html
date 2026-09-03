@@ -430,6 +430,100 @@
   }
 </style>
 
+<style id="v4-concert-layout-fix">
+  /* Allineamento editor concerto: scaletta e catalogo sono due pannelli affiancati, senza sovrapposizioni. */
+  .concert-performance-layout{
+    grid-template-columns:minmax(0,1fr) clamp(270px,23vw,340px);
+    align-items:start;
+    gap:10px;
+    width:100%;
+    min-width:0;
+  }
+  .concert-setlist-pane,.concert-catalog{
+    min-width:0;
+    width:100%;
+    align-self:start;
+    overflow:hidden;
+    border:1px solid var(--border)!important;
+    border-radius:12px;
+    background:var(--bg)!important;
+    box-shadow:none;
+  }
+  .concert-pane-title,.concert-catalog-title{
+    min-height:34px;
+    display:flex;
+    align-items:center;
+    padding:7px 10px;
+    border-bottom:1px solid var(--border)!important;
+    background:var(--bg)!important;
+    color:var(--accent);
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.04em;
+  }
+  .concert-setlist-pane>.song-list{
+    min-width:0;
+    padding:5px;
+    overflow:hidden;
+  }
+  .concert-setlist-pane .song-row{
+    width:100%;
+    min-width:0;
+    grid-template-columns:14px 24px 46px minmax(150px,1.35fr) 46px 54px minmax(74px,.58fr) minmax(74px,.58fr) minmax(120px,auto);
+  }
+  .concert-setlist-pane .song-actions{
+    min-width:0;
+    max-width:100%;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+  }
+  .concert-catalog-list{
+    width:100%;
+    max-height:calc(100vh - 270px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    background:var(--bg);
+  }
+  .concert-catalog-row{background:transparent!important}
+  .concert-catalog-row:hover{background:rgba(255,255,255,.035)!important}
+
+  /* Select del tipo di esecuzione coerente con il tema scuro. */
+  .execution-type-select{
+    min-width:104px;
+    height:24px;
+    padding:0 24px 0 8px;
+    border:1px solid rgba(255,255,255,.13)!important;
+    border-radius:8px;
+    background-color:#171b22!important;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23aeb5bf' d='M1 0l4 4 4-4 1 1-5 5-5-5z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 8px center;
+    color:#eef0f3!important;
+    color-scheme:dark;
+    -webkit-appearance:none;
+    appearance:none;
+    font-size:7px;
+    font-weight:850;
+    text-transform:uppercase;
+  }
+  .execution-type-select:hover{border-color:rgba(243,210,52,.38)!important;background-color:#1d222b!important}
+  .execution-type-select:focus{border-color:rgba(243,210,52,.55)!important;outline:1px solid rgba(243,210,52,.32);outline-offset:1px}
+  .execution-type-select option{background:#171b22;color:#eef0f3}
+
+  @media(max-width:1180px) and (min-width:901px){
+    .concert-performance-layout{grid-template-columns:minmax(0,1fr) 280px}
+    .concert-setlist-pane .song-row{grid-template-columns:14px 22px 44px minmax(145px,1fr) 44px 52px minmax(70px,.5fr) minmax(120px,auto)}
+    .concert-setlist-pane .lyrics-artist-col{display:none}
+  }
+  @media(max-width:900px){
+    .concert-performance-layout{grid-template-columns:1fr}
+    .concert-catalog{margin-top:0}
+    .concert-catalog-list{max-height:300px}
+    .concert-setlist-pane .song-row{grid-template-columns:14px 23px 43px minmax(120px,1fr) 45px 58px auto}
+    .concert-setlist-pane .base-artist-col,.concert-setlist-pane .lyrics-artist-col{display:none}
+  }
+</style>
+
 </head>
 <body>
 
@@ -1204,7 +1298,9 @@ async function renderConcertDetail(id){
   }
 
   const layout=document.createElement("div");layout.className="concert-performance-layout";
-  const left=document.createElement("div"),list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";left.appendChild(list);layout.appendChild(left);
+  const left=document.createElement("section");left.className="concert-setlist-pane";
+  const leftTitle=document.createElement("div");leftTitle.className="concert-pane-title";leftTitle.textContent="SCALETTA / ESECUZIONI";left.appendChild(leftTitle);
+  const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";left.appendChild(list);layout.appendChild(left);
 
   if(showSetlist){
     let prevType=null;
