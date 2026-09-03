@@ -9,6 +9,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *{box-sizing:border-box} [hidden]{display:none!important}
@@ -597,6 +598,57 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
   .fan-manage-right{width:100%;justify-content:space-between;flex-wrap:wrap}
   .fan-manage-right .row-buttons{overflow-x:auto;max-width:100%}
 }
+
+
+/* V4.4 — full immersion scrolling / concert workspace / version */
+.app-version{color:#6f7783;font-size:7px;font-weight:500;letter-spacing:.06em;white-space:nowrap;opacity:.88}
+
+/* Full immersion must preserve the same scrolling model as normal mode. */
+:fullscreen #memberApp>main,#memberApp:fullscreen>main,:-webkit-full-screen #memberApp>main,#memberApp:-webkit-full-screen>main,body.app-full-immersion #memberApp>main{overflow:auto!important}
+:fullscreen #memberApp>main:has(#mySetlistPage.active),
+:fullscreen #memberApp>main:has(#catalogPage.active),
+:fullscreen #memberApp>main:has(#membersPage.active),
+:fullscreen #memberApp>main:has(#fansAdminPage.active),
+:-webkit-full-screen #memberApp>main:has(#mySetlistPage.active),
+:-webkit-full-screen #memberApp>main:has(#catalogPage.active),
+:-webkit-full-screen #memberApp>main:has(#membersPage.active),
+:-webkit-full-screen #memberApp>main:has(#fansAdminPage.active),
+body.app-full-immersion #memberApp>main:has(#mySetlistPage.active),
+body.app-full-immersion #memberApp>main:has(#catalogPage.active),
+body.app-full-immersion #memberApp>main:has(#membersPage.active),
+body.app-full-immersion #memberApp>main:has(#fansAdminPage.active){overflow:hidden!important}
+:fullscreen #catalogList,:fullscreen #memberSetlist,:fullscreen #setlist,:fullscreen #excluded,:fullscreen .admin-ranking-scroll,:fullscreen .fan-admin-dashboard .list,
+:-webkit-full-screen #catalogList,:-webkit-full-screen #memberSetlist,:-webkit-full-screen #setlist,:-webkit-full-screen #excluded,:-webkit-full-screen .admin-ranking-scroll,:-webkit-full-screen .fan-admin-dashboard .list,
+body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body.app-full-immersion #setlist,body.app-full-immersion #excluded,body.app-full-immersion .admin-ranking-scroll,body.app-full-immersion .fan-admin-dashboard .list{overflow:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+:fullscreen #fanApp main,:fullscreen #guestApp main,:-webkit-full-screen #fanApp main,:-webkit-full-screen #guestApp main,body.app-full-immersion #fanApp main,body.app-full-immersion #guestApp main{overflow:auto!important;-webkit-overflow-scrolling:touch}
+
+/* Concert editing workspace: viewport-sized, independent internal scrolling. */
+.concert-performance-layout{height:var(--concert-workspace-height,62vh);min-height:300px;max-height:none;align-items:stretch;transition:grid-template-columns .18s ease}
+.concert-setlist-pane,.concert-catalog{height:100%;min-height:0;display:flex;flex-direction:column}
+.concert-setlist-pane .song-list,.concert-catalog-list{flex:1 1 0;min-height:0;max-height:none!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.concert-catalog{width:auto;min-width:225px;max-width:315px;transition:min-width .18s ease,max-width .18s ease,width .18s ease}
+.concert-catalog-title{flex:0 0 auto}
+.concert-catalog-toggle{flex:0 0 auto;width:26px;height:24px;padding:0;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.045);color:#b6bdc8;font-size:14px;font-weight:900;line-height:1}
+.concert-catalog-toggle:hover{border-color:rgba(243,210,52,.35);color:var(--accent);background:rgba(243,210,52,.07)}
+.concert-performance-layout.catalog-collapsed{grid-template-columns:minmax(0,1fr) 42px!important}
+.concert-performance-layout.catalog-collapsed .concert-catalog{width:42px!important;min-width:42px!important;max-width:42px!important}
+.concert-performance-layout.catalog-collapsed .concert-catalog-title{height:100%;min-height:0;justify-content:center;padding:6px 4px;border-bottom:0}
+.concert-performance-layout.catalog-collapsed .concert-catalog-title>span{display:none}
+.concert-performance-layout.catalog-collapsed .concert-catalog-list{display:none}
+.concert-performance-layout.catalog-collapsed .concert-catalog-toggle{width:28px;height:30px}
+
+.live-activity-modal{z-index:135!important}.live-activity-modal .modal-card{width:min(850px,100%)}.live-activity-modal .activity-list{margin:0;padding:0;border-top:0}.live-activity-modal .activity-list>.panel-header{display:none}.live-activity-modal-body{max-height:72vh;overflow:auto;padding:10px;-webkit-overflow-scrolling:touch}
+
+@media(max-width:900px){
+  .concert-performance-layout{height:auto;min-height:0;max-height:none;grid-template-columns:1fr!important}
+  .concert-setlist-pane{height:min(58vh,620px)}
+  .concert-catalog{height:min(38vh,380px);width:100%;min-width:0;max-width:none}
+  .concert-performance-layout.catalog-collapsed{grid-template-columns:1fr!important}
+  .concert-performance-layout.catalog-collapsed .concert-catalog{width:100%!important;min-width:0!important;max-width:none!important;height:40px}
+  .concert-performance-layout.catalog-collapsed .concert-catalog-title{height:40px;justify-content:space-between;padding:7px 10px}
+  .concert-performance-layout.catalog-collapsed .concert-catalog-title>span{display:block}
+}
+
 </style>
 
 </head>
@@ -642,7 +694,7 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -753,7 +805,7 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -833,6 +885,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const APP_VERSION="v4.4";
 const BAND_MEMBERS=[{username:"ema",displayName:"Ema"},{username:"kekko",displayName:"Kekko"},{username:"gianni",displayName:"Gianni"},{username:"carlo",displayName:"Carlo"},{username:"ale",displayName:"Ale"}];
 let currentUser=null,currentProfile=null,currentSetlistId=null;
 let songs=[],songScores=[],memberVotes=[],memberSongPreferences=[],setlistItems=[],profiles=[],proposals=[],idealSetlists=[],communityItems=[],concerts=[],confirmations=[],concertHistoryItems=[],venueTypes=[],venues=[],labelDefinitions=[],fanLabelDefinitions=[],songHistoryMetrics=[],songLabelMetrics=[],songComebackContext=[];
@@ -1145,8 +1198,8 @@ $("mySetlistExpandExcluded")?.addEventListener("click",()=>toggleMySetlistPanelF
 async function toggleFullImmersion(){
   try{
     if(document.fullscreenElement||document.webkitFullscreenElement){if(document.exitFullscreen)await document.exitFullscreen();else if(document.webkitExitFullscreen)document.webkitExitFullscreen();return}
-    const root=document.documentElement;if(root.requestFullscreen)await root.requestFullscreen();else if(root.webkitRequestFullscreen)root.webkitRequestFullscreen();else document.body.classList.toggle("app-full-immersion")
-  }catch(err){document.body.classList.toggle("app-full-immersion");console.warn("Fullscreen non disponibile",err)}
+    const root=document.documentElement;if(root.requestFullscreen)await root.requestFullscreen();else if(root.webkitRequestFullscreen)root.webkitRequestFullscreen();else{document.body.classList.toggle("app-full-immersion");syncFullImmersionButtons();requestAnimationFrame(fitOpenConcertWorkspace)}
+  }catch(err){document.body.classList.toggle("app-full-immersion");syncFullImmersionButtons();requestAnimationFrame(fitOpenConcertWorkspace);console.warn("Fullscreen non disponibile",err)}
 }
 document.querySelectorAll("[data-full-immersion]").forEach(btn=>btn.addEventListener("click",toggleFullImmersion));
 function syncFullImmersionButtons(){const active=!!(document.fullscreenElement||document.webkitFullscreenElement||document.body.classList.contains("app-full-immersion"));document.querySelectorAll("[data-full-immersion]").forEach(b=>b.textContent=active?"⛶ ESCI FULL IMMERSION":"⛶ FULL IMMERSION")}
@@ -1437,11 +1490,38 @@ function setConcertEditorSaveState(text,state=""){const el=$("concertEditorSaveS
 async function refreshConcertDetailQuiet(id){const list=$("concertSetlistLive"),cat=document.querySelector("#concertDetail .concert-catalog-list"),ls=list?.scrollTop||0,cs=cat?.scrollTop||0;await renderConcertDetail(id);requestAnimationFrame(()=>{const nl=$("concertSetlistLive"),nc=document.querySelector("#concertDetail .concert-catalog-list");if(nl)nl.scrollTop=ls;if(nc)nc.scrollTop=cs})}
 function rebuildConcertExecutionDividers(list){if(!list)return;list.querySelectorAll(".concert-block-divider").forEach(x=>x.remove());let prev=null;[...list.querySelectorAll(".song-row[data-item-id]")].forEach(row=>{const type=row.dataset.executionType||"planned";if(type!==prev)row.before(executionDivider(type));prev=type})}
 function updateConcertPositionsInDom(list){[...list.querySelectorAll(".song-row[data-item-id]")].forEach((row,i)=>{const p=row.querySelector(".position");if(p)p.textContent=String(i+1)})}
+function concertPrintableRows(c,concertSongs=[]){
+  return (concertSongs||[]).filter(Boolean).map((song,i)=>({position:i+1,title:String(song.title||""),bpm:song.bpm??"—",key:keyLabel(song),base:song.base_artist||"—",lyrics:song.lyrics_artist||"—"}))
+}
+function concertPrintableHtml(c,concertSongs=[]){
+  const list=concertPrintableRows(c,concertSongs),venue=[concertVenueName(c),concertVenueCity(c)].filter(Boolean).join(" · "),title=String(c?.name||"Concerto");
+  const rows=list.map(r=>`<tr><td>${r.position}</td><td><strong>${esc(r.title)}</strong></td><td>${esc(r.bpm)}</td><td>${esc(r.key)}</td><td>${esc(r.base)}</td><td>${esc(r.lyrics)}</td></tr>`).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — Scaletta</title><style>body{font-family:Arial,sans-serif;color:#111;margin:24px}h1{margin:0 0 4px;font-size:24px}.meta{color:#555;margin-bottom:18px;font-size:12px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:7px 6px;border-bottom:1px solid #ccc;text-align:left}th{font-size:9px;text-transform:uppercase;color:#555}@media print{body{margin:10mm}}</style></head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${venue?` · ${esc(venue)}`:""} · ${(c.event_mode||"standard").toUpperCase()}</div><table><thead><tr><th>#</th><th>Brano</th><th>BPM</th><th>Key</th><th>Base</th><th>Testo</th></tr></thead><tbody>${rows||'<tr><td colspan="6">Nessun brano in scaletta.</td></tr>'}</tbody></table></body></html>`
+}
 function printConcert(c,concertSongs=[]){
-  const list=(concertSongs||[]).filter(Boolean),venue=[concertVenueName(c),concertVenueCity(c)].filter(Boolean).join(" · "),title=String(c?.name||"Concerto");
-  const rows=list.map((song,i)=>`<tr><td>${i+1}</td><td><strong>${esc(song.title||"")}</strong></td><td>${esc(song.bpm??"—")}</td><td>${esc(keyLabel(song))}</td><td>${esc(song.base_artist||"—")}</td><td>${esc(song.lyrics_artist||"—")}</td></tr>`).join("");
   const popup=window.open("","_blank");if(!popup){alert("Il browser ha bloccato la finestra di stampa. Consenti i popup e riprova.");return}try{popup.opener=null}catch{}
-  popup.document.open();popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — Scaletta</title><style>body{font-family:Arial,sans-serif;color:#111;margin:24px}h1{margin:0 0 4px;font-size:24px}.meta{color:#555;margin-bottom:18px;font-size:12px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:7px 6px;border-bottom:1px solid #ccc;text-align:left}th{font-size:9px;text-transform:uppercase;color:#555}@media print{body{margin:10mm}}</style></head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${venue?` · ${esc(venue)}`:""} · ${(c.event_mode||"standard").toUpperCase()}</div><table><thead><tr><th>#</th><th>Brano</th><th>BPM</th><th>Key</th><th>Base</th><th>Testo</th></tr></thead><tbody>${rows||'<tr><td colspan="6">Nessun brano in scaletta.</td></tr>'}</tbody></table><script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},120));<\/script></body></html>`);popup.document.close()
+  popup.document.open();popup.document.write(concertPrintableHtml(c,concertSongs).replace("</body>","<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},120));<"+"/script></body>"));popup.document.close()
+}
+function safePdfFilename(value){return String(value||"scaletta").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"")||"scaletta"}
+function saveConcertPdf(c,concertSongs=[]){
+  const api=window.jspdf?.jsPDF;if(!api){alert("Generatore PDF non disponibile. Ricarica la pagina e riprova.");return}
+  const doc=new api({orientation:"portrait",unit:"mm",format:"a4"}),rows=concertPrintableRows(c,concertSongs),title=String(c?.name||"Concerto"),venue=[concertVenueName(c),concertVenueCity(c)].filter(Boolean).join(" · ");
+  let y=16;doc.setFont("helvetica","bold");doc.setFontSize(17);doc.text(title,14,y);y+=7;doc.setFont("helvetica","normal");doc.setFontSize(9);const meta=[formatDate(c.concert_date),c.start_time?formatTime(c.start_time):null,venue||null,(c.event_mode||"standard").toUpperCase()].filter(Boolean).join(" · ");doc.text(doc.splitTextToSize(meta,180),14,y);y+=10;
+  doc.setDrawColor(190);doc.line(14,y,196,y);y+=6;doc.setFontSize(8);
+  const addPage=()=>{doc.addPage();y=15};
+  if(!rows.length){doc.text("Nessun brano in scaletta.",14,y)}
+  rows.forEach(r=>{const line=`${r.position}.  ${r.title}   |   ${r.bpm} BPM   |   ${r.key}`;const detail=[r.base!=="—"?`Base: ${r.base}`:null,r.lyrics!=="—"?`Testo: ${r.lyrics}`:null].filter(Boolean).join("   ·   ");const lines=doc.splitTextToSize(line,180),details=detail?doc.splitTextToSize(detail,176):[];const need=(lines.length*4)+(details.length*3.5)+5;if(y+need>282)addPage();doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text(lines,14,y);y+=lines.length*4;if(details.length){doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(90);doc.text(details,18,y);doc.setTextColor(0);y+=details.length*3.5}doc.setDrawColor(225);doc.line(14,y+1,196,y+1);y+=5});
+  doc.save(`${safePdfFilename(title)}_${String(c.concert_date||"").replaceAll("-","")||"live"}.pdf`)
+}
+
+let concertCatalogCollapsed=localStorage.getItem("molesti.concertCatalogCollapsed")==="1";
+function applyConcertCatalogState(layout,cat,toggle){if(!layout||!cat||!toggle)return;layout.classList.toggle("catalog-collapsed",concertCatalogCollapsed);cat.classList.toggle("collapsed",concertCatalogCollapsed);toggle.textContent=concertCatalogCollapsed?"‹":"›";toggle.title=concertCatalogCollapsed?"Espandi catalogo":"Collassa catalogo"}
+function toggleConcertCatalog(layout,cat,toggle){concertCatalogCollapsed=!concertCatalogCollapsed;localStorage.setItem("molesti.concertCatalogCollapsed",concertCatalogCollapsed?"1":"0");applyConcertCatalogState(layout,cat,toggle);requestAnimationFrame(()=>fitConcertPerformanceLayout(layout))}
+function fitConcertPerformanceLayout(layout){if(!layout||!layout.isConnected)return;if(window.innerWidth<=900){layout.style.removeProperty("--concert-workspace-height");return}const top=layout.getBoundingClientRect().top,available=Math.max(300,window.innerHeight-top-18);layout.style.setProperty("--concert-workspace-height",`${Math.round(available)}px`)}
+function fitOpenConcertWorkspace(){fitConcertPerformanceLayout(document.querySelector("#concertDetail .concert-performance-layout"))}
+window.addEventListener("resize",()=>requestAnimationFrame(fitOpenConcertWorkspace));document.addEventListener("fullscreenchange",()=>requestAnimationFrame(fitOpenConcertWorkspace));document.addEventListener("webkitfullscreenchange",()=>requestAnimationFrame(fitOpenConcertWorkspace));
+async function openLiveActivityModal(concertId,concertName="Concerto"){
+  const overlay=document.createElement("div");overlay.className="modal open live-activity-modal";const card=document.createElement("div");card.className="modal-card";card.innerHTML=`<div class="modal-header"><h2>ATTIVITÀ FAN — ${esc(concertName)}</h2><button type="button" class="modal-close">×</button></div><div class="live-activity-modal-body"><div class="empty">Caricamento...</div></div>`;overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};const body=card.querySelector(".live-activity-modal-body");body.innerHTML="";await renderLiveActivity(concertId,body)
 }
 
 async function renderConcertDetail(id){
@@ -1457,7 +1537,9 @@ async function renderConcertDetail(id){
   box.appendChild(meta);
 
   const tools=document.createElement("div");tools.className="toolbar no-print";
-  const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA / PDF";print.onclick=()=>printConcert(c,items.map(songForItem).filter(Boolean));tools.appendChild(print);
+  const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA";print.onclick=()=>printConcert(c,items.map(songForItem).filter(Boolean));tools.appendChild(print);
+  const pdf=document.createElement("button");pdf.className="secondary";pdf.textContent="SALVA PDF";pdf.onclick=()=>saveConcertPdf(c,items.map(songForItem).filter(Boolean));tools.appendChild(pdf);
+  if(c.status==="completed"){const activity=document.createElement("button");activity.className="secondary";activity.textContent="ATTIVITÀ FAN";activity.onclick=()=>openLiveActivityModal(c.id,c.name);tools.appendChild(activity)}
   if(isEma()){
     const editConcert=document.createElement("button");editConcert.className="secondary";editConcert.textContent="MODIFICA CONCERTO";editConcert.onclick=()=>openConcertModal(c);tools.appendChild(editConcert);
     const copy=document.createElement("button");copy.className="secondary";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);
@@ -1511,16 +1593,17 @@ async function renderConcertDetail(id){
 
   if(isEma()&&editable){
     const cat=document.createElement("aside");cat.className="concert-catalog";
-    const catTitle=document.createElement("div");catTitle.className="concert-catalog-title";catTitle.innerHTML='<span>CATALOGO DISPONIBILE</span>';
-    const catList=document.createElement("div");catList.className="concert-catalog-list";cat.append(catTitle,catList);
+    const catTitle=document.createElement("div");catTitle.className="concert-catalog-title";catTitle.innerHTML='<span>CATALOGO DISPONIBILE</span><button type="button" class="concert-catalog-toggle" aria-label="Collassa catalogo">›</button>';
+    const catToggle=catTitle.querySelector(".concert-catalog-toggle");
+    const catList=document.createElement("div");catList.className="concert-catalog-list";cat.append(catTitle,catList);applyConcertCatalogState(layout,cat,catToggle);catToggle.onclick=()=>toggleConcertCatalog(layout,cat,catToggle);
     concertCatalogSongs(items).forEach(({song,count})=>{const r=document.createElement("div");r.className=`concert-catalog-row${count?" used":""}`;r.innerHTML=`<span class="catalog-song-title">${esc(song.title)}</span><span class="concert-catalog-count">${count?`×${count}`:""}</span><button type="button">+</button>`;r.querySelector("button").onclick=()=>manualAddSong(c.id,song.id,items.length,"planned");catList.appendChild(r)});
     layout.appendChild(cat)
   }
   box.appendChild(layout);
+  requestAnimationFrame(()=>fitConcertPerformanceLayout(layout));
   $("concertDetailCounter").textContent=showSetlist?`${items.length} esecuzioni`:"";
   if(concertSortable){concertSortable.destroy();concertSortable=null}
   if(editable&&items.length)concertSortable=new Sortable(list,{animation:120,handle:".drag-handle",draggable:".song-row",onEnd:()=>saveConcertOrder(c.id,list)});
-  if(c.status==="completed")await renderLiveActivity(c.id,box)
 }
 async function ensureProposalsReady(){await loadCommunityData();calculateAllProposals()}
 async function importConcertSetlist(concertId,source,grouped){
