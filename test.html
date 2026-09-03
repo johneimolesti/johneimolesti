@@ -134,21 +134,33 @@
 .smart-badge.dynamic-label{background:color-mix(in srgb,var(--badge-color,#777) 14%,transparent)!important}
 .smart-badge.dynamic-label:hover{background:color-mix(in srgb,var(--badge-color,#777) 22%,transparent)!important}
 #memberSetlist{max-height:calc(100vh - 220px);overflow-y:auto;overscroll-behavior:contain}
-.concert-performance-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(230px,.55fr);gap:8px}
-.concert-catalog{border:1px solid #303030;border-radius:7px;background:#1c1c1c;overflow:hidden}
-.concert-catalog-title{padding:7px 8px;border-bottom:1px solid #303030;font-size:9px;font-weight:900;color:var(--accent)}
+.concert-performance-layout{display:grid;grid-template-columns:minmax(0,1fr) clamp(270px,25vw,360px);gap:10px;align-items:start;width:100%;min-width:0}
+.concert-performance-layout>*{min-width:0}
+.concert-setlist-pane,.concert-catalog{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--panel);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.concert-setlist-title,.concert-catalog-title{display:flex;align-items:center;min-height:36px;padding:8px 10px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.025);font-size:9px;font-weight:900;color:var(--accent);letter-spacing:.04em}
+.concert-setlist-pane .song-list{min-width:0;padding:4px;overflow-x:hidden}
+.concert-setlist-pane .song-row{width:100%;max-width:100%;min-width:0}
+.concert-setlist-pane .song-actions{min-width:0;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.concert-catalog{background:var(--panel)}
 .concert-catalog-list{max-height:calc(100vh - 270px);overflow-y:auto}
-.concert-catalog-row{display:flex;gap:6px;align-items:center;padding:5px 7px;border-bottom:1px solid #292929;font-size:9px}
+.concert-catalog-row{display:flex;gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.065);background:transparent;font-size:9px}
+.concert-catalog-row:last-child{border-bottom:0}
 .concert-catalog-row.used{opacity:.45}.concert-catalog-row .catalog-song-title{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .concert-catalog-count{min-width:26px;text-align:right;color:var(--accent);font-weight:900}
+.concert-catalog-row button{flex:0 0 auto;width:30px;height:27px;padding:0;border:1px solid rgba(255,255,255,.11);border-radius:8px;background:rgba(255,255,255,.055);color:#e7e9ed;font-weight:900}
+.concert-catalog-row button:hover{border-color:rgba(243,210,52,.35);color:var(--accent);background:rgba(243,210,52,.07)}
 .concert-block-divider{display:flex;align-items:center;gap:8px;margin:8px 0 4px;color:#999;font-size:8px;font-weight:900;letter-spacing:.8px}
 .concert-block-divider:before,.concert-block-divider:after{content:"";height:1px;background:#444;flex:1}
-.execution-type-select{height:22px;min-width:94px;padding:0 4px;font-size:7px;text-transform:uppercase}
+.execution-type-select{height:24px;min-width:102px;max-width:132px;padding:0 27px 0 8px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background-color:#1a1e27;color:#e7e9ed;font-size:7px;font-weight:850;text-transform:uppercase;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,#9aa2ae 50%),linear-gradient(135deg,#9aa2ae 50%,transparent 50%);background-position:calc(100% - 12px) 9px,calc(100% - 8px) 9px;background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+.execution-type-select:hover,.execution-type-select:focus{border-color:rgba(243,210,52,.38);background-color:#202530;color:#fff;outline:none}
+.execution-type-select option{background:#151922;color:#eef0f3}
 .execution-type-tag{display:inline-flex;margin-left:5px;padding:1px 5px;border:1px solid #555;border-radius:8px;font-size:7px;font-weight:900}
 .execution-type-tag.request{border-color:#6d5c25;color:#e8d478}.execution-type-tag.bis{border-color:#744b78;color:#e0b5e6}.execution-type-tag.recovery{border-color:#356078;color:#b9dded}.execution-type-tag.skipped,.execution-type-tag.truncated{border-color:#704242;color:#e3abab}
 .execution-skipped,.execution-truncated{opacity:.48;text-decoration:line-through}
 .setlist-confirm-state{font-size:8px;font-weight:900}.setlist-confirm-state.ok{color:#91c899}.setlist-confirm-state.edit{color:#e2ca69}
 .mode-warning{margin:6px 0;padding:6px 8px;border:1px solid #675c29;border-radius:5px;background:#2b2819;color:#d7c86d;font-size:8px}
+@media(max-width:1180px){.concert-performance-layout{grid-template-columns:minmax(0,1fr) minmax(250px,30vw)}.concert-setlist-pane .lyrics-artist-col{display:none}.concert-setlist-pane .song-row{grid-template-columns:15px 25px 48px minmax(130px,1fr) 48px 58px minmax(80px,.65fr) auto}}
+@media(max-width:980px){.concert-setlist-pane .base-artist-col{display:none}.concert-setlist-pane .song-row{grid-template-columns:15px 25px 48px minmax(130px,1fr) 48px 58px auto}}
 @media(max-width:900px){.concert-performance-layout{grid-template-columns:1fr}.concert-catalog-list{max-height:300px}.numeric-setting-row{grid-template-columns:1fr 90px}}
 
 </style>
@@ -427,100 +439,6 @@
   @media(max-width:850px){
     .fan-admin-dashboard{grid-template-columns:1fr;grid-template-rows:minmax(260px,1fr) minmax(200px,.7fr) minmax(180px,.6fr);grid-template-areas:"ranking" "manage" "merge"}
     .member-global-grid{grid-template-columns:repeat(5,minmax(125px,1fr))}
-  }
-</style>
-
-<style id="v4-concert-layout-fix">
-  /* Allineamento editor concerto: scaletta e catalogo sono due pannelli affiancati, senza sovrapposizioni. */
-  .concert-performance-layout{
-    grid-template-columns:minmax(0,1fr) clamp(270px,23vw,340px);
-    align-items:start;
-    gap:10px;
-    width:100%;
-    min-width:0;
-  }
-  .concert-setlist-pane,.concert-catalog{
-    min-width:0;
-    width:100%;
-    align-self:start;
-    overflow:hidden;
-    border:1px solid var(--border)!important;
-    border-radius:12px;
-    background:var(--bg)!important;
-    box-shadow:none;
-  }
-  .concert-pane-title,.concert-catalog-title{
-    min-height:34px;
-    display:flex;
-    align-items:center;
-    padding:7px 10px;
-    border-bottom:1px solid var(--border)!important;
-    background:var(--bg)!important;
-    color:var(--accent);
-    font-size:9px;
-    font-weight:900;
-    letter-spacing:.04em;
-  }
-  .concert-setlist-pane>.song-list{
-    min-width:0;
-    padding:5px;
-    overflow:hidden;
-  }
-  .concert-setlist-pane .song-row{
-    width:100%;
-    min-width:0;
-    grid-template-columns:14px 24px 46px minmax(150px,1.35fr) 46px 54px minmax(74px,.58fr) minmax(74px,.58fr) minmax(120px,auto);
-  }
-  .concert-setlist-pane .song-actions{
-    min-width:0;
-    max-width:100%;
-    justify-content:flex-end;
-    flex-wrap:wrap;
-  }
-  .concert-catalog-list{
-    width:100%;
-    max-height:calc(100vh - 270px);
-    overflow-y:auto;
-    overflow-x:hidden;
-    background:var(--bg);
-  }
-  .concert-catalog-row{background:transparent!important}
-  .concert-catalog-row:hover{background:rgba(255,255,255,.035)!important}
-
-  /* Select del tipo di esecuzione coerente con il tema scuro. */
-  .execution-type-select{
-    min-width:104px;
-    height:24px;
-    padding:0 24px 0 8px;
-    border:1px solid rgba(255,255,255,.13)!important;
-    border-radius:8px;
-    background-color:#171b22!important;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23aeb5bf' d='M1 0l4 4 4-4 1 1-5 5-5-5z'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;
-    background-position:right 8px center;
-    color:#eef0f3!important;
-    color-scheme:dark;
-    -webkit-appearance:none;
-    appearance:none;
-    font-size:7px;
-    font-weight:850;
-    text-transform:uppercase;
-  }
-  .execution-type-select:hover{border-color:rgba(243,210,52,.38)!important;background-color:#1d222b!important}
-  .execution-type-select:focus{border-color:rgba(243,210,52,.55)!important;outline:1px solid rgba(243,210,52,.32);outline-offset:1px}
-  .execution-type-select option{background:#171b22;color:#eef0f3}
-
-  @media(max-width:1180px) and (min-width:901px){
-    .concert-performance-layout{grid-template-columns:minmax(0,1fr) 280px}
-    .concert-setlist-pane .song-row{grid-template-columns:14px 22px 44px minmax(145px,1fr) 44px 52px minmax(70px,.5fr) minmax(120px,auto)}
-    .concert-setlist-pane .lyrics-artist-col{display:none}
-  }
-  @media(max-width:900px){
-    .concert-performance-layout{grid-template-columns:1fr}
-    .concert-catalog{margin-top:0}
-    .concert-catalog-list{max-height:300px}
-    .concert-setlist-pane .song-row{grid-template-columns:14px 23px 43px minmax(120px,1fr) 45px 58px auto}
-    .concert-setlist-pane .base-artist-col,.concert-setlist-pane .lyrics-artist-col{display:none}
   }
 </style>
 
@@ -1299,7 +1217,7 @@ async function renderConcertDetail(id){
 
   const layout=document.createElement("div");layout.className="concert-performance-layout";
   const left=document.createElement("section");left.className="concert-setlist-pane";
-  const leftTitle=document.createElement("div");leftTitle.className="concert-pane-title";leftTitle.textContent="SCALETTA / ESECUZIONI";left.appendChild(leftTitle);
+  const leftTitle=document.createElement("div");leftTitle.className="concert-setlist-title";leftTitle.textContent="SCALETTA / ESECUZIONI";left.appendChild(leftTitle);
   const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";left.appendChild(list);layout.appendChild(left);
 
   if(showSetlist){
