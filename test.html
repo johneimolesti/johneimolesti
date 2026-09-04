@@ -1227,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4g";
+const APP_VERSION="v4.7.4h";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -1250,13 +1250,13 @@ function applyMobileActionButtons(root=document){
   if(root instanceof HTMLButtonElement)classifyMobileActionButton(root);
   if(root.querySelectorAll)root.querySelectorAll('button').forEach(classifyMobileActionButton);
 }
-const mobileActionButtonObserver=new MutationObserver(mutations=>{
-  mutations.forEach(m=>m.addedNodes.forEach(node=>{
-    if(node.nodeType===1)applyMobileActionButtons(node);
-  }));
-});
+/* v4.7.4h — niente MutationObserver globale sui pulsanti.
+   Gli elementi dinamici vengono classificati quando entrano nell’interazione utente;
+   questo evita feedback DOM durante il bootstrap. */
 applyMobileActionButtons(document);
-mobileActionButtonObserver.observe(document.body,{childList:true,subtree:true});
+function classifyInteractedButton(e){const b=e.target?.closest?.("button");if(b)classifyMobileActionButton(b)}
+document.addEventListener("pointerover",classifyInteractedButton,true);
+document.addEventListener("focusin",classifyInteractedButton,true);
 
 const BAND_MEMBERS=[{username:"ema",displayName:"Ema"},{username:"kekko",displayName:"Kekko"},{username:"gianni",displayName:"Gianni"},{username:"carlo",displayName:"Carlo"},{username:"ale",displayName:"Ale"}];
 let currentUser=null,currentProfile=null,currentSetlistId=null;
@@ -2331,7 +2331,9 @@ function resyncScrollableLayout(){enforceScrollContract();enforceOverflowSafety(
 document.addEventListener("fullscreenchange",resyncScrollableLayout);document.addEventListener("webkitfullscreenchange",resyncScrollableLayout);window.addEventListener("orientationchange",resyncScrollableLayout);window.addEventListener("resize",scheduleScrollSafety);
 /* IMPORTANTE: osserviamo solo nuovi nodi. Osservare style/class/hidden mentre questa stessa
    routine modifica overflow-y crea un feedback loop del MutationObserver e può saturare il main thread. */
-const scrollContractObserver=new MutationObserver(ms=>{for(const m of ms)m.addedNodes.forEach(n=>{if(n instanceof Element)enforceScrollContract(n)});scheduleScrollSafety()});scrollContractObserver.observe(document.documentElement,{subtree:true,childList:true});setTimeout(resyncScrollableLayout,0);
+/* v4.7.4h — il contratto scroll è event-driven: nessun observer del DOM durante il bootstrap. */
+setTimeout(resyncScrollableLayout,0);
+document.addEventListener("click",()=>setTimeout(resyncScrollableLayout,0),true);
 
 async function fanApi(action,payload={}){const guest=payload?.guest===true,body=guest?{action,...payload}:{action,device_token:getFanDeviceToken(),fingerprint:fanFingerprint(),...payload};const res=await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},body:JSON.stringify(body)});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.error||`fan-api HTTP ${res.status}`);return data}
 async function resolvePossibleFanMatches(data){const matches=data.possible_matches||[];if(!matches.length)return data;const id=await modalSelect({title:"PROFILO GIÀ ESISTENTE?",note:"Abbiamo trovato profili con un nome o alias simile. Se uno è il tuo, selezionalo; altrimenti chiudi questa finestra e continuerai come nuovo fan.",label:"Profilo precedente",options:matches.map(m=>({value:m.fan_id,label:`${m.fan_name}${m.fan_since?` — fan dal ${formatDate(m.fan_since)}`:""}`})),confirmText:"QUESTO È IL MIO PROFILO"});if(!id)return data;const target=matches.find(m=>m.fan_id===id);if(!target)return data;let recovery=null;if(target.has_recovery){recovery=prompt(`Per verificare che “${target.fan_name}” sia davvero il tuo profilo, inserisci il nickname di recupero che avevi scelto:`);if(recovery===null)return data}const result=await fanApi("claim_candidate",{target_fan_id:target.fan_id,recovery_value:recovery});if(result.merged){return {...data,fan:result.fan,possible_matches:[]}}alert(result.message||"Richiesta di unificazione inviata agli admin.");return data}
@@ -2773,13 +2775,8 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     setTimeout(run,180);
     setTimeout(run,420);
   }
-  /* Non osservare style/class/hidden: la routine di scroll scrive proprio style e quindi
-     si auto-risveglierebbe senza fine. I nuovi contenitori vengono comunque intercettati. */
-  const v474ScrollObserver=new MutationObserver(muts=>{
-    for(const m of muts)m.addedNodes.forEach(n=>{if(n.nodeType===1)v474UnlockScroll(n)});
-    v474ScheduleScrollUnlock();
-  });
-  v474ScrollObserver.observe(document.body,{subtree:true,childList:true});
+  /* v4.7.4h — niente observer del DOM per lo scroll. Gli aggiornamenti sono legati
+     a resize/orientamento/fullscreen/click e a una breve sequenza iniziale. */
   ["resize","orientationchange","fullscreenchange","webkitfullscreenchange"].forEach(ev=>window.addEventListener(ev,v474ScheduleScrollUnlock));
   document.addEventListener("click",()=>setTimeout(v474ScheduleScrollUnlock,0),true);
   v474ScheduleScrollUnlock();
@@ -2813,9 +2810,10 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       if(String(b.textContent||"").trim().toUpperCase()==="COPIA"&&!b.classList.contains("copy-adaptive"))v474SetCopyButton(b,"COPIA")
     });
   }
-  const v474CopyResize=new ResizeObserver(entries=>entries.forEach(e=>v474FitCopyButton(e.target)));
+  /* v4.7.4h — rimosso ResizeObserver: sui pulsanti a larghezza intrinseca poteva
+     oscillare tra label e sola icona e saturare il main thread. */
   function v474ObserveCopyButtons(){
-    document.querySelectorAll(".copy-adaptive").forEach(b=>{try{v474CopyResize.observe(b)}catch{};v474FitCopyButton(b)})
+    document.querySelectorAll(".copy-adaptive").forEach(v474FitCopyButton)
   }
   copySetlistFromButton=async function(button,list){
     if(!button||!list?.length)return;
@@ -3424,7 +3422,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   // Nessuna lettura delle modalità live al bootstrap: i fallback locali sono già pronti.
   // Il DB viene consultato soltanto quando un admin apre esplicitamente il relativo setup.
   try{renderConcerts()}catch{};
-  /* v4.7.4g — niente observer sul Setup: il toolbar è statico e il bottone modalità viene già creato da v474EnsureModeSetup().
+  /* v4.7.4h — niente observer sul Setup: il toolbar è statico e il bottone modalità viene già creato da v474EnsureModeSetup().
      Osservare subtree + attributes/childList qui generava un feedback loop con gli altri observer DOM e saturava il main thread. */
   v474EnsureModeSetup();
   // Diagnostica minima disponibile da Console: JM_DIAG() e JM_TEST_CLICK("chooseMember").
@@ -3452,7 +3450,11 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   };
 
   MOBILE_QUERY.addEventListener?.("change",()=>{v474ScheduleScrollUnlock();renderSongRanking();});
-  setInterval(()=>{v474DecorateCopyButtons();v474ObserveCopyButtons();v474UnlockScroll()},1800);
+  const v474RefreshAdaptiveUi=()=>{v474DecorateCopyButtons();v474ObserveCopyButtons();v474UnlockScroll()};
+  window.addEventListener("resize",()=>requestAnimationFrame(v474RefreshAdaptiveUi));
+  document.addEventListener("click",()=>setTimeout(v474RefreshAdaptiveUi,0),true);
+  setTimeout(v474RefreshAdaptiveUi,250);
+  setTimeout(v474RefreshAdaptiveUi,900);
 })();
 </script>
 
@@ -3524,14 +3526,14 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40));
   });
 
-  const screens=["memberApp","fanApp","guestApp"].map(id=>document.getElementById(id)).filter(Boolean);
-  const observer=new MutationObserver(()=>{
+  /* v4.7.4h — niente MutationObserver sul cambio hidden delle app.
+     Un controllo ritardato dopo i click copre login e navigazione senza osservare attributi. */
+  document.addEventListener("click",()=>setTimeout(()=>{
     const role=visibleRole();if(!role)return;
-    setTimeout(()=>{const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true)},30);
-  });
-  screens.forEach(el=>observer.observe(el,{attributes:true,attributeFilter:["hidden"]}));
+    const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true);
+  },60),true);
 
-  // Se l'utente apre direttamente index-v2.html#concerti, la route verrà applicata appena entra nell'area corretta.
+  // Se l'utente apre direttamente index.html#concerti, la route verrà applicata appena entra nell'area corretta.
   if(!location.hash)replaceHash("home");
   setTimeout(()=>{const role=visibleRole();if(role){if(ROUTES[role]?.[slug()])applyRoute();else syncActiveRoute(role,true)}},120);
   setTimeout(applyRoute,500);
