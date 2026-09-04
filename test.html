@@ -780,6 +780,21 @@ body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body
 }
 </style>
 
+
+<style id="v4-7-2-layout-rules">
+/* V4.7.2 — lo scrolling dei contenitori non viene mai disabilitato, a prescindere da viewport/full immersion/densità. */
+.song-list,.list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,.member-global-list,.fan-attendance-list,.activity-list,
+#catalogList,#memberSetlist,#setlist,#excluded,#publicConcertList,#privateConcertList,#guestConcertList,#guestPrivateConcertList{
+  overflow-y:auto!important;overscroll-behavior:contain;
+}
+@media(min-width:901px){
+  .fan-admin-dashboard{grid-template-columns:minmax(0,1fr) max-content!important}
+  .fan-admin-management-panel{width:fit-content!important;min-width:0!important;max-width:min(480px,42vw)!important;justify-self:end}
+  .fan-admin-management-panel .fan-admin-create{grid-template-columns:minmax(145px,220px) auto!important}
+  .fan-admin-management-panel .fan-manage-identity{flex:0 1 145px;min-width:90px;max-width:165px}
+}
+@media(max-width:900px){.fan-admin-management-panel{width:100%!important;max-width:none!important}}
+</style>
 </head>
 <body>
 
@@ -813,7 +828,7 @@ body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body
   <form id="fanLoginForm" class="gate-card">
     <button id="backFromFan" class="back-btn" type="button">← Indietro</button>
     <h1>Area fan</h1><h2>Nessuna password: il dispositivo ti riconoscerà le volte successive.</h2>
-    <div class="field"><label>Come ti chiami?</label><input id="fanName" autocomplete="name" required placeholder="Es. Marco"></div>
+    <div class="field"><label>Come ti chiami?</label><input id="fanName" autocomplete="name" required maxlength="20" placeholder="Es. Marco"></div>
     <button id="fanLoginButton" class="big-btn" type="submit">ENTRA</button>
     <div id="fanLoginMessage" class="gate-note"></div>
   </form>
@@ -823,7 +838,7 @@ body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -937,7 +952,7 @@ body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1019,7 +1034,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.1";
+const APP_VERSION="v4.7.2";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -1441,23 +1456,49 @@ $("screenshotAllMemberSetlists")?.addEventListener("click",async()=>{const grid=
 /* THREE PROPOSALS */
 function median(values){const a=[...values].sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
 function positionMode(values){if(!values?.length)return null;const counts=new Map();values.forEach(v=>counts.set(v,(counts.get(v)||0)+1));const max=Math.max(...counts.values()),modes=[...counts.entries()].filter(([,n])=>n===max).map(([v])=>Number(v)).sort((a,b)=>a-b);return modes.length===1?modes[0]:median(modes)}
+function categoricalMode(values){if(!values?.length)return null;const counts=new Map();values.forEach(v=>counts.set(v,(counts.get(v)||0)+1));const max=Math.max(...counts.values()),modes=[...counts.entries()].filter(([,n])=>n===max).map(([v])=>Number(v)).sort((a,b)=>a-b);return modes.length===1?modes[0]:Math.round(median(modes))}
+function normalizedBandMode(norms,bands){if(!norms?.length)return null;const cats=norms.map(v=>Math.min(bands-1,Math.max(0,Math.floor(clamp(v,0,.999999)*bands)))),mode=categoricalMode(cats);return mode==null?null:(mode+.5)/bands}
+function blockOfThreeMode(positions,target){if(!positions?.length)return null;const blocks=positions.map(p=>Math.max(0,Math.floor((Number(p)-1)/3))),mode=categoricalMode(blocks);if(mode==null)return null;return clamp((mode*3+1.5)/Math.max(1,target),0,1)}
 function prefRow(songId){return memberSongPreferences.find(r=>r.song_id===songId)||{intro_votes:0,outro_votes:0,vote_count:0}}
 function buildMemberStats(){
   const members=BAND_MEMBERS.map(m=>getMemberData(m.username)).filter(d=>d?.items?.length);
   const counts=members.map(m=>m.items.filter(i=>i.included).length).sort((a,b)=>a-b);
   const target=counts.length?Math.max(1,Math.round(median(counts))):activeSongs().length;
-  const stats=new Map();
+  const stats=new Map(),memberCount=Math.max(1,members.length),targetSpan=Math.max(1,target-1);
   activeSongs().forEach(song=>{
-    const positions=[];let included=0;
+    const positions=[],normPositions=[],includedPositions=[],includedNorms=[];
+    let included=0,firstCount=0,lastCount=0;
     members.forEach(m=>{
       const inc=m.items.filter(i=>i.included).sort((a,b)=>(a.position??9999)-(b.position??9999));
       const idx=inc.findIndex(i=>i.song_id===song.id);
-      if(idx>=0){positions.push(idx+1);included++}else positions.push(inc.length+1);
+      if(idx>=0){
+        const pos=idx+1,norm=inc.length<=1?.5:idx/(inc.length-1);
+        positions.push(pos);normPositions.push(norm);includedPositions.push(pos);includedNorms.push(norm);included++;
+        if(idx===0)firstCount++;
+        if(idx===inc.length-1)lastCount++;
+      }else{
+        /* Un brano escluso resta penalizzato nella posizione condivisa, senza falsare le fasce dei soli brani realmente ordinati. */
+        positions.push(inc.length+1);normPositions.push(1.08);
+      }
     });
     const avgPos=positions.length?positions.reduce((a,b)=>a+b,0)/positions.length:9999;
     const medianPos=positions.length?median(positions):9999;
     const modePos=positions.length?positionMode(positions):9999;
-    stats.set(song.id,{positions,avgPos,medianPos,modePos,consensusPos:(avgPos+medianPos+modePos)/3,included});
+    const avgNorm=normPositions.length?normPositions.reduce((a,b)=>a+b,0)/normPositions.length:1;
+    const medianNorm=normPositions.length?median(normPositions):1;
+    const modeNorm=Number.isFinite(modePos)?clamp((modePos-1)/targetSpan,0,1.08):1;
+    const block3Norm=blockOfThreeMode(includedPositions,target)??1;
+    const thirdsNorm=normalizedBandMode(includedNorms,3)??1;
+    const quartersNorm=normalizedBandMode(includedNorms,4)??1;
+    const pref=prefRow(song.id),introRate=Number(pref.intro_votes||0)/memberCount,outroRate=Number(pref.outro_votes||0)/memberCount;
+    const firstRate=firstCount/memberCount,lastRate=lastCount/memberCount,exclusionRate=1-included/memberCount;
+    /* Posizione a più risoluzioni: valore puntuale + blocchi di 3 + terzi + quattro fasce.
+       Le preferenze "papabile intro/outro" spostano il risultato; essere davvero 1°/ultimo nelle scalette personali pesa circa tre volte tanto. */
+    const structuralNorm=.22*avgNorm+.20*medianNorm+.12*modeNorm+.14*block3Norm+.14*thirdsNorm+.18*quartersNorm;
+    const intentShift=.08*(outroRate-introRate)+.24*(lastRate-firstRate);
+    const consensusNorm=clamp(structuralNorm+exclusionRate*.16+intentShift,0,1.18);
+    const consensusPos=1+consensusNorm*targetSpan;
+    stats.set(song.id,{positions,avgPos,medianPos,modePos,block3Norm,thirdsNorm,quartersNorm,introRate,outroRate,firstRate,lastRate,consensusNorm,consensusPos,included});
   });
   return{members,stats,target:Math.min(target,activeSongs().length)}
 }
@@ -1556,9 +1597,9 @@ function fanBadgeMerged(r){return {...r,...fanStatsRow(r.fan_id)}}
 function topFanIds(rows,metric,eligible=()=>true,tieMetric=()=>0,n=3){return new Set((rows||[]).map(fanBadgeMerged).filter(eligible).sort((a,b)=>Number(metric(b))-Number(metric(a))||Number(tieMetric(b))-Number(tieMetric(a))||String(a.fan_name||"").localeCompare(String(b.fan_name||""),"it")).slice(0,n).map(x=>x.fan_id))}
 const FAN_BADGE_DEFAULT_DESCRIPTIONS={
   top_fan:"Xe tra quei che se vede più spesso e che i membri valuta bene quando ghe xe: mette insieme presenza vera e partecipazion live. Insomma, no basta far presenza col bicér in man.",
-  veterano:"El segue i Molesti da parecchio tempo, ga messo insieme diverse presenze e continua a farsi vedere anche nei live recenti. Vecia guardia sì, ma no da museo.",
-  dagli_albori:"El primo live registrà risale ai tempi più antichi della band e da allora ga continuà a comparire con una certa regolarità. Se dise ‘mi ghe gero’, stavolta probabilmente xe vero.",
-  fan_vecchia_data:"No xe rivà ieri: el primo live xe de parecchio tempo fa, ga accumulà presenze e continua a esserci anche nel periodo recente. Curriculum da bar, ma verificato.",
+  veterano:"El xe con i Molesti da parecchio, ga già un bel storico de presenze e soprattutto continua a comparire spesso anche nei live recenti. Xe el gradin sopra al semplice fan de vecchia data: vecia guardia, ma ancora in servizio.",
+  dagli_albori:"El primo live registrà risale proprio ai tempi più antichi della band e dopo tutti sti anni el continua ancora a farsi vedere. Xe la fascia de anzianità più alta: se dise ‘mi ghe gero’, stavolta probabilmente xe vero.",
+  fan_vecchia_data:"El primo live xe de parecchio tempo fa e nel frattempo ga messo insieme più presenze. Conta quindi l’anzianità reale del seguito e un minimo de continuità recente; se la presenza recente diventa più forte, el passa a VETERANO.",
   fedelissimo:"Da quando ga inizià a seguirne, ga saltà poche delle occasioni pubbliche disponibili. El badge guarda la continuità nel tempo, no solo el numero bruto de serate.",
   still_rowing:"El sta portando avanti una striscia de live consecutivi senza assenze ed è tra le più lunghe ancora aperte. Finché el remo toca acqua, avanti sul Brenta.",
   re_sagre:"Qua contano soprattutto le presenze a sagre e feste popolari, confrontade con quelle degli altri fan. Se ghe xe capannon, stand e campo da parcheggiare, lu sa già dove andare.",
@@ -1588,9 +1629,10 @@ function fanBadges(r,allRows=fanRanking,context="ranking"){
   const veteran=oldEnough&&last5Rate>=.50;
   const latest=st.latest_completed_public_date?new Date(String(st.latest_completed_public_date)+"T12:00:00"):null,lastSeenLive=st.last_live?new Date(String(st.last_live)+"T12:00:00"):null,missingYear=latest&&lastSeenLive&&((latest-lastSeenLive)/86400000)>=365;
   add("top_fan","TOP FAN","topfan",topFiveAttendance&&Number(st.activity_average)>=7.7&&Number(st.activity_member_count||0)>=2);
-  add("veterano","VETERANO","cult",veteran);
+  /* Anzianità: badge gerarchici, non cumulativi. DAGLI ALBORI > VETERANO > FAN DI VECCHIA DATA. */
   add("dagli_albori","DAGLI ALBORI","intro",dawn);
-  add("fan_vecchia_data","FAN DI VECCHIA DATA","loyal",oldEnough&&!dawn);
+  add("veterano","VETERANO","cult",!dawn&&veteran);
+  add("fan_vecchia_data","FAN DI VECCHIA DATA","loyal",!dawn&&!veteran&&oldEnough);
   add("fedelissimo","FEDELISSIMO","loyal",Number(st.eligible_public_count||0)>=5&&Number(st.public_attendance_since_first||0)/Number(st.eligible_public_count||1)>=.80);
   add("still_rowing","STILL ROWING","live",maxStreak>=3&&Number(st.current_streak||0)===maxStreak);
   add("re_sagre","RE DELLE SAGRE","popular",topSagra.has(st.fan_id));
@@ -1867,7 +1909,7 @@ function renderAdminFanManagement(){
   if(!visible.length)box.innerHTML=`<div class="empty">${query?"Nessun fan corrisponde alla ricerca.":"Nessun profilo fan."}</div>`;
   $("adminFanCounter").textContent=query?`${visible.length}/${adminFans.length}`:`${adminFans.length}`;
 }
-async function editAdminFan(f){const name=prompt("Nome fan:",f.display_name||"");if(name===null||!name.trim())return;const nick=prompt("Nickname pubblico facoltativo:",f.nickname||"");if(nick===null)return;const {error}=await sb.rpc("admin_update_fan",{p_fan_id:f.id,p_display_name:name.trim(),p_nickname:emptyToNull(nick)});if(error)return alert(error.message);await loadFanArea();renderFanArea()}
+async function editAdminFan(f){const name=prompt("Nome fan (max 20 caratteri):",f.display_name||"");if(name===null||!name.trim())return;const cleanName=name.trim();if(Array.from(cleanName).length>20)return alert("Il nome può contenere al massimo 20 caratteri.");const nick=prompt("Nickname pubblico facoltativo:",f.nickname||"");if(nick===null)return;const changed=cleanName!==String(f.display_name||"").trim();const {error}=await sb.rpc("admin_update_fan",{p_fan_id:f.id,p_display_name:cleanName,p_nickname:emptyToNull(nick)});if(error)return alert(error.message);await loadFanArea();renderFanArea();if(changed)console.info("Nome precedente conservato automaticamente tra gli alias del fan.")}
 function modalSelect({title,note,label,options,confirmText="CONFERMA",selectedValue=""}){return new Promise(resolve=>{const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="110";const card=document.createElement("div");card.className="modal-card";card.style.width="min(540px,100%)";card.innerHTML=`<div class="modal-header"><h2>${esc(title)}</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="section-note" style="margin-bottom:12px">${esc(note||"")}</div><div class="form-field"><label>${esc(label)}</label><select class="choice-select"><option value="">Seleziona…</option>${options.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(selectedValue)?"selected":""}>${esc(o.label)}</option>`).join("")}</select></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="button" class="modal-save">${esc(confirmText)}</button></div></div>`;overlay.appendChild(card);document.body.appendChild(overlay);const finish=v=>{overlay.remove();resolve(v)};card.querySelector(".modal-close").onclick=()=>finish(null);card.querySelector(".modal-cancel").onclick=()=>finish(null);overlay.onclick=e=>{if(e.target===overlay)finish(null)};card.querySelector(".modal-save").onclick=()=>{const v=card.querySelector("select").value;if(!v)return alert("Seleziona una voce.");finish(v)}}) }
 async function manageFanAttendances(f){
   if(!concerts.length)await loadConcerts();
@@ -2027,10 +2069,10 @@ function fillAdminConcertSelect(){} // compatibilità: la creazione fan non usa 
 function openCreateFanPanel(){
   const seed=$("adminFanSearch")?.value.trim()||"",overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="115";
   const card=document.createElement("div");card.className="modal-card";card.style.width="min(620px,100%)";
-  card.innerHTML=`<div class="modal-header"><h2>NUOVO FAN</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="fan-create-config-grid"><div class="form-field full"><label>Nome</label><input id="newAdminFanName" value="${esc(seed)}" placeholder="Nome fan"></div><div class="form-field full"><label>Nickname pubblico (facoltativo)</label><input id="newAdminFanNickname" placeholder="Nickname"></div><div class="form-field full"><label>Alias admin (facoltativi)</label><input id="newAdminFanAliases" placeholder="Es. Marco R., Marchetto, Marketto"><div class="section-note" style="margin-top:4px">Puoi separare più alias con una virgola.</div></div></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="button" class="modal-save">CREA FAN</button></div></div>`;
+  card.innerHTML=`<div class="modal-header"><h2>NUOVO FAN</h2><button type="button" class="modal-close">×</button></div><div class="form-body"><div class="fan-create-config-grid"><div class="form-field full"><label>Nome</label><input id="newAdminFanName" maxlength="20" value="${esc(seed)}" placeholder="Nome fan (max 20)"></div><div class="form-field full"><label>Nickname pubblico (facoltativo)</label><input id="newAdminFanNickname" placeholder="Nickname"></div><div class="form-field full"><label>Alias admin (facoltativi)</label><input id="newAdminFanAliases" placeholder="Es. Marco R., Marchetto, Marketto"><div class="section-note" style="margin-top:4px">Puoi separare più alias con una virgola.</div></div></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="button" class="modal-save">CREA FAN</button></div></div>`;
   overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;card.querySelector(".modal-cancel").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
   const nameInput=card.querySelector("#newAdminFanName");setTimeout(()=>{nameInput.focus();nameInput.select()},0);
-  card.querySelector(".modal-save").onclick=async()=>{const name=nameInput.value.trim(),nick=card.querySelector("#newAdminFanNickname").value.trim(),aliases=card.querySelector("#newAdminFanAliases").value.split(",").map(x=>x.trim()).filter(Boolean);if(!name)return alert("Inserisci il nome.");const save=card.querySelector(".modal-save"),before=new Set(adminFans.map(x=>String(x.id)));save.disabled=true;save.textContent="CREAZIONE...";const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull(nick),p_concert_id:null});if(error){save.disabled=false;save.textContent="CREA FAN";return alert(error.message)}await loadFanArea();let created=adminFans.find(x=>!before.has(String(x.id))&&String(x.display_name||"").trim().toLowerCase()===name.toLowerCase())||adminFans.find(x=>!before.has(String(x.id)));if(created&&aliases.length){for(const alias of aliases){const {error:ae}=await sb.rpc("admin_add_fan_alias",{p_fan_id:created.id,p_alias:alias});if(ae){console.warn("Alias non aggiunto",alias,ae)}}await loadFanArea()}if($("adminFanSearch"))$("adminFanSearch").value=name;close();renderFanArea()}
+  card.querySelector(".modal-save").onclick=async()=>{const name=nameInput.value.trim(),nick=card.querySelector("#newAdminFanNickname").value.trim(),aliases=card.querySelector("#newAdminFanAliases").value.split(",").map(x=>x.trim()).filter(Boolean);if(!name)return alert("Inserisci il nome.");if(Array.from(name).length>20)return alert("Il nome può contenere al massimo 20 caratteri.");const save=card.querySelector(".modal-save"),before=new Set(adminFans.map(x=>String(x.id)));save.disabled=true;save.textContent="CREAZIONE...";const {error}=await sb.rpc("admin_create_fan",{p_display_name:name,p_nickname:emptyToNull(nick),p_concert_id:null});if(error){save.disabled=false;save.textContent="CREA FAN";return alert(error.message)}await loadFanArea();let created=adminFans.find(x=>!before.has(String(x.id))&&String(x.display_name||"").trim().toLowerCase()===name.toLowerCase())||adminFans.find(x=>!before.has(String(x.id)));if(created&&aliases.length){for(const alias of aliases){const {error:ae}=await sb.rpc("admin_add_fan_alias",{p_fan_id:created.id,p_alias:alias});if(ae){console.warn("Alias non aggiunto",alias,ae)}}await loadFanArea()}if($("adminFanSearch"))$("adminFanSearch").value=name;close();renderFanArea()}
 }
 $("adminCreateFanButton").onclick=openCreateFanPanel;
 $("adminFanSearch")?.addEventListener("input",()=>renderAdminFanManagement());
@@ -2061,7 +2103,7 @@ async function renderAnalyticsInto(id,force=false){const box=$(id);if(!box)retur
 /* FAN FRONTEND — richiede Edge Function fan-api */
 function getFanDeviceToken(){let t=localStorage.getItem("jm_fan_device_token");if(!t){t=crypto.randomUUID();localStorage.setItem("jm_fan_device_token",t)}return t}
 function fanFingerprint(){return [navigator.userAgent,navigator.language,Intl.DateTimeFormat().resolvedOptions().timeZone,screen.width,screen.height,window.devicePixelRatio||1].join("|")}
-function fitDenseList(el,maxNoScroll=30,minRow=20,maxRow=31){if(!el||el.offsetParent===null)return;const rows=[...el.children].filter(x=>x.matches?.(".song-row,.list-row,.member-global-song"));const n=rows.length;if(!n)return;el.classList.add("fit-dense-list");el.style.removeProperty("--fit-row-height");const available=el.clientHeight;if(available<=0)return;const desired=Math.floor((available-2)/n);if(n<=maxNoScroll&&desired>=minRow){el.style.setProperty("--fit-row-height",`${Math.min(maxRow,desired)}px`);el.style.overflowY="hidden"}else{el.style.setProperty("--fit-row-height",`${minRow}px`);el.style.overflowY="auto"}}
+function fitDenseList(el,maxNoScroll=30,minRow=20,maxRow=31){if(!el||el.offsetParent===null)return;const rows=[...el.children].filter(x=>x.matches?.(".song-row,.list-row,.member-global-song"));const n=rows.length;if(!n){el.style.overflowY="auto";return}el.classList.add("fit-dense-list");el.style.removeProperty("--fit-row-height");const available=el.clientHeight;if(available<=0){el.style.overflowY="auto";return}const desired=Math.floor((available-2)/n);if(n<=maxNoScroll&&desired>=minRow)el.style.setProperty("--fit-row-height",`${Math.min(maxRow,desired)}px`);else el.style.setProperty("--fit-row-height",`${minRow}px`);/* Lo scroll resta sempre disponibile: la densità non deve mai trasformarlo in hidden, in nessuna modalità o viewport. */el.style.overflowY="auto"}
 function fitViewportLists(){fitDenseList($("setlist"),30,20,30);fitDenseList($("excluded"),30,20,30);fitDenseList($("catalogList"),30,22,32);if(selectedMemberUsername!=="__global__"){const m=$("memberSetlist");if(m){m.classList.add("fit-dense-list");m.style.setProperty("--fit-row-height","24px");m.style.overflowY="auto"}}document.querySelectorAll(".member-global-list").forEach(x=>fitDenseList(x,30,18,25))}
 let denseFitTimer=null;function scheduleDenseFit(){clearTimeout(denseFitTimer);denseFitTimer=setTimeout(()=>requestAnimationFrame(fitViewportLists),35)}
 window.addEventListener("resize",scheduleDenseFit);
@@ -2225,7 +2267,7 @@ function publicViewVisible(id){const el=$(id);return !!el&&!el.hidden&&el.classL
 function schedulePublicDataRefresh(){clearTimeout(schedulePublicDataRefresh._t);schedulePublicDataRefresh._t=setTimeout(async()=>{try{if(!$("fanApp").hidden){if(canFan("concerts_view"))await loadPublicConcerts();if(openFanConcertId&&publicViewVisible("fanConcertsPage")&&!$("publicConcertDetail")?.querySelector("#fanLiveFeedbackRows"))await openPublicConcert(openFanConcertId,false)}if(!$("guestApp").hidden){if(canGuest("concerts_view"))await loadGuestConcerts();if(openGuestConcertId&&publicViewVisible("guestConcertsPage"))await openGuestConcert(openGuestConcertId)}}catch(err){console.warn("Realtime refresh",err)}},180)}
 function startPublicRealtimeSync(){stopPublicRealtimeSync();try{publicRealtimeChannel=sb.channel("jm-public-concert-sync").on("postgres_changes",{event:"*",schema:"public",table:"concert_setlist_items"},schedulePublicDataRefresh).on("postgres_changes",{event:"*",schema:"public",table:"concerts"},schedulePublicDataRefresh).subscribe(status=>{if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")console.warn("Realtime non disponibile, attivo polling di sicurezza")})}catch(err){console.warn("Realtime init",err)}publicRealtimeTimer=setInterval(()=>{if((!$("fanApp").hidden&&publicViewVisible("fanConcertsPage"))||(!$("guestApp").hidden&&publicViewVisible("guestConcertsPage")))schedulePublicDataRefresh()},5000)}
 
-$("fanLoginForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("fanName").value.trim();if(!name)return;$("fanLoginButton").disabled=true;$("fanLoginMessage").textContent="Accesso in corso...";try{let data=await fanApi("enter",{display_name:name});data=await resolvePossibleFanMatches(data);currentFan=data.fan||data;$("currentFanName").textContent=currentFan.display_name||currentFan.nickname||name;await loadPublicPermissions("fan");showOnly("fanApp");applyPublicPermissionsUI("fan");startPublicRealtimeSync();await loadFanFrontend();await runFanOnboardingIfNeeded();await runFanReviewQueue();if(data.is_new&&confirm("Vuoi impostare un nickname di recupero facoltativo? Serve solo se in futuro cambi telefono/browser e non è una nuova login.")){const value=prompt("Scegli un nickname facile da ricordare e possibilmente univoco. Puoi usare, ad esempio, il tuo username Instagram (es. @marketto178), perché è facile da ricordare e riscrivere:");if(value?.trim())await fanApi("set_recovery",{recovery_type:"nickname",recovery_value:value})}}catch(err){console.error(err);$("fanLoginMessage").textContent="Area fan non ancora collegata alla Edge Function: "+err.message}finally{$("fanLoginButton").disabled=false}});
+$("fanLoginForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("fanName").value.trim();if(!name)return;if(Array.from(name).length>20){$("fanLoginMessage").textContent="Il nome può contenere al massimo 20 caratteri.";return}$("fanLoginButton").disabled=true;$("fanLoginMessage").textContent="Accesso in corso...";try{let data=await fanApi("enter",{display_name:name});data=await resolvePossibleFanMatches(data);currentFan=data.fan||data;$("currentFanName").textContent=currentFan.display_name||currentFan.nickname||name;await loadPublicPermissions("fan");showOnly("fanApp");applyPublicPermissionsUI("fan");startPublicRealtimeSync();await loadFanFrontend();await runFanOnboardingIfNeeded();await runFanReviewQueue();if(data.is_new&&confirm("Vuoi impostare un nickname di recupero facoltativo? Serve solo se in futuro cambi telefono/browser e non è una nuova login.")){const value=prompt("Scegli un nickname facile da ricordare e possibilmente univoco. Puoi usare, ad esempio, il tuo username Instagram (es. @marketto178), perché è facile da ricordare e riscrivere:");if(value?.trim())await fanApi("set_recovery",{recovery_type:"nickname",recovery_value:value})}}catch(err){console.error(err);$("fanLoginMessage").textContent="Area fan non ancora collegata alla Edge Function: "+err.message}finally{$("fanLoginButton").disabled=false}});
 $("fanLogout").onclick=()=>{stopPublicRealtimeSync();currentFan=null;openFanConcertId=null;showOnly("welcomeScreen")};
 $("fanApp").querySelectorAll("[data-fan-page]").forEach(btn=>btn.onclick=async()=>{if(btn.hidden)return;$("fanApp").querySelectorAll("[data-fan-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("fanApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.fanPage).classList.add("active");if(btn.dataset.fanPage==="fanCatalogPage")await loadPublicCatalog();if(btn.dataset.fanPage==="fanConcertsPage")await loadPublicConcerts();if(btn.dataset.fanPage==="fanRankingsPage")await renderPublicRankings();if(btn.dataset.fanPage==="fanAnalyticsPage")await renderAnalyticsInto("fanAnalyticsContent");if(btn.dataset.fanPage==="fanProfilePage")await loadFanProfile()});
 $("guestApp").querySelectorAll("[data-guest-page]").forEach(btn=>btn.onclick=async()=>{if(btn.hidden)return;$("guestApp").querySelectorAll("[data-guest-page]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("guestApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.guestPage).classList.add("active");if(btn.dataset.guestPage==="guestConcertsPage")await loadGuestConcerts();if(btn.dataset.guestPage==="guestRankingsPage")await renderGuestRankings();if(btn.dataset.guestPage==="guestAnalyticsPage")await renderAnalyticsInto("guestAnalyticsContent")});
