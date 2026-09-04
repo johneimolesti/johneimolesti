@@ -1028,7 +1028,7 @@ html,body{overflow-y:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4d</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4e</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1142,7 +1142,7 @@ html,body{overflow-y:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4d</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4e</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1227,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4d";
+const APP_VERSION="v4.7.4e";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2318,14 +2318,20 @@ window.addEventListener("resize",scheduleDenseFit);
 /* Scroll contract: ripristina anche vecchie regole inline dopo cambio pagina o Full Immersion.
    Per implementazioni future usare .page/.panel/.list o data-scroll-container. */
 const SCROLL_CONTAINER_SELECTOR=["#memberApp","#fanApp","#guestApp","#memberApp>main","#fanApp>main","#guestApp>main",".page.active",".page.active .panel",".page.active .list",".page.active .song-list","#mySetlistPage .columns",".fan-admin-dashboard",".proposal-panel",".concert-layout>.panel",".member-global-grid",".member-global-col",".member-global-list",".concert-setlist-pane",".concert-catalog",".admin-ranking-scroll",".permission-matrix-scroll",".approval-modal-list",".activity-list",".fan-catalog-scroll",".fan-onboarding-card .form-body",".modal.open .modal-card",".modal.open .form-body",".analytics-shell",".venue-list-grid",".venue-zone-list","[data-scroll-container]"].join(",");
-function enforceScrollContract(root=document){const nodes=[];if(root instanceof Element&&root.matches(SCROLL_CONTAINER_SELECTOR))nodes.push(root);if(root.querySelectorAll)nodes.push(...root.querySelectorAll(SCROLL_CONTAINER_SELECTOR));nodes.forEach(el=>{if(el.hidden)return;el.style.setProperty("overflow-y","auto","important")})}
+function setScrollAutoImportant(el){
+  if(!el||el.hidden)return;
+  if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
+}
+function enforceScrollContract(root=document){const nodes=[];if(root instanceof Element&&root.matches(SCROLL_CONTAINER_SELECTOR))nodes.push(root);if(root.querySelectorAll)nodes.push(...root.querySelectorAll(SCROLL_CONTAINER_SELECTOR));nodes.forEach(setScrollAutoImportant)}
 function enforceOverflowSafety(){
-  ["memberApp","fanApp","guestApp"].forEach(id=>{const app=$(id);if(!app||app.hidden)return;[app,...app.querySelectorAll("*")].forEach(el=>{if(!(el instanceof HTMLElement)||el.hidden||el.dataset.scrollLock==="true")return;const cs=getComputedStyle(el);if((cs.overflowY==="hidden"||cs.overflowY==="clip")&&el.scrollHeight>el.clientHeight+2){el.style.setProperty("overflow-y","auto","important")}})})
+  ["memberApp","fanApp","guestApp"].forEach(id=>{const app=$(id);if(!app||app.hidden)return;[app,...app.querySelectorAll("*")].forEach(el=>{if(!(el instanceof HTMLElement)||el.hidden||el.dataset.scrollLock==="true")return;const cs=getComputedStyle(el);if((cs.overflowY==="hidden"||cs.overflowY==="clip")&&el.scrollHeight>el.clientHeight+2)setScrollAutoImportant(el)})})
 }
 let scrollSafetyTimer=null;function scheduleScrollSafety(){clearTimeout(scrollSafetyTimer);scrollSafetyTimer=setTimeout(()=>{enforceScrollContract();enforceOverflowSafety()},20)}
 function resyncScrollableLayout(){enforceScrollContract();enforceOverflowSafety();scheduleDenseFit();requestAnimationFrame(()=>{enforceScrollContract();enforceOverflowSafety()});setTimeout(()=>{enforceScrollContract();enforceOverflowSafety()},80);setTimeout(()=>{enforceScrollContract();enforceOverflowSafety()},260)}
 document.addEventListener("fullscreenchange",resyncScrollableLayout);document.addEventListener("webkitfullscreenchange",resyncScrollableLayout);window.addEventListener("orientationchange",resyncScrollableLayout);window.addEventListener("resize",scheduleScrollSafety);
-const scrollContractObserver=new MutationObserver(ms=>{for(const m of ms){if(m.type==="childList")m.addedNodes.forEach(n=>{if(n instanceof Element)enforceScrollContract(n)});else if(m.target instanceof Element)enforceScrollContract(m.target)}scheduleScrollSafety()});scrollContractObserver.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style","hidden"]});setTimeout(resyncScrollableLayout,0);
+/* IMPORTANTE: osserviamo solo nuovi nodi. Osservare style/class/hidden mentre questa stessa
+   routine modifica overflow-y crea un feedback loop del MutationObserver e può saturare il main thread. */
+const scrollContractObserver=new MutationObserver(ms=>{for(const m of ms)m.addedNodes.forEach(n=>{if(n instanceof Element)enforceScrollContract(n)});scheduleScrollSafety()});scrollContractObserver.observe(document.documentElement,{subtree:true,childList:true});setTimeout(resyncScrollableLayout,0);
 
 async function fanApi(action,payload={}){const guest=payload?.guest===true,body=guest?{action,...payload}:{action,device_token:getFanDeviceToken(),fingerprint:fanFingerprint(),...payload};const res=await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},body:JSON.stringify(body)});let data={};try{data=await res.json()}catch{}if(!res.ok)throw new Error(data.error||`fan-api HTTP ${res.status}`);return data}
 async function resolvePossibleFanMatches(data){const matches=data.possible_matches||[];if(!matches.length)return data;const id=await modalSelect({title:"PROFILO GIÀ ESISTENTE?",note:"Abbiamo trovato profili con un nome o alias simile. Se uno è il tuo, selezionalo; altrimenti chiudi questa finestra e continuerai come nuovo fan.",label:"Profilo precedente",options:matches.map(m=>({value:m.fan_id,label:`${m.fan_name}${m.fan_since?` — fan dal ${formatDate(m.fan_since)}`:""}`})),confirmText:"QUESTO È IL MIO PROFILO"});if(!id)return data;const target=matches.find(m=>m.fan_id===id);if(!target)return data;let recovery=null;if(target.has_recovery){recovery=prompt(`Per verificare che “${target.fan_name}” sia davvero il tuo profilo, inserisci il nickname di recupero che avevi scelto:`);if(recovery===null)return data}const result=await fanApi("claim_candidate",{target_fan_id:target.fan_id,recovery_value:recovery});if(result.merged){return {...data,fan:result.fan,possible_matches:[]}}alert(result.message||"Richiesta di unificazione inviata agli admin.");return data}
@@ -2745,35 +2751,35 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".analytics-shell",".venue-list-grid",".venue-zone-list",
     "[data-scroll-container]"
   ].join(",");
+  function v474SetScrollAuto(el){
+    if(!el)return;
+    if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important");
+    el.dataset.scrollContract="always";
+  }
   function v474UnlockScroll(root=document){
     const nodes=[];
     if(root instanceof Element && root.matches(V474_SCROLL_SELECTOR))nodes.push(root);
     if(root.querySelectorAll)nodes.push(...root.querySelectorAll(V474_SCROLL_SELECTOR));
-    nodes.forEach(el=>{
-      el.style.setProperty("overflow-y","auto","important");
-      if(el.style.overflow==="hidden"||el.style.overflow==="clip")el.style.removeProperty("overflow");
-      el.dataset.scrollContract="always";
-    });
-    document.documentElement.style.setProperty("overflow-y","auto","important");
-    document.body.style.setProperty("overflow-y","auto","important");
+    nodes.forEach(v474SetScrollAuto);
+    v474SetScrollAuto(document.documentElement);
+    v474SetScrollAuto(document.body);
   }
   let v474ScrollTimer=null;
   function v474ScheduleScrollUnlock(){
     clearTimeout(v474ScrollTimer);
-    const run=()=>{v474UnlockScroll();try{fitViewportLists()}catch{}};
+    const run=()=>v474UnlockScroll();
     requestAnimationFrame(run);
     v474ScrollTimer=setTimeout(run,45);
     setTimeout(run,180);
     setTimeout(run,420);
   }
+  /* Non osservare style/class/hidden: la routine di scroll scrive proprio style e quindi
+     si auto-risveglierebbe senza fine. I nuovi contenitori vengono comunque intercettati. */
   const v474ScrollObserver=new MutationObserver(muts=>{
-    for(const m of muts){
-      if(m.type==="childList")m.addedNodes.forEach(n=>{if(n.nodeType===1)v474UnlockScroll(n)});
-      else if(m.target instanceof Element)v474UnlockScroll(m.target);
-    }
+    for(const m of muts)m.addedNodes.forEach(n=>{if(n.nodeType===1)v474UnlockScroll(n)});
     v474ScheduleScrollUnlock();
   });
-  v474ScrollObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style","hidden"]});
+  v474ScrollObserver.observe(document.body,{subtree:true,childList:true});
   ["resize","orientationchange","fullscreenchange","webkitfullscreenchange"].forEach(ev=>window.addEventListener(ev,v474ScheduleScrollUnlock));
   document.addEventListener("click",()=>setTimeout(v474ScheduleScrollUnlock,0),true);
   v474ScheduleScrollUnlock();
