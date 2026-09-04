@@ -1250,6 +1250,44 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 }
 </style>
 
+<style id="v4-7-4l-universal-scroll">
+/* V4.7.4l — CONTRATTO UNIVERSALE DI SCROLL.
+   Il main dell'app è sempre lo scroller principale. Qualunque lista/pannello che riceva
+   un vincolo di altezza conserva inoltre il proprio overflow:auto. Nessun JS riscrive overflow. */
+body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#guestApp:not([hidden])){height:100dvh!important;min-height:0!important;overflow:hidden!important}
+#memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#memberApp:not([hidden])>header,#fanApp:not([hidden])>header,#guestApp:not([hidden])>header,#memberApp:not([hidden])>.nav,#fanApp:not([hidden])>.fan-bottom-nav,#guestApp:not([hidden])>.fan-bottom-nav{flex:0 0 auto!important;min-height:0!important}
+#memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:scroll!important;overflow-x:hidden!important;overscroll-behavior-y:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-gutter:stable!important}
+#memberApp .page:not(.active),#fanApp .page:not(.active),#guestApp .page:not(.active){display:none!important}
+#memberApp .page.active,#fanApp .page.active,#guestApp .page.active{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+#memberApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,.member-global-list,.member-global-grid,.fan-attendance-list,.activity-list,.approval-modal-list,.numeric-settings-list,.label-setup-list,.fan-operation-log,.venue-list-grid,.venue-zone-list,.onboarding-rating-list,.member-unrated-list,.concert-detail,.concert-catalog-list,.concert-setlist-pane,.setup-section,[data-scroll-container],[class*="-scroll"],[class$="-list"]),#fanApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.onboarding-rating-list,.concert-detail,[data-scroll-container],[class*="-scroll"],[class$="-list"]),#guestApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.concert-detail,[data-scroll-container],[class*="-scroll"],[class$="-list"]){min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
+#memberApp>.nav,.fan-bottom-nav,.setup-tabs,.member-tabs,.mobile-section-subnav,.concert-scope-tabs,.log-scope-tabs,.toolbar{overflow:auto!important;-webkit-overflow-scrolling:touch!important}
+#memberApp #setupPage.active{display:block!important;height:auto!important;overflow:visible!important;padding-bottom:20px!important}
+#setupPage>.setup-section:not([hidden]){display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+#setupPage>.setup-section:not([hidden])>.panel,#setupPage>.setup-section:not([hidden]) .panel{height:auto!important;max-height:none!important;overflow-y:auto!important}
+#venueList,.venue-list-grid,.venue-zone-list,.permission-matrix-scroll,.numeric-settings-list,.label-setup-list,.fan-operation-log{overflow-y:auto!important;max-height:none!important}
+#proposalsPage.active,#membersPage.active,#songRankingPage.active,#concertsPage.active,#analyticsPage.active,#fansAdminPage.active{display:block!important;height:auto!important;min-height:0!important;overflow:visible!important}
+#proposalsPage .three-columns,#membersPage>.panel,#songRankingPage>.panel,#concertsPage .concert-layout>.panel,#fansAdminPage .fan-admin-dashboard>.panel{min-height:0!important;overflow-y:auto!important}
+#mediaList,#pureList,#fusedList,#memberSetlist,#songRankingList,#concertList,#concertDetail,#fanRankingList,#adminFanList{overflow-y:auto!important;min-height:0!important;max-height:none!important}
+:fullscreen #memberApp>main,:fullscreen #fanApp>main,:fullscreen #guestApp>main,#memberApp:fullscreen>main,#fanApp:fullscreen>main,#guestApp:fullscreen>main,:-webkit-full-screen #memberApp>main,:-webkit-full-screen #fanApp>main,:-webkit-full-screen #guestApp>main,body.app-full-immersion #memberApp>main,body.app-full-immersion #fanApp>main,body.app-full-immersion #guestApp>main{min-height:0!important;overflow-y:scroll!important;overflow-x:hidden!important;scrollbar-gutter:stable!important}
+:fullscreen .page.active,:-webkit-full-screen .page.active,body.app-full-immersion .page.active{height:auto!important;overflow:visible!important}
+:fullscreen :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]),:-webkit-full-screen :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]),body.app-full-immersion :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]){overflow-y:auto!important;min-height:0!important}
+@media(max-width:720px), (hover:none) and (pointer:coarse){
+  #memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){display:flex!important;position:fixed!important;inset:0!important;height:100dvh!important;overflow:hidden!important}
+  #memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{overflow-y:scroll!important;touch-action:pan-y!important}
+  #membersPage.active,#songRankingPage.active,#proposalsPage.active{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;overflow:visible!important}
+  #membersPage>.member-tabs{display:flex!important;width:100%!important;overflow-x:auto!important;overflow-y:auto!important}
+  #membersPage>.panel,#songRankingPage>.panel{display:block!important;height:auto!important;max-height:none!important;overflow-y:auto!important}
+  #memberSetlist,#songRankingList{display:block!important;height:auto!important;max-height:none!important;overflow-y:auto!important}
+  #membersPage.is-global-view #memberSetlist.member-global-grid{display:grid!important;grid-template-columns:repeat(5,minmax(135px,1fr))!important;overflow:auto!important}
+  #proposalsPage .three-columns{display:block!important}
+  #proposalsPage .proposal-panel.mobile-subview-active{display:block!important;overflow-y:auto!important}
+  #proposalsPage .proposal-panel:not(.mobile-subview-active){display:none!important}
+}
+.modal.open{position:fixed!important;inset:0!important;overflow:hidden!important}
+.modal.open>.modal-card{max-height:calc(100dvh - 16px)!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.modal.open>.modal-card>.form-body,.modal.open>.modal-card>.live-activity-modal-body,.modal.open>.modal-card>.approval-modal-list,#songModal.open>.modal-card>#songEditForm{flex:1 1 auto!important;min-height:0!important;overflow-y:scroll!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
+</style>
 </head>
 <body>
 
@@ -1293,7 +1331,7 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4k</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4l</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1407,7 +1445,7 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4k</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4l</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1492,7 +1530,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4k";
+const APP_VERSION="v4.7.4l";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -1540,8 +1578,8 @@ const adminSongRankingSort={key:"rank",dir:"asc"};
 const adminFanRankingSort={key:"rank",dir:"asc"};
 const DEFAULT_UI_PERMISSIONS={
   member:{member_setlist_view:true,member_setlist_edit:true,proposals_view:true,catalog_view:true,catalog_vote:true,catalog_advanced_vote:true,song_propose:true,member_setlists_view:true,concerts_view:true,private_shows_view:true,concert_setlist_view:true,live_attendance:false,live_vote:false,rankings_view:true,song_detail_view:true,fan_section_view:true},
-  fan:{member_setlist_view:false,member_setlist_edit:false,proposals_view:false,catalog_view:true,catalog_vote:true,catalog_advanced_vote:true,song_propose:false,member_setlists_view:false,concerts_view:true,private_shows_view:true,concert_setlist_view:true,live_attendance:true,live_vote:true,rankings_view:true,song_detail_view:true,fan_section_view:false},
-  guest:{member_setlist_view:false,member_setlist_edit:false,proposals_view:false,catalog_view:false,catalog_vote:false,catalog_advanced_vote:false,song_propose:false,member_setlists_view:false,concerts_view:true,private_shows_view:true,concert_setlist_view:true,live_attendance:false,live_vote:false,rankings_view:true,song_detail_view:true,fan_section_view:false}
+  fan:{member_setlist_view:false,member_setlist_edit:false,proposals_view:false,catalog_view:true,catalog_vote:true,catalog_advanced_vote:true,song_propose:false,member_setlists_view:false,concerts_view:true,private_shows_view:true,concert_setlist_view:true,live_attendance:true,live_vote:true,rankings_view:false,song_detail_view:true,fan_section_view:false},
+  guest:{member_setlist_view:false,member_setlist_edit:false,proposals_view:false,catalog_view:false,catalog_vote:false,catalog_advanced_vote:false,song_propose:false,member_setlists_view:false,concerts_view:true,private_shows_view:true,concert_setlist_view:true,live_attendance:false,live_vote:false,rankings_view:false,song_detail_view:true,fan_section_view:false}
 };
 
 const $=id=>document.getElementById(id);
@@ -2587,7 +2625,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.7.4k — lo scroll è governato solo dal CSS.
+/* v4.7.4l — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3027,7 +3065,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.7.4k — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.7.4l — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -3384,8 +3422,16 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   async function v474RunMemberUnratedPrompt(){
     if(!currentUser||!canMember("catalog_vote")||v474MemberPromptUser===currentUser.id)return false;
     if(!songs?.length)return false;
-    v474MemberPromptUser=currentUser.id;
-    const unrated=activeSongs().filter(s=>!ownVote(s.id)?.molesti_score);if(!unrated.length)return false;
+    const userId=currentUser.id;
+    try{await loadMemberVotes()}catch(err){console.warn("Controllo voti membro non disponibile",err);return false}
+    const ratedIds=new Set((memberVotes||[]).filter(v=>
+      String(v.member_id||userId)===String(userId)&&
+      v.molesti_score!==null&&v.molesti_score!==undefined&&String(v.molesti_score).trim()!==""&&
+      Number.isFinite(Number(v.molesti_score))
+    ).map(v=>String(v.song_id)));
+    const unrated=activeSongs().filter(s=>!ratedIds.has(String(s.id)));
+    v474MemberPromptUser=userId;
+    if(!unrated.length)return false;
     return new Promise(resolve=>{
       const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="145";
       const card=document.createElement("div");card.className="modal-card";card.style.width="min(780px,calc(100vw - 18px))";
@@ -3396,7 +3442,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       unrated.forEach(song=>{
         const row=document.createElement("div");row.className="member-unrated-row";row.innerHTML=`<div class="member-unrated-title">${esc(song.title)}</div><div class="member-unrated-scale">${ratingButtonsMarkup("",false)}</div>`;
         const scale=row.querySelector(".member-unrated-scale");
-        scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{scale.querySelectorAll("button").forEach(x=>x.disabled=true);try{await v474SaveMemberQuickVote(song.id,Number(btn.dataset.value),{deferRefresh:true});v474MemberPromptDirty=true;row.remove();if(!list.querySelector(".member-unrated-row"))setTimeout(close,180)}catch(err){alert(err.message);scale.querySelectorAll("button").forEach(x=>x.disabled=false)}});
+        scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{scale.querySelectorAll("button").forEach(x=>x.disabled=true);try{await v474SaveMemberQuickVote(song.id,Number(btn.dataset.value),{deferRefresh:true});ratedIds.add(String(song.id));v474MemberPromptDirty=true;row.remove();if(!list.querySelector(".member-unrated-row"))setTimeout(close,180)}catch(err){alert(err.message);scale.querySelectorAll("button").forEach(x=>x.disabled=false)}});
         list.appendChild(row)
       })
     })
