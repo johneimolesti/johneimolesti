@@ -797,7 +797,7 @@ body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,body
 </style>
 
 <style id="v4-7-3-scroll-contract">
-/* SCROLL CONTRACT V4.7.3 — permanente: i contenitori funzionali non possono bloccare lo scroll verticale. */
+/* SCROLL CONTRACT V4.7.4 — permanente: i contenitori funzionali non possono bloccare lo scroll verticale. */
 html,body{overflow:auto!important}
 #memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){overflow:auto!important}
 #memberApp>main,#fanApp>main,#guestApp>main{overflow:auto!important;min-height:0}
@@ -830,6 +830,161 @@ html,body{overflow:auto!important}
 #guestApp:not([hidden]) .page.active .song-list,
 .modal.open .modal-card,.modal.open .form-body{overflow-y:auto!important;overscroll-behavior:contain}
 </style>
+
+<style id="v4-7-4-enhancements">
+/* V4.7.4 — lo scroll dei contenitori applicativi non viene mai bloccato. */
+#memberApp,#fanApp,#guestApp,
+#memberApp>main,#fanApp>main,#guestApp>main,
+#memberApp .page,#fanApp .page,#guestApp .page,
+#memberApp .panel,#fanApp .panel,#guestApp .panel,
+#memberApp .list,#fanApp .list,#guestApp .list,
+#memberApp .song-list,#fanApp .song-list,#guestApp .song-list,
+#memberApp .columns,#memberApp .three-columns,#memberApp .concert-layout,
+#fanApp .rankings-grid,#guestApp .rankings-grid,
+.setup-section,.modal.open .modal-card,.modal.open .form-body,
+[data-scroll-container]{
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch
+}
+html,body{overflow-y:auto!important}
+
+/* Sottomenu mobile: stessa grammatica visiva della navigazione principale. */
+.mobile-section-subnav{display:none}
+@media(max-width:720px){
+  .mobile-section-subnav{
+    display:flex;gap:4px;position:sticky;top:0;z-index:18;
+    margin:0 0 7px;padding:4px;border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;background:rgba(11,14,20,.93);backdrop-filter:blur(14px);
+    overflow-x:auto!important
+  }
+  .mobile-section-subnav button{
+    flex:1 0 auto;min-width:74px;padding:7px 9px;border:1px solid transparent;
+    border-radius:9px;background:transparent;color:#7f8792;font-size:8px;font-weight:900;
+    letter-spacing:.04em;white-space:nowrap
+  }
+  .mobile-section-subnav button.active{
+    border-color:rgba(243,210,52,.25);background:rgba(243,210,52,.08);color:#f1d95b
+  }
+  #proposalsPage .proposal-panel:not(.mobile-subview-active){display:none!important}
+  #fanRankingsPage .rankings-grid>.panel:not(.mobile-subview-active),
+  #guestRankingsPage .rankings-grid>.panel:not(.mobile-subview-active){display:none!important}
+  #fanRankingsPage .rankings-grid,#guestRankingsPage .rankings-grid{display:block}
+}
+
+/* COPIA: testo quando c'è spazio, icona standard quando il bottone viene compresso. */
+.copy-adaptive{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;min-width:30px}
+.copy-adaptive .copy-icon{display:none;width:14px;height:14px;flex:0 0 auto}
+.copy-adaptive.copy-icon-only .copy-icon{display:block}
+.copy-adaptive.copy-icon-only .copy-label{display:none}
+
+/* Soglie personali: indicatori, mai limiti. */
+.setlist-guides{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:5px 7px;
+  border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.018)
+}
+.setlist-guide-field{display:flex;align-items:center;gap:4px;color:#858d98;font-size:7px;font-weight:850;text-transform:uppercase}
+.setlist-guide-field input{width:58px;height:25px;padding:3px 6px;border-radius:7px}
+.setlist-guide-summary{margin-left:auto;color:#68717d;font-size:7px}
+.setlist-threshold-divider{
+  display:flex;align-items:center;gap:7px;min-height:25px;padding:2px 8px;
+  color:#9ba2ad;font-size:7px;font-weight:900;letter-spacing:.08em;text-transform:uppercase
+}
+.setlist-threshold-divider:before,.setlist-threshold-divider:after{
+  content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(243,210,52,.25))
+}
+.setlist-threshold-divider:after{background:linear-gradient(90deg,rgba(243,210,52,.25),transparent)}
+.setlist-threshold-divider span{padding:2px 7px;border:1px solid rgba(243,210,52,.18);border-radius:999px;color:#b8a94d}
+
+/* Concerti */
+.concert-period-section{display:grid;min-width:0}
+.concert-period-toggle{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+  padding:7px 8px;border:0;border-top:1px solid rgba(255,255,255,.065);
+  border-bottom:1px solid rgba(255,255,255,.065);background:rgba(255,255,255,.018);
+  color:#858d98;font-size:7px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;text-align:left
+}
+.concert-period-toggle .period-chevron{font-size:11px;transition:transform .16s ease}
+.concert-period-section.is-collapsed .concert-period-body{display:none}
+.concert-period-section.is-collapsed .period-chevron{transform:rotate(-90deg)}
+@media(min-width:721px){.concert-period-toggle{pointer-events:none}.concert-period-toggle .period-chevron{display:none}}
+.concert-title-line{display:flex;align-items:center;gap:6px;min-width:0}
+.concert-title-line .concert-title-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.concert-mode-label{
+  display:inline-flex;align-items:center;flex:0 0 auto;padding:0 3px;border:1px solid var(--mode-color,#8d95a1);
+  border-radius:4px;background:var(--mode-bg,transparent);color:var(--mode-color,#8d95a1);
+  font-size:5.5px;font-weight:950;letter-spacing:.08em;line-height:1.45
+}
+.concert-row-submeta{margin-top:2px;color:#777f8b;font-size:7px;line-height:1.4}
+.concert-venue-link{
+  appearance:none;border:0!important;padding:0!important;background:transparent!important;color:inherit!important;
+  font:inherit!important;text-decoration:underline;text-decoration-color:rgba(190,196,205,.4);
+  text-underline-offset:2px;cursor:pointer
+}
+.venue-card-popup{z-index:170}
+.venue-card-popup .modal-card{width:min(430px,calc(100vw - 18px))}
+.venue-card-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:9px}
+.venue-card-grid dt{color:#727a86;font-weight:850;text-transform:uppercase}.venue-card-grid dd{margin:0;color:#e3e6eb}
+.concert-detail-location-line{padding:0 8px 7px;color:#808894;font-size:8px}
+.concert-detail-close{white-space:nowrap}
+
+/* Colori doppi Setup */
+.label-setup-row{grid-template-columns:minmax(118px,.72fr) 72px minmax(220px,2.1fr) minmax(82px,.48fr) minmax(105px,.58fr) minmax(76px,.44fr) 42px!important}
+.label-setup-setlist{grid-template-columns:minmax(118px,.72fr) 72px minmax(220px,2.1fr) minmax(150px,.75fr) 42px!important}
+.dual-color-picker{display:grid;grid-template-columns:auto auto;gap:3px;align-items:center;justify-content:start}
+.dual-color-picker input[type=color]{width:32px;height:28px;padding:1px;border-radius:6px}
+.dual-color-picker .bg-transparent{
+  grid-column:1/-1;padding:2px 5px;border:1px solid rgba(255,255,255,.09);border-radius:6px;
+  background:transparent;color:#747c87;font-size:5.5px;font-weight:900
+}
+.dual-color-picker .bg-transparent.is-transparent{color:#a7aeb8;border-color:rgba(167,174,184,.25)}
+.mode-setup-list{display:grid;gap:6px;margin-top:8px}
+.mode-setup-row{display:grid;grid-template-columns:minmax(100px,1fr) auto auto;gap:8px;align-items:center;padding:7px;border-bottom:1px solid rgba(255,255,255,.055)}
+.mode-setup-key{font-size:7px;color:#69717d;text-transform:uppercase}
+
+/* Voto rapido membri */
+.member-catalog-row{display:grid!important;grid-template-columns:minmax(160px,1fr) minmax(250px,auto) auto;align-items:center;gap:8px}
+.member-catalog-meta{margin-top:2px;color:#747c87;font-size:7px}
+.member-quick-vote{display:flex;align-items:center;gap:2px;min-width:0}
+.member-quick-vote button,.member-unrated-scale button{
+  width:23px;height:23px;padding:0;border:1px solid rgba(255,255,255,.10);border-radius:6px;
+  background:rgba(255,255,255,.025);color:#8c94a0;font-size:7px;font-weight:900
+}
+.member-quick-vote button.selected,.member-unrated-scale button.selected{
+  border-color:rgba(243,210,52,.45);background:rgba(243,210,52,.12);color:#f3d234
+}
+.member-unrated-list{display:grid;gap:3px;max-height:65vh;overflow-y:auto!important}
+.member-unrated-row{display:grid;grid-template-columns:minmax(130px,1fr) auto;gap:8px;align-items:center;padding:6px;border-bottom:1px solid rgba(255,255,255,.05)}
+.member-unrated-title{font-size:9px;font-weight:900;color:#e6e8ec}
+.member-unrated-scale{display:flex;gap:2px}
+@media(max-width:720px){
+  .member-catalog-row{grid-template-columns:1fr!important;gap:5px}
+  .member-quick-vote{overflow-x:auto!important;padding-bottom:2px}
+  .member-quick-vote button{flex:0 0 25px;width:25px}
+  .member-unrated-row{grid-template-columns:1fr}
+  .member-unrated-scale{overflow-x:auto!important}
+  .member-unrated-scale button{flex:0 0 27px;width:27px}
+}
+
+/* Onboarding fan a step */
+.onboarding-intro-card{width:min(560px,calc(100vw - 18px))}
+.onboarding-intro-copy{font-size:11px;line-height:1.65;color:#c5cad2}
+.onboarding-progress{display:flex;gap:4px;margin:0 0 10px}
+.onboarding-progress span{height:3px;flex:1;border-radius:99px;background:rgba(255,255,255,.07)}
+.onboarding-progress span.done{background:rgba(243,210,52,.55)}
+.onboarding-rating-list{display:grid;gap:6px;max-height:60vh;overflow-y:auto!important}
+.onboarding-rating-row{display:grid;grid-template-columns:minmax(130px,1fr) auto;gap:8px;align-items:center;padding:7px;border:1px solid rgba(255,255,255,.06);border-radius:9px}
+.onboarding-rating-title{font-size:9px;font-weight:900}.onboarding-rating-meta{font-size:7px;color:#777f8b;margin-top:2px}
+.onboarding-rating-scale{display:flex;gap:2px;overflow-x:auto!important}
+.onboarding-rating-scale button{flex:0 0 25px;width:25px;height:25px;padding:0;border-radius:6px;font-size:7px}
+@media(max-width:620px){.onboarding-rating-row{grid-template-columns:1fr}}
+
+/* Analytics aggiuntivi */
+.analytics-extra{margin-top:10px}
+.analytics-badge-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:720px){.analytics-badge-columns{grid-template-columns:1fr}}
+</style>
+
 </head>
 <body>
 
@@ -873,7 +1028,7 @@ html,body{overflow:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.3</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -987,7 +1142,7 @@ html,body{overflow:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.3</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1072,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.3";
+const APP_VERSION="v4.7.4";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2179,7 +2334,7 @@ function fanOnboardingDiscoveryLabel(value){return {friend_member:"Amico/a di un
 function fanOnboardingHeardLabel(value){return {social_live_clips:"Spezzoni dei live sui social",private_recordings:"Registrazioni o video girati privatamente",shared_by_someone:"Me li ha fatti sentire qualcuno",never_heard:"Non avevo ancora sentito nessun pezzo"}[value]||value}
 function fanProfileDate(value){if(!value)return"—";const d=new Date(value);return Number.isNaN(d.getTime())?"—":d.toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"})}
 async function openFanOnboardingQuestionnaire(data,options={}){
-  const editMode=!!options.edit,existing=data?.questionnaire||null,songs=Array.isArray(data?.songs)?data.songs:[],fanName=currentFan?.nickname||currentFan?.display_name||"fan";
+  const editMode=!!options.edit,flowMode=!!options.flow,existing=data?.questionnaire||null,songs=Array.isArray(data?.songs)?data.songs:[],fanName=currentFan?.nickname||currentFan?.display_name||"fan";
   return new Promise(resolve=>{
     const overlay=document.createElement("div");overlay.className="modal open fan-onboarding-modal";
     const card=document.createElement("div");card.className="modal-card fan-onboarding-card";
@@ -2253,7 +2408,7 @@ async function openFanOnboardingQuestionnaire(data,options={}){
     };
 
     const renderQuestions=(prefill=existing)=>{
-      card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${editMode?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
+      card.innerHTML=`<div class="modal-header"><h2>${editMode?"PROFILO · QUESTIONARIO":`BENVENUTO, ${esc(String(fanName).toUpperCase())}`}</h2>${(editMode||flowMode)?'<button type="button" class="small-btn fan-onboarding-close">CHIUDI</button>':""}</div>
         <div class="form-body">
           <div class="fan-onboarding-intro">${editMode?"I gusti cambiano: puoi aggiornare queste risposte quando vuoi. Le statistiche useranno sempre l'ultima versione salvata.":'Prima di entrare ti rubiamo un minuto per un piccolo questionario. Viene proposto una sola volta in automatico, aiuta a conoscere meglio il pubblico e assegna alcuni punti alla prima compilazione e alle preferenze musicali.'}</div>
           <section class="fan-onboarding-question">
@@ -2288,7 +2443,7 @@ async function openFanOnboardingQuestionnaire(data,options={}){
         const topIds=selects.map(x=>x.value).filter(Boolean);if(new Set(topIds).size!==topIds.length){status.textContent="Nella Top 3 ogni brano può comparire una sola volta.";return}
         const absoluteIndex=stars.findIndex(x=>x.checked),absoluteId=absoluteIndex>=0?selects[absoluteIndex].value:null;if(absoluteIndex>=0&&!absoluteId){status.textContent="Per indicare la N.1 assoluta scegli prima il brano.";return}
         const payload={attended_concert:attended,discovery_source:discovery,heard_sources:heardSources,top_song_ids:topIds,absolute_song_id:absoluteId};
-        if(!editMode&&attended){renderAttendanceStep(payload);return}
+        if(!editMode&&!flowMode&&attended){renderAttendanceStep(payload);return}
         submit.disabled=true;status.textContent="Salvataggio...";
         try{await fanApi("submit_onboarding",payload);status.textContent="Salvato ✓";if(canFan("rankings_view"))renderPublicRankings().catch(()=>{});setTimeout(finish,220)}catch(err){status.textContent=err.message||"Errore durante il salvataggio";submit.disabled=false}
       };
@@ -2556,6 +2711,704 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
 /* INIT */
 (async()=>{try{const {data:{session}}=await sb.auth.getSession();if(session?.user){await startMemberApp();return}}catch(err){console.error(err)}showOnly("welcomeScreen")})();
 </script>
+
+
+<script id="v4-7-4-runtime">
+/* V4.7.4 — estensioni progressive senza spezzare il file singolo. */
+(()=>{
+  const COPY_ICON=`<svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`;
+  const MOBILE_QUERY=window.matchMedia("(max-width:720px)");
+  window.v474ConcertModeDefinitions=[];
+  window.v474SetlistPreference=null;
+  window.v474MemberRankingMode="r";
+  window.v474OnboardingIncompleteThisLogin=false;
+
+  /* ------------------------------------------------------
+     SCROLL CONTRACT
+     Nessun contenitore funzionale dell'app può essere lasciato
+     con overflow-y hidden/clip, nemmeno quando in quel momento
+     non eccede ancora l'altezza disponibile.
+  ------------------------------------------------------ */
+  const V474_SCROLL_SELECTOR=[
+    "#memberApp","#fanApp","#guestApp",
+    "#memberApp>main","#fanApp>main","#guestApp>main",
+    "#memberApp .page","#fanApp .page","#guestApp .page",
+    "#memberApp .panel","#fanApp .panel","#guestApp .panel",
+    "#memberApp .list","#fanApp .list","#guestApp .list",
+    "#memberApp .song-list","#fanApp .song-list","#guestApp .song-list",
+    "#memberApp .columns","#memberApp .three-columns","#memberApp .concert-layout",
+    "#fanApp .rankings-grid","#guestApp .rankings-grid",
+    ".setup-section",".modal.open .modal-card",".modal.open .form-body",
+    ".member-global-grid",".member-global-col",".member-global-list",
+    ".concert-setlist-pane",".concert-catalog",".concert-catalog-list",
+    ".admin-ranking-scroll",".permission-matrix-scroll",".activity-list",
+    ".analytics-shell",".venue-list-grid",".venue-zone-list",
+    "[data-scroll-container]"
+  ].join(",");
+  function v474UnlockScroll(root=document){
+    const nodes=[];
+    if(root instanceof Element && root.matches(V474_SCROLL_SELECTOR))nodes.push(root);
+    if(root.querySelectorAll)nodes.push(...root.querySelectorAll(V474_SCROLL_SELECTOR));
+    nodes.forEach(el=>{
+      el.style.setProperty("overflow-y","auto","important");
+      if(el.style.overflow==="hidden"||el.style.overflow==="clip")el.style.removeProperty("overflow");
+      el.dataset.scrollContract="always";
+    });
+    document.documentElement.style.setProperty("overflow-y","auto","important");
+    document.body.style.setProperty("overflow-y","auto","important");
+  }
+  let v474ScrollTimer=null;
+  function v474ScheduleScrollUnlock(){
+    clearTimeout(v474ScrollTimer);
+    const run=()=>{v474UnlockScroll();try{fitViewportLists()}catch{}};
+    requestAnimationFrame(run);
+    v474ScrollTimer=setTimeout(run,45);
+    setTimeout(run,180);
+    setTimeout(run,420);
+  }
+  const v474ScrollObserver=new MutationObserver(muts=>{
+    for(const m of muts){
+      if(m.type==="childList")m.addedNodes.forEach(n=>{if(n.nodeType===1)v474UnlockScroll(n)});
+      else if(m.target instanceof Element)v474UnlockScroll(m.target);
+    }
+    v474ScheduleScrollUnlock();
+  });
+  v474ScrollObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["class","style","hidden"]});
+  ["resize","orientationchange","fullscreenchange","webkitfullscreenchange"].forEach(ev=>window.addEventListener(ev,v474ScheduleScrollUnlock));
+  document.addEventListener("click",()=>setTimeout(v474ScheduleScrollUnlock,0),true);
+  v474ScheduleScrollUnlock();
+
+  /* ------------------------------------------------------
+     COPIA ADATTIVO
+  ------------------------------------------------------ */
+  function v474SetCopyButton(btn,label="COPIA"){
+    if(!btn)return;
+    btn.classList.add("copy-adaptive");
+    btn.dataset.copyLabel=label;
+    btn.innerHTML=`${COPY_ICON}<span class="copy-label">${esc(label)}</span>`;
+    btn.title=label;
+    requestAnimationFrame(()=>v474FitCopyButton(btn));
+  }
+  function v474FitCopyButton(btn){
+    if(!btn?.isConnected)return;
+    btn.classList.remove("copy-icon-only");
+    const label=btn.querySelector(".copy-label");
+    if(!label)return;
+    const cs=getComputedStyle(btn);
+    const pad=parseFloat(cs.paddingLeft||0)+parseFloat(cs.paddingRight||0);
+    const needed=label.scrollWidth+pad+4;
+    if(btn.clientWidth>0&&btn.clientWidth<needed)btn.classList.add("copy-icon-only");
+  }
+  function v474DecorateCopyButtons(root=document){
+    ["copyMySetlistButton","copyMemberSetlistButton","copyMediaProposal","copyPureProposal","copyFusedProposal"].forEach(id=>{
+      const b=$(id);if(b&&!b.classList.contains("copy-adaptive"))v474SetCopyButton(b,"COPIA")
+    });
+    root.querySelectorAll?.('button').forEach(b=>{
+      if(String(b.textContent||"").trim().toUpperCase()==="COPIA"&&!b.classList.contains("copy-adaptive"))v474SetCopyButton(b,"COPIA")
+    });
+  }
+  const v474CopyResize=new ResizeObserver(entries=>entries.forEach(e=>v474FitCopyButton(e.target)));
+  function v474ObserveCopyButtons(){
+    document.querySelectorAll(".copy-adaptive").forEach(b=>{try{v474CopyResize.observe(b)}catch{};v474FitCopyButton(b)})
+  }
+  copySetlistFromButton=async function(button,list){
+    if(!button||!list?.length)return;
+    const oldLabel=button.dataset.copyLabel||"COPIA";
+    const ok=await copyTextToClipboard(orderedSetlistText(list));
+    button.dataset.copyLabel=ok?"COPIATA":"ERRORE";
+    v474SetCopyButton(button,button.dataset.copyLabel);
+    button.disabled=true;
+    setTimeout(()=>{
+      button.dataset.copyLabel=oldLabel;
+      v474SetCopyButton(button,oldLabel);
+      button.disabled=!list.length;
+      v474ObserveCopyButtons();
+    },1200)
+  };
+  v474DecorateCopyButtons();v474ObserveCopyButtons();
+
+  /* ------------------------------------------------------
+     SOTTOMENU MOBILE
+  ------------------------------------------------------ */
+  function v474MakeSubnav(items,onSelect){
+    const nav=document.createElement("div");nav.className="mobile-section-subnav";
+    items.forEach((it,i)=>{
+      const b=document.createElement("button");b.type="button";b.textContent=it.label;b.dataset.view=it.key;b.classList.toggle("active",i===0);
+      b.onclick=()=>{nav.querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));onSelect(it.key)};
+      nav.appendChild(b)
+    });
+    return nav
+  }
+  function v474InitProposalSubnav(){
+    const page=$("proposalsPage");if(!page||page.querySelector(".mobile-section-subnav[data-kind='proposals']"))return;
+    const panels=[...page.querySelectorAll(".proposal-panel")],keys=["media","pure","fused"];
+    panels.forEach((p,i)=>p.dataset.mobileView=keys[i]);
+    const apply=key=>panels.forEach(p=>p.classList.toggle("mobile-subview-active",p.dataset.mobileView===key));
+    const nav=v474MakeSubnav([{key:"media",label:"MEDIA MEMBRI"},{key:"pure",label:"ALGORITMO"},{key:"fused",label:"MEDIA FUSA"}],apply);
+    nav.dataset.kind="proposals";page.insertBefore(nav,page.querySelector("#proposalSummary")||page.firstChild);apply("media")
+  }
+  function v474InitPublicRankingSubnav(pageId){
+    const page=$(pageId);if(!page||page.querySelector(".mobile-section-subnav[data-kind='rankings']"))return;
+    const panels=[...page.querySelectorAll(".rankings-grid>.panel")],keys=["fans","songs","concerts"];
+    panels.forEach((p,i)=>p.dataset.mobileView=keys[i]);
+    const apply=key=>panels.forEach(p=>p.classList.toggle("mobile-subview-active",p.dataset.mobileView===key));
+    const nav=v474MakeSubnav([{key:"fans",label:"FAN"},{key:"songs",label:"CANZONI"},{key:"concerts",label:"CONCERTI"}],apply);
+    nav.dataset.kind="rankings";page.insertBefore(nav,page.firstChild);apply("fans")
+  }
+  function v474InitMemberRankingSubnav(){
+    const page=$("songRankingPage");if(!page||page.querySelector(".mobile-section-subnav[data-kind='member-ranking']"))return;
+    const nav=v474MakeSubnav([{key:"r",label:"R · APPREZZAMENTO"},{key:"s",label:"S · SCALETTA"}],key=>{
+      window.v474MemberRankingMode=key;
+      adminSongRankingSort.key=key==="s"?"setlist":"score";adminSongRankingSort.dir="desc";
+      renderSongRanking()
+    });
+    nav.dataset.kind="member-ranking";page.insertBefore(nav,page.querySelector(".panel")||page.firstChild)
+  }
+  v474InitProposalSubnav();v474InitPublicRankingSubnav("fanRankingsPage");v474InitPublicRankingSubnav("guestRankingsPage");v474InitMemberRankingSubnav();
+
+  /* ------------------------------------------------------
+     MODALITÀ LIVE E COLORI
+  ------------------------------------------------------ */
+  async function v474LoadConcertModes(){
+    try{
+      const {data,error}=await sb.from("concert_mode_definitions").select("*").order("mode_key");
+      if(error)throw error;
+      window.v474ConcertModeDefinitions=data||[]
+    }catch(err){
+      console.warn("Modalità live configurabili non disponibili",err);
+      window.v474ConcertModeDefinitions=[]
+    }
+  }
+  function v474ModeDef(mode){
+    const key=String(mode||"standard");
+    return window.v474ConcertModeDefinitions.find(x=>x.mode_key===key)||{
+      mode_key:key,label:key.toUpperCase(),
+      color:key==="jukebox"?"#76AEE0":key==="mixed"?"#E0B85A":"#9AA2AE",
+      background_color:null
+    }
+  }
+  function v474ModeLabelHtml(c){
+    const d=v474ModeDef(c?.event_mode);
+    return `<span class="concert-mode-label" style="--mode-color:${esc(d.color||"#9AA2AE")};--mode-bg:${esc(d.background_color||"transparent")}">${esc(d.label||d.mode_key)}</span>`
+  }
+
+  const v473VenueTabHtml=venueTabHtml;
+  venueTabHtml=function(c){
+    const type=venueTypeFor(c),t=type?.name||venueTypeLabel(c),color=type?.color||c?.venue_types?.color||"#e9d25e",bg=type?.background_color||c?.venue_types?.background_color||"transparent";
+    return t?`<span class="venue-tab" style="--venue-tab-color:${esc(color)};background:${esc(bg)}" title="${esc(t)}">${esc(t)}</span>`:""
+  };
+
+  const v473SmartBadge=smartBadge;
+  smartBadge=function(label,cls="",item=null){
+    const d=item||{},def=d?.key?(labelDefinitions.find(x=>x.label_key===d.key)||fanLabelDefinitions.find(x=>x.label_key===d.key)):null;
+    const color=d.color||def?.color||null,bg=(d.background_color!==undefined?d.background_color:def?.background_color)||null,desc=d.description||def?.description||"",displayLabel=String(label||"").toUpperCase();
+    return `<span class="smart-badge ${cls||""}${color?" dynamic-label":""}"${color?` style="--badge-color:${esc(color)};--badge-bg:${esc(bg||"transparent")};background:var(--badge-bg)!important"`:""}${desc?` data-label-desc="${esc(desc)}" data-label-title="${esc(d.name||d.label||def?.name||label)}" title="${esc(desc)}"`:""}>${esc(displayLabel)}</span>`
+  };
+
+  function v474DualColorHtml(main,bg,prefix){
+    return `<div class="dual-color-picker" data-has-bg="${bg?"1":"0"}">
+      <input class="${prefix}-main-color" type="color" value="${esc(main||"#777777")}" title="Contorno e testo">
+      <input class="${prefix}-bg-color${bg?"":" is-empty"}" type="color" value="${esc(bg||"#20242b")}" title="Sfondo">
+      <button type="button" class="bg-transparent${bg?"":" is-transparent"}">${bg?"SFONDO: ON":"TRASPARENTE"}</button>
+    </div>`
+  }
+  function v474WireDualColor(row,prefix,save){
+    const wrap=row.querySelector(".dual-color-picker"),main=wrap?.querySelector(`.${prefix}-main-color`),bg=wrap?.querySelector(`.${prefix}-bg-color`),clear=wrap?.querySelector(".bg-transparent");
+    if(!wrap)return;
+    main.onchange=save;
+    bg.onchange=()=>{wrap.dataset.hasBg="1";bg.classList.remove("is-empty");clear.classList.remove("is-transparent");clear.textContent="SFONDO: ON";save()};
+    clear.onclick=()=>{wrap.dataset.hasBg="0";bg.classList.add("is-empty");clear.classList.add("is-transparent");clear.textContent="TRASPARENTE";save()}
+  }
+
+  renderLabelSetup=function(){
+    const box=$("songLabelSetupList");if(!box)return;box.innerHTML="";
+    const scope=labelSetupScope||"song",base=scope==="fan"?fanLabelDefinitions:labelDefinitions,defs=[...base].sort((a,b)=>String(a.name).localeCompare(String(b.name),"it"));
+    defs.forEach(d=>{
+      const row=document.createElement("div"),fan=scope==="fan",setlist=scope==="setlist";
+      row.className=`label-setup-row${setlist?" label-setup-setlist":""}`;row.dataset.key=d.label_key;row.dataset.scope=fan?"fan":"song";
+      const prefix=fan?"FAN":setlist?"SCALETTA":"BRANO",rankingChecked=!!d.show_ranking,membersChecked=!!d.show_members,setlistChecked=!!d.show_setlist;
+      const color=v474DualColorHtml(d.color,d.background_color,"label");
+      const name=`<div class="label-setup-name"><input class="label-name" maxlength="50" value="${esc(d.name)}"><div class="label-setup-key"><span class="label-setup-scope">${prefix}</span>${esc(d.label_key)}</div></div>`;
+      const desc=`<div class="label-description-wrap"><input class="label-description" maxlength="250" value="${esc(d.description||"")}" title="Descrizione visibile agli utenti"><span class="label-char-count">${String(d.description||"").length}/250</span></div>`;
+      if(setlist)row.innerHTML=`${name}${color}${desc}<label class="label-vis-cell label-setlist-main"><input class="label-setlist" type="checkbox" ${setlistChecked?"checked":""}> VISIBILE IN SCALETTA</label><input class="label-ranking hidden" type="checkbox" ${rankingChecked?"checked":""}><input class="label-members hidden" type="checkbox" ${membersChecked?"checked":""}><div class="label-save-status">Auto</div>`;
+      else if(fan)row.innerHTML=`${name}${color}${desc}<label class="label-vis-cell"><input class="label-ranking" type="checkbox" ${rankingChecked?"checked":""}> Classifica fan</label><input class="label-setlist hidden" type="checkbox" ${setlistChecked?"checked":""}><label class="label-vis-cell"><input class="label-members" type="checkbox" ${membersChecked?"checked":""}> Membri</label><div class="label-save-status">Auto</div>`;
+      else row.innerHTML=`${name}${color}${desc}<label class="label-vis-cell"><input class="label-ranking" type="checkbox" ${rankingChecked?"checked":""}> Classifica</label><input class="label-setlist hidden" type="checkbox" ${setlistChecked?"checked":""}><label class="label-vis-cell"><input class="label-members" type="checkbox" ${membersChecked?"checked":""}> Membri</label><div class="label-save-status">Auto</div>`;
+      const description=row.querySelector(".label-description"),cnt=row.querySelector(".label-char-count");description.oninput=()=>cnt.textContent=`${description.value.length}/250`;
+      row.querySelectorAll('input[type="checkbox"]:not(.hidden):not(:disabled)').forEach(el=>el.addEventListener("change",()=>saveLabelDefinition(row)));
+      row.querySelectorAll(".label-name,.label-description").forEach(el=>el.addEventListener("blur",()=>saveLabelDefinition(row)));
+      v474WireDualColor(row,"label",()=>saveLabelDefinition(row));
+      box.appendChild(row)
+    });
+    if(!defs.length)box.innerHTML='<div class="empty">Nessuna etichetta configurata.</div>';
+    if(scope==="fan")$("songLabelCounter").textContent=`${fanLabelDefinitions.length} etichette fan`;
+    else if(scope==="setlist")$("songLabelCounter").textContent=`${labelDefinitions.filter(d=>d.show_setlist).length}/${labelDefinitions.length} visibili in scaletta`;
+    else $("songLabelCounter").textContent=`${labelDefinitions.length} etichette canzone`
+  };
+  saveLabelDefinition=async function(row){
+    if(row.dataset.saving==="1"){row.dataset.pending="1";return}
+    const key=row.dataset.key,scope=row.dataset.scope||"song",status=row.querySelector(".label-save-status"),description=row.querySelector(".label-description").value.slice(0,250),name=row.querySelector(".label-name").value.trim();if(!name)return;
+    row.dataset.saving="1";status.textContent="...";
+    const setlistBox=row.querySelector(".label-setlist"),rankingBox=row.querySelector(".label-ranking"),membersBox=row.querySelector(".label-members"),colors=row.querySelector(".dual-color-picker");
+    const payload={
+      name,color:colors.querySelector(".label-main-color").value,
+      background_color:colors.dataset.hasBg==="1"?colors.querySelector(".label-bg-color").value:null,
+      description,
+      show_ranking:rankingBox?rankingBox.checked:false,show_setlist:setlistBox?setlistBox.checked:false,show_members:membersBox?membersBox.checked:false,
+      updated_at:new Date().toISOString()
+    },table=scope==="fan"?"fan_label_definitions":"song_label_definitions";
+    const {error}=await sb.from(table).update(payload).eq("label_key",key);
+    if(error){status.textContent="ERRORE";alert(error.message)}
+    else{
+      status.textContent="OK ✓";const arr=scope==="fan"?fanLabelDefinitions:labelDefinitions,d=arr.find(x=>x.label_key===key);if(d)Object.assign(d,payload);
+      renderSongRanking();renderCatalog();if(fanRanking?.length)renderFanArea()
+    }
+    row.dataset.saving="0";if(row.dataset.pending==="1"){row.dataset.pending="0";saveLabelDefinition(row)}
+  };
+
+  renderVenueTypePanel=function(){
+    const box=$("venueTypeList");if(!box)return;box.innerHTML="";
+    venueTypes.forEach(v=>{
+      const row=document.createElement("div");row.className="venue-type-row";
+      row.innerHTML=`<div style="min-width:0;flex:1"><input class="venue-type-edit-name" value="${esc(v.name)}" maxlength="60" style="width:100%;background:#181b20;border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:7px;padding:6px"><div class="venue-type-slug">${esc(v.slug)}</div></div>${v474DualColorHtml(v.color,v.background_color,"venue-type")}<label class="member-reaction-toggle"><input class="venue-type-active" type="checkbox" ${v.active?"checked":""}> ATTIVA</label><span class="venue-type-auto-status section-note">Auto</span><button class="small-btn danger delete-venue-type" type="button">ELIMINA</button>`;
+      row.querySelector(".venue-type-edit-name").onblur=()=>saveVenueType(v,row);row.querySelector(".venue-type-active").onchange=()=>saveVenueType(v,row);
+      v474WireDualColor(row,"venue-type",()=>saveVenueType(v,row));
+      row.querySelector(".delete-venue-type").onclick=()=>deleteVenueType(v);box.appendChild(row)
+    });
+    if(!venueTypes.length)box.innerHTML='<div class="empty">Nessuna tipologia.</div>'
+  };
+  saveVenueType=async function(v,row){
+    const name=row.querySelector(".venue-type-edit-name").value.trim(),status=row.querySelector(".venue-type-auto-status"),colors=row.querySelector(".dual-color-picker");if(!name)return;if(status)status.textContent="...";
+    const payload={name,slug:venueTypeSlug(name),color:colors.querySelector(".venue-type-main-color").value,background_color:colors.dataset.hasBg==="1"?colors.querySelector(".venue-type-bg-color").value:null,active:row.querySelector(".venue-type-active").checked,updated_at:new Date().toISOString()};
+    const {error}=await sb.from("venue_types").update(payload).eq("id",v.id);if(error){if(status)status.textContent="ERRORE";return alert(error.message)}
+    Object.assign(v,payload);if(status)status.textContent="OK ✓";await loadVenues();renderVenuePage()
+  };
+
+  function v474EnsureModeSetup(){
+    const toolbar=document.querySelector('[data-setup-section="venue"] .venue-toolbar');if(!toolbar||$("#openConcertModesButton"))return;
+    const btn=document.createElement("button");btn.id="openConcertModesButton";btn.type="button";btn.className="secondary";btn.textContent="MODALITÀ LIVE";
+    btn.onclick=()=>v474OpenModeSetup();toolbar.appendChild(btn)
+  }
+  async function v474OpenModeSetup(){
+    await v474LoadConcertModes();
+    const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="150";
+    const card=document.createElement("div");card.className="modal-card";card.style.width="min(620px,100%)";
+    card.innerHTML=`<div class="modal-header"><h2>MODALITÀ LIVE</h2><button class="modal-close" type="button">×</button></div><div class="form-body"><div class="section-note">Il colore principale definisce testo e contorno. Lo sfondo è facoltativo: lasciandolo trasparente la label resta senza riempimento.</div><div class="mode-setup-list"></div></div>`;
+    overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+    const list=card.querySelector(".mode-setup-list");
+    window.v474ConcertModeDefinitions.forEach(d=>{
+      const row=document.createElement("div");row.className="mode-setup-row";row.dataset.key=d.mode_key;
+      row.innerHTML=`<div><input class="mode-label-input" maxlength="30" value="${esc(d.label)}"><div class="mode-setup-key">${esc(d.mode_key)}</div></div>${v474DualColorHtml(d.color,d.background_color,"mode")}<span class="mode-save section-note">Auto</span>`;
+      const save=async()=>{const status=row.querySelector(".mode-save"),colors=row.querySelector(".dual-color-picker"),payload={label:row.querySelector(".mode-label-input").value.trim()||d.mode_key.toUpperCase(),color:colors.querySelector(".mode-main-color").value,background_color:colors.dataset.hasBg==="1"?colors.querySelector(".mode-bg-color").value:null,updated_at:new Date().toISOString()};status.textContent="...";const {error}=await sb.from("concert_mode_definitions").update(payload).eq("mode_key",d.mode_key);status.textContent=error?"ERRORE":"OK ✓";if(error)return alert(error.message);Object.assign(d,payload);renderConcerts();if(!$("fanApp").hidden)loadPublicConcerts().catch(()=>{});if(!$("guestApp").hidden)loadGuestConcerts().catch(()=>{})};
+      row.querySelector(".mode-label-input").onblur=save;v474WireDualColor(row,"mode",save);list.appendChild(row)
+    })
+  }
+  v474EnsureModeSetup();
+
+  /* ------------------------------------------------------
+     SOGLIE PERSONALI SCALETTA
+  ------------------------------------------------------ */
+  function v474EnsureSetlistGuides(){
+    const panel=$("mySetlistIncludedPanel");if(!panel||$("#v474SetlistGuides"))return;
+    const guides=document.createElement("div");guides.id="v474SetlistGuides";guides.className="setlist-guides";
+    guides.innerHTML=`<label class="setlist-guide-field">Rif. brani <input id="v474MaxSongs" type="number" min="1" max="100" placeholder="—"></label><label class="setlist-guide-field">Rif. minuti <input id="v474MaxMinutes" type="number" min="1" max="360" placeholder="—"></label><span class="setlist-guide-summary">Indicazioni visive: la scaletta resta sempre libera.</span>`;
+    panel.querySelector(".panel-header")?.insertAdjacentElement("afterend",guides);
+    ["v474MaxSongs","v474MaxMinutes"].forEach(id=>$(id).addEventListener("change",v474SaveSetlistPreference))
+  }
+  async function v474LoadSetlistPreference(){
+    if(!currentUser)return;
+    try{
+      const {data,error}=await sb.from("member_setlist_preferences").select("*").eq("member_id",currentUser.id).maybeSingle();if(error)throw error;
+      window.v474SetlistPreference=data||{member_id:currentUser.id,max_song_count:null,max_duration_minutes:null};
+      v474EnsureSetlistGuides();
+      $("v474MaxSongs").value=window.v474SetlistPreference.max_song_count??"";
+      $("v474MaxMinutes").value=window.v474SetlistPreference.max_duration_minutes??"";
+      renderMySetlist()
+    }catch(err){console.warn("Preferenze soglia scaletta non disponibili",err)}
+  }
+  async function v474SaveSetlistPreference(){
+    if(!currentUser)return;
+    const max_song_count=numberOrNull($("v474MaxSongs")?.value),max_duration_minutes=numberOrNull($("v474MaxMinutes")?.value);
+    const payload={member_id:currentUser.id,max_song_count,max_duration_minutes,updated_at:new Date().toISOString()};
+    const {error}=await sb.from("member_setlist_preferences").upsert(payload,{onConflict:"member_id"});if(error)return alert(error.message);
+    window.v474SetlistPreference=payload;renderMySetlist()
+  }
+  function v474ThresholdDivider(labels){
+    const d=document.createElement("div");d.className="setlist-threshold-divider";d.innerHTML=`<span>${labels.map(esc).join(" · ")}</span>`;return d
+  }
+  renderMySetlist=function(){
+    v474EnsureSetlistGuides();
+    $("mySetlistHeader").innerHTML=makeSongHeader();$("setlist").innerHTML="";$("excluded").innerHTML="";
+    const inc=includedSongs(),exc=excludedSongs(),editable=canMember("member_setlist_edit"),pref=window.v474SetlistPreference||{},countLimit=Number(pref.max_song_count)||null,durationLimit=(Number(pref.max_duration_minutes)||0)*60;
+    let cumulative=0,countMarkerDone=false,durationMarkerDone=false;
+    inc.forEach((s,i)=>{
+      $("setlist").appendChild(createSongRow(s,i,{draggable:editable,labels:dynamicLabelsForSong(s.id,"members"),actions:editable?[{label:"×",title:"Escludi",onClick:()=>setIncluded(s.id,false)}]:[]}));
+      cumulative+=Number(s.duration_seconds)||0;
+      const labels=[];
+      if(countLimit&&!countMarkerDone&&i+1>=countLimit){labels.push(`SOGLIA BRANI · ${countLimit}`);countMarkerDone=true}
+      if(durationLimit&&!durationMarkerDone&&cumulative>=durationLimit){labels.push(`SOGLIA DURATA · ~${Number(pref.max_duration_minutes)} MIN`);durationMarkerDone=true}
+      if(labels.length)$("setlist").appendChild(v474ThresholdDivider(labels))
+    });
+    exc.forEach(s=>$("excluded").appendChild(createSongRow(s,null,{draggable:false,excluded:true,labels:dynamicLabelsForSong(s.id,"members"),actions:editable?[{label:"+",title:"Includi",onClick:()=>setIncluded(s.id,true)}]:[]})));
+    if(!inc.length)$("setlist").innerHTML='<div class="empty">Nessun brano.</div>';if(!exc.length)$("excluded").innerHTML='<div class="empty">Nessun brano escluso.</div>';
+    const total=inc.reduce((sum,s)=>sum+(Number(s.duration_seconds)||0),0);
+    $("setlistCounter").textContent=`${inc.length} brani · ${formatDuration(total)}`;
+    $("excludedCounter").textContent=`${exc.length} brani`;$("copyMySetlistButton").disabled=!inc.length;
+    refreshMemberSetlistSortables();scheduleDenseFit();v474DecorateCopyButtons();v474ObserveCopyButtons();v474ScheduleScrollUnlock()
+  };
+  const v473SyncSetlistDOM=syncSetlistDOM;
+  syncSetlistDOM=async function(){await v473SyncSetlistDOM();renderMySetlist()};
+
+  /* ------------------------------------------------------
+     VOTO RAPIDO MEMBRI + CATALOGO
+  ------------------------------------------------------ */
+  async function v474SaveMemberQuickVote(songId,value,{deferRefresh=false}={}){
+    if(!canMember("catalog_vote"))return;
+    const existing=ownVote(songId);
+    const payload={
+      member_id:currentUser.id,song_id:songId,molesti_score:Number(value),
+      lyrics_score:existing?.lyrics_score??null,base_score:existing?.base_score??null,
+      intro_candidate:!!existing?.intro_candidate,outro_candidate:!!existing?.outro_candidate,
+      updated_at:new Date().toISOString()
+    };
+    const {error}=await sb.from("member_votes").upsert(payload);if(error)throw error;
+    const idx=memberVotes.findIndex(v=>v.song_id===songId);if(idx>=0)memberVotes[idx]={...memberVotes[idx],...payload};else memberVotes.push(payload);
+    resetPureProposalVariants();publicAnalyticsCache=null;
+    if(!deferRefresh){
+      await Promise.all([loadSongScores(),loadMemberSongPreferences()]);
+      renderCatalog();renderSongRanking();renderMySetlist()
+    }
+  }
+  function v474MemberScaleHtml(value){return `<div class="member-quick-vote">${ratingButtonsMarkup(value??"",false)}</div>`}
+  renderCatalog=function(){
+    const box=$("catalogList");box.innerHTML="";
+    [...songs].sort((a,b)=>a.title.localeCompare(b.title,"it")).forEach(song=>{
+      const vote=ownVote(song.id),row=document.createElement("div");row.className="list-row catalog-compact-row member-catalog-row";row.dataset.songId=song.id;
+      const sharedLabels=dynamicLabelsForSong(song.id,"members"),meta=[song.duration_seconds?`Durata ${formatDuration(song.duration_seconds)}`:null,song.bpm?`${song.bpm} BPM`:null,song.key_note?keyLabel(song):null].filter(Boolean).join(" · ");
+      row.innerHTML=`<div class="list-main"><div class="list-title">${scoreBadge(song.id,"ranking")} &nbsp;${esc(song.title)} ${badgesHtml(sharedLabels)}</div><div class="member-catalog-meta">${esc(meta||"Durata / BPM / tonalità da censire")}</div></div>${canMember("catalog_vote")?v474MemberScaleHtml(vote?.molesti_score):'<span class="small-info">Voto disabilitato</span>'}`;
+      const scale=row.querySelector(".member-quick-vote");
+      scale?.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async e=>{e.stopPropagation();const value=Number(btn.dataset.value);scale.querySelectorAll("button").forEach(x=>x.disabled=true);try{await v474SaveMemberQuickVote(song.id,value); }catch(err){alert(err.message)}});
+      if(song.hidden_track)row.insertAdjacentHTML("beforeend",'<span class="status hidden-track-label">HIDDEN TRACK</span>');if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');
+      const buttons=document.createElement("div");buttons.className="row-buttons";
+      if(canMember("catalog_vote")){const voteBtn=document.createElement("button");voteBtn.className="small-btn";voteBtn.textContent="MODIFICA VOTO";voteBtn.onclick=()=>openMemberVote(song);buttons.appendChild(voteBtn)}
+      if(isEma()){const edit=document.createElement("button");edit.className="small-btn";edit.textContent="MODIFICA";edit.onclick=()=>openSongModal(song);const del=document.createElement("button");del.className="small-btn danger";del.textContent="ELIMINA";del.onclick=()=>deleteSong(song);buttons.append(edit,del)}
+      row.appendChild(buttons);box.appendChild(row)
+    });
+    $("catalogCounter").textContent=`${songs.length} brani`;scheduleDenseFit();v474ScheduleScrollUnlock()
+  };
+
+  let v474MemberPromptUser=null,v474MemberPromptDirty=false;
+  async function v474RefreshAfterMemberPrompt(){
+    if(!v474MemberPromptDirty)return;v474MemberPromptDirty=false;
+    await Promise.all([loadSongScores(),loadMemberSongPreferences()]);renderCatalog();renderSongRanking();renderMySetlist()
+  }
+  async function v474RunMemberUnratedPrompt(){
+    if(!currentUser||!canMember("catalog_vote")||v474MemberPromptUser===currentUser.id)return false;
+    if(!songs?.length)return false;
+    v474MemberPromptUser=currentUser.id;
+    const unrated=activeSongs().filter(s=>!ownVote(s.id)?.molesti_score);if(!unrated.length)return false;
+    return new Promise(resolve=>{
+      const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="145";
+      const card=document.createElement("div");card.className="modal-card";card.style.width="min(780px,calc(100vw - 18px))";
+      card.innerHTML=`<div class="modal-header"><div><h2>BRANI ANCORA DA VALUTARE</h2><div class="section-note" style="margin-top:3px">Solo voto Versione Molesti. Puoi chiudere quando vuoi: al prossimo login ricompariranno soltanto quelli rimasti senza voto.</div></div><button class="modal-close" type="button">×</button></div><div class="form-body"><div class="member-unrated-list"></div></div>`;
+      overlay.appendChild(card);document.body.appendChild(overlay);const list=card.querySelector(".member-unrated-list");
+      const close=async()=>{overlay.remove();await v474RefreshAfterMemberPrompt();resolve(true)};
+      card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+      unrated.forEach(song=>{
+        const row=document.createElement("div");row.className="member-unrated-row";row.innerHTML=`<div class="member-unrated-title">${esc(song.title)}</div><div class="member-unrated-scale">${ratingButtonsMarkup("",false)}</div>`;
+        const scale=row.querySelector(".member-unrated-scale");
+        scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{scale.querySelectorAll("button").forEach(x=>x.disabled=true);try{await v474SaveMemberQuickVote(song.id,Number(btn.dataset.value),{deferRefresh:true});v474MemberPromptDirty=true;row.remove();if(!list.querySelector(".member-unrated-row"))setTimeout(close,180)}catch(err){alert(err.message);scale.querySelectorAll("button").forEach(x=>x.disabled=false)}});
+        list.appendChild(row)
+      })
+    })
+  }
+  const v473StartMemberApp=startMemberApp;
+  startMemberApp=async function(){await v473StartMemberApp();await v474LoadSetlistPreference();setTimeout(v474RunMemberUnratedPrompt,120)};
+  setTimeout(async()=>{if(currentUser&&!$("memberApp").hidden){await v474LoadSetlistPreference();v474RunMemberUnratedPrompt()}},1700);
+
+  /* ------------------------------------------------------
+     CLASSIFICA MEMBRI R / S
+  ------------------------------------------------------ */
+  renderSongRanking=function(){
+    const box=$("songRankingList");if(!box)return;
+    const activeRows=songScores.filter(r=>r.active===true),mode=(MOBILE_QUERY.matches?window.v474MemberRankingMode:"r");
+    const canonical=[...activeRows].sort((a,b)=>mode==="s"?getScore(b.song_id,"setlist")-getScore(a.song_id,"setlist"):Number(b.ranking_score??b.score??0)-Number(a.ranking_score??a.score??0));
+    const rankMap=new Map(canonical.map((r,i)=>[r.song_id,i+1])),badgeWinners=null;
+    const decorated=activeRows.map(r=>({...r,__rank:rankMap.get(r.song_id)||9999,__setlist:getScore(r.song_id,"setlist")}));
+    const val=(r,key)=>key==="rank"?r.__rank:key==="score"?Number(r.ranking_score??r.score??0):key==="title"?r.title:key==="fan"?Number(r.fan_score??0):key==="band"?Number(r.member_score??0):key==="popularity"?Number(r.popularity_score??0):key==="setlist"?r.__setlist:null;
+    if(MOBILE_QUERY.matches){adminSongRankingSort.key=mode==="s"?"setlist":"score";adminSongRankingSort.dir="desc"}
+    decorated.sort((a,b)=>compareAdminValues(val(a,adminSongRankingSort.key),val(b,adminSongRankingSort.key),adminSongRankingSort.dir));
+    box.innerHTML=`<div class="ranking-row header-row"><div>${adminSortHeader("#","rank",adminSongRankingSort)}</div><div>${adminSortHeader("R","score",adminSongRankingSort)}</div><div>${adminSortHeader("Brano","title",adminSongRankingSort)}</div><div>${adminSortHeader("Fan","fan",adminSongRankingSort)}</div><div>${adminSortHeader("Band","band",adminSongRankingSort)}</div><div>${adminSortHeader("Pop.","popularity",adminSongRankingSort)}</div><div>${adminSortHeader("S","setlist",adminSongRankingSort)}</div></div>`;
+    decorated.forEach(r=>{
+      const row=document.createElement("div");row.className="ranking-row";const badges=songRankingBadges(r,r.__rank-1,canonical,badgeWinners),canOpen=isEma()||canMember("song_detail_view");
+      row.innerHTML=`<div class="rank">${r.__rank}</div><div>${scoreBadge(r.song_id,"ranking")}</div><div class="ranking-title-cell"><div><div class="ranking-title-line"><span class="list-title${canOpen?" detail-link":""}">${esc(r.title)}</span>${badgesHtml(badges)}</div>${rankingArtistsHtml(r)}</div></div><div>${r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1)}</div><div>${r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1)}</div><div>${r.popularity_score==null?"—":Number(r.popularity_score).toFixed(1)}</div><div>${r.__setlist.toFixed(0)}</div>`;
+      if(canOpen)row.querySelector(".detail-link").onclick=()=>memberSongDetail(r);box.appendChild(row)
+    });
+    box.querySelectorAll(".sort-head").forEach(btn=>btn.onclick=()=>{toggleAdminRankingSort(adminSongRankingSort,btn.dataset.sort);renderSongRanking()});
+    $("songRankingCounter").textContent=`${activeRows.length} brani`
+  };
+
+  /* ------------------------------------------------------
+     CONCERTI — gruppi mobile, meta, venue popup, scroll di ritorno
+  ------------------------------------------------------ */
+  const v474PeriodState={future:true,past:true};
+  function v474PeriodKey(label){return label.startsWith("PROSSIMI")?"future":"past"}
+  appendGroupedConcertRows=function(rows,box,rowFactory){
+    const all=rows||[],future=all.filter(c=>concertPeriod(c)==="future").sort((a,b)=>String(a.concert_date).localeCompare(String(b.concert_date))||String(a.name).localeCompare(String(b.name),"it")),past=all.filter(c=>concertPeriod(c)==="past").sort((a,b)=>String(b.concert_date).localeCompare(String(a.concert_date))||String(a.name).localeCompare(String(b.name),"it"));
+    for(const [label,list] of [["PROSSIMI CONCERTI",future],["CONCERTI PASSATI",past]]){
+      if(!list.length)continue;
+      const key=v474PeriodKey(label),section=document.createElement("section");section.className=`concert-period-section${v474PeriodState[key]?"":" is-collapsed"}`;section.dataset.period=key;
+      const toggle=document.createElement("button");toggle.type="button";toggle.className="concert-period-toggle";toggle.innerHTML=`<span>${label} · ${list.length}</span><span class="period-chevron">⌄</span>`;
+      toggle.onclick=()=>{if(!MOBILE_QUERY.matches)return;v474PeriodState[key]=!v474PeriodState[key];section.classList.toggle("is-collapsed",!v474PeriodState[key])};
+      const body=document.createElement("div");body.className="concert-period-body";let year=null;
+      for(const c of list){const y=String(c.concert_date||"").slice(0,4)||"—";if(y!==year){body.appendChild(concertYearDivider(y));year=y}body.appendChild(rowFactory(c))}
+      section.append(toggle,body);box.appendChild(section)
+    }
+  };
+  function v474ConcertVenueButton(c){
+    const name=concertVenueName(c)||"Venue da definire";return `<button type="button" class="concert-venue-link" data-concert-id="${esc(c.id)}">${esc(name)}</button>`
+  }
+  function v474ConcertSubmeta(c){
+    const locality=concertVenueLocality(c)||concertVenueMunicipality(c)||"—",province=concertVenueProvince(c)||"—";
+    return `<div class="concert-row-submeta">${formatDate(c.concert_date)} | ${formatTime(c.start_time)} | ${v474ConcertVenueButton(c)} | ${esc(locality)} | ${esc(province)}</div>`
+  }
+  function v474FindConcert(id){return concerts.find(c=>String(c.id)===String(id))||publicConcerts.find(c=>String(c.id)===String(id))||guestConcerts.find(c=>String(c.id)===String(id))||null}
+  function v474OpenVenueCard(c){
+    if(!c)return;const overlay=document.createElement("div");overlay.className="modal open venue-card-popup";const card=document.createElement("div");card.className="modal-card";
+    const rows=[["Località",concertVenueLocality(c)],["Comune",concertVenueMunicipality(c)],["Provincia",concertVenueProvince(c)],["Stato",concertVenueCountry(c)],["Tipologia",venueTypeLabel(c)]].filter(x=>x[1]);
+    card.innerHTML=`<div class="modal-header"><h2>${esc(concertVenueName(c)||"Venue")}</h2><button class="modal-close" type="button">×</button></div><div class="form-body"><dl class="venue-card-grid">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")||"<dd>Nessun dettaglio disponibile.</dd>"}</dl></div>`;
+    overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};v474ScheduleScrollUnlock()
+  }
+  function v474WireVenueLinks(root){
+    root?.querySelectorAll?.(".concert-venue-link").forEach(btn=>{btn.onclick=e=>{e.preventDefault();e.stopPropagation();v474OpenVenueCard(v474FindConcert(btn.dataset.concertId))}})
+  }
+
+  const v474Anchors={member:null,fan:null,guest:null};
+  function v474CaptureScrollAnchor(owner,row,id){
+    const positions=[];let el=row?.parentElement;
+    while(el&&el!==document.body){if(el.scrollHeight>el.clientHeight+1)positions.push([el,el.scrollTop]);el=el.parentElement}
+    v474Anchors[owner]={id,positions,windowY:window.scrollY,pending:true}
+  }
+  function v474RestoreAnchor(owner){
+    const a=v474Anchors[owner];if(!a)return;
+    requestAnimationFrame(()=>{
+      a.positions.forEach(([el,top])=>{if(el?.isConnected)el.scrollTop=top});
+      window.scrollTo({top:a.windowY,behavior:"smooth"});
+      const selector=owner==="member"?`#concertList [data-concert-id="${CSS.escape(String(a.id))}"]`:owner==="fan"?`#fanConcertsPage [data-concert-id="${CSS.escape(String(a.id))}"]`:`#guestConcertsPage [data-concert-id="${CSS.escape(String(a.id))}"]`;
+      const row=document.querySelector(selector);if(row){const r=row.getBoundingClientRect();if(r.top<0||r.bottom>window.innerHeight)row.scrollIntoView({behavior:"smooth",block:"nearest"})}
+      a.pending=false
+    })
+  }
+  function v474ScrollToDetail(owner){
+    const a=v474Anchors[owner];if(!a?.pending)return;const el=owner==="member"?$("concertDetail"):owner==="fan"?$("publicConcertDetail"):$("guestConcertDetail");if(!el)return;
+    requestAnimationFrame(()=>el.scrollIntoView({behavior:"smooth",block:"start"}));a.pending=false
+  }
+  function v474CloseConcertDetail(owner){
+    if(owner==="member"){
+      selectedConcertId=null;renderConcerts();$("concertDetail").innerHTML='<div class="empty">Seleziona un concerto.</div>';$("concertDetailTitle").textContent="SCALETTA CONCERTO";$("concertDetailCounter").textContent=""
+    }else if(owner==="fan"){$("publicConcertDetail").innerHTML="";openFanConcertId=null}
+    else{$("guestConcertDetail").innerHTML="";openGuestConcertId=null}
+    v474RestoreAnchor(owner)
+  }
+  publicConcertRow=function(c,openFn){
+    const row=document.createElement("div"),owner=openFn===openGuestConcert?"guest":"fan";row.dataset.concertId=c.id;row.dataset.concertOwner=owner;
+    row.className=`list-row concert-row-with-poster concert-row-with-venue-tab${c.status==="future"?" future-concert-row":""}`;
+    const pu=posterUrl(c.poster_path),statusClass=concertStatusClass(c),label=concertStatusLabel(c);
+    row.innerHTML=`${venueTabHtml(c)}${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="concert-title-line"><div class="list-title concert-title-text">${esc(c.name)}</div>${v474ModeLabelHtml(c)}</div>${v474ConcertSubmeta(c)}${!c.setlist_available&&c.status==="future"?'<div class="future-concert-note">Scaletta disponibile dall’inizio del live</div>':""}</div><span class="status ${statusClass}">${label}</span>`;
+    row.onclick=async e=>{if(e.target.closest(".concert-venue-link"))return;v474CaptureScrollAnchor(owner,row,c.id);await openFn(c.id);v474ScrollToDetail(owner)};
+    v474WireVenueLinks(row);return row
+  };
+  renderConcerts=function(){
+    const box=$("concertList");box.innerHTML="";const visibleConcerts=concerts.filter(c=>isEma()||!c.private_show||canMember("private_shows_view"));
+    appendGroupedConcertRows(visibleConcerts,box,c=>{
+      const row=document.createElement("div");row.dataset.concertId=c.id;row.dataset.concertOwner="member";row.className=`list-row concert-row-with-venue-tab${c.id===selectedConcertId?" selected":""}`;
+      const pu=posterUrl(c.poster_path);
+      row.innerHTML=`${venueTabHtml(c)}${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="concert-title-line"><div class="list-title concert-title-text">${esc(c.name)}</div>${v474ModeLabelHtml(c)}</div>${v474ConcertSubmeta(c)}${c.private_show?'<div class="small-info">PRIVATE SHOW</div>':""}</div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;
+      row.onclick=async e=>{if(e.target.closest(".concert-venue-link"))return;v474CaptureScrollAnchor("member",row,c.id);selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id);v474ScrollToDetail("member")};v474WireVenueLinks(row);return row
+    });
+    if(!visibleConcerts.length)box.innerHTML='<div class="empty">Nessun concerto.</div>';$("concertCounter").textContent=`${visibleConcerts.length} concerti`;v474ScheduleScrollUnlock()
+  };
+
+  function v474DecorateConcertDetail(owner,c,box){
+    if(!box||!c)return;
+    const h2=owner==="member"?$("concertDetailTitle"):box.querySelector(".panel-header h2");
+    if(h2&&!h2.querySelector(".concert-mode-label"))h2.insertAdjacentHTML("beforeend",` ${v474ModeLabelHtml(c)}`);
+    const target=owner==="member"?box:box.querySelector("section.panel");
+    if(target&&!target.querySelector(".concert-detail-location-line")){
+      const line=document.createElement("div");line.className="concert-detail-location-line";
+      line.innerHTML=`${formatDate(c.concert_date)} | ${formatTime(c.start_time)} | ${v474ConcertVenueButton(c)} | ${esc(concertVenueLocality(c)||concertVenueMunicipality(c)||"—")} | ${esc(concertVenueProvince(c)||"—")}`;
+      if(owner==="member")target.insertBefore(line,target.firstChild);else target.querySelector(".panel-header")?.insertAdjacentElement("afterend",line);v474WireVenueLinks(line)
+    }
+    if(owner==="member"){
+      if(!box.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="small-btn concert-detail-close";b.textContent="CHIUDI SCALETTA";b.onclick=()=>v474CloseConcertDetail(owner);box.insertBefore(b,box.firstChild)}
+    }else{
+      const actions=box.querySelector(".concert-detail-head-actions");if(actions&&!actions.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="small-btn concert-detail-close";b.textContent="CHIUDI";b.onclick=()=>v474CloseConcertDetail(owner);actions.prepend(b)}
+    }
+    v474ScheduleScrollUnlock()
+  }
+
+  const v473RenderConcertDetail=renderConcertDetail;
+  renderConcertDetail=async function(id){await v473RenderConcertDetail(id);const c=concerts.find(x=>x.id===id);v474DecorateConcertDetail("member",c,$("concertDetail"));v474DecorateCopyButtons($("concertDetail"));v474ObserveCopyButtons()};
+  const v473OpenPublicConcert=openPublicConcert;
+  openPublicConcert=async function(id,voteMode=false){await v473OpenPublicConcert(id,voteMode);const c=publicConcerts.find(x=>x.id===id);v474DecorateConcertDetail("fan",c,$("publicConcertDetail"));v474ScrollToDetail("fan")};
+  const v473OpenGuestConcert=openGuestConcert;
+  openGuestConcert=async function(id){await v473OpenGuestConcert(id);const c=guestConcerts.find(x=>x.id===id);v474DecorateConcertDetail("guest",c,$("guestConcertDetail"));v474ScrollToDetail("guest")};
+
+  /* ------------------------------------------------------
+     ANALYTICS: CAP, blocchi, snapshot e badge algoritmici
+  ------------------------------------------------------ */
+  const v473RenderAnalyticsData=renderAnalyticsData;
+  renderAnalyticsData=function(data){
+    const base=v473RenderAnalyticsData(data),snap=data?.snapshot_comparison||[],postal=data?.postal_codes||[],exec=data?.execution_types||[];
+    return `${base}<div class="analytics-shell analytics-extra"><div class="analytics-grid">
+      <section class="analytics-card"><h3>CAP / Zone</h3><div class="analytics-card-note">Distribuzione dei live conclusi per CAP. Il nome Zona, quando configurato, resta disponibile come lettura territoriale separata.</div>${analyticsBars(postal)}</section>
+      <section class="analytics-card"><h3>Blocchi della scaletta effettiva</h3><div class="analytics-card-note">Quante esecuzioni sono finite nei diversi blocchi del live.</div>${analyticsBars(exec)}</section>
+      <section class="analytics-card"><h3>Scaletta prevista vs live effettivo</h3><div class="analytics-card-note">Confronto con la fotografia della scaletta all'inizio del live. Una richiesta può coprire un brano già previsto senza trasformarlo in un'omissione.</div>${analyticsBars(snap)}</section>
+    </div></div>`
+  };
+  function v474BadgeCountRows(items){const m=new Map();items.forEach(x=>{const label=String(x?.label||x?.name||"").trim();if(label)m.set(label,(m.get(label)||0)+1)});return [...m.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"it")).map(([label,count])=>({label,count}))}
+  async function v474MemberBadgeAnalytics(box){
+    try{
+      await loadCommunityData();calculateAllProposals();
+      const algo=[];[["media","media"],["pure","pure"],["fused","fused"]].forEach(([key,mode])=>(proposalResults[key]||[]).forEach((s,i)=>algo.push(...proposalBadges(s,i,proposalResults[key],mode))));
+      const setlist=[];activeSongs().forEach(s=>setlist.push(...dynamicLabelsForSong(s.id,"setlist")));
+      const wrap=document.createElement("div");wrap.className="analytics-shell analytics-extra";
+      wrap.innerHTML=`<section class="analytics-card"><h3>Badge algoritmo / scalette</h3><div class="analytics-card-note">Quante volte compaiono i segnali visivi nelle proposte correnti e quanti brani rientrano nelle etichette visibili in scaletta.</div><div class="analytics-badge-columns"><div class="analytics-year-column"><h4>3 PROPOSTE</h4>${analyticsBars(v474BadgeCountRows(algo))}</div><div class="analytics-year-column"><h4>ETICHETTE SCALETTA</h4>${analyticsBars(v474BadgeCountRows(setlist))}</div></div></section>`;
+      box.appendChild(wrap)
+    }catch(err){console.warn("Statistiche badge proposte",err)}
+  }
+  const v473RenderAnalyticsInto=renderAnalyticsInto;
+  renderAnalyticsInto=async function(id,force=false){await v473RenderAnalyticsInto(id,force);if(id==="memberAnalyticsContent"){const box=$(id);if(box&&!box.querySelector(".analytics-badge-columns"))await v474MemberBadgeAnalytics(box)}};
+
+  /* ------------------------------------------------------
+     ONBOARDING FAN: avviso, questionario, live, catalogo rapido
+  ------------------------------------------------------ */
+  const v474BaseQuestionnaire=openFanOnboardingQuestionnaire;
+  const v474BaseLoadFanProfile=loadFanProfile;
+  const v474BaseRunReviewQueue=runFanReviewQueue;
+
+  function v474Progress(step){return `<div class="onboarding-progress">${[1,2,3].map(i=>`<span class="${i<=step?"done":""}"></span>`).join("")}</div>`}
+  function v474PostponeCurrentOnboarding(){window.v474OnboardingIncompleteThisLogin=true;return fanApi("onboarding_postpone").catch(()=>null)}
+  function v474OnboardingIntro(){
+    return new Promise(resolve=>{
+      const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="160";const card=document.createElement("div");card.className="modal-card onboarding-intro-card";
+      card.innerHTML=`<div class="modal-header"><h2>DUE DOMANDE AL VOLO</h2></div><div class="form-body"><div class="onboarding-intro-copy">Ti rubiamo qualche minuto per conoscerti meglio: due domande sui Molesti, i live che hai visto e un giro rapido di voti ai pezzi. Dura poco e ci aiuta a capire meglio i vostri gusti e a preparare i prossimi live.<br><br>Puoi rimandare e riprendere tutto dal Profilo. Però, come se dise: <strong>via el dente, via el dolore.</strong></div><div class="modal-actions"><button type="button" class="modal-cancel" data-later>PIÙ TARDI</button><button type="button" class="modal-save" data-start>VIA IL DENTE</button></div></div>`;
+      overlay.appendChild(card);document.body.appendChild(overlay);
+      card.querySelector("[data-later]").onclick=async()=>{await v474PostponeCurrentOnboarding();overlay.remove();resolve(false)};
+      card.querySelector("[data-start]").onclick=async()=>{await fanApi("onboarding_step_complete",{step:"intro"}).catch(()=>null);overlay.remove();resolve(true)}
+    })
+  }
+  async function v474AttendanceAndLiveStep(statusData){
+    const listData=await fanApi("list_concerts"),all=(listData.concerts||[]).filter(c=>concertPeriod(c)==="past"&&!["cancelled"].includes(c.status)),initial=new Set(statusData.attendance_ids||[]);
+    return new Promise(resolve=>{
+      const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="160";const card=document.createElement("div");card.className="modal-card";card.style.width="min(760px,calc(100vw - 18px))";overlay.appendChild(card);document.body.appendChild(overlay);
+      const postpone=async()=>{await v474PostponeCurrentOnboarding();overlay.remove();resolve(false)};
+      const renderPresence=()=>{
+        card.innerHTML=`<div class="modal-header"><div><h2>LIVE CHE HAI VISTO</h2>${v474Progress(2)}</div><button class="modal-close" type="button">×</button></div><div class="form-body"><div class="fan-onboarding-intro">Segna i concerti in cui c'eri. Subito dopo puoi lasciare un voto rapido ai live selezionati.</div><div class="onboarding-rating-list">${all.map(c=>`<label class="fan-onboarding-concert-row"><span class="fan-onboarding-concert-main"><span class="fan-onboarding-concert-name">${esc(c.name)}</span><span class="fan-onboarding-concert-meta">${formatDate(c.concert_date)} · ${esc(concertVenueName(c)||"")}</span></span><span class="fan-onboarding-concert-check"><input type="checkbox" data-id="${esc(c.id)}" ${initial.has(c.id)?"checked":""}> IO C'ERO</span></label>`).join("")||'<div class="empty">Nessun live passato disponibile.</div>'}</div><div class="fan-onboarding-status"></div><div class="modal-actions"><button class="modal-save" type="button" data-next>SALVA E CONTINUA</button></div></div>`;
+        card.querySelector(".modal-close").onclick=postpone;const status=card.querySelector(".fan-onboarding-status");
+        card.querySelector("[data-next]").onclick=async()=>{
+          const selected=new Set([...card.querySelectorAll("input[data-id]:checked")].map(x=>x.dataset.id));
+          if(all.length&&!selected.size){status.textContent="Hai indicato di essere stato/a a un live: selezionane almeno uno.";return}
+          status.textContent="Salvataggio...";
+          try{
+            for(const c of all){const had=initial.has(c.id),has=selected.has(c.id);if(had!==has)await fanApi("attend",{concert_id:c.id,attended:has})}
+            renderRatings([...selected].map(id=>all.find(c=>c.id===id)).filter(Boolean))
+          }catch(err){status.textContent=err.message}
+        }
+      };
+      const renderRatings=selected=>{
+        card.innerHTML=`<div class="modal-header"><div><h2>COME SONO ANDATI?</h2>${v474Progress(2)}</div><button class="modal-close" type="button">×</button></div><div class="form-body"><div class="fan-onboarding-intro">Un voto generale da 1 a 10 basta. Se vuoi, le valutazioni più dettagliate restano disponibili nei Concerti.</div><div class="onboarding-rating-list">${selected.map(c=>`<div class="onboarding-rating-row" data-id="${esc(c.id)}"><div><div class="onboarding-rating-title">${esc(c.name)}</div><div class="onboarding-rating-meta">${formatDate(c.concert_date)} · ${esc(concertVenueName(c)||"")}</div></div><div class="onboarding-rating-scale">${ratingButtonsMarkup("",false)}</div></div>`).join("")||'<div class="empty">Nessun live da valutare.</div>'}</div><div class="fan-onboarding-status"></div><div class="modal-actions"><button class="modal-save" type="button" data-next>CONTINUA AL CATALOGO</button></div></div>`;
+        card.querySelector(".modal-close").onclick=postpone;const status=card.querySelector(".fan-onboarding-status");
+        card.querySelectorAll(".onboarding-rating-row").forEach(row=>row.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{const scale=row.querySelector(".onboarding-rating-scale");paintRatingScale(scale,Number(btn.dataset.value),"saving");try{await fanApi("concert_rate",{concert_id:row.dataset.id,performance_score:Number(btn.dataset.value)});paintRatingScale(scale,Number(btn.dataset.value),"ready")}catch(err){status.textContent=err.message;paintRatingScale(scale,"","ready")}}));
+        card.querySelector("[data-next]").onclick=async()=>{await fanApi("onboarding_step_complete",{step:"live"});overlay.remove();resolve(true)}
+      };
+      renderPresence()
+    })
+  }
+  async function v474CatalogQuickStep(){
+    const data=await fanApi("catalog"),rows=data.songs||[];
+    return new Promise(resolve=>{
+      const overlay=document.createElement("div");overlay.className="modal open";overlay.style.zIndex="160";const card=document.createElement("div");card.className="modal-card";card.style.width="min(800px,calc(100vw - 18px))";
+      card.innerHTML=`<div class="modal-header"><div><h2>GIRO RAPIDO DEL CATALOGO</h2>${v474Progress(3)}</div><button class="modal-close" type="button">×</button></div><div class="form-body"><div class="fan-onboarding-intro">Vota la Versione Molesti con un numero da 1 a 10. Qui niente voto avanzato: quello rimane disponibile nel Catalogo quando hai finito.</div><div class="onboarding-rating-list">${rows.map(s=>`<div class="onboarding-rating-row" data-id="${esc(s.id)}"><div class="onboarding-rating-title">${esc(s.title)}</div><div class="onboarding-rating-scale">${ratingButtonsMarkup(s.my_vote?.molesti_score??"",false)}</div></div>`).join("")}</div><div class="fan-onboarding-status"></div><div class="modal-actions"><button class="modal-save" type="button" data-finish>FINE</button></div></div>`;
+      overlay.appendChild(card);document.body.appendChild(overlay);const postpone=async()=>{await v474PostponeCurrentOnboarding();overlay.remove();resolve(false)},status=card.querySelector(".fan-onboarding-status");card.querySelector(".modal-close").onclick=postpone;
+      card.querySelectorAll(".onboarding-rating-row").forEach(row=>row.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async()=>{const scale=row.querySelector(".onboarding-rating-scale"),value=Number(btn.dataset.value);paintRatingScale(scale,value,"saving");try{await fanApi("catalog_vote",{song_id:row.dataset.id,molesti_score:value,preserve_advanced:true});paintRatingScale(scale,value,"ready")}catch(err){status.textContent=err.message;paintRatingScale(scale,"","ready")}}));
+      card.querySelector("[data-finish]").onclick=async()=>{await fanApi("onboarding_step_complete",{step:"catalog"});overlay.remove();window.v474OnboardingIncompleteThisLogin=false;resolve(true)}
+    })
+  }
+  async function v474ContinueFanFlow(statusData=null){
+    let data=statusData||await fanApi("onboarding_status");
+    if(!data.questionnaire){
+      const saved=await v474BaseQuestionnaire(data,{flow:true});if(!saved){await v474PostponeCurrentOnboarding();return false}
+      data=await fanApi("onboarding_status")
+    }
+    if(!data.onboarding_state?.live_step_completed_at){
+      if(data.questionnaire?.attended_concert){const ok=await v474AttendanceAndLiveStep(data);if(!ok)return false}
+      else await fanApi("onboarding_step_complete",{step:"live"})
+    }
+    data=await fanApi("onboarding_status");
+    if(!data.onboarding_state?.catalog_step_completed_at){const ok=await v474CatalogQuickStep();if(!ok)return false}
+    return true
+  }
+  runFanOnboardingIfNeeded=async function(){
+    try{
+      const data=await fanApi("onboarding_status");
+      if(data.flow_completed)return true;
+      window.v474OnboardingIncompleteThisLogin=true;
+      if(data.onboarding_state?.postponed_at)return false;
+      if(!data.onboarding_state?.intro_seen_at){const start=await v474OnboardingIntro();if(!start)return false}
+      return await v474ContinueFanFlow(data)
+    }catch(err){console.warn("Onboarding fan non disponibile",err);return false}
+  };
+  async function v474ResumeFanOnboarding(){
+    try{await fanApi("onboarding_step_complete",{step:"intro"});const data=await fanApi("onboarding_status");return await v474ContinueFanFlow(data)}catch(err){alert(err.message);return false}
+  }
+  loadFanProfile=async function(){
+    await v474BaseLoadFanProfile();
+    try{
+      const data=await fanApi("onboarding_status");if(data.flow_completed)return;
+      const box=$("fanProfileContent");if(!box||box.querySelector(".v474-resume-onboarding"))return;
+      const wrap=document.createElement("div");wrap.className="fan-profile-actions v474-resume-onboarding";wrap.innerHTML='<button type="button" class="fan-profile-edit">RIPRENDI IL QUESTIONARIO</button>';wrap.querySelector("button").onclick=async()=>{const done=await v474ResumeFanOnboarding();if(done)await loadFanProfile()};box.prepend(wrap)
+    }catch(err){console.warn(err)}
+  };
+  runFanReviewQueue=async function(){if(window.v474OnboardingIncompleteThisLogin)return false;return await v474BaseRunReviewQueue()};
+
+  /* ------------------------------------------------------
+     POSIZIONI STORICHE — snapshot-aware
+     Se un pezzo previsto più avanti viene anticipato come RICHIESTA, la sua
+     posizione effettiva non lo trasforma in INTRO. Per apertura/chiusura i
+     badge storici usano lo snapshot iniziale quando disponibile.
+  ------------------------------------------------------ */
+  const v474BaseLoadSongLabelData=loadSongLabelData;
+  loadSongLabelData=async function(){
+    await v474BaseLoadSongLabelData();
+    try{
+      const {data,error}=await sb.rpc("get_song_planned_position_metrics");
+      if(error)throw error;
+      const map=new Map((data||[]).map(x=>[x.song_id,x]));
+      songHistoryMetrics=(songHistoryMetrics||[]).map(h=>{
+        const x=map.get(h.song_id);if(!x)return h;
+        return {...h,
+          opener_count:Number(x.planned_opener_count||0),
+          outro_count:Number(x.planned_outro_count||0),
+          recent_opener_count:Number(x.recent_planned_opener_count||0),
+          recent_outro_count:Number(x.recent_planned_outro_count||0),
+          recent_window_count:Number(x.planned_recent_window_count||h.recent_window_count||0),
+          recent_ifr_opener:Number(x.recent_planned_ifr_opener||0),
+          recent_ifr_outro:Number(x.recent_planned_ifr_outro||0)
+        }
+      });
+    }catch(err){console.warn("Posizioni pianificate snapshot non disponibili",err)}
+  };
+
+  /* ------------------------------------------------------
+     AVVIO / REFRESH
+  ------------------------------------------------------ */
+  v474LoadConcertModes().then(()=>{try{renderConcerts()}catch{};if(!$("fanApp").hidden)loadPublicConcerts().catch(()=>{});if(!$("guestApp").hidden)loadGuestConcerts().catch(()=>{})});
+  const v474SetupTabObserver=new MutationObserver(()=>v474EnsureModeSetup());v474SetupTabObserver.observe($("setupPage"),{subtree:true,childList:true,attributes:true});
+  MOBILE_QUERY.addEventListener?.("change",()=>{v474ScheduleScrollUnlock();renderSongRanking();});
+  setInterval(()=>{v474DecorateCopyButtons();v474ObserveCopyButtons();v474UnlockScroll()},1800);
+})();
+</script>
+
 
 <script id="v2-hash-router">
 /* V2 hash routing: mantiene l'app a file singolo, ma rende ogni sezione navigabile con #route. */
