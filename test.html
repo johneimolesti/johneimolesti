@@ -985,6 +985,44 @@ html,body{overflow-y:auto!important}
 @media(max-width:720px){.analytics-badge-columns{grid-template-columns:1fr}}
 </style>
 
+
+<style id="v4-7-4i-fixes">
+/* V4.7.4i — riferimento scaletta compatto nell'header. */
+#mySetlistIncludedPanel .panel-header{overflow:visible!important;position:relative;z-index:25}
+.setlist-guides{display:none!important}
+.setlist-ref-menu{position:relative;flex:0 0 auto;color:#858d98}
+.setlist-ref-menu>summary{list-style:none;cursor:pointer;user-select:none;padding:3px 6px;border:1px solid rgba(255,255,255,.08);border-radius:7px;background:rgba(255,255,255,.025);color:#7f8792;font-size:6.5px;font-weight:900;letter-spacing:.045em;white-space:nowrap}
+.setlist-ref-menu>summary::-webkit-details-marker{display:none}.setlist-ref-menu[open]>summary{border-color:rgba(243,210,52,.25);color:#d5c45c}
+.setlist-ref-popover{position:absolute;right:0;top:calc(100% + 6px);z-index:80;width:205px;padding:9px;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:rgba(15,19,27,.97);box-shadow:0 16px 45px rgba(0,0,0,.38);display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.setlist-ref-title{grid-column:1/-1;color:#a7adb6;font-size:7px;font-weight:950;letter-spacing:.08em}.setlist-ref-field{display:grid;gap:3px;color:#727b87;font-size:6px;font-weight:900;text-transform:uppercase}.setlist-ref-field input{width:100%;height:28px;padding:3px 6px;border:1px solid rgba(255,255,255,.1);border-radius:7px;background:#151920;color:#f2f3f5;font-size:9px}.setlist-ref-note{grid-column:1/-1;color:#68717d;font-size:6.5px;line-height:1.35}
+@media(max-width:720px){.setlist-ref-menu>summary{padding:3px 5px;font-size:6px}.setlist-ref-popover{right:-42px;width:190px}}
+
+/* Mezzi voti: il punto tra due interi vale x,5. */
+.rating-scale,.member-quick-vote,.member-unrated-scale,.onboarding-rating-scale{display:grid!important;grid-template-columns:repeat(9,minmax(17px,1fr) 7px) minmax(17px,1fr)!important;gap:1px!important;align-items:center;min-width:0}
+.rating-scale button.rating-whole,.member-quick-vote button.rating-whole,.member-unrated-scale button.rating-whole,.onboarding-rating-scale button.rating-whole{width:auto!important;min-width:0!important}
+.rating-scale button.rating-half,.member-quick-vote button.rating-half,.member-unrated-scale button.rating-half,.onboarding-rating-scale button.rating-half{position:relative;width:auto!important;min-width:7px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:transparent!important}
+.rating-scale button.rating-half::before,.member-quick-vote button.rating-half::before,.member-unrated-scale button.rating-half::before,.onboarding-rating-scale button.rating-half::before{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#59616d;transform:translate(-50%,-50%);transition:background .12s ease,box-shadow .12s ease,transform .12s ease}
+.rating-scale button.rating-half:hover::before,.member-quick-vote button.rating-half:hover::before,.member-unrated-scale button.rating-half:hover::before,.onboarding-rating-scale button.rating-half:hover::before{background:#c5b84d;transform:translate(-50%,-50%) scale(1.3)}
+.rating-scale button.rating-half.selected,.member-quick-vote button.rating-half.selected,.member-unrated-scale button.rating-half.selected,.onboarding-rating-scale button.rating-half.selected{border:0!important;background:transparent!important;box-shadow:none!important}
+.rating-scale button.rating-half.selected::before,.member-quick-vote button.rating-half.selected::before,.member-unrated-scale button.rating-half.selected::before,.onboarding-rating-scale button.rating-half.selected::before{background:var(--accent)!important;box-shadow:0 0 0 2px rgba(243,210,52,.15),0 0 8px rgba(243,210,52,.42)}
+.rating-scale button.rating-whole.half-right-active,.member-quick-vote button.rating-whole.half-right-active,.member-unrated-scale button.rating-whole.half-right-active,.onboarding-rating-scale button.rating-whole.half-right-active{border-color:rgba(243,210,52,.36)!important;background:linear-gradient(90deg,rgba(255,255,255,.045) 0 50%,rgba(243,210,52,.18) 50% 100%)!important;color:#e2d15f!important}
+.rating-scale button.rating-whole.half-left-active,.member-quick-vote button.rating-whole.half-left-active,.member-unrated-scale button.rating-whole.half-left-active,.onboarding-rating-scale button.rating-whole.half-left-active{border-color:rgba(243,210,52,.36)!important;background:linear-gradient(90deg,rgba(243,210,52,.18) 0 50%,rgba(255,255,255,.045) 50% 100%)!important;color:#e2d15f!important}
+
+/* Chiusura dettaglio concerto: solo mobile e soltanto X. */
+.concert-detail-close{display:none!important}
+@media(max-width:720px){.concert-detail-close{display:inline-flex!important;align-items:center;justify-content:center;width:27px;height:27px;min-width:27px;padding:0!important;border:1px solid rgba(255,255,255,.10);border-radius:9px;background:rgba(255,255,255,.045);color:#cfd3da;font-size:18px;font-weight:400;line-height:1;cursor:pointer}#concertDetail>.concert-detail-close{position:sticky;top:4px;z-index:24;margin:5px 5px -32px auto}}
+
+/* Scroll: ogni lista è sempre scrollabile; Setup/Venue usa la pagina come scroller principale. */
+:where(.list,.song-list,[id$="List"],[class$="-list"],[class*="-list "]){overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;min-height:0}
+#setupPage.active{height:100%!important;min-height:0!important;max-height:100%!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding-bottom:24px}
+#setupPage .setup-section:not([hidden]){overflow:visible!important;min-height:0!important}
+#setupPage [data-setup-section="venue"]>.panel{overflow:visible!important}
+#venueList,.venue-list-grid,.venue-zone-list{overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;min-height:0!important;max-height:none!important}
+
+/* Nei private show la venue resta testuale per fan/guest: nessuna scheda location apribile. */
+.concert-venue-private{color:inherit;text-decoration:none;cursor:default}
+</style>
+
 </head>
 <body>
 
@@ -1028,7 +1066,7 @@ html,body{overflow-y:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4f</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4i</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1142,7 +1180,7 @@ html,body{overflow-y:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4f</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4i</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1227,7 +1265,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4h";
+const APP_VERSION="v4.7.4i";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2514,7 +2552,15 @@ async function loadPublicCatalog(){
   }catch(err){console.error("Errore catalogo fan",err);box.innerHTML=`<div class="empty"><strong>Errore caricamento catalogo</strong><br>${esc(err?.message||String(err))}<br><br><button id="retryFanCatalog" class="small-btn" type="button">RIPROVA</button></div>`;const retry=$("retryFanCatalog");if(retry)retry.onclick=loadPublicCatalog}
 }
 function catalogValueValid(v){return v==null||(Number.isFinite(v)&&v>=1&&v<=10)}
-function ratingButtonsMarkup(value,disabled=false){const n=value==null||value===""?null:Number(value);return Array.from({length:10},(_,i)=>{const v=i+1,sel=n===v;return `<button type="button" data-value="${v}" class="${sel?"selected":""}" ${disabled?"disabled":""} aria-pressed="${sel?"true":"false"}">${v}</button>`}).join("")}
+function ratingButtonsMarkup(value,disabled=false){
+  const n=value==null||value===""?null:Number(value),eq=v=>n!=null&&Number.isFinite(n)&&Math.abs(n-v)<.001,out=[];
+  for(let v=1;v<=10;v++){
+    const selected=eq(v),halfRight=v<10&&eq(v+.5),halfLeft=v>1&&eq(v-.5);
+    out.push(`<button type="button" data-value="${v}" class="rating-whole${selected?" selected":""}${halfRight?" half-right-active":""}${halfLeft?" half-left-active":""}" ${disabled?"disabled":""} aria-label="Voto ${v}" aria-pressed="${selected?"true":"false"}">${v}</button>`);
+    if(v<10){const hv=v+.5,hsel=eq(hv);out.push(`<button type="button" data-value="${hv}" class="rating-half${hsel?" selected":""}" ${disabled?"disabled":""} aria-label="Voto ${String(hv).replace(".",",")}" aria-pressed="${hsel?"true":"false"}"><span aria-hidden="true"></span></button>`)}
+  }
+  return out.join("")
+}
 function paintRatingScale(scale,value,state="ready"){if(!scale)return;scale.classList.toggle("is-saving",state==="saving");scale.classList.toggle("is-disabled",state==="disabled");scale.innerHTML=ratingButtonsMarkup(value,state==="saving"||state==="disabled")}
 function bindCatalogQuickScale(row){const scale=row?.querySelector(".catalog-quick-scale");if(!scale)return;scale.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=()=>saveCatalogQuickChoice(row,Number(btn.dataset.value)))}
 async function saveCatalogQuickChoice(row,value){const input=row?.querySelector(".catalog-molesti"),scale=row?.querySelector(".catalog-quick-scale"),status=$("fanCatalogStatus");if(!input||!scale||!canFan("catalog_vote"))return;const previous=String(input.value??"");input.value=String(value);paintRatingScale(scale,value,"saving");if(status)status.textContent="Salvataggio...";try{await fanApi("catalog_vote",{song_id:row.dataset.songId,molesti_score:value,preserve_advanced:true,base_familiarity:null,lyrics_familiarity:null});row.dataset.savedMolesti=String(value);row.classList.add("row-saved");const song=publicCatalogSongs.find(x=>x.id===row.dataset.songId);if(song){song.my_vote=song.my_vote||{};song.my_vote.molesti_score=value}paintRatingScale(scale,value,"ready");bindCatalogQuickScale(row);if(status)status.textContent="Voto salvato ✓"}catch(err){input.value=previous;paintRatingScale(scale,previous,"ready");bindCatalogQuickScale(row);row.classList.add("row-error");if(status)status.textContent=err.message||"Errore durante il salvataggio"}}
@@ -2751,6 +2797,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".concert-setlist-pane",".concert-catalog",".concert-catalog-list",
     ".admin-ranking-scroll",".permission-matrix-scroll",".activity-list",
     ".analytics-shell",".venue-list-grid",".venue-zone-list",
+    ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
   function v474SetScrollAuto(el){
@@ -2780,6 +2827,8 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   ["resize","orientationchange","fullscreenchange","webkitfullscreenchange"].forEach(ev=>window.addEventListener(ev,v474ScheduleScrollUnlock));
   document.addEventListener("click",()=>setTimeout(v474ScheduleScrollUnlock,0),true);
   v474ScheduleScrollUnlock();
+  const v474BaseRenderVenuePage=renderVenuePage;
+  renderVenuePage=function(){v474BaseRenderVenuePage();const list=$("venueList");if(list)list.dataset.scrollContainer="true";v474ScheduleScrollUnlock()};
 
   /* ------------------------------------------------------
      COPIA ADATTIVO
@@ -3024,12 +3073,21 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   /* ------------------------------------------------------
      SOGLIE PERSONALI SCALETTA
   ------------------------------------------------------ */
+  function v474SetlistReferenceLabel(){
+    const pref=window.v474SetlistPreference||{},songs=Number(pref.max_song_count)||null,mins=Number(pref.max_duration_minutes)||null;
+    if(!songs&&!mins)return "RIF. —";
+    return `RIF. ${songs?`${songs} BR`:"—"}${mins?` · ${mins}′`:""}`
+  }
+  function v474UpdateSetlistGuideSummary(){const el=$("v474SetlistGuideSummary");if(el)el.textContent=v474SetlistReferenceLabel()}
   function v474EnsureSetlistGuides(){
-    const panel=$("mySetlistIncludedPanel");if(!panel||$("#v474SetlistGuides"))return;
-    const guides=document.createElement("div");guides.id="v474SetlistGuides";guides.className="setlist-guides";
-    guides.innerHTML=`<label class="setlist-guide-field">Rif. brani <input id="v474MaxSongs" type="number" min="1" max="100" placeholder="—"></label><label class="setlist-guide-field">Rif. minuti <input id="v474MaxMinutes" type="number" min="1" max="360" placeholder="—"></label><span class="setlist-guide-summary">Indicazioni visive: la scaletta resta sempre libera.</span>`;
-    panel.querySelector(".panel-header")?.insertAdjacentElement("afterend",guides);
-    ["v474MaxSongs","v474MaxMinutes"].forEach(id=>$(id).addEventListener("change",v474SaveSetlistPreference))
+    const panel=$("mySetlistIncludedPanel"),actions=panel?.querySelector(".panel-header-actions");if(!panel||!actions)return;
+    $("v474SetlistGuides")?.remove();
+    if($("v474SetlistGuideMenu")){v474UpdateSetlistGuideSummary();return}
+    const menu=document.createElement("details");menu.id="v474SetlistGuideMenu";menu.className="setlist-ref-menu";
+    menu.innerHTML=`<summary id="v474SetlistGuideSummary" title="Riferimento lunghezza scaletta">RIF. —</summary><div class="setlist-ref-popover"><div class="setlist-ref-title">RIFERIMENTO SCALETTA</div><label class="setlist-ref-field"><span>Brani</span><input id="v474MaxSongs" type="number" min="1" max="100" placeholder="—"></label><label class="setlist-ref-field"><span>Minuti</span><input id="v474MaxMinutes" type="number" min="1" max="360" placeholder="—"></label><div class="setlist-ref-note">Solo indicativo: non limita mai la scaletta.</div></div>`;
+    const copy=$("copyMySetlistButton");if(copy&&copy.parentElement===actions)actions.insertBefore(menu,copy);else actions.appendChild(menu);
+    ["v474MaxSongs","v474MaxMinutes"].forEach(id=>$(id).addEventListener("change",v474SaveSetlistPreference));
+    menu.addEventListener("click",e=>e.stopPropagation());v474UpdateSetlistGuideSummary()
   }
   async function v474LoadSetlistPreference(){
     if(!currentUser)return;
@@ -3039,7 +3097,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       v474EnsureSetlistGuides();
       $("v474MaxSongs").value=window.v474SetlistPreference.max_song_count??"";
       $("v474MaxMinutes").value=window.v474SetlistPreference.max_duration_minutes??"";
-      renderMySetlist()
+      v474UpdateSetlistGuideSummary();renderMySetlist()
     }catch(err){console.warn("Preferenze soglia scaletta non disponibili",err)}
   }
   async function v474SaveSetlistPreference(){
@@ -3047,13 +3105,13 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     const max_song_count=numberOrNull($("v474MaxSongs")?.value),max_duration_minutes=numberOrNull($("v474MaxMinutes")?.value);
     const payload={member_id:currentUser.id,max_song_count,max_duration_minutes,updated_at:new Date().toISOString()};
     const {error}=await sb.from("member_setlist_preferences").upsert(payload,{onConflict:"member_id"});if(error)return alert(error.message);
-    window.v474SetlistPreference=payload;renderMySetlist()
+    window.v474SetlistPreference=payload;v474UpdateSetlistGuideSummary();renderMySetlist()
   }
   function v474ThresholdDivider(labels){
     const d=document.createElement("div");d.className="setlist-threshold-divider";d.innerHTML=`<span>${labels.map(esc).join(" · ")}</span>`;return d
   }
   renderMySetlist=function(){
-    v474EnsureSetlistGuides();
+    v474EnsureSetlistGuides();v474UpdateSetlistGuideSummary();
     $("mySetlistHeader").innerHTML=makeSongHeader();$("setlist").innerHTML="";$("excluded").innerHTML="";
     const inc=includedSongs(),exc=excludedSongs(),editable=canMember("member_setlist_edit"),pref=window.v474SetlistPreference||{},countLimit=Number(pref.max_song_count)||null,durationLimit=(Number(pref.max_duration_minutes)||0)*60;
     let cumulative=0,countMarkerDone=false,durationMarkerDone=false;
@@ -3189,14 +3247,20 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     return `<div class="concert-row-submeta">${formatDate(c.concert_date)} | ${formatTime(c.start_time)} | ${v474ConcertVenueButton(c)} | ${esc(locality)} | ${esc(province)}</div>`
   }
   function v474FindConcert(id){return concerts.find(c=>String(c.id)===String(id))||publicConcerts.find(c=>String(c.id)===String(id))||guestConcerts.find(c=>String(c.id)===String(id))||null}
-  function v474OpenVenueCard(c){
-    if(!c)return;const overlay=document.createElement("div");overlay.className="modal open venue-card-popup";const card=document.createElement("div");card.className="modal-card";
+  function v474OpenVenueCard(c,viewer="member"){
+    if(!c||(c.private_show&&viewer!=="member"))return;const overlay=document.createElement("div");overlay.className="modal open venue-card-popup";const card=document.createElement("div");card.className="modal-card";
     const rows=[["Località",concertVenueLocality(c)],["Comune",concertVenueMunicipality(c)],["Provincia",concertVenueProvince(c)],["Stato",concertVenueCountry(c)],["Tipologia",venueTypeLabel(c)]].filter(x=>x[1]);
     card.innerHTML=`<div class="modal-header"><h2>${esc(concertVenueName(c)||"Venue")}</h2><button class="modal-close" type="button">×</button></div><div class="form-body"><dl class="venue-card-grid">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")||"<dd>Nessun dettaglio disponibile.</dd>"}</dl></div>`;
     overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};v474ScheduleScrollUnlock()
   }
   function v474WireVenueLinks(root){
-    root?.querySelectorAll?.(".concert-venue-link").forEach(btn=>{btn.onclick=e=>{e.preventDefault();e.stopPropagation();v474OpenVenueCard(v474FindConcert(btn.dataset.concertId))}})
+    root?.querySelectorAll?.(".concert-venue-link").forEach(btn=>{
+      const c=v474FindConcert(btn.dataset.concertId),ownerNode=btn.closest("[data-concert-owner]"),viewer=ownerNode?.dataset.concertOwner||root?.dataset?.concertOwner||(btn.closest("#fanApp")?"fan":btn.closest("#guestApp")?"guest":"member");
+      if(c?.private_show&&viewer!=="member"){
+        const span=document.createElement("span");span.className="concert-venue-private";span.textContent=btn.textContent||concertVenueName(c)||"Venue";span.onclick=e=>e.stopPropagation();btn.replaceWith(span);return
+      }
+      btn.onclick=e=>{e.preventDefault();e.stopPropagation();v474OpenVenueCard(c,viewer)}
+    })
   }
 
   const v474Anchors={member:null,fan:null,guest:null};
@@ -3256,9 +3320,9 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       if(owner==="member")target.insertBefore(line,target.firstChild);else target.querySelector(".panel-header")?.insertAdjacentElement("afterend",line);v474WireVenueLinks(line)
     }
     if(owner==="member"){
-      if(!box.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="small-btn concert-detail-close";b.textContent="CHIUDI SCALETTA";b.onclick=()=>v474CloseConcertDetail(owner);box.insertBefore(b,box.firstChild)}
+      if(!box.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="concert-detail-close";b.textContent="×";b.title="Chiudi scaletta";b.setAttribute("aria-label","Chiudi scaletta");b.onclick=()=>v474CloseConcertDetail(owner);box.insertBefore(b,box.firstChild)}
     }else{
-      const actions=box.querySelector(".concert-detail-head-actions");if(actions&&!actions.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="small-btn concert-detail-close";b.textContent="CHIUDI";b.onclick=()=>v474CloseConcertDetail(owner);actions.prepend(b)}
+      const actions=box.querySelector(".concert-detail-head-actions");if(actions&&!actions.querySelector(".concert-detail-close")){const b=document.createElement("button");b.type="button";b.className="concert-detail-close";b.textContent="×";b.title="Chiudi scaletta";b.setAttribute("aria-label","Chiudi scaletta");b.onclick=()=>v474CloseConcertDetail(owner);actions.prepend(b)}
     }
     v474ScheduleScrollUnlock()
   }
