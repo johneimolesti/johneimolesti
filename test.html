@@ -1028,7 +1028,7 @@ html,body{overflow-y:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4d</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1142,7 +1142,7 @@ html,body{overflow-y:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4d</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1227,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4";
+const APP_VERSION="v4.7.4d";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2869,23 +2869,36 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   /* ------------------------------------------------------
      MODALITÀ LIVE E COLORI
   ------------------------------------------------------ */
-  async function v474LoadConcertModes(){
+  const V474_DEFAULT_CONCERT_MODES=[
+    {mode_key:"standard",label:"STANDARD",color:"#9AA2AE",background_color:null},
+    {mode_key:"mixed",label:"MIXED",color:"#E0B85A",background_color:null},
+    {mode_key:"jukebox",label:"JUKEBOX",color:"#76AEE0",background_color:null}
+  ];
+  // La UI deve essere utilizzabile anche se il DB/PostgREST non risponde:
+  // i valori locali sono disponibili PRIMA di qualsiasi chiamata asincrona.
+  window.v474ConcertModeDefinitions=V474_DEFAULT_CONCERT_MODES.map(x=>({...x}));
+  async function v474LoadConcertModes(timeoutMs=1800){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
     try{
-      const {data,error}=await sb.from("concert_mode_definitions").select("*").order("mode_key");
+      let query=sb.rpc("get_concert_mode_definitions");
+      if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);
+      const {data,error}=await query;
       if(error)throw error;
-      window.v474ConcertModeDefinitions=data||[]
+      const rows=Array.isArray(data)?data:[];
+      if(rows.length){
+        const byKey=new Map(rows.map(x=>[String(x.mode_key),x]));
+        window.v474ConcertModeDefinitions=V474_DEFAULT_CONCERT_MODES.map(d=>({...d,...(byKey.get(d.mode_key)||{})}));
+      }
     }catch(err){
-      console.warn("Modalità live configurabili non disponibili",err);
-      window.v474ConcertModeDefinitions=[]
-    }
+      // Timeout/rete/schema-cache non devono MAI impedire il caricamento della pagina.
+      console.warn("Modalità live configurabili non disponibili: uso valori locali",err);
+    }finally{clearTimeout(timer)}
+    return window.v474ConcertModeDefinitions;
   }
   function v474ModeDef(mode){
     const key=String(mode||"standard");
-    return window.v474ConcertModeDefinitions.find(x=>x.mode_key===key)||{
-      mode_key:key,label:key.toUpperCase(),
-      color:key==="jukebox"?"#76AEE0":key==="mixed"?"#E0B85A":"#9AA2AE",
-      background_color:null
-    }
+    const defs=Array.isArray(window.v474ConcertModeDefinitions)?window.v474ConcertModeDefinitions:V474_DEFAULT_CONCERT_MODES;
+    return defs.find(x=>x.mode_key===key)||V474_DEFAULT_CONCERT_MODES.find(x=>x.mode_key===key)||{mode_key:key,label:key.toUpperCase(),color:"#9AA2AE",background_color:null}
   }
   function v474ModeLabelHtml(c){
     const d=v474ModeDef(c?.event_mode);
@@ -2998,7 +3011,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     window.v474ConcertModeDefinitions.forEach(d=>{
       const row=document.createElement("div");row.className="mode-setup-row";row.dataset.key=d.mode_key;
       row.innerHTML=`<div><input class="mode-label-input" maxlength="30" value="${esc(d.label)}"><div class="mode-setup-key">${esc(d.mode_key)}</div></div>${v474DualColorHtml(d.color,d.background_color,"mode")}<span class="mode-save section-note">Auto</span>`;
-      const save=async()=>{const status=row.querySelector(".mode-save"),colors=row.querySelector(".dual-color-picker"),payload={label:row.querySelector(".mode-label-input").value.trim()||d.mode_key.toUpperCase(),color:colors.querySelector(".mode-main-color").value,background_color:colors.dataset.hasBg==="1"?colors.querySelector(".mode-bg-color").value:null,updated_at:new Date().toISOString()};status.textContent="...";const {error}=await sb.from("concert_mode_definitions").update(payload).eq("mode_key",d.mode_key);status.textContent=error?"ERRORE":"OK ✓";if(error)return alert(error.message);Object.assign(d,payload);renderConcerts();if(!$("fanApp").hidden)loadPublicConcerts().catch(()=>{});if(!$("guestApp").hidden)loadGuestConcerts().catch(()=>{})};
+      const save=async()=>{const status=row.querySelector(".mode-save"),colors=row.querySelector(".dual-color-picker"),payload={label:row.querySelector(".mode-label-input").value.trim()||d.mode_key.toUpperCase(),color:colors.querySelector(".mode-main-color").value,background_color:colors.dataset.hasBg==="1"?colors.querySelector(".mode-bg-color").value:null};status.textContent="...";const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2500);try{let query=sb.rpc("set_concert_mode_definition",{p_mode_key:d.mode_key,p_label:payload.label,p_color:payload.color,p_background_color:payload.background_color});if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);const {error}=await query;if(error)throw error;status.textContent="OK ✓";Object.assign(d,payload);renderConcerts();if(!$("fanApp").hidden)loadPublicConcerts().catch(()=>{});if(!$("guestApp").hidden)loadGuestConcerts().catch(()=>{})}catch(err){status.textContent="ERRORE";alert(err?.message||"Impossibile salvare la modalità live.")}finally{clearTimeout(timer)}};
       row.querySelector(".mode-label-input").onblur=save;v474WireDualColor(row,"mode",save);list.appendChild(row)
     })
   }
