@@ -1031,7 +1031,7 @@ html,body{overflow-y:auto!important}
 body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#guestApp:not([hidden])){height:100dvh!important;min-height:0!important;overflow:hidden!important}
 #memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){
   width:100%!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
-  display:flex!important;flex-direction:column!important;overflow:hidden!important
+  display:grid!important;grid-template-rows:auto auto minmax(0,1fr)!important;overflow:hidden!important
 }
 #memberApp:not([hidden])>header,#fanApp:not([hidden])>header,#guestApp:not([hidden])>header,
 #memberApp:not([hidden])>.nav,#fanApp:not([hidden])>.fan-bottom-nav,#guestApp:not([hidden])>.fan-bottom-nav{
@@ -1250,44 +1250,186 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 }
 </style>
 
-<style id="v4-7-4l-universal-scroll">
-/* V4.7.4l — CONTRATTO UNIVERSALE DI SCROLL.
-   Il main dell'app è sempre lo scroller principale. Qualunque lista/pannello che riceva
-   un vincolo di altezza conserva inoltre il proprio overflow:auto. Nessun JS riscrive overflow. */
-body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#guestApp:not([hidden])){height:100dvh!important;min-height:0!important;overflow:hidden!important}
-#memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
-#memberApp:not([hidden])>header,#fanApp:not([hidden])>header,#guestApp:not([hidden])>header,#memberApp:not([hidden])>.nav,#fanApp:not([hidden])>.fan-bottom-nav,#guestApp:not([hidden])>.fan-bottom-nav{flex:0 0 auto!important;min-height:0!important}
-#memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:scroll!important;overflow-x:hidden!important;overscroll-behavior-y:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-gutter:stable!important}
-#memberApp .page:not(.active),#fanApp .page:not(.active),#guestApp .page:not(.active){display:none!important}
-#memberApp .page.active,#fanApp .page.active,#guestApp .page.active{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
-#memberApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,.member-global-list,.member-global-grid,.fan-attendance-list,.activity-list,.approval-modal-list,.numeric-settings-list,.label-setup-list,.fan-operation-log,.venue-list-grid,.venue-zone-list,.onboarding-rating-list,.member-unrated-list,.concert-detail,.concert-catalog-list,.concert-setlist-pane,.setup-section,[data-scroll-container],[class*="-scroll"],[class$="-list"]),#fanApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.onboarding-rating-list,.concert-detail,[data-scroll-container],[class*="-scroll"],[class$="-list"]),#guestApp :where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.concert-detail,[data-scroll-container],[class*="-scroll"],[class$="-list"]){min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
-#memberApp>.nav,.fan-bottom-nav,.setup-tabs,.member-tabs,.mobile-section-subnav,.concert-scope-tabs,.log-scope-tabs,.toolbar{overflow:auto!important;-webkit-overflow-scrolling:touch!important}
-#memberApp #setupPage.active{display:block!important;height:auto!important;overflow:visible!important;padding-bottom:20px!important}
-#setupPage>.setup-section:not([hidden]){display:block!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
-#setupPage>.setup-section:not([hidden])>.panel,#setupPage>.setup-section:not([hidden]) .panel{height:auto!important;max-height:none!important;overflow-y:auto!important}
-#venueList,.venue-list-grid,.venue-zone-list,.permission-matrix-scroll,.numeric-settings-list,.label-setup-list,.fan-operation-log{overflow-y:auto!important;max-height:none!important}
-#proposalsPage.active,#membersPage.active,#songRankingPage.active,#concertsPage.active,#analyticsPage.active,#fansAdminPage.active{display:block!important;height:auto!important;min-height:0!important;overflow:visible!important}
-#proposalsPage .three-columns,#membersPage>.panel,#songRankingPage>.panel,#concertsPage .concert-layout>.panel,#fansAdminPage .fan-admin-dashboard>.panel{min-height:0!important;overflow-y:auto!important}
-#mediaList,#pureList,#fusedList,#memberSetlist,#songRankingList,#concertList,#concertDetail,#fanRankingList,#adminFanList{overflow-y:auto!important;min-height:0!important;max-height:none!important}
-:fullscreen #memberApp>main,:fullscreen #fanApp>main,:fullscreen #guestApp>main,#memberApp:fullscreen>main,#fanApp:fullscreen>main,#guestApp:fullscreen>main,:-webkit-full-screen #memberApp>main,:-webkit-full-screen #fanApp>main,:-webkit-full-screen #guestApp>main,body.app-full-immersion #memberApp>main,body.app-full-immersion #fanApp>main,body.app-full-immersion #guestApp>main{min-height:0!important;overflow-y:scroll!important;overflow-x:hidden!important;scrollbar-gutter:stable!important}
-:fullscreen .page.active,:-webkit-full-screen .page.active,body.app-full-immersion .page.active{height:auto!important;overflow:visible!important}
-:fullscreen :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]),:-webkit-full-screen :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]),body.app-full-immersion :where(.panel,.list,.song-list,.admin-ranking-scroll,[data-scroll-container]){overflow-y:auto!important;min-height:0!important}
-@media(max-width:720px), (hover:none) and (pointer:coarse){
-  #memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){display:flex!important;position:fixed!important;inset:0!important;height:100dvh!important;overflow:hidden!important}
-  #memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{overflow-y:scroll!important;touch-action:pan-y!important}
-  #membersPage.active,#songRankingPage.active,#proposalsPage.active{display:block!important;visibility:visible!important;opacity:1!important;height:auto!important;overflow:visible!important}
-  #membersPage>.member-tabs{display:flex!important;width:100%!important;overflow-x:auto!important;overflow-y:auto!important}
-  #membersPage>.panel,#songRankingPage>.panel{display:block!important;height:auto!important;max-height:none!important;overflow-y:auto!important}
-  #memberSetlist,#songRankingList{display:block!important;height:auto!important;max-height:none!important;overflow-y:auto!important}
-  #membersPage.is-global-view #memberSetlist.member-global-grid{display:grid!important;grid-template-columns:repeat(5,minmax(135px,1fr))!important;overflow:auto!important}
-  #proposalsPage .three-columns{display:block!important}
-  #proposalsPage .proposal-panel.mobile-subview-active{display:block!important;overflow-y:auto!important}
-  #proposalsPage .proposal-panel:not(.mobile-subview-active){display:none!important}
+
+<style id="v4-7-4m-scroll-architecture">
+/* V4.7.4m — ARCHITETTURA SCROLL CANONICA
+   Regola invariabile:
+   1) l'app occupa l'intero viewport;
+   2) il main ha sempre un'altezza reale e non collassa;
+   3) ogni pagina attiva ha un fallback di scroll proprio;
+   4) gli elenchi dentro pannelli con altezza assegnata scorrono al loro interno;
+   5) nessun elenco funzionale usa height:0 o overflow:hidden come area dati. */
+
+/* Shell: header/nav non sottraggono mai altezza in modo ambiguo. */
+#memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){
+  position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:100dvh!important;
+  display:grid!important;grid-template-rows:auto auto minmax(0,1fr)!important;overflow:hidden!important
 }
+#memberApp:not([hidden])>header,#fanApp:not([hidden])>header,#guestApp:not([hidden])>header,
+#memberApp:not([hidden])>.nav,#fanApp:not([hidden])>.fan-bottom-nav,#guestApp:not([hidden])>.fan-bottom-nav{
+  flex:0 0 auto!important;min-height:0!important
+}
+#memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{
+  height:100%!important;min-height:0!important;max-height:none!important;
+  overflow:hidden!important;padding-bottom:7px!important
+}
+
+/* Fallback universale: una pagina attiva è SEMPRE scrollabile anche se una sottosezione futura
+   non ricevesse ancora una regola dedicata. */
+#memberApp .page.active,#fanApp .page.active,#guestApp .page.active{
+  width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-gutter:stable
+}
+#memberApp .page:not(.active),#fanApp .page:not(.active),#guestApp .page:not(.active){display:none!important}
+
+/* Invariante per QUALSIASI elenco censito, presente o futuro. L'altezza viene decisa dal layout,
+   ma se il contenuto eccede, lo scroll non può essere disabilitato. */
+#memberApp :is(.song-list,.list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,
+  .member-global-list,.member-global-grid,.fan-attendance-list,.activity-list,.approval-modal-list,
+  .numeric-settings-list,.label-setup-list,.fan-operation-log,.venue-list-grid,.venue-zone-list,
+  .onboarding-rating-list,.member-unrated-list,.concert-detail,.concert-catalog-list,[data-scroll-container],
+  [id$="List"],[class$="-list"],[class*="-scroll"]),
+#fanApp :is(.song-list,.list,.admin-ranking-scroll,.fan-catalog-scroll,.onboarding-rating-list,
+  .concert-detail,[data-scroll-container],[id$="List"],[class$="-list"],[class*="-scroll"]),
+#guestApp :is(.song-list,.list,.admin-ranking-scroll,.fan-catalog-scroll,.concert-detail,
+  [data-scroll-container],[id$="List"],[class$="-list"],[class*="-scroll"]){
+  min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important
+}
+
+/* LA MIA SCALETTA — pannelli pieni, liste vere, mai height:0. */
+#mySetlistPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#mySetlistPage>.columns{flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+#mySetlistPage .my-setlist-panel,#mySetlistPage .my-excluded-panel{
+  height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important
+}
+#mySetlistPage #setlist,#mySetlistPage #excluded{
+  flex:1 1 0!important;height:auto!important;min-height:80px!important;max-height:none!important;overflow-y:auto!important
+}
+#mySetlistPage.mobile-panel-full .mobile-panel-expanded #setlist,
+#mySetlistPage.mobile-panel-full .mobile-panel-expanded #excluded{height:auto!important;min-height:0!important;overflow-y:auto!important}
+
+/* CATALOGO */
+#catalogPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#catalogPage>.toolbar{flex:0 0 auto!important}
+#catalogPage>.panel{flex:1 1 0!important;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#catalogPage #catalogList{flex:1 1 0!important;height:auto!important;min-height:100px!important;max-height:none!important;overflow-y:auto!important}
+
+/* SCALETTE MEMBRI */
+#membersPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#membersPage>.member-tabs{flex:0 0 auto!important;overflow-x:auto!important;overflow-y:hidden!important}
+#membersPage>.panel{flex:1 1 0!important;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#membersPage #memberSetlist{flex:1 1 0!important;height:auto!important;min-height:100px!important;max-height:none!important;overflow-y:auto!important}
+#membersPage.is-global-view #memberSetlist.member-global-grid{height:100%!important;min-height:100px!important;overflow:auto!important}
+#membersPage.is-global-view .member-global-col{min-height:0!important}
+#membersPage.is-global-view .member-global-list{min-height:80px!important;overflow-y:auto!important}
+
+/* 3 PROPOSTE */
+#proposalsPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#proposalsPage>.section-note,#proposalsPage>#proposalSummary,#proposalsPage>.mobile-section-subnav{flex:0 0 auto!important}
+#proposalsPage>.three-columns{flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+#proposalsPage .proposal-panel{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#proposalsPage .proposal-panel>.panel-header,#proposalsPage .proposal-panel>.proposal-help{flex:0 0 auto!important}
+#mediaList,#pureList,#fusedList{flex:1 1 0!important;height:auto!important;min-height:100px!important;max-height:none!important;overflow-y:auto!important}
+
+/* CLASSIFICA BRANI */
+#songRankingPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#songRankingPage>.section-note,#songRankingPage>.mobile-section-subnav{flex:0 0 auto!important}
+#songRankingPage>.panel{flex:1 1 0!important;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#songRankingList{flex:1 1 0!important;height:auto!important;min-height:100px!important;max-height:none!important;overflow-y:auto!important}
+
+/* CONCERTI */
+#concertsPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#concertsPage>.toolbar{flex:0 0 auto!important}
+#concertsPage>.concert-layout{flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+#concertsPage>.concert-layout>.panel{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#concertList,#concertDetail{flex:1 1 0!important;height:auto!important;min-height:100px!important;max-height:none!important;overflow-y:auto!important}
+
+/* FAN admin */
+#fansAdminPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#fansAdminPage>.fan-admin-dashboard{flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:auto!important}
+#fansAdminPage .fan-admin-dashboard>.panel{min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#fanRankingList,#adminFanList{flex:1 1 0!important;min-height:80px!important;overflow-y:auto!important}
+
+/* SETUP — tab/hero fissi, sezione scelta usa tutto lo spazio e scorre. */
+#setupPage.active{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important;padding-bottom:0!important}
+#setupPage>.fan-hero,#setupPage>.setup-tabs{flex:0 0 auto!important}
+#setupPage>.setup-section:not([hidden]){flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important}
+#setupPage>.setup-section.panel:not([hidden]){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#setupPage>.setup-section.panel:not([hidden])>.panel-header,
+#setupPage>.setup-section.panel:not([hidden])>.label-scope-tabs,
+#setupPage>.setup-section.panel:not([hidden])>.log-scope-tabs{flex:0 0 auto!important}
+#setupPage>.setup-section.panel:not([hidden])>:is(.label-setup-list,.numeric-settings-list,.fan-operation-log){flex:1 1 0!important;min-height:80px!important;overflow-y:auto!important}
+#setupPage>.setup-section[data-setup-section="venue"]:not([hidden]),
+#setupPage>.setup-section[data-setup-section="permissions"]:not([hidden]){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#setupPage>.setup-section[data-setup-section="venue"]>.fan-hero,
+#setupPage>.setup-section[data-setup-section="venue"]>.toolbar,
+#setupPage>.setup-section[data-setup-section="permissions"]>.fan-hero{flex:0 0 auto!important}
+#setupPage>.setup-section[data-setup-section="venue"]>.panel,
+#setupPage>.setup-section[data-setup-section="permissions"]>.panel{flex:1 1 0!important;height:auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#venueList,.venue-list-grid,.venue-zone-list,.permission-matrix-scroll{flex:1 1 0!important;height:auto!important;min-height:80px!important;max-height:none!important;overflow-y:auto!important}
+
+/* FAN/GUEST: pagina stessa come fallback; catalogo e concerti con liste sempre scrollabili. */
+#fanCatalogPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#fanCatalogPage>.fan-hero{flex:0 0 auto!important}
+#fanCatalogList{flex:1 1 0!important;min-height:100px!important;overflow-y:auto!important}
+#fanConcertsPage.active,#guestConcertsPage.active{overflow-y:auto!important}
+#publicConcertList,#privateConcertList,#guestConcertList,#guestPrivateConcertList{min-height:80px!important;overflow-y:auto!important}
+
+/* Menu e sottomenu possono sempre scorrere orizzontalmente, mai essere tagliati. */
+#memberApp>.nav,.fan-bottom-nav,.setup-tabs,.member-tabs,.mobile-section-subnav,.concert-scope-tabs,.log-scope-tabs,.toolbar{
+  overflow-x:auto!important;-webkit-overflow-scrolling:touch!important
+}
+
+/* Full immersion usa ESATTAMENTE la stessa architettura, senza eccezioni che possano bloccare lo scroll. */
+:fullscreen #memberApp,:fullscreen #fanApp,:fullscreen #guestApp,
+#memberApp:fullscreen,#fanApp:fullscreen,#guestApp:fullscreen,
+:-webkit-full-screen #memberApp,:-webkit-full-screen #fanApp,:-webkit-full-screen #guestApp,
+body.app-full-immersion #memberApp,body.app-full-immersion #fanApp,body.app-full-immersion #guestApp{
+  height:100vh!important;max-height:100vh!important;overflow:hidden!important
+}
+:fullscreen #memberApp>main,:fullscreen #fanApp>main,:fullscreen #guestApp>main,
+:-webkit-full-screen #memberApp>main,:-webkit-full-screen #fanApp>main,:-webkit-full-screen #guestApp>main,
+body.app-full-immersion #memberApp>main,body.app-full-immersion #fanApp>main,body.app-full-immersion #guestApp>main{
+  height:100%!important;min-height:0!important;overflow:hidden!important
+}
+
+/* In Full Immersion le stesse liste restano scroller reali: nessuna vecchia regola può prevalere. */
+body.app-full-immersion #memberApp .page.active,body.app-full-immersion #fanApp .page.active,body.app-full-immersion #guestApp .page.active,
+:fullscreen .page.active,:-webkit-full-screen .page.active{height:100%!important;min-height:0!important;max-height:100%!important;overflow-y:auto!important}
+body.app-full-immersion #mySetlistPage.active,body.app-full-immersion #catalogPage.active,body.app-full-immersion #membersPage.active,
+body.app-full-immersion #proposalsPage.active,body.app-full-immersion #songRankingPage.active,body.app-full-immersion #concertsPage.active,
+body.app-full-immersion #fansAdminPage.active,body.app-full-immersion #setupPage.active{overflow:hidden!important}
+body.app-full-immersion #setlist,body.app-full-immersion #excluded,body.app-full-immersion #catalogList,body.app-full-immersion #memberSetlist,
+body.app-full-immersion #mediaList,body.app-full-immersion #pureList,body.app-full-immersion #fusedList,body.app-full-immersion #songRankingList,
+body.app-full-immersion #concertList,body.app-full-immersion #concertDetail,body.app-full-immersion #fanRankingList,body.app-full-immersion #adminFanList,
+body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,body.app-full-immersion .numeric-settings-list,body.app-full-immersion .permission-matrix-scroll,
+:fullscreen #setlist,:fullscreen #excluded,:fullscreen #catalogList,:fullscreen #memberSetlist,:fullscreen #mediaList,:fullscreen #pureList,:fullscreen #fusedList,:fullscreen #songRankingList,
+:-webkit-full-screen #setlist,:-webkit-full-screen #excluded,:-webkit-full-screen #catalogList,:-webkit-full-screen #memberSetlist{height:auto!important;min-height:0!important;overflow-y:auto!important}
+
+/* Modali: viewport fisso, corpo sempre scrollabile. */
 .modal.open{position:fixed!important;inset:0!important;overflow:hidden!important}
-.modal.open>.modal-card{max-height:calc(100dvh - 16px)!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
-.modal.open>.modal-card>.form-body,.modal.open>.modal-card>.live-activity-modal-body,.modal.open>.modal-card>.approval-modal-list,#songModal.open>.modal-card>#songEditForm{flex:1 1 auto!important;min-height:0!important;overflow-y:scroll!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
+.modal.open>.modal-card{max-height:calc(100dvh - 18px)!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.modal.open>.modal-card>.modal-header{flex:0 0 auto!important}
+.modal.open>.modal-card>.form-body,.modal.open>.modal-card>.live-activity-modal-body,
+.modal.open>.modal-card>.approval-modal-list,#songModal.open>.modal-card>#songEditForm{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important
+}
+
+/* Mobile: le pagine che in passato sparivano restano flex e il sottomenu decide solo quale contenuto mostrare. */
+@media(max-width:720px), (hover:none) and (pointer:coarse){
+  #memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{height:100%!important;min-height:0!important;overflow:hidden!important}
+  #membersPage.active,#songRankingPage.active,#proposalsPage.active{display:flex!important;visibility:visible!important;opacity:1!important}
+  #membersPage>.panel,#songRankingPage>.panel{flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+  #memberSetlist,#songRankingList{flex:1 1 0!important;height:auto!important;min-height:80px!important;overflow-y:auto!important}
+  #proposalsPage>.three-columns{display:block!important;flex:1 1 0!important;min-height:0!important;overflow:hidden!important}
+  #proposalsPage .proposal-panel.mobile-subview-active{display:flex!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  #proposalsPage .proposal-panel:not(.mobile-subview-active){display:none!important}
+  #mySetlistPage #setlist,#mySetlistPage #excluded{height:auto!important;min-height:40px!important;overflow-y:auto!important}
+}
 </style>
+
 </head>
 <body>
 
@@ -1331,7 +1473,7 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4l</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4m</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1445,7 +1587,7 @@ body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#gue
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4l</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4m</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1530,7 +1672,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4l";
+const APP_VERSION="v4.7.4m";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2625,7 +2767,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.7.4l — lo scroll è governato solo dal CSS.
+/* v4.7.4m — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3065,7 +3207,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.7.4l — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.7.4m — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
