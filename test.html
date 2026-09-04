@@ -1023,6 +1023,106 @@ html,body{overflow-y:auto!important}
 .concert-venue-private{color:inherit;text-decoration:none;cursor:default}
 </style>
 
+<style id="v4-7-4j-scroll-shell">
+/* V4.7.4j — shell applicativa a viewport intera e scrolling sempre disponibile. */
+
+/* I gate/login restano liberi di usare lo scroll della pagina. Quando un'app è aperta,
+   è invece il suo shell a occupare l'intero viewport. */
+body:has(#memberApp:not([hidden])),body:has(#fanApp:not([hidden])),body:has(#guestApp:not([hidden])){height:100dvh!important;min-height:0!important;overflow:hidden!important}
+#memberApp:not([hidden]),#fanApp:not([hidden]),#guestApp:not([hidden]){
+  width:100%!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+  display:flex!important;flex-direction:column!important;overflow:hidden!important
+}
+#memberApp:not([hidden])>header,#fanApp:not([hidden])>header,#guestApp:not([hidden])>header,
+#memberApp:not([hidden])>.nav,#fanApp:not([hidden])>.fan-bottom-nav,#guestApp:not([hidden])>.fan-bottom-nav{
+  flex:0 0 auto!important;min-height:0
+}
+#memberApp:not([hidden])>main,#fanApp:not([hidden])>main,#guestApp:not([hidden])>main{
+  flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important;
+  overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y
+}
+#memberApp .page,#fanApp .page,#guestApp .page{min-height:0!important}
+#memberApp .page.active,#fanApp .page.active,#guestApp .page.active{
+  max-width:100%;overflow:visible!important
+}
+
+/* Ogni contenitore funzionale può scorrere quando il layout gli assegna spazio. */
+:where(.panel,.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,
+.member-global-list,.fan-attendance-list,.activity-list,.approval-modal-list,.numeric-settings-list,
+.label-setup-list,.fan-operation-log,.venue-list-grid,.venue-zone-list,.onboarding-rating-list,
+.member-unrated-list,[data-scroll-container]){
+  min-height:0!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y
+}
+:where(.list,.song-list,.admin-ranking-scroll,.fan-catalog-scroll,.permission-matrix-scroll,
+.member-global-list,.fan-attendance-list,.activity-list,.approval-modal-list,.numeric-settings-list,
+.label-setup-list,.fan-operation-log,.venue-list-grid,.venue-zone-list,.onboarding-rating-list,
+.member-unrated-list,[data-scroll-container]){overflow-y:auto!important}
+
+/* Setup: il tab attivo occupa lo spazio residuo; il contenuto scorre dentro il tab. */
+#setupPage.active{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding-bottom:0!important}
+#setupPage>.fan-hero,#setupPage>.setup-tabs{flex:0 0 auto!important}
+#setupPage>.setup-section:not([hidden]){flex:1 1 0!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important}
+#setupPage>.setup-section[data-setup-section="venue"]:not([hidden]){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#setupPage>.setup-section[data-setup-section="venue"]>.fan-hero,
+#setupPage>.setup-section[data-setup-section="venue"]>.toolbar{flex:0 0 auto!important}
+#setupPage>.setup-section[data-setup-section="venue"]>.panel{flex:1 1 0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#setupPage>.setup-section[data-setup-section="venue"]>.panel>.panel-header{flex:0 0 auto!important}
+#venueList{flex:1 1 0!important;min-height:0!important;max-height:none!important;overflow-y:auto!important}
+
+/* Catalogo e principali pagine a lista: header/toolbar fissi, elenco interno scrollabile. */
+#mySetlistPage.active,#catalogPage.active,#songRankingPage.active,#membersPage.active{height:100%!important;min-height:0!important}
+#catalogPage.active{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#catalogPage>.toolbar{flex:0 0 auto!important}
+#catalogPage>.panel{flex:1 1 0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#catalogPage>.panel>.panel-header{flex:0 0 auto!important}#catalogList{flex:1 1 0!important;min-height:0!important;overflow-y:auto!important}
+
+/* Modali: card sempre dentro il viewport; header fermo e corpo scrollabile. */
+.modal.open{overflow:hidden!important;align-items:center!important;padding:12px!important}
+.modal.open>.modal-card{
+  max-height:calc(100dvh - 24px)!important;min-height:0!important;display:flex!important;
+  flex-direction:column!important;overflow:hidden!important
+}
+.modal.open>.modal-card>.modal-header{flex:0 0 auto!important}
+.modal.open>.modal-card>.form-body,
+.modal.open>.modal-card>.live-activity-modal-body,
+.modal.open>.modal-card>.approval-modal-list{
+  flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y
+}
+#songModal.open>.modal-card>#songEditForm{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important}
+
+/* Mezzo voto: la luce è più intensa verso il puntino e sfuma verso il centro del numero. */
+.rating-scale button.rating-whole.half-right-active,
+.member-quick-vote button.rating-whole.half-right-active,
+.member-unrated-scale button.rating-whole.half-right-active,
+.onboarding-rating-scale button.rating-whole.half-right-active{
+  border-color:rgba(243,210,52,.30)!important;
+  background:linear-gradient(90deg,
+    rgba(255,255,255,.045) 0%,rgba(255,255,255,.045) 50%,
+    rgba(243,210,52,0) 50%,rgba(243,210,52,.08) 68%,rgba(243,210,52,.27) 100%)!important;
+  color:#d9cb67!important
+}
+.rating-scale button.rating-whole.half-left-active,
+.member-quick-vote button.rating-whole.half-left-active,
+.member-unrated-scale button.rating-whole.half-left-active,
+.onboarding-rating-scale button.rating-whole.half-left-active{
+  border-color:rgba(243,210,52,.30)!important;
+  background:linear-gradient(90deg,
+    rgba(243,210,52,.27) 0%,rgba(243,210,52,.08) 32%,rgba(243,210,52,0) 50%,
+    rgba(255,255,255,.045) 50%,rgba(255,255,255,.045) 100%)!important;
+  color:#d9cb67!important
+}
+
+/* L'attributo Hidden Track resta amministrabile ma non genera più un'etichetta nel catalogo. */
+.hidden-track-label{display:none!important}
+
+@media(max-width:720px){
+  .modal.open{padding:7px!important}.modal.open>.modal-card{max-height:calc(100dvh - 14px)!important}
+}
+</style>
+
 </head>
 <body>
 
@@ -1066,7 +1166,7 @@ html,body{overflow-y:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4i</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4j</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1180,7 +1280,7 @@ html,body{overflow-y:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4i</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4j</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1265,7 +1365,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4i";
+const APP_VERSION="v4.7.4j";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -1652,7 +1752,7 @@ function getNextConcert(){const today=todayISO();return [...concerts].filter(c=>
 /* CATALOG + MEMBER VOTE */
 $("newSongForm").addEventListener("submit",async e=>{e.preventDefault();const title=$("newSongTitle").value.trim();if(!title)return;if(!isEma()&&!canMember("song_propose"))return alert("Proposta nuovi brani non abilitata.");let error;if(isEma())({error}=await sb.from("songs").insert({title}));else({error}=await sb.from("song_proposals").insert({proposed_by:currentUser.id,title}));if(error)return alert(error.message);$("newSongTitle").value="";await refreshAll()});
 function ownVote(songId){return memberVotes.find(v=>v.song_id===songId)}
-function renderCatalog(){const box=$("catalogList");box.innerHTML="";[...songs].sort((a,b)=>a.title.localeCompare(b.title,"it")).forEach(song=>{const vote=ownVote(song.id),row=document.createElement("div");row.className="list-row catalog-compact-row";const sharedLabels=dynamicLabelsForSong(song.id,"members");row.innerHTML=`<div class="list-main"><div class="list-title">${scoreBadge(song.id,"ranking")} &nbsp;${esc(song.title)} ${badgesHtml(sharedLabels)}</div></div>`;if(song.hidden_track)row.insertAdjacentHTML("beforeend",'<span class="status hidden-track-label">HIDDEN TRACK</span>');if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');const buttons=document.createElement("div");buttons.className="row-buttons";if(canMember("catalog_vote")){const voteBtn=document.createElement("button");voteBtn.className="small-btn";voteBtn.textContent=vote?"MODIFICA IL MIO VOTO":"VOTA";voteBtn.onclick=()=>openMemberVote(song);buttons.appendChild(voteBtn)}if(isEma()){const edit=document.createElement("button");edit.className="small-btn";edit.textContent="MODIFICA";edit.onclick=()=>openSongModal(song);const del=document.createElement("button");del.className="small-btn danger";del.textContent="ELIMINA";del.onclick=()=>deleteSong(song);buttons.append(edit,del)}row.appendChild(buttons);box.appendChild(row)});$("catalogCounter").textContent=`${songs.length} brani`;scheduleDenseFit()}
+function renderCatalog(){const box=$("catalogList");box.innerHTML="";[...songs].sort((a,b)=>a.title.localeCompare(b.title,"it")).forEach(song=>{const vote=ownVote(song.id),row=document.createElement("div");row.className="list-row catalog-compact-row";const sharedLabels=dynamicLabelsForSong(song.id,"members");row.innerHTML=`<div class="list-main"><div class="list-title">${scoreBadge(song.id,"ranking")} &nbsp;${esc(song.title)} ${badgesHtml(sharedLabels)}</div></div>`;if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');const buttons=document.createElement("div");buttons.className="row-buttons";if(canMember("catalog_vote")){const voteBtn=document.createElement("button");voteBtn.className="small-btn";voteBtn.textContent=vote?"MODIFICA IL MIO VOTO":"VOTA";voteBtn.onclick=()=>openMemberVote(song);buttons.appendChild(voteBtn)}if(isEma()){const edit=document.createElement("button");edit.className="small-btn";edit.textContent="MODIFICA";edit.onclick=()=>openSongModal(song);const del=document.createElement("button");del.className="small-btn danger";del.textContent="ELIMINA";del.onclick=()=>deleteSong(song);buttons.append(edit,del)}row.appendChild(buttons);box.appendChild(row)});$("catalogCounter").textContent=`${songs.length} brani`;scheduleDenseFit()}
 function updateVoteMix(){const a=numberOrNull($("voteLyrics").value),b=numberOrNull($("voteBase").value);$("voteMix").value=a!=null&&b!=null?((a+b)/2).toFixed(1):"—"}$("voteLyrics").oninput=updateVoteMix;$("voteBase").oninput=updateVoteMix;
 function openMemberVote(song){if(!canMember("catalog_vote"))return alert("Voto canzoni non abilitato.");const v=ownVote(song.id),advanced=canMember("catalog_advanced_vote");$("voteSongId").value=song.id;$("memberVoteTitle").textContent=`Valuta — ${song.title}`;$("voteMolesti").value=v?.molesti_score??"";$("voteLyrics").value=v?.lyrics_score??"";$("voteBase").value=v?.base_score??"";$("voteLyrics").disabled=!advanced;$("voteBase").disabled=!advanced;$("voteMix").closest(".form-field")?.classList.toggle("hidden",!advanced);$("voteLyrics").closest(".form-field")?.classList.toggle("hidden",!advanced);$("voteBase").closest(".form-field")?.classList.toggle("hidden",!advanced);$("voteIntro").checked=!!v?.intro_candidate;$("voteOutro").checked=!!v?.outro_candidate;$("deleteMemberVote").style.visibility=v?"visible":"hidden";updateVoteMix();$("memberVoteAutoSaveStatus").textContent="Salvataggio automatico";openModal("memberVoteModal")}
 async function autosaveMemberVote(){const id=$("voteSongId").value,molesti=numberOrNull($("voteMolesti").value);if(!id||molesti==null)return;const existing=ownVote(id),advanced=canMember("catalog_advanced_vote"),payload={member_id:currentUser.id,song_id:id,molesti_score:molesti,lyrics_score:advanced?numberOrNull($("voteLyrics").value):(existing?.lyrics_score??null),base_score:advanced?numberOrNull($("voteBase").value):(existing?.base_score??null),intro_candidate:$("voteIntro").checked,outro_candidate:$("voteOutro").checked,updated_at:new Date().toISOString()};$("memberVoteAutoSaveStatus").textContent="Salvataggio...";const {error}=await sb.from("member_votes").upsert(payload);if(error){$("memberVoteAutoSaveStatus").textContent="Errore";return alert(error.message)}$("memberVoteAutoSaveStatus").textContent="Salvato ✓";resetPureProposalVariants();publicAnalyticsCache=null;await loadMemberVotes();await loadMemberSongPreferences();await loadSongScores();renderCatalog();renderSongRanking();renderMySetlist()}
@@ -3162,7 +3262,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       row.innerHTML=`<div class="list-main"><div class="list-title">${scoreBadge(song.id,"ranking")} &nbsp;${esc(song.title)} ${badgesHtml(sharedLabels)}</div><div class="member-catalog-meta">${esc(meta||"Durata / BPM / tonalità da censire")}</div></div>${canMember("catalog_vote")?v474MemberScaleHtml(vote?.molesti_score):'<span class="small-info">Voto disabilitato</span>'}`;
       const scale=row.querySelector(".member-quick-vote");
       scale?.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=async e=>{e.stopPropagation();const value=Number(btn.dataset.value);scale.querySelectorAll("button").forEach(x=>x.disabled=true);try{await v474SaveMemberQuickVote(song.id,value); }catch(err){alert(err.message)}});
-      if(song.hidden_track)row.insertAdjacentHTML("beforeend",'<span class="status hidden-track-label">HIDDEN TRACK</span>');if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');
+      if(!song.active)row.insertAdjacentHTML("beforeend",'<span class="status draft">INATTIVA</span>');
       const buttons=document.createElement("div");buttons.className="row-buttons";
       if(canMember("catalog_vote")){const voteBtn=document.createElement("button");voteBtn.className="small-btn";voteBtn.textContent="MODIFICA VOTO";voteBtn.onclick=()=>openMemberVote(song);buttons.appendChild(voteBtn)}
       if(isEma()){const edit=document.createElement("button");edit.className="small-btn";edit.textContent="MODIFICA";edit.onclick=()=>openSongModal(song);const del=document.createElement("button");del.className="small-btn danger";del.textContent="ELIMINA";del.onclick=()=>deleteSong(song);buttons.append(edit,del)}
