@@ -1028,7 +1028,7 @@ html,body{overflow-y:auto!important}
 <section id="memberApp" hidden>
   <header>
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4e</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4f</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav no-print" id="memberNav">
     <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1142,7 +1142,7 @@ html,body{overflow-y:auto!important}
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4e</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4f</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1227,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4e";
+const APP_VERSION="v4.7.4f";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -3421,8 +3421,34 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   /* ------------------------------------------------------
      AVVIO / REFRESH
   ------------------------------------------------------ */
-  v474LoadConcertModes().then(()=>{try{renderConcerts()}catch{};if(!$("fanApp").hidden)loadPublicConcerts().catch(()=>{});if(!$("guestApp").hidden)loadGuestConcerts().catch(()=>{})});
+  // Nessuna lettura delle modalità live al bootstrap: i fallback locali sono già pronti.
+  // Il DB viene consultato soltanto quando un admin apre esplicitamente il relativo setup.
+  try{renderConcerts()}catch{};
   const v474SetupTabObserver=new MutationObserver(()=>v474EnsureModeSetup());v474SetupTabObserver.observe($("setupPage"),{subtree:true,childList:true,attributes:true});
+  // Diagnostica minima disponibile da Console: JM_DIAG() e JM_TEST_CLICK("chooseMember").
+  window.JM_DIAG=function(){
+    const ids=["chooseMember","chooseFan","chooseCurious"],buttons={};
+    ids.forEach(id=>{
+      const el=$(id);if(!el){buttons[id]={missing:true};return}
+      const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,top=document.elementFromPoint(x,y);
+      buttons[id]={
+        hidden:!!el.hidden,disabled:!!el.disabled,onclick:typeof el.onclick,
+        pointerEvents:getComputedStyle(el).pointerEvents,
+        rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},
+        topElement:top?`${top.tagName}#${top.id||""}.${String(top.className||"")}`:null
+      }
+    });
+    const out={readyState:document.readyState,welcomeHidden:!!$("welcomeScreen")?.hidden,openModals:document.querySelectorAll(".modal.open").length,buttons};
+    console.log("JM_DIAG",out);console.table(buttons);return out
+  };
+  window.JM_TEST_CLICK=function(id="chooseMember"){
+    const el=$(id);if(!el)return console.warn("Elemento non trovato",id);
+    const before={welcomeHidden:!!$("welcomeScreen")?.hidden,memberHidden:!!$("memberLoginScreen")?.hidden,fanHidden:!!$("fanLoginScreen")?.hidden};
+    el.click();
+    const after={welcomeHidden:!!$("welcomeScreen")?.hidden,memberHidden:!!$("memberLoginScreen")?.hidden,fanHidden:!!$("fanLoginScreen")?.hidden};
+    const out={id,before,after};console.log("JM_TEST_CLICK",out);return out
+  };
+
   MOBILE_QUERY.addEventListener?.("change",()=>{v474ScheduleScrollUnlock();renderSongRanking();});
   setInterval(()=>{v474DecorateCopyButtons();v474ObserveCopyButtons();v474UnlockScroll()},1800);
 })();
