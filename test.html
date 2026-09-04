@@ -1227,7 +1227,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4f";
+const APP_VERSION="v4.7.4g";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -3424,7 +3424,9 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   // Nessuna lettura delle modalità live al bootstrap: i fallback locali sono già pronti.
   // Il DB viene consultato soltanto quando un admin apre esplicitamente il relativo setup.
   try{renderConcerts()}catch{};
-  const v474SetupTabObserver=new MutationObserver(()=>v474EnsureModeSetup());v474SetupTabObserver.observe($("setupPage"),{subtree:true,childList:true,attributes:true});
+  /* v4.7.4g — niente observer sul Setup: il toolbar è statico e il bottone modalità viene già creato da v474EnsureModeSetup().
+     Osservare subtree + attributes/childList qui generava un feedback loop con gli altri observer DOM e saturava il main thread. */
+  v474EnsureModeSetup();
   // Diagnostica minima disponibile da Console: JM_DIAG() e JM_TEST_CLICK("chooseMember").
   window.JM_DIAG=function(){
     const ids=["chooseMember","chooseFan","chooseCurious"],buttons={};
