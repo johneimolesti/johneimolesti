@@ -6,7 +6,7 @@ Frontend statico in un singolo `index-v2.html`, pubblicabile su GitHub Pages. Da
 
 ## File principali
 
-- `index-v2.html` - frontend completo.
+- `index.html` - frontend completo.
 - `fan-api-index.ts` - codice della Edge Function Supabase `fan-api`.
 - `patch_v2_4.sql` - patch SQL incrementale da eseguire dopo le patch precedenti fino a `patch_v2_3.sql`.
 - `favicon.png` e `apple-touch-icon.png` - icone della web app.
