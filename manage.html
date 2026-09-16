@@ -1430,6 +1430,105 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+
+<style id="member-rankings-vertical-fix">
+/* Classifiche membri/admin: menu verticale + una sola classifica visibile */
+#songRankingPage.active{
+  display:grid!important;
+  grid-template-columns:150px minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr);
+  grid-template-areas:
+    "note note"
+    "tabs panel";
+  gap:10px;
+  min-height:0;
+  align-items:start;
+}
+#songRankingPage>.section-note{
+  grid-area:note;
+  margin:0;
+}
+#memberRankingsTabs{
+  grid-area:tabs;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:100%;
+  margin:0;
+  padding:6px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:rgba(255,255,255,.025);
+  align-self:start;
+}
+#memberRankingsTabs button{
+  width:100%;
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:rgba(255,255,255,.025);
+  color:var(--muted);
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-align:left;
+}
+#memberRankingsTabs button:hover{
+  border-color:rgba(255,255,255,.14);
+  background:rgba(255,255,255,.055);
+  color:var(--text);
+}
+#memberRankingsTabs button.active{
+  border-color:var(--accent);
+  background:var(--accent);
+  color:#111;
+}
+#songRankingPage .member-ranking-panel{
+  grid-area:panel;
+  display:none!important;
+  min-width:0;
+  min-height:0;
+  width:100%;
+}
+#songRankingPage .member-ranking-panel.active{
+  display:flex!important;
+  flex-direction:column;
+}
+#songRankingPage .member-ranking-panel>.admin-ranking-scroll{
+  min-width:0;
+  min-height:0;
+  width:100%;
+  flex:1 1 auto;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+#memberFanRankingList .ranking-row,
+#memberConcertRankingList .ranking-row{
+  width:100%;
+  grid-template-columns:40px minmax(0,1fr) 90px;
+}
+
+@media(max-width:700px){
+  #songRankingPage.active{
+    display:flex!important;
+    flex-direction:column;
+    gap:8px;
+  }
+  #memberRankingsTabs{
+    position:static;
+    flex:0 0 auto;
+  }
+  #memberRankingsTabs button{
+    min-height:34px;
+    padding:7px 9px;
+    font-size:7px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2403,9 +2502,7 @@ function concertPrintableHtml(c,concertItems=[]){
   const list=concertPrintableRows(c,concertItems),venue=concertLocationParts(c).join(" · "),title=String(c?.name||"Concerto");let prevType=null;
   const rows=list.map(r=>{const divider=r.execution_type!==prevType?`<div class="block-divider">${esc(EXECUTION_TYPES[r.execution_type]||String(r.execution_type||"").toUpperCase())}</div>`:"";prevType=r.execution_type;return `${divider}<div class="track"><span class="num">${r.position}</span><strong>${esc(r.title)}</strong><span class="track-meta">${esc(r.bpm)} BPM · ${esc(r.key)}</span></div>`}).join("");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — Scaletta</title><style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff}h1{margin:0 0 3mm;font-size:19pt;line-height:1.05}.meta{margin:0 0 7mm;color:#666;font-size:8.5pt}.setlist{width:100%}.block-divider{display:flex;align-items:center;gap:3mm;margin:4.5mm 0 1.8mm;color:#777;font-size:7.5pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;break-after:avoid}.block-divider:before,.block-divider:after{content:"";height:.25mm;background:#c8c8c8;flex:1}.track{display:grid;grid-template-columns:8mm minmax(0,1fr) auto;gap:2.2mm;align-items:baseline;min-height:8mm;padding:1.6mm 0;border-bottom:.2mm solid #e3e3e3;break-inside:avoid}.num{color:#777;font-size:8.5pt;text-align:right}.track strong{font-size:10.5pt;line-height:1.15}.track-meta{color:#777;font-size:7.5pt;white-space:nowrap}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-    /* V4.7.4n — classifiche unificate membri/admin */
-    .member-rankings-tabs{display:flex;gap:6px;margin:0 0 10px;padding:5px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);flex:0 0 auto}.member-rankings-tabs button{flex:1;min-height:34px;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font-size:8px;font-weight:900;letter-spacing:.06em}.member-rankings-tabs button.active{background:var(--accent);color:#111;border-color:var(--accent)}#songRankingPage{min-height:0}.member-ranking-panel{display:none!important;min-height:0;flex:1 1 auto}.member-ranking-panel.active{display:flex!important;flex-direction:column}.member-ranking-panel>.admin-ranking-scroll{min-height:0;flex:1 1 auto;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.member-ranking-panel[data-member-ranking-panel="fans"] .ranking-row,.member-ranking-panel[data-member-ranking-panel="concerts"] .ranking-row{grid-template-columns:40px minmax(0,1fr) 90px}@media(max-width:700px){.member-rankings-tabs{position:sticky;top:0;z-index:5}.member-rankings-tabs button{font-size:7px;padding:7px 5px}}
-</style></head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
+    </style></head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
 function printConcert(c,concertItems=[]){
   const popup=window.open("","_blank");if(!popup){alert("Il browser ha bloccato la finestra di stampa. Consenti i popup e riprova.");return}try{popup.opener=null}catch{}
