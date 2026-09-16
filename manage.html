@@ -1611,10 +1611,27 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <section id="membersPage" class="page"><div id="memberTabs" class="member-tabs"></div><section class="panel"><div class="panel-header"><h2 id="memberSetlistTitle">SCALETTA</h2><div class="panel-header-actions member-global-actions"><span id="memberSetlistCounter" class="counter"></span><button id="screenshotAllMemberSetlists" class="small-btn global-screenshot-btn" type="button">SCREENSHOT 5 SCALETTE</button><button id="copyMemberSetlistButton" class="small-btn" type="button">COPIA</button></div></div><div id="memberSetlistLastModified" class="member-last-modified"></div><div id="memberSetlistHeader"></div><div id="memberSetlist" class="song-list"></div></section></section>
 
     <section id="concertsPage" class="page">
-      <div id="concertAdminToolbar" class="toolbar hidden"><button id="newConcertButton">+ NUOVO CONCERTO</button></div>
       <div class="concert-layout">
-        <section class="panel"><div class="panel-header"><h2>CONCERTI</h2><span id="concertCounter" class="counter"></span></div><div id="concertList" class="list"></div></section>
-        <section class="panel"><div class="panel-header"><h2 id="concertDetailTitle">SCALETTA CONCERTO</h2><span id="concertDetailCounter" class="counter"></span></div><div id="concertDetail" class="concert-detail"><div class="empty">Seleziona un concerto.</div></div></section>
+        <section class="panel">
+          <div class="panel-header">
+            <h2>CONCERTI</h2>
+            <div class="panel-header-actions">
+              <span id="concertCounter" class="counter"></span>
+              <span id="concertAdminToolbar" class="hidden"><button id="newConcertButton" class="small-btn primary" type="button">+ NUOVO CONCERTO</button></span>
+            </div>
+          </div>
+          <div id="concertList" class="list"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header concert-detail-panel-header">
+            <h2 id="concertDetailTitle">SCALETTA CONCERTO</h2>
+            <div class="panel-header-actions concert-detail-header-actions">
+              <span id="concertDetailCounter" class="counter"></span>
+              <div id="concertDetailHeaderTools" class="concert-header-tools no-print"></div>
+            </div>
+          </div>
+          <div id="concertDetail" class="concert-detail"><div class="empty">Seleziona un concerto.</div></div>
+        </section>
       </div>
     </section>
 
@@ -2448,8 +2465,8 @@ function renderConcerts(){
   appendGroupedConcertRows(visibleConcerts,box,c=>{
     const row=document.createElement("div");
     row.className=`list-row concert-row-with-venue-tab${c.id===selectedConcertId?" selected":""}`;
-    const pu=posterUrl(c.poster_path),vn=concertVenueName(c),vc=concertVenueCity(c);
-    row.innerHTML=`${venueTabHtml(c)}${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${concertLocationParts(c).length?` · ${concertLocationParts(c).map(esc).join(" · ")}`:""}${c.private_show?` · PRIVATE SHOW`:""} · ${(c.event_mode||"standard").toUpperCase()}</div></div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;
+    const vn=concertVenueName(c),vc=concertVenueCity(c);
+    row.innerHTML=`${venueTabHtml(c)}<div class="list-main"><div class="list-title">${esc(c.name)}</div><div class="small-info">${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}${concertLocationParts(c).length?` · ${concertLocationParts(c).map(esc).join(" · ")}`:""}${c.private_show?` · PRIVATE SHOW`:""} · ${(c.event_mode||"standard").toUpperCase()}</div></div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;
     row.onclick=async()=>{if(selectedConcertId===c.id){selectedConcertId=null;renderConcerts();$("concertDetail").innerHTML='<div class="empty">Seleziona un concerto.</div>';$("concertDetailTitle").textContent="SCALETTA CONCERTO";$("concertDetailCounter").textContent="";return}selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id)};
     return row;
   });
@@ -2502,7 +2519,39 @@ function concertPrintableHtml(c,concertItems=[]){
   const list=concertPrintableRows(c,concertItems),venue=concertLocationParts(c).join(" · "),title=String(c?.name||"Concerto");let prevType=null;
   const rows=list.map(r=>{const divider=r.execution_type!==prevType?`<div class="block-divider">${esc(EXECUTION_TYPES[r.execution_type]||String(r.execution_type||"").toUpperCase())}</div>`:"";prevType=r.execution_type;return `${divider}<div class="track"><span class="num">${r.position}</span><strong>${esc(r.title)}</strong><span class="track-meta">${esc(r.bpm)} BPM · ${esc(r.key)}</span></div>`}).join("");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — Scaletta</title><style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff}h1{margin:0 0 3mm;font-size:19pt;line-height:1.05}.meta{margin:0 0 7mm;color:#666;font-size:8.5pt}.setlist{width:100%}.block-divider{display:flex;align-items:center;gap:3mm;margin:4.5mm 0 1.8mm;color:#777;font-size:7.5pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;break-after:avoid}.block-divider:before,.block-divider:after{content:"";height:.25mm;background:#c8c8c8;flex:1}.track{display:grid;grid-template-columns:8mm minmax(0,1fr) auto;gap:2.2mm;align-items:baseline;min-height:8mm;padding:1.6mm 0;border-bottom:.2mm solid #e3e3e3;break-inside:avoid}.num{color:#777;font-size:8.5pt;text-align:right}.track strong{font-size:10.5pt;line-height:1.15}.track-meta{color:#777;font-size:7.5pt;white-space:nowrap}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-    </style></head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
+    </style>
+
+<style id="concert-admin-header-tools-v474o">
+/* V4.7.4o — utilità concerti negli header, manager senza anteprima locandina */
+#concertAdminToolbar{display:inline-flex;align-items:center}
+#concertAdminToolbar.hidden{display:none!important}
+.concert-detail-panel-header{align-items:flex-start}
+.concert-detail-panel-header>h2{flex:1 1 180px;min-width:120px;padding-top:5px}
+.concert-detail-header-actions{flex:1 1 auto;min-width:0;justify-content:flex-end;flex-wrap:wrap}
+.concert-header-tools{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap;min-width:0}
+.concert-header-tools .small-btn{min-height:26px;padding:4px 7px;font-size:7px;white-space:nowrap}
+.concert-header-select{
+  min-width:145px;max-width:205px;height:27px;padding:3px 24px 3px 7px;
+  border:1px solid rgba(255,255,255,.10);border-radius:9px;
+  background:#171b23;color:#e7eaf0;font-size:7px;font-weight:800
+}
+.concert-header-select:focus{outline:none;border-color:rgba(243,210,52,.38)}
+#concertsPage>.concert-layout{height:100%;min-height:0}
+#concertsPage>.concert-layout>.panel>.panel-header{flex:0 0 auto}
+#concertList,#concertDetail{min-height:0}
+@media(max-width:1100px){
+  .concert-detail-panel-header{flex-wrap:wrap}
+  .concert-detail-panel-header>h2{flex:1 1 100%}
+  .concert-detail-header-actions{width:100%;justify-content:flex-start}
+  .concert-header-tools{justify-content:flex-start}
+}
+@media(max-width:720px){
+  .concert-header-tools{gap:3px}
+  .concert-header-tools .small-btn{padding:4px 6px;font-size:6.5px}
+  .concert-header-select{min-width:125px;max-width:170px}
+}
+</style>
+</head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
 function printConcert(c,concertItems=[]){
   const popup=window.open("","_blank");if(!popup){alert("Il browser ha bloccato la finestra di stampa. Consenti i popup e riprova.");return}try{popup.opener=null}catch{}
@@ -2546,27 +2595,26 @@ async function renderConcertDetail(id){
   let vibeMap=new Map();
   if(c.status==="completed"&&showSetlist&&!compactCompletedEdit){try{const {data}=await sb.rpc("get_concert_song_vibes_for_member",{p_concert_id:id});vibeMap=new Map((data||[]).map(v=>[v.song_id,v]))}catch(err){console.warn(err)}}
   box.innerHTML="";
-  const pu=posterUrl(c.poster_path);if(pu){const img=document.createElement("img");img.className="poster-hero";img.src=pu;img.alt=`Locandina ${c.name}`;box.appendChild(img)}
+  const headerTools=$("concertDetailHeaderTools");if(headerTools)headerTools.innerHTML="";
   const meta=document.createElement("div");meta.className="concert-meta";
   meta.innerHTML=`<strong>${formatDate(c.concert_date)}${c.start_time?` · ${formatTime(c.start_time)}`:""}</strong><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span><span>${esc((c.event_mode||"standard").toUpperCase())}</span>${venueTypeLabel(c)?`<span>${esc(venueTypeLabel(c))}</span>`:""}${concertLocationParts(c).map(x=>`<span>${esc(x)}</span>`).join("")}`;
   box.appendChild(meta);
 
-  const tools=document.createElement("div");tools.className="toolbar no-print";
-  const print=document.createElement("button");print.className="secondary";print.textContent="STAMPA";print.onclick=()=>printConcert(c,items);tools.appendChild(print);
-  const pdf=document.createElement("button");pdf.className="secondary";pdf.textContent="SALVA PDF";pdf.onclick=()=>saveConcertPdf(c,items);tools.appendChild(pdf);
-  if(c.status==="completed"){const activity=document.createElement("button");activity.className="secondary";activity.textContent="ATTIVITÀ FAN";activity.onclick=()=>openLiveActivityModal(c.id,c.name);tools.appendChild(activity)}
+  const tools=headerTools||document.createElement("div");tools.classList.add("concert-header-tools");
+  const print=document.createElement("button");print.className="small-btn";print.textContent="STAMPA";print.onclick=()=>printConcert(c,items);tools.appendChild(print);
+  const pdf=document.createElement("button");pdf.className="small-btn";pdf.textContent="SALVA PDF";pdf.onclick=()=>saveConcertPdf(c,items);tools.appendChild(pdf);
+  if(c.status==="completed"){const activity=document.createElement("button");activity.className="small-btn";activity.textContent="ATTIVITÀ FAN";activity.onclick=()=>openLiveActivityModal(c.id,c.name);tools.appendChild(activity)}
   if(isEma()){
-    const editConcert=document.createElement("button");editConcert.className="secondary";editConcert.textContent="MODIFICA CONCERTO";editConcert.onclick=()=>openConcertModal(c);tools.appendChild(editConcert);
-    const copy=document.createElement("button");copy.className="secondary";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);
+    const editConcert=document.createElement("button");editConcert.className="small-btn";editConcert.textContent="MODIFICA CONCERTO";editConcert.onclick=()=>openConcertModal(c);tools.appendChild(editConcert);
+    const copy=document.createElement("button");copy.className="small-btn";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);
     if(editable){
       await loadCommunityData();
-      const select=document.createElement("select");select.id="concertImportSource";select.innerHTML='<option value="fused">Importa: Media Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';
+      const select=document.createElement("select");select.id="concertImportSource";select.className="concert-header-select";select.innerHTML='<option value="fused">Importa: Media Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';
       const cf=await getConcertConfirmations(id),grouped=new Map();cf.forEach(x=>{if(!grouped.has(x.member_id))grouped.set(x.member_id,[]);grouped.get(x.member_id).push(x)});
       BAND_MEMBERS.forEach(m=>{const p=profiles.find(x=>x.username?.toLowerCase()===m.username.toLowerCase());if(!p)return;const setlist=idealSetlists.find(s=>s.owner_id===p.id),idealRows=setlist?communityItems.filter(i=>i.setlist_id===setlist.id&&i.included).sort((a,b)=>(a.position??9999)-(b.position??9999)):[],confirmedRows=(grouped.get(p.id)||[]).sort((a,b)=>a.position-b.position);if(confirmedRows.length){const o=document.createElement("option");o.value=`member-confirmed:${p.id}`;o.textContent=`Importa: ${p.display_name} · confermata`;select.appendChild(o)}if(idealRows.length){const o=document.createElement("option");o.value=`member-ideal:${p.id}`;o.textContent=`Importa: ${p.display_name} · scaletta attuale`;select.appendChild(o)}});tools.appendChild(select);
-      const imp=document.createElement("button");imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);
+      const imp=document.createElement("button");imp.className="small-btn primary";imp.textContent="IMPORTA";imp.onclick=()=>importConcertSetlist(c.id,select.value,grouped);tools.appendChild(imp);
     }
   }
-  box.appendChild(tools);
 
   if(["mixed","jukebox"].includes(c.event_mode)&&c.status==="future"){
     const warn=document.createElement("div");warn.className="mode-warning";warn.textContent="Modalità "+c.event_mode.toUpperCase()+": durante il live possono verificarsi richieste, ripetizioni e variazioni rispetto alla scaletta prevista.";box.appendChild(warn)
@@ -3784,7 +3832,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   }
   function v474CloseConcertDetail(owner){
     if(owner==="member"){
-      selectedConcertId=null;renderConcerts();$("concertDetail").innerHTML='<div class="empty">Seleziona un concerto.</div>';$("concertDetailTitle").textContent="SCALETTA CONCERTO";$("concertDetailCounter").textContent=""
+      selectedConcertId=null;renderConcerts();$("concertDetail").innerHTML='<div class="empty">Seleziona un concerto.</div>';$("concertDetailTitle").textContent="SCALETTA CONCERTO";$("concertDetailCounter").textContent="";if($("concertDetailHeaderTools"))$("concertDetailHeaderTools").innerHTML=""
     }else if(owner==="fan"){$("publicConcertDetail").innerHTML="";openFanConcertId=null}
     else{$("guestConcertDetail").innerHTML="";openGuestConcertId=null}
     v474RestoreAnchor(owner)
@@ -3801,8 +3849,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     const box=$("concertList");box.innerHTML="";const visibleConcerts=concerts.filter(c=>isEma()||!c.private_show||canMember("private_shows_view"));
     appendGroupedConcertRows(visibleConcerts,box,c=>{
       const row=document.createElement("div");row.dataset.concertId=c.id;row.dataset.concertOwner="member";row.className=`list-row concert-row-with-venue-tab${c.id===selectedConcertId?" selected":""}`;
-      const pu=posterUrl(c.poster_path);
-      row.innerHTML=`${venueTabHtml(c)}${pu?`<img class="poster-thumb" src="${esc(pu)}" alt="">`:""}<div class="list-main"><div class="concert-title-line"><div class="list-title concert-title-text">${esc(c.name)}</div>${v474ModeLabelHtml(c)}</div>${v474ConcertSubmeta(c)}${c.private_show?'<div class="small-info">PRIVATE SHOW</div>':""}</div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;
+      row.innerHTML=`${venueTabHtml(c)}<div class="list-main"><div class="concert-title-line"><div class="list-title concert-title-text">${esc(c.name)}</div>${v474ModeLabelHtml(c)}</div>${v474ConcertSubmeta(c)}${c.private_show?'<div class="small-info">PRIVATE SHOW</div>':""}</div><span class="status ${concertStatusClass(c)}">${concertStatusLabel(c)}</span>`;
       row.onclick=async e=>{if(e.target.closest(".concert-venue-link"))return;v474CaptureScrollAnchor("member",row,c.id);selectedConcertId=c.id;renderConcerts();await renderConcertDetail(c.id);v474ScrollToDetail("member")};v474WireVenueLinks(row);return row
     });
     if(!visibleConcerts.length)box.innerHTML='<div class="empty">Nessun concerto.</div>';$("concertCounter").textContent=`${visibleConcerts.length} concerti`;v474ScheduleScrollUnlock()
