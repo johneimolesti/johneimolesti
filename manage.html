@@ -1529,6 +1529,94 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+<style id="v4-8-navigation-posters-cash">
+/* V4.8.0 — categorie header, locandine multiple, bozza Cassa */
+.member-app-header{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px}
+.member-category-nav{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0}
+.member-category-button{
+  min-height:31px;padding:6px 12px;border:1px solid transparent;border-radius:10px;
+  background:rgba(255,255,255,.035);color:#8e96a2;font-size:8px;font-weight:950;
+  letter-spacing:.065em;white-space:nowrap
+}
+.member-category-button:hover{border-color:rgba(255,255,255,.11);background:rgba(255,255,255,.06);color:#d9dde4}
+.member-category-button.active{border-color:rgba(243,210,52,.34);background:rgba(243,210,52,.12);color:#f4da60}
+.member-subnav{margin-top:6px!important}
+.member-subnav .nav-button{flex:0 0 auto!important}
+.member-subnav .nav-button.category-off{display:none!important}
+.nav-draft-tag{display:inline-flex;margin-left:4px;padding:1px 4px;border:1px solid rgba(243,210,52,.23);border-radius:999px;color:#d7c75d;font-size:5.5px;line-height:1.3;vertical-align:1px}
+
+.cash-draft-hero{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cash-draft-badge{display:inline-flex;align-items:center;padding:5px 8px;border:1px solid rgba(243,210,52,.32);border-radius:999px;background:rgba(243,210,52,.08);color:#eed862;font-size:7px;font-weight:950;letter-spacing:.09em}
+.cash-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.cash-kpi{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025)}
+.cash-kpi span{display:block;color:#7f8792;font-size:7px;font-weight:900;letter-spacing:.08em}
+.cash-kpi strong{display:block;margin-top:5px;font-size:20px}
+.cash-kpi small{display:block;margin-top:3px;color:#747c87;font-size:7px;line-height:1.35}
+.cash-draft-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:10px}
+.cash-ledger-head{display:grid;grid-template-columns:90px 80px minmax(0,1fr) 90px;gap:8px;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.06);color:#727a86;font-size:7px;font-weight:900}
+.cash-blueprint{display:grid;gap:2px;padding:5px}
+.cash-blueprint-item{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018)}
+.cash-blueprint-item:last-child{border-bottom:0}.cash-blueprint-item b{display:block;font-size:9px}.cash-blueprint-item span{display:block;margin-top:3px;color:#818995;font-size:8px;line-height:1.45}
+
+.poster-preview-grid{display:flex!important;flex-wrap:wrap;gap:6px;align-items:flex-start}
+.poster-preview-grid.hidden{display:none!important}
+.poster-editor-thumb{position:relative;width:58px;height:72px;border:1px solid rgba(255,255,255,.10);border-radius:9px;overflow:hidden;background:#111}
+.poster-editor-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;border:0!important;border-radius:0!important}
+.poster-editor-thumb button{position:absolute;top:3px;width:20px;height:20px;padding:0;border:1px solid rgba(255,255,255,.20);border-radius:999px;background:rgba(8,10,15,.86);color:#fff;font-size:12px;line-height:18px}
+.poster-editor-open{left:3px}.poster-editor-remove{right:3px}
+
+.concert-poster-micro{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:27px;height:34px;min-width:27px;padding:0!important;margin-right:1px;
+  border:1px solid rgba(255,255,255,.10)!important;border-radius:6px!important;
+  overflow:hidden;background:rgba(255,255,255,.035)!important;box-shadow:none!important
+}
+.concert-poster-micro img{width:100%;height:100%;object-fit:cover;display:block}
+.concert-poster-micro-count{
+  position:absolute;right:1px;bottom:1px;min-width:13px;height:13px;padding:0 3px;display:flex;
+  align-items:center;justify-content:center;border-radius:999px;background:rgba(9,12,18,.88);
+  color:#fff;font-size:6px;font-weight:950;line-height:1;border:1px solid rgba(255,255,255,.16)
+}
+
+.poster-carousel{position:relative;max-width:520px;margin:8px auto 12px}
+.poster-carousel-stage{position:relative;display:grid;place-items:center;min-height:180px;border:1px solid rgba(255,255,255,.09);border-radius:15px;overflow:hidden;background:#0d1016}
+.poster-carousel-image{display:block;width:100%;max-height:520px;object-fit:contain;cursor:zoom-in;background:#0d1016}
+.poster-carousel-nav{position:absolute;z-index:2;top:50%;transform:translateY(-50%);width:30px;height:34px;padding:0;border:1px solid rgba(255,255,255,.13);border-radius:10px;background:rgba(8,10,15,.72);color:#f1f3f6;font-size:18px;line-height:1}
+.poster-carousel-prev{left:7px}.poster-carousel-next{right:7px}
+.poster-carousel-footer{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:6px}
+.poster-carousel-dots{display:flex;gap:4px;align-items:center}
+.poster-carousel-dot{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:#565e6a}
+.poster-carousel-dot.active{background:var(--accent);box-shadow:0 0 0 2px rgba(243,210,52,.10)}
+.poster-carousel-count{color:#777f8b;font-size:7px;font-weight:850}
+
+.poster-gallery-modal{z-index:190!important;background:rgba(0,0,0,.88)!important}
+.poster-gallery-modal .modal-card{width:min(1100px,calc(100vw - 18px))!important;background:rgba(8,10,15,.96)!important}
+.poster-gallery-body{position:relative;display:grid;place-items:center;min-height:min(72vh,760px);padding:8px}
+.poster-gallery-image{max-width:100%;max-height:76vh;object-fit:contain}
+.poster-gallery-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:48px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(10,12,18,.72);color:#fff;font-size:24px}
+.poster-gallery-prev{left:10px}.poster-gallery-next{right:10px}.poster-gallery-counter{color:#858d99;font-size:8px}
+
+@media(max-width:980px){
+  .member-app-header{grid-template-columns:auto minmax(0,1fr);gap:8px}
+  .member-app-header .user-area{grid-column:1/-1;justify-content:flex-end}
+  .cash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cash-draft-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .member-app-header{display:grid!important;grid-template-columns:1fr auto!important;gap:6px!important}
+  .member-app-header .brand{min-width:0}
+  .member-category-nav{grid-column:1/-1;grid-row:2;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:1px}
+  .member-category-nav::-webkit-scrollbar{display:none}
+  .member-category-button{flex:0 0 auto;min-height:28px;padding:5px 9px;font-size:7px}
+  .member-app-header .user-area{grid-column:2;grid-row:1;justify-content:flex-end}
+  .member-subnav{width:calc(100% - 10px)!important}
+  .cash-kpis{grid-template-columns:1fr 1fr}
+  .cash-ledger-head{grid-template-columns:70px 65px minmax(0,1fr) 72px}
+  .poster-carousel{max-width:100%}.poster-carousel-stage{min-height:140px}.poster-gallery-body{min-height:64vh}
+}
+</style>
+
 </head>
 <body>
 
@@ -1570,20 +1658,27 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP MEMBRI -->
 <section id="memberApp" hidden>
-  <header>
+  <header class="member-app-header">
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.7.4n</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <nav id="memberCategoryNav" class="member-category-nav no-print" aria-label="Categorie area membri">
+      <button type="button" class="member-category-button active" data-member-category="music">MUSICA</button>
+      <button type="button" class="member-category-button" data-member-category="management">GESTIONE</button>
+      <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
+      <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
+    </nav>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
-  <nav class="nav no-print" id="memberNav">
-    <button class="nav-button active" data-page="mySetlistPage">LA MIA SCALETTA</button>
-    <button class="nav-button" data-page="proposalsPage">3 PROPOSTE</button>
-    <button class="nav-button" data-page="membersPage">SCALETTE MEMBRI</button>
-    <button class="nav-button" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
-    <button class="nav-button" data-page="concertsPage">CONCERTI</button>
-    <button class="nav-button" data-page="songRankingPage">CLASSIFICHE</button>
-    <button class="nav-button" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
-    <button class="nav-button" data-page="analyticsPage">STATISTICHE</button>
-    <button id="setupNavButton" class="nav-button hidden" data-page="setupPage">SETUP</button>
+  <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
+    <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
+    <button class="nav-button" data-category="music" data-page="proposalsPage">3 PROPOSTE</button>
+    <button class="nav-button" data-category="music" data-page="membersPage">SCALETTE MEMBRI</button>
+    <button class="nav-button" data-category="music" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
+    <button class="nav-button" data-category="management" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span class="nav-draft-tag">BOZZA</span></button>
+    <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
+    <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
+    <button id="setupNavButton" class="nav-button hidden" data-category="setup" data-page="setupPage">SETUP</button>
   </nav>
   <main>
     <section id="mySetlistPage" class="page active">
@@ -1651,6 +1746,49 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     </section>
 
 
+
+    <section id="cashPage" class="page">
+      <div class="fan-hero cash-draft-hero">
+        <div>
+          <h2>Cassa band</h2>
+          <div class="section-note">Bozza della futura gestione economica condivisa. In questa versione non vengono ancora registrati movimenti reali.</div>
+        </div>
+        <span class="cash-draft-badge">BOZZA</span>
+      </div>
+
+      <div class="cash-kpis">
+        <article class="cash-kpi"><span>SALDO</span><strong>—</strong><small>Entrate − uscite</small></article>
+        <article class="cash-kpi"><span>ENTRATE</span><strong>—</strong><small>Cachet, merch, rimborsi, altro</small></article>
+        <article class="cash-kpi"><span>USCITE</span><strong>—</strong><small>Sala prove, service, trasporti, materiali</small></article>
+        <article class="cash-kpi"><span>DA REGOLARE</span><strong>—</strong><small>Anticipi e rimborsi tra membri</small></article>
+      </div>
+
+      <div class="cash-draft-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>MOVIMENTI</h2>
+            <div class="panel-header-actions">
+              <span class="counter">prototipo</span>
+              <button type="button" class="small-btn primary" disabled title="Da attivare quando definiamo struttura e permessi">+ MOVIMENTO</button>
+            </div>
+          </div>
+          <div class="cash-ledger-head"><span>DATA</span><span>TIPO</span><span>VOCE</span><span>IMPORTO</span></div>
+          <div class="empty">Nessun movimento. La UI è predisposta; persistenza e regole verranno collegate al database dopo la definizione del modello.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><h2>STRUTTURA PROPOSTA</h2><span class="counter">da definire</span></div>
+          <div class="cash-blueprint">
+            <div class="cash-blueprint-item"><b>Movimento</b><span>Entrata/uscita, data, importo, categoria e descrizione.</span></div>
+            <div class="cash-blueprint-item"><b>Collegamenti</b><span>Concerto, membro che ha anticipato/pagato ed eventuale giustificativo.</span></div>
+            <div class="cash-blueprint-item"><b>Categorie iniziali</b><span>Cachet · Merch · Rimborso · Sala prove · Service · Trasporto · Materiale · Altro.</span></div>
+            <div class="cash-blueprint-item"><b>Permessi</b><span>Consultazione membri; inserimento/modifica da definire tra admin e membri.</span></div>
+            <div class="cash-blueprint-item"><b>Riepiloghi futuri</b><span>Saldo, andamento mensile/annuale, spese per categoria e risultato economico per live.</span></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
     <section id="analyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Una panoramica del repertorio e della storia live: annate, durate, artisti, territori, scalette e tipologie di venue.</div></div><div id="memberAnalyticsContent"></div></section>
 
     <section id="setupPage" class="page">
@@ -1709,7 +1847,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.7.4n</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1782,7 +1920,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <option value="jukebox">Jukebox</option>
     </select></div>
     <div class="form-field full"><label>Venue</label><select id="concertVenueSelect"><option value="">— inserisci manualmente —</option></select><div id="concertVenueHint" class="section-note" style="margin-top:4px">Seleziona una venue già registrata oppure inserisci un nuovo luogo: verrà salvato nell’archivio Venue.</div><div id="concertManualVenue" class="concert-manual-venue venue-location-grid"><div class="form-field full"><label>Nome venue / luogo</label><input id="concertManualVenueName" maxlength="120" placeholder="Es. Area Giovani"></div><div class="form-field"><label>Località</label><input id="concertManualVenueLocality" maxlength="120" placeholder="Es. Vaccarino"></div><div class="form-field"><label>Comune</label><input id="concertManualVenueMunicipality" maxlength="120" placeholder="Es. Piazzola sul Brenta"></div><div class="form-field"><label>Provincia</label><input id="concertManualVenueProvince" maxlength="2" pattern="[A-Za-z]{2}" placeholder="PD"></div><div class="form-field"><label>CAP</label><input id="concertManualVenuePostalCode" inputmode="numeric" maxlength="10" placeholder="35016"></div><div class="form-field"><label>Stato</label><input id="concertManualVenueCountry" maxlength="80" value="Italia"></div><div class="form-field"><label>Tipologia</label><select id="concertManualVenueType"><option value="">— non indicata —</option></select></div></div></div>
-    <div class="form-field full"><label>Locandina (immagine)</label><input id="concertPoster" type="file" accept="image/*"><div id="concertPosterPreview" class="poster-preview hidden"></div><label id="concertRemovePosterLabel" class="check-card hidden" style="margin-top:6px!important"><input id="concertRemovePoster" type="checkbox"> Rimuovi locandina attuale</label></div>
+    <div class="form-field full"><label>Locandine (immagini)</label><input id="concertPoster" type="file" accept="image/*" multiple><div class="section-note" style="margin-top:4px">Puoi selezionare più immagini insieme. Fan e ospiti le vedranno a carosello.</div><div id="concertPosterPreview" class="poster-preview poster-preview-grid hidden"></div><label id="concertRemovePosterLabel" class="check-card hidden" style="margin-top:6px!important"><input id="concertRemovePoster" type="checkbox"> Rimuovi tutte le locandine</label></div>
     <div class="form-field full"><div class="checkbox-grid"><label class="check-card"><input id="concertVotingOpen" type="checkbox"> Votazioni aperte — per i Futuri diventano disponibili automaticamente all'orario live</label><label class="check-card"><input id="concertPrivateShow" type="checkbox"> Private show — evento a inviti</label></div></div>
   </div>
   <div class="modal-actions"><span id="concertAutoSaveStatus" class="autosave-status"></span><button id="cancelConcertEdit" type="button" class="modal-cancel">CHIUDI</button><button id="concertCreateButton" class="modal-save" type="submit">CREA CONCERTO</button></div>
@@ -1794,7 +1932,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.7.4n";
+const APP_VERSION="v4.8.0";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2921,7 +3059,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.7.4n — lo scroll è governato solo dal CSS.
+/* v4.8.0 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3361,7 +3499,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.7.4n — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.8.0 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -4080,6 +4218,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       "classifica-brani":"songRankingPage",
       fan:"fansAdminPage",
       statistiche:"analyticsPage",
+      cassa:"cashPage",
       setup:"setupPage"
     },
     fan:{catalogo:"fanCatalogPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
@@ -4175,6 +4314,249 @@ function setMemberRankingTab(key){
 }
 document.querySelectorAll('#memberRankingsTabs [data-member-ranking-tab]').forEach(btn=>btn.onclick=()=>setMemberRankingTab(btn.dataset.memberRankingTab));
 setMemberRankingTab('songs');
+</script>
+
+
+<script id="v4-8-runtime">
+/* ==========================================================
+   V4.8.0 — categorie header / locandine multiple / Cassa draft
+========================================================== */
+(()=>{
+  const CATEGORY_KEY="jm_member_category_v48";
+  const memberNav=()=>document.getElementById("memberNav");
+  const categoryNav=()=>document.getElementById("memberCategoryNav");
+
+  function syncCategoryAvailability(){
+    const nav=memberNav(),top=categoryNav();if(!nav||!top)return;
+    top.querySelectorAll("[data-member-category]").forEach(btn=>{
+      const cat=btn.dataset.memberCategory;
+      const candidates=[...nav.querySelectorAll('.nav-button[data-category="'+cat+'"]')];
+      btn.hidden=!candidates.some(x=>!x.classList.contains("hidden"));
+    });
+  }
+
+  function setMemberCategory(category,{activate=true}={}){
+    const nav=memberNav(),top=categoryNav();if(!nav||!top)return;
+    const all=[...nav.querySelectorAll(".nav-button[data-category]")];
+    const allowed=all.filter(x=>x.dataset.category===category&&!x.classList.contains("hidden"));
+    if(!allowed.length){
+      const firstAllowed=all.find(x=>!x.classList.contains("hidden"));
+      category=firstAllowed?.dataset.category||"music";
+    }
+    all.forEach(btn=>btn.classList.toggle("category-off",btn.dataset.category!==category));
+    top.querySelectorAll("[data-member-category]").forEach(btn=>btn.classList.toggle("active",btn.dataset.memberCategory===category));
+    try{localStorage.setItem(CATEGORY_KEY,category)}catch{}
+    if(activate){
+      const active=all.find(x=>x.classList.contains("active")&&x.dataset.category===category&&!x.classList.contains("hidden"));
+      if(!active){
+        const first=all.find(x=>x.dataset.category===category&&!x.classList.contains("hidden"));
+        first?.click();
+      }
+    }
+  }
+  window.setMemberCategory=setMemberCategory;
+
+  categoryNav()?.querySelectorAll("[data-member-category]").forEach(btn=>{
+    btn.addEventListener("click",()=>setMemberCategory(btn.dataset.memberCategory,{activate:true}));
+  });
+  memberNav()?.addEventListener("click",e=>{
+    const btn=e.target.closest(".nav-button[data-category]");
+    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
+  },true);
+
+  if(typeof applyMemberPermissionsUI==="function"){
+    const originalApplyMemberPermissionsUI=applyMemberPermissionsUI;
+    applyMemberPermissionsUI=function(){
+      originalApplyMemberPermissionsUI();
+      syncCategoryAvailability();
+      const active=memberNav()?.querySelector(".nav-button.active[data-category]");
+      let category=active?.dataset.category||"music";
+      try{category=localStorage.getItem(CATEGORY_KEY)||category}catch{}
+      if(active&&!active.classList.contains("hidden"))category=active.dataset.category;
+      setMemberCategory(category,{activate:true});
+    };
+  }
+
+  syncCategoryAvailability();
+  let initialCategory="music";
+  try{initialCategory=localStorage.getItem(CATEGORY_KEY)||"music"}catch{}
+  setMemberCategory(initialCategory,{activate:false});
+
+  /* ---------- locandine multiple ---------- */
+  const basePosterUrl=posterUrl;
+  let posterPendingRemovals=new Set();
+
+  function posterPaths(value){
+    if(Array.isArray(value))return [...new Set(value.filter(Boolean).map(String))];
+    const raw=String(value||"").trim();
+    if(!raw)return [];
+    if(raw.startsWith("[")){
+      try{
+        const parsed=JSON.parse(raw);
+        if(Array.isArray(parsed))return [...new Set(parsed.filter(Boolean).map(String))];
+      }catch{}
+    }
+    return [raw];
+  }
+  function serializePosterPaths(paths){
+    paths=[...new Set((paths||[]).filter(Boolean).map(String))];
+    if(!paths.length)return null;
+    return paths.length===1?paths[0]:JSON.stringify(paths);
+  }
+  function storagePosterUrl(path){
+    return path?basePosterUrl(path):"";
+  }
+
+  /* Tutto il codice storico che chiede posterUrl(c.poster_path) continua
+     a ricevere la prima locandina anche quando poster_path contiene un array JSON. */
+  posterUrl=function(value){
+    const first=posterPaths(value)[0];
+    return first?basePosterUrl(first):"";
+  };
+
+  window.openPosterGallery=function(paths,title="Locandine",startIndex=0){
+    paths=posterPaths(paths);if(!paths.length)return;
+    let index=Math.max(0,Math.min(Number(startIndex)||0,paths.length-1));
+    const overlay=document.createElement("div");overlay.className="modal open poster-gallery-modal";
+    const card=document.createElement("div");card.className="modal-card";
+    card.innerHTML='<div class="modal-header"><div><h2></h2><div class="poster-gallery-counter"></div></div><button type="button" class="modal-close">×</button></div><div class="poster-gallery-body"><button type="button" class="poster-gallery-nav poster-gallery-prev">‹</button><img class="poster-gallery-image" alt=""><button type="button" class="poster-gallery-nav poster-gallery-next">›</button></div>';
+    card.querySelector("h2").textContent=title;
+    overlay.appendChild(card);document.body.appendChild(overlay);
+    const img=card.querySelector(".poster-gallery-image"),counter=card.querySelector(".poster-gallery-counter"),prev=card.querySelector(".poster-gallery-prev"),next=card.querySelector(".poster-gallery-next");
+    const paint=()=>{
+      img.src=storagePosterUrl(paths[index]);
+      counter.textContent=(index+1)+" / "+paths.length;
+      prev.hidden=next.hidden=paths.length<2;
+    };
+    prev.onclick=()=>{index=(index-1+paths.length)%paths.length;paint()};
+    next.onclick=()=>{index=(index+1)%paths.length;paint()};
+    const close=()=>overlay.remove();
+    card.querySelector(".modal-close").onclick=close;
+    overlay.onclick=e=>{if(e.target===overlay)close()};
+    paint();
+  };
+
+  renderConcertPosterPreview=function(value){
+    const box=document.getElementById("concertPosterPreview");
+    if(!box)return;
+    const paths=posterPaths(value);
+    posterPendingRemovals.clear();
+    box.innerHTML="";
+    box.classList.toggle("hidden",!paths.length);
+    document.getElementById("concertRemovePosterLabel")?.classList.toggle("hidden",!paths.length);
+    paths.forEach((path,index)=>{
+      const thumb=document.createElement("div");thumb.className="poster-editor-thumb";
+      const img=document.createElement("img");img.src=storagePosterUrl(path);img.alt="";
+      const open=document.createElement("button");open.type="button";open.className="poster-editor-open";open.title="Apri";open.textContent="↗";
+      const remove=document.createElement("button");remove.type="button";remove.className="poster-editor-remove";remove.title="Rimuovi";remove.textContent="×";
+      open.onclick=e=>{e.preventDefault();openPosterGallery(paths,document.getElementById("concertName")?.value||"Locandine",index)};
+      remove.onclick=e=>{
+        e.preventDefault();posterPendingRemovals.add(path);thumb.remove();
+        const remaining=paths.filter(p=>!posterPendingRemovals.has(p));
+        box.classList.toggle("hidden",!remaining.length);
+        document.getElementById("concertRemovePosterLabel")?.classList.toggle("hidden",!remaining.length);
+        if(document.getElementById("editConcertId")?.value)autosaveExistingConcert();
+      };
+      thumb.append(img,open,remove);box.appendChild(thumb);
+    });
+  };
+
+  applyConcertPoster=async function(concertId,oldValue){
+    const bucket=sb.storage.from("concert-posters");
+    let paths=posterPaths(oldValue).filter(p=>!posterPendingRemovals.has(p));
+    const removeAll=document.getElementById("concertRemovePoster")?.checked;
+    const files=[...(document.getElementById("concertPoster")?.files||[])];
+
+    for(const file of files){
+      if(!String(file.type||"").startsWith("image/"))throw new Error("Le locandine devono essere immagini.");
+    }
+
+    if(removeAll)paths=[];
+
+    for(const file of files){
+      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+      const base=(file.name.replace(/\.[^.]+$/,"").replace(/[^a-zA-Z0-9_-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,42)||"poster");
+      const path=concertId+"/posters/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-"+base+"."+ext;
+      const {error}=await bucket.upload(path,file,{contentType:file.type||undefined,upsert:false});
+      if(error)throw error;
+      paths.push(path);
+    }
+
+    const oldPaths=posterPaths(oldValue);
+    const removed=oldPaths.filter(p=>!paths.includes(p));
+    const serialized=serializePosterPaths(paths);
+    const {error:updateError}=await sb.from("concerts").update({poster_path:serialized}).eq("id",concertId);
+    if(updateError)throw updateError;
+
+    if(removed.length){
+      const {error:removeError}=await bucket.remove(removed);
+      if(removeError)console.warn("Rimozione locandine:",removeError);
+    }
+
+    posterPendingRemovals.clear();
+    renderConcertPosterPreview(serialized);
+    return serialized;
+  };
+
+  /* Carosello nelle aree fan/ospite. */
+  concertPosterHtml=function(c){
+    const paths=posterPaths(c?.poster_path);
+    if(!paths.length)return "";
+    const urls=paths.map(storagePosterUrl).filter(Boolean);
+    if(!urls.length)return "";
+    const id="poster-carousel-"+String(c?.id||Math.random().toString(36).slice(2));
+    queueMicrotask(()=>{
+      const root=document.getElementById(id);if(!root)return;
+      let index=0;
+      const img=root.querySelector(".poster-carousel-image");
+      const count=root.querySelector(".poster-carousel-count");
+      const dots=[...root.querySelectorAll(".poster-carousel-dot")];
+      const paint=()=>{
+        img.src=urls[index];count.textContent=(index+1)+" / "+urls.length;
+        dots.forEach((d,i)=>d.classList.toggle("active",i===index));
+      };
+      root.querySelector(".poster-carousel-prev").onclick=()=>{index=(index-1+urls.length)%urls.length;paint()};
+      root.querySelector(".poster-carousel-next").onclick=()=>{index=(index+1)%urls.length;paint()};
+      dots.forEach((d,i)=>d.onclick=()=>{index=i;paint()});
+      img.onclick=()=>openPosterGallery(paths,c?.name||"Locandine",index);
+      paint();
+    });
+    return '<div class="poster-carousel" id="'+esc(id)+'"><div class="poster-carousel-stage"><button type="button" class="poster-carousel-nav poster-carousel-prev" '+(urls.length<2?'hidden':'')+'>‹</button><img class="poster-carousel-image" src="'+esc(urls[0])+'" alt="Locandina '+esc(c?.name||"")+'"><button type="button" class="poster-carousel-nav poster-carousel-next" '+(urls.length<2?'hidden':'')+'>›</button></div><div class="poster-carousel-footer"><div class="poster-carousel-dots">'+urls.map((_,i)=>'<button type="button" class="poster-carousel-dot '+(i===0?'active':'')+'" aria-label="Locandina '+(i+1)+'"></button>').join("")+'</div><span class="poster-carousel-count">1 / '+urls.length+'</span></div></div>';
+  };
+
+  /* Micro-miniatura nel manager. Il dettaglio admin resta senza poster grande. */
+  const originalRenderConcerts=renderConcerts;
+  renderConcerts=function(){
+    originalRenderConcerts();
+    document.querySelectorAll("#concertList [data-concert-id]").forEach(row=>{
+      row.querySelector(".concert-poster-micro")?.remove();
+      const c=concerts.find(x=>String(x.id)===String(row.dataset.concertId));
+      const paths=posterPaths(c?.poster_path);if(!paths.length)return;
+      const btn=document.createElement("button");btn.type="button";btn.className="concert-poster-micro";btn.title="Apri locandine";
+      const img=document.createElement("img");img.src=storagePosterUrl(paths[0]);img.alt="";
+      btn.appendChild(img);
+      if(paths.length>1){const badge=document.createElement("span");badge.className="concert-poster-micro-count";badge.textContent=String(paths.length);btn.appendChild(badge)}
+      btn.onclick=e=>{e.preventDefault();e.stopPropagation();openPosterGallery(paths,c?.name||"Locandine",0)};
+      const main=row.querySelector(".list-main");if(main)row.insertBefore(btn,main);else row.appendChild(btn);
+    });
+  };
+
+  /* Click su route/submenu: categoria superiore sincronizzata. */
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest("#memberNav .nav-button[data-category]");
+    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
+  },true);
+
+  /* Le route hash possono arrivare direttamente a una pagina di un'altra categoria. */
+  window.addEventListener("hashchange",()=>{
+    const slug=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+    const map={
+      scaletta:"music",proposte:"music","scalette-membri":"music",catalogo:"music",concerti:"music",
+      fan:"management",cassa:"management","classifica-brani":"rankings",statistiche:"rankings",setup:"setup"
+    };
+    if(map[slug])setMemberCategory(map[slug],{activate:false});
+  },true);
+})();
 </script>
 
 </body>
