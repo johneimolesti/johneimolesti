@@ -1617,6 +1617,66 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+<style id="v4-8-1-public-gallery-coverart">
+/* V4.8.1 — Concerti fan/ospiti: elenco/galleria + dettaglio overlay. */
+.concert-browser-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.concert-browser-toolbar .concert-scope-tabs{margin-bottom:0}
+.concert-view-switch{display:inline-flex;gap:3px;padding:3px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.025)}
+.concert-view-switch button{min-height:29px;padding:5px 9px;border:1px solid transparent;border-radius:8px;background:transparent;color:#808895;font-size:7px;font-weight:950;letter-spacing:.06em}
+.concert-view-switch button.active{border-color:rgba(243,210,52,.28);background:rgba(243,210,52,.10);color:#f2d95e}
+.concert-gallery-host{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+.concert-gallery-section{margin-bottom:12px}.concert-gallery-section:last-child{margin-bottom:0}
+.concert-gallery-heading{display:flex;align-items:center;gap:8px;margin:7px 2px;color:#8d95a1;font-size:7px;font-weight:950;letter-spacing:.11em;text-transform:uppercase}
+.concert-gallery-heading:after{content:"";height:1px;flex:1;background:rgba(255,255,255,.08)}
+.concert-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.concert-gallery-card{position:relative;min-width:0;overflow:hidden;border:1px solid rgba(255,255,255,.085);border-radius:15px;background:rgba(255,255,255,.03);cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.025);transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.concert-gallery-card:hover{transform:translateY(-1px);border-color:rgba(243,210,52,.22);background:rgba(255,255,255,.045)}
+.concert-gallery-media{position:relative;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#11151d,#0b0e14)}
+.concert-gallery-media img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s ease}
+.concert-gallery-placeholder{color:#606874;font-size:7px;font-weight:900;letter-spacing:.08em}
+.concert-gallery-count{position:absolute;right:6px;bottom:6px;display:inline-flex;align-items:center;min-height:18px;padding:0 6px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(6,8,12,.78);color:#e8ebef;font-size:6px;font-weight:950}
+.concert-gallery-body{padding:9px}.concert-gallery-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f2f3f5;font-size:10px;font-weight:950}
+.concert-gallery-meta{margin-top:4px;color:#858d99;font-size:7px;line-height:1.45}.concert-gallery-status{margin-top:7px}
+
+/* In elenco non compare alcuna locandina. */
+#fanConcertsPage .list-row .poster-thumb,#guestConcertsPage .list-row .poster-thumb{display:none!important}
+
+/* Dettaglio concerto come card sovrapposta. */
+.concert-detail-overlay-host:empty{display:none!important}
+.concert-detail-overlay-host:not(:empty){position:fixed!important;inset:0!important;z-index:168!important;display:grid!important;place-items:center!important;margin:0!important;padding:12px!important;background:rgba(2,4,8,.74)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow:hidden!important}
+.concert-detail-overlay-host>section.panel{width:min(1080px,100%)!important;max-height:calc(100dvh - 24px)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;border-radius:22px!important;box-shadow:0 28px 90px rgba(0,0,0,.52)!important}
+.concert-detail-overlay-host>section.panel>.panel-header{flex:0 0 auto!important}
+.concert-detail-overlay-host .public-detail-body{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:10px!important}
+.public-detail-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,38%);gap:12px;align-items:stretch;margin-bottom:11px}
+.public-detail-top.no-poster{grid-template-columns:1fr}
+.public-detail-info{min-width:0;padding:11px;border:1px solid rgba(255,255,255,.07);border-radius:14px;background:rgba(255,255,255,.025)}
+.public-detail-info h3{margin:0 0 9px;color:#f0d75b;font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+.public-detail-info-grid{display:grid;grid-template-columns:88px minmax(0,1fr);gap:6px 9px;font-size:8px;line-height:1.4}
+.public-detail-info-grid dt{color:#737c88;font-weight:900;text-transform:uppercase}.public-detail-info-grid dd{margin:0;color:#d9dde3;min-width:0;overflow-wrap:anywhere}
+.public-detail-poster{min-width:0;display:flex;align-items:stretch}.public-detail-poster .poster-carousel{width:100%;max-width:none;margin:0}.public-detail-poster .poster-carousel-stage{min-height:230px;height:100%}
+.public-detail-bottom{min-width:0}.public-detail-bottom>.song-list{max-height:none!important}
+
+/* Admin: nessuna locandina nella gestione concerti, resta soltanto nell'editor del concerto. */
+#memberApp #concertList .poster-thumb,#memberApp #concertList .concert-poster-micro,#memberApp #concertDetail .poster-hero,#memberApp #concertDetail .poster-carousel{display:none!important}
+
+/* Cover art brani. */
+.song-cover-preview{display:flex;align-items:center;gap:8px;margin-top:7px}.song-cover-preview.hidden{display:none!important}
+.song-cover-preview img{width:78px;height:78px;object-fit:cover;border:1px solid rgba(255,255,255,.11);border-radius:12px;background:#111;cursor:zoom-in}
+.song-cover-preview .small-btn{align-self:flex-start}
+.song-cover-thumb{width:32px;height:32px;min-width:32px;object-fit:cover;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:#111;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.member-catalog-row .list-main.song-cover-layout{display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto;column-gap:7px;align-items:center}
+.member-catalog-row .list-main.song-cover-layout>.song-cover-thumb{grid-column:1;grid-row:1/3}.member-catalog-row .list-main.song-cover-layout>.list-title{grid-column:2;grid-row:1}.member-catalog-row .list-main.song-cover-layout>.member-catalog-meta{grid-column:2;grid-row:2}
+.ranking-song-identity{display:flex;align-items:center;gap:7px;min-width:0}.ranking-song-copy{min-width:0;flex:1}
+
+@media(max-width:720px){
+  .concert-browser-toolbar{align-items:stretch}.concert-view-switch{margin-left:auto}.concert-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.concert-gallery-body{padding:7px}.concert-gallery-title{font-size:9px}
+  .concert-detail-overlay-host:not(:empty){padding:6px!important}.concert-detail-overlay-host>section.panel{max-height:calc(100dvh - 12px)!important;border-radius:16px!important}.public-detail-top{grid-template-columns:1fr;gap:8px}.public-detail-poster{order:-1}.public-detail-poster .poster-carousel-stage{min-height:180px}.public-detail-info-grid{grid-template-columns:72px minmax(0,1fr)}
+  .song-cover-thumb{width:28px;height:28px;min-width:28px}.member-catalog-row .list-main.song-cover-layout{grid-template-columns:32px minmax(0,1fr)}
+}
+@media(max-width:430px){.concert-gallery-grid{grid-template-columns:1fr 1fr}.concert-gallery-media{aspect-ratio:1/1}}
+</style>
+
 </head>
 <body>
 
@@ -1666,7 +1726,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1847,11 +1907,11 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
-    <section id="fanConcertsPage" class="page"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Apri un concerto per vedere la scaletta, segnare “Io c'ero” e valutare la performance live. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="fan" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="fan" data-concert-scope="private">PRIVATE SHOW</button></div><div id="publicConcertList" class="list panel"></div><div id="privateConcertList" class="list panel" hidden></div><div id="publicConcertDetail" style="margin-top:8px"></div></section>
+    <section id="fanConcertsPage" class="page"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Apri un concerto per vedere la scaletta, segnare “Io c'ero” e valutare la performance live. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-browser-toolbar"><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="fan" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="fan" data-concert-scope="private">PRIVATE SHOW</button></div><div class="concert-view-switch" data-concert-view-owner="fan"><button type="button" class="active" data-concert-view="list">ELENCO</button><button type="button" data-concert-view="gallery">GALLERIA</button></div></div><div id="publicConcertList" class="list panel"></div><div id="privateConcertList" class="list panel" hidden></div><div id="publicConcertDetail" class="concert-detail-overlay-host" style="margin-top:8px"></div></section>
     <section id="fanRankingsPage" class="page"><div class="rankings-grid"><section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="publicFanRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="publicSongRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="publicConcertRanking" class="list"></div></section></div></section>
     <section id="fanAnalyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Repertorio e live dei Molesti, in numeri. Nessun dato personale dei fan viene mostrato qui.</div></div><div id="fanAnalyticsContent"></div></section>
     <section id="fanProfilePage" class="page"><div class="fan-hero"><h2>Profilo</h2><div class="section-note">Qui puoi rivedere e aggiornare le risposte del questionario iniziale. Le preferenze e la Top 3 possono cambiare nel tempo: le statistiche delle canzoni si aggiornano con l'ultima versione salvata.</div></div><div id="fanProfileContent" class="panel"></div></section>
@@ -1863,7 +1923,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
   <header><div class="brand"><h1>John & i Molesti</h1><p>Solo curioso · sola lettura</p></div><div class="user-area"><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="guestLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-guest-page="guestConcertsPage">CONCERTI</button><button data-guest-page="guestRankingsPage">CLASSIFICHE</button><button data-guest-page="guestAnalyticsPage">STATISTICHE</button></nav>
   <main class="fan-main">
-    <section id="guestConcertsPage" class="page active"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Consulta concerti e locandine. La scaletta dei live futuri compare automaticamente dall'orario di inizio. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="guest" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="guest" data-concert-scope="private">PRIVATE SHOW</button></div><div id="guestConcertList" class="list panel"></div><div id="guestPrivateConcertList" class="list panel" hidden></div><div id="guestConcertDetail" style="margin-top:8px"></div></section>
+    <section id="guestConcertsPage" class="page active"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Consulta concerti e locandine. La scaletta dei live futuri compare automaticamente dall'orario di inizio. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-browser-toolbar"><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="guest" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="guest" data-concert-scope="private">PRIVATE SHOW</button></div><div class="concert-view-switch" data-concert-view-owner="guest"><button type="button" class="active" data-concert-view="list">ELENCO</button><button type="button" data-concert-view="gallery">GALLERIA</button></div></div><div id="guestConcertList" class="list panel"></div><div id="guestPrivateConcertList" class="list panel" hidden></div><div id="guestConcertDetail" class="concert-detail-overlay-host" style="margin-top:8px"></div></section>
     <section id="guestRankingsPage" class="page"><div class="rankings-grid"><section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="guestFanRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="guestSongRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="guestConcertRanking" class="list"></div></section></div></section>
     <section id="guestAnalyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Repertorio e storia live dei Molesti, consultabili anche senza registrazione.</div></div><div id="guestAnalyticsContent"></div></section>
   </main>
@@ -1872,7 +1932,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 <!-- MODAL CANZONE -->
 <div id="songModal" class="modal" hidden><div class="modal-card"><div class="modal-header"><h2>Scheda canzone</h2><button id="closeSongModal" class="modal-close">×</button></div><form id="songEditForm" class="form-body">
   <input id="editSongId" type="hidden">
-  <div class="form-section"><h3>Canzone Molesta</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editTitle" required></div><div class="form-field"><label>Anno Molesti</label><input id="editMolestiYear" title="Anno in cui John & i Molesti hanno realizzato questa versione" type="number" min="1900" max="2100" placeholder="Es. 2026"></div></div></div>
+  <div class="form-section"><h3>Canzone Molesta</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editTitle" required></div><div class="form-field"><label>Anno Molesti</label><input id="editMolestiYear" title="Anno in cui John & i Molesti hanno realizzato questa versione" type="number" min="1900" max="2100" placeholder="Es. 2026"></div><div class="form-field full song-cover-edit-field"><label>Cover art</label><input id="editSongCover" type="file" accept="image/*"><input id="editSongCoverPath" type="hidden"><div id="editSongCoverPreview" class="song-cover-preview hidden"></div><button id="editSongCoverRemove" type="button" class="small-btn danger hidden" style="margin-top:6px">RIMUOVI COVER ART</button><div class="section-note" style="margin-top:5px">Immagine quadrata consigliata. Viene mostrata nel catalogo e nelle classifiche admin.</div></div></div></div>
   <div class="form-section"><h3>Punteggi calcolati</h3><div class="computed-box"><div class="computed-item"><span>Popolarità totale</span><b id="computedPopularity">—</b></div><div class="computed-item"><span>Curiosità</span><b id="computedCuriosity">—</b></div><div class="computed-item"><span>R · Apprezzamento</span><b id="computedRankingScore">—</b></div><div class="computed-item"><span>S · Scaletta</span><b id="computedSetlistScore">—</b></div></div></div>
   <div class="form-section"><h3>Base musicale</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editBaseTitle"></div><div class="form-field"><label>Artista</label><input id="editBaseArtist"></div><div class="form-field"><label>Anno Base</label><input id="editBaseYear" type="number" min="1900" max="2100"></div><div class="form-field"><label>Spotify streams</label><input id="editBaseSpotify" type="number" min="0"></div><div class="form-field"><label>YouTube views</label><input id="editBaseYoutube" type="number" min="0"></div><div class="form-field full"><label class="check-card"><input id="editBaseOriginal" type="checkbox"> Base originale scritta dai Molesti — nessuna corrispondenza Spotify / YouTube</label></div></div></div>
   <div class="form-section"><h3>Testo</h3><div class="form-grid"><div class="form-field"><label>Titolo</label><input id="editLyricsTitle"></div><div class="form-field"><label>Artista</label><input id="editLyricsArtist"></div><div class="form-field"><label>Anno Testo</label><input id="editLyricsYear" type="number" min="1900" max="2100"></div><div class="form-field"><label>Spotify streams</label><input id="editLyricsSpotify" type="number" min="0"></div><div class="form-field"><label>YouTube views</label><input id="editLyricsYoutube" type="number" min="0"></div><div class="form-field full"><div class="checkbox-grid"><label class="check-card"><input id="editLyricsLocal" type="checkbox"> Local — notorietà soprattutto locale</label><label class="check-card"><input id="editLyricsCultSbronz" type="checkbox"> Cult sbronz — classico da festa / sbronza</label></div><div class="section-note" style="margin-top:5px">Nessuna spunta = scala italiana standard. Local: 150k ≈ 7/10. Cult sbronz: 2M ≈ 7/10.</div></div></div></div>
@@ -1932,7 +1992,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.8.0";
+const APP_VERSION="v4.8.1";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2338,7 +2398,7 @@ let songEditorBusy=false,songEditorPending=false;
 async function autosaveSongEditor(){const id=$("editSongId").value;if(!id)return;if(songEditorBusy){songEditorPending=true;return}const baseOriginal=$("editBaseOriginal").checked,payload={title:$("editTitle").value.trim(),molesti_year:numberOrNull($("editMolestiYear").value),base_title:emptyToNull($("editBaseTitle").value),base_artist:emptyToNull($("editBaseArtist").value),base_year:numberOrNull($("editBaseYear").value),base_is_original:baseOriginal,base_spotify_streams:baseOriginal?null:numberOrNull($("editBaseSpotify").value),base_youtube_views:baseOriginal?null:numberOrNull($("editBaseYoutube").value),lyrics_title:emptyToNull($("editLyricsTitle").value),lyrics_artist:emptyToNull($("editLyricsArtist").value),lyrics_year:numberOrNull($("editLyricsYear").value),lyrics_spotify_streams:numberOrNull($("editLyricsSpotify").value),lyrics_youtube_views:numberOrNull($("editLyricsYoutube").value),lyrics_is_local:$("editLyricsLocal").checked,lyrics_is_cult_sbronz:$("editLyricsCultSbronz").checked,bpm:numberOrNull($("editBpm").value),duration_seconds:numberOrNull($("editDuration").value),key_note:emptyToNull($("editKeyNote").value),key_mode:emptyToNull($("editKeyMode").value),guitar_difficulty:numberOrNull($("editGuitarDifficulty").value),bass_difficulty:numberOrNull($("editBassDifficulty").value),drums_difficulty:numberOrNull($("editDrumsDifficulty").value),is_explosive:$("editExplosive").checked,is_calm:$("editCalm").checked,is_frenetic:$("editFrenetic").checked,force_final_block:$("editForceFinal").checked,hidden_track:$("editHiddenTrack").checked,active:$("editActive").checked,forced_next_song_id:emptyToNull($("editForcedNext").value),notes:emptyToNull($("editNotes").value),updated_at:new Date().toISOString()};if(!payload.title)return;songEditorBusy=true;$("songAutoSaveStatus").textContent="Salvataggio...";const {error}=await sb.from("songs").update(payload).eq("id",id);songEditorBusy=false;if(error){$("songAutoSaveStatus").textContent="Errore";return alert(error.message)}$("songAutoSaveStatus").textContent="Salvato ✓";await refreshAll();if(songEditorPending){songEditorPending=false;autosaveSongEditor()}}
 $("songEditForm").addEventListener("submit",e=>e.preventDefault());
 $("songEditForm").querySelectorAll('input[type="checkbox"],select').forEach(el=>el.addEventListener("change",()=>{if(el.id==="editBaseOriginal")syncBaseOriginalFields();autosaveSongEditor()}));
-$("songEditForm").querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]),textarea').forEach(el=>el.addEventListener("blur",autosaveSongEditor));
+$("songEditForm").querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]):not([type="file"]),textarea').forEach(el=>el.addEventListener("blur",autosaveSongEditor));
 async function deleteSong(song){if(!confirm(`Eliminare definitivamente "${song.title}"?`))return;const {error}=await sb.from("songs").delete().eq("id",song.id);if(error)return alert(error.message);await refreshAll()}
 
 /* SONG PROPOSALS */
@@ -3059,7 +3119,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.8.0 — lo scroll è governato solo dal CSS.
+/* v4.8.1 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3499,7 +3559,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.8.0 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.8.1 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -4556,6 +4616,150 @@ setMemberRankingTab('songs');
     };
     if(map[slug])setMemberCategory(map[slug],{activate:false});
   },true);
+})();
+</script>
+
+
+<script id="v4-8-1-runtime">
+/* ==========================================================
+   V4.8.1 — Fan/Guest gallery, overlay detail, song cover art,
+             admin ranking recovery, no posters in admin concerts
+========================================================== */
+(()=>{
+  const v481PosterPaths=value=>{
+    if(Array.isArray(value))return [...new Set(value.filter(Boolean).map(String))];
+    const raw=String(value||"").trim();if(!raw)return [];
+    if(raw.startsWith("[")){try{const a=JSON.parse(raw);if(Array.isArray(a))return [...new Set(a.filter(Boolean).map(String))]}catch{}}
+    return [raw]
+  };
+  const v481PosterUrl=path=>path?sb.storage.from("concert-posters").getPublicUrl(path).data?.publicUrl||"":"";
+  const v481ConcertViewState={
+    fan:localStorage.getItem("jm_concert_view_fan")||"list",
+    guest:localStorage.getItem("jm_concert_view_guest")||"list"
+  };
+
+  function v481OwnerForBox(box){return String(box?.id||"").startsWith("guest")?"guest":"fan"}
+  function v481SyncViewButtons(owner){
+    document.querySelectorAll(`[data-concert-view-owner="${owner}"] [data-concert-view]`).forEach(b=>b.classList.toggle("active",b.dataset.concertView===v481ConcertViewState[owner]))
+  }
+  function v481GalleryCard(c,openFn){
+    const card=document.createElement("article");card.className="concert-gallery-card";card.dataset.concertId=c.id;
+    const paths=v481PosterPaths(c.poster_path),urls=paths.map(v481PosterUrl).filter(Boolean),media=document.createElement("div");media.className="concert-gallery-media";
+    let index=0,img=null;
+    if(urls.length){img=document.createElement("img");img.src=urls[0];img.alt=`Locandina ${c.name||""}`;media.appendChild(img);if(urls.length>1){const n=document.createElement("span");n.className="concert-gallery-count";n.textContent=`1/${urls.length}`;media.appendChild(n);setTimeout(()=>{const timer=setInterval(()=>{if(!card.isConnected){clearInterval(timer);return}if(document.hidden)return;index=(index+1)%urls.length;img.style.opacity=".35";setTimeout(()=>{if(!card.isConnected)return;img.src=urls[index];n.textContent=`${index+1}/${urls.length}`;img.style.opacity="1"},120)},3600+Math.floor(Math.random()*700))},300)}
+    }else{const p=document.createElement("div");p.className="concert-gallery-placeholder";p.textContent="NESSUNA LOCANDINA";media.appendChild(p)}
+    const body=document.createElement("div");body.className="concert-gallery-body";const place=[concertVenueName(c),concertVenueCity(c)].filter(Boolean).join(" · ")||"Luogo da definire",status=concertStatusLabel(c);
+    body.innerHTML=`<div class="concert-gallery-title">${esc(c.name||"Live")}</div><div class="concert-gallery-meta">${esc(formatDate(c.concert_date))}${c.start_time?` · ${esc(formatTime(c.start_time))}`:""}<br>${esc(place)}</div><div class="concert-gallery-status"><span class="status ${esc(concertStatusClass(c))}">${esc(status)}</span></div>`;
+    card.append(media,body);card.onclick=()=>openFn(c.id);return card
+  }
+  function v481RenderGallery(rows,box,openFn,emptyText){
+    box.innerHTML="";box.classList.add("concert-gallery-host");
+    if(!rows?.length){box.innerHTML=`<div class="empty">${esc(emptyText)}</div>`;return}
+    const future=(rows||[]).filter(c=>concertPeriod(c)==="future").sort((a,b)=>String(a.concert_date).localeCompare(String(b.concert_date))||String(a.name).localeCompare(String(b.name),"it"));
+    const past=(rows||[]).filter(c=>concertPeriod(c)==="past").sort((a,b)=>String(b.concert_date).localeCompare(String(a.concert_date))||String(a.name).localeCompare(String(b.name),"it"));
+    [["PROSSIMI CONCERTI",future],["CONCERTI PASSATI",past]].forEach(([label,list])=>{if(!list.length)return;const section=document.createElement("section");section.className="concert-gallery-section";section.innerHTML=`<div class="concert-gallery-heading">${label}</div>`;const grid=document.createElement("div");grid.className="concert-gallery-grid";list.forEach(c=>grid.appendChild(v481GalleryCard(c,openFn)));section.appendChild(grid);box.appendChild(section)})
+  }
+
+  /* In elenco usiamo la resa storica ma togliamo sempre la locandina. */
+  const v481BasePublicConcertRow=publicConcertRow;
+  publicConcertRow=function(c,openFn){const row=v481BasePublicConcertRow(c,openFn);row.querySelectorAll(".poster-thumb,.concert-poster-micro").forEach(x=>x.remove());row.classList.remove("concert-row-with-poster");return row};
+  const v481BaseRenderConcertCollection=renderConcertCollection;
+  renderConcertCollection=function(rows,box,openFn,emptyText){
+    const owner=v481OwnerForBox(box),mode=v481ConcertViewState[owner]||"list";
+    v481SyncViewButtons(owner);
+    if(mode==="gallery")return v481RenderGallery(rows,box,openFn,emptyText);
+    box.classList.remove("concert-gallery-host");return v481BaseRenderConcertCollection(rows,box,openFn,emptyText)
+  };
+  function v481RerenderOwner(owner){
+    if(owner==="fan"){
+      renderConcertCollection(publicConcerts.filter(c=>!c.private_show),$("publicConcertList"),openPublicConcert,"Nessun concerto pubblico disponibile.");
+      renderConcertCollection(publicConcerts.filter(c=>c.private_show),$("privateConcertList"),openPublicConcert,"Nessun private show disponibile.")
+    }else{
+      renderConcertCollection(guestConcerts.filter(c=>!c.private_show),$("guestConcertList"),openGuestConcert,"Nessun concerto pubblico disponibile.");
+      renderConcertCollection(guestConcerts.filter(c=>c.private_show),$("guestPrivateConcertList"),openGuestConcert,"Nessun private show disponibile.")
+    }
+  }
+  document.querySelectorAll("[data-concert-view-owner]").forEach(sw=>sw.querySelectorAll("[data-concert-view]").forEach(btn=>btn.onclick=()=>{const owner=sw.dataset.concertViewOwner,mode=btn.dataset.concertView;v481ConcertViewState[owner]=mode;localStorage.setItem(`jm_concert_view_${owner}`,mode);v481SyncViewButtons(owner);v481RerenderOwner(owner)}));
+  v481SyncViewButtons("fan");v481SyncViewButtons("guest");
+
+  function v481DetailInfo(c){
+    const location=[concertVenueName(c),concertVenueLocality(c),concertVenueMunicipality(c),concertVenueProvince(c)].filter(Boolean).join(" · ")||"—";
+    const mode=String(c?.event_mode||"standard").toUpperCase();
+    return `<h3>INFORMAZIONI LIVE</h3><dl class="public-detail-info-grid"><dt>Data</dt><dd>${esc(formatDate(c?.concert_date)||"—")}</dd><dt>Ora</dt><dd>${esc(c?.start_time?formatTime(c.start_time):"—")}</dd><dt>Luogo</dt><dd>${esc(location)}</dd><dt>Tipologia</dt><dd>${esc(venueTypeLabel(c)||"—")}</dd><dt>Modalità</dt><dd>${esc(mode)}</dd><dt>Stato</dt><dd>${esc(concertStatusLabel(c))}${c?.private_show?" · PRIVATE SHOW":""}</dd></dl>`
+  }
+  function v481LayoutPublicDetail(owner,c){
+    const box=owner==="fan"?$("publicConcertDetail"):$("guestConcertDetail");if(!box||!c)return;
+    const panel=box.querySelector(":scope > section.panel")||box.querySelector("section.panel");if(!panel)return;
+    const body=[...panel.children].find(el=>el.tagName==="DIV"&&el.style?.padding);if(!body)return;
+    body.classList.add("public-detail-body");
+    if(body.querySelector(":scope > .public-detail-top"))return;
+    const poster=body.querySelector(":scope > .poster-carousel")||body.querySelector(".poster-carousel");
+    const firstMeta=[...body.children].find(el=>el.classList?.contains("section-note"));
+    const locationLine=panel.querySelector(":scope > .concert-detail-location-line");if(locationLine)locationLine.remove();
+    const oldNodes=[...body.childNodes].filter(n=>n!==poster&&n!==firstMeta);
+    body.innerHTML="";
+    const top=document.createElement("div");top.className="public-detail-top"+(poster?"":" no-poster");
+    const info=document.createElement("div");info.className="public-detail-info";info.innerHTML=v481DetailInfo(c);top.appendChild(info);
+    if(poster){const pw=document.createElement("div");pw.className="public-detail-poster";pw.appendChild(poster);top.appendChild(pw)}
+    const bottom=document.createElement("div");bottom.className="public-detail-bottom";oldNodes.forEach(n=>bottom.appendChild(n));
+    body.append(top,bottom);
+    box.onclick=e=>{if(e.target===box)box.querySelector(".concert-detail-close")?.click()}
+  }
+  const v481BaseOpenPublicConcert=openPublicConcert;
+  openPublicConcert=async function(id,voteMode=false){await v481BaseOpenPublicConcert(id,voteMode);const c=publicConcerts.find(x=>String(x.id)===String(id));v481LayoutPublicDetail("fan",c)};
+  const v481BaseOpenGuestConcert=openGuestConcert;
+  openGuestConcert=async function(id){await v481BaseOpenGuestConcert(id);const c=guestConcerts.find(x=>String(x.id)===String(id));v481LayoutPublicDetail("guest",c)};
+
+  /* Admin: per ora nessuna locandina nella gestione concerti. */
+  const v481BaseRenderConcerts=renderConcerts;
+  renderConcerts=function(){v481BaseRenderConcerts();document.querySelectorAll("#concertList .concert-poster-micro,#concertList .poster-thumb").forEach(x=>x.remove())};
+
+  /* ---------- Cover art brani ---------- */
+  const v481CoverUrl=path=>v481PosterUrl(path);
+  function v481RenderCoverPreview(path,title="Cover art"){
+    const box=$("editSongCoverPreview"),removeBtn=$("editSongCoverRemove");if(!box)return;box.innerHTML="";box.classList.toggle("hidden",!path);removeBtn?.classList.toggle("hidden",!path);if(!path)return;
+    const img=document.createElement("img");img.src=v481CoverUrl(path);img.alt=title;img.onclick=()=>openPosterGallery([path],title,0);box.appendChild(img)
+  }
+  const v481BaseOpenSongModal=openSongModal;
+  openSongModal=function(song){v481BaseOpenSongModal(song);$("editSongCover").value="";$("editSongCoverPath").value=song?.cover_path||"";v481RenderCoverPreview(song?.cover_path||"",song?.title||"Cover art")};
+  async function v481SaveSongCover(){
+    const id=$("editSongId").value;if(!id)return;const song=songs.find(s=>String(s.id)===String(id));if(!song)return;
+    const input=$("editSongCover"),file=input.files?.[0]||null,remove=!!v481SaveSongCover.removeRequested,oldPath=$("editSongCoverPath").value||song.cover_path||null;v481SaveSongCover.removeRequested=false;
+    if(file&&!String(file.type||"").startsWith("image/")){input.value="";return alert("La cover art deve essere un'immagine.")}
+    if(!file&&!remove)return;
+    $("songAutoSaveStatus").textContent="Salvataggio cover...";let newPath=oldPath;
+    try{
+      if(file){const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg",safe=(file.name.replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_-]+/g,'-').slice(0,40)||'cover');newPath=`song-covers/${id}/${Date.now()}-${safe}.${ext}`;const {error:upErr}=await sb.storage.from("concert-posters").upload(newPath,file,{contentType:file.type||undefined,upsert:false});if(upErr)throw upErr}
+      else if(remove)newPath=null;
+      const {error:dbErr}=await sb.from("songs").update({cover_path:newPath,updated_at:new Date().toISOString()}).eq("id",id);if(dbErr){if(file&&newPath)await sb.storage.from("concert-posters").remove([newPath]);throw dbErr}
+      if(oldPath&&oldPath!==newPath)await sb.storage.from("concert-posters").remove([oldPath]);
+      song.cover_path=newPath;$("editSongCoverPath").value=newPath||"";input.value="";v481RenderCoverPreview(newPath,song.title);$("songAutoSaveStatus").textContent="Cover salvata ✓";renderCatalog();renderSongRanking()
+    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.8.1.sql in Supabase.")}
+  }
+  $("editSongCover")?.addEventListener("change",v481SaveSongCover);$("editSongCoverRemove")?.addEventListener("click",()=>{v481SaveSongCover.removeRequested=true;v481SaveSongCover()});
+
+  const v481BaseRenderCatalog=renderCatalog;
+  renderCatalog=function(){v481BaseRenderCatalog();document.querySelectorAll("#catalogList .member-catalog-row[data-song-id]").forEach(row=>{const song=songs.find(s=>String(s.id)===String(row.dataset.songId));if(!song?.cover_path)return;const main=row.querySelector(".list-main");if(!main||main.querySelector(".song-cover-thumb"))return;main.classList.add("song-cover-layout");const img=document.createElement("img");img.className="song-cover-thumb";img.src=v481CoverUrl(song.cover_path);img.alt="";img.title="Cover art";img.onclick=e=>{e.stopPropagation();openPosterGallery([song.cover_path],song.title,0)};main.prepend(img)})};
+
+  /* Classifica brani: usa il catalogo come fonte canonica, così i brani compaiono
+     anche se la RPC dei punteggi non restituisce il flag active/title. */
+  renderSongRanking=function(){
+    const box=$("songRankingList");if(!box)return;
+    const mode=(MOBILE_QUERY.matches?window.v474MemberRankingMode:"r");
+    const activeRows=activeSongs().map(song=>{const scores=scoreRow(song.id)||{};return {...scores,...song,song_id:song.id,title:song.title,__setlist:getScore(song.id,"setlist")}});
+    const canonical=[...activeRows].sort((a,b)=>mode==="s"?b.__setlist-a.__setlist:Number(b.ranking_score??b.score??0)-Number(a.ranking_score??a.score??0));
+    const rankMap=new Map(canonical.map((r,i)=>[r.song_id,i+1]));activeRows.forEach(r=>r.__rank=rankMap.get(r.song_id)||9999);
+    const val=(r,key)=>key==="rank"?r.__rank:key==="score"?Number(r.ranking_score??r.score??0):key==="title"?r.title:key==="fan"?Number(r.fan_score??0):key==="band"?Number(r.member_score??0):key==="popularity"?Number(r.popularity_score??0):key==="setlist"?r.__setlist:null;
+    if(MOBILE_QUERY.matches){adminSongRankingSort.key=mode==="s"?"setlist":"score";adminSongRankingSort.dir="desc"}
+    activeRows.sort((a,b)=>compareAdminValues(val(a,adminSongRankingSort.key),val(b,adminSongRankingSort.key),adminSongRankingSort.dir));
+    box.innerHTML=`<div class="ranking-row header-row"><div>${adminSortHeader("#","rank",adminSongRankingSort)}</div><div>${adminSortHeader("R","score",adminSongRankingSort)}</div><div>${adminSortHeader("Brano","title",adminSongRankingSort)}</div><div>${adminSortHeader("Fan","fan",adminSongRankingSort)}</div><div>${adminSortHeader("Band","band",adminSongRankingSort)}</div><div>${adminSortHeader("Pop.","popularity",adminSongRankingSort)}</div><div>${adminSortHeader("S","setlist",adminSongRankingSort)}</div></div>`;
+    activeRows.forEach(r=>{const row=document.createElement("div");row.className="ranking-row";row.dataset.songId=r.song_id;const badges=songRankingBadges(r,r.__rank-1,canonical,null),canOpen=isEma()||canMember("song_detail_view"),cover=r.cover_path?`<img class="song-cover-thumb" src="${esc(v481CoverUrl(r.cover_path))}" alt="">`:"";row.innerHTML=`<div class="rank">${r.__rank}</div><div>${scoreBadge(r.song_id,"ranking")}</div><div class="ranking-title-cell"><div class="ranking-song-identity">${cover}<div class="ranking-song-copy"><div class="ranking-title-line"><span class="list-title${canOpen?" detail-link":""}">${esc(r.title)}</span>${badgesHtml(badges)}</div>${rankingArtistsHtml(r)}</div></div></div><div>${r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1)}</div><div>${r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1)}</div><div>${r.popularity_score==null?"—":Number(r.popularity_score).toFixed(1)}</div><div>${r.__setlist.toFixed(0)}</div>`;if(canOpen)row.querySelector(".detail-link").onclick=()=>memberSongDetail(r);box.appendChild(row)});
+    box.querySelectorAll(".sort-head").forEach(btn=>btn.onclick=()=>{toggleAdminRankingSort(adminSongRankingSort,btn.dataset.sort);renderSongRanking()});$("songRankingCounter").textContent=`${activeRows.length} brani`;
+    if(!activeRows.length)box.insertAdjacentHTML("beforeend",'<div class="empty">Nessun brano attivo in classifica.</div>')
+  };
+
+  /* Riallinea subito eventuali viste già renderizzate. */
+  try{renderConcerts()}catch{};try{renderCatalog()}catch{};try{renderSongRanking()}catch{};
 })();
 </script>
 
