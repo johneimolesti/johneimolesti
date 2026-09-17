@@ -1731,6 +1731,97 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+<style id="v4-9-posters-community">
+/* V4.9.0 — Catalogo locandine / voti / commenti */
+.catalog-kind-switch{
+  display:inline-flex;gap:4px;align-items:center;margin:0 0 8px;padding:4px;
+  border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(17,21,29,.48)
+}
+.catalog-kind-switch button{
+  min-height:31px;padding:6px 12px;border:1px solid transparent;border-radius:9px;
+  background:transparent;color:#8f97a4;font-size:8px;font-weight:950;letter-spacing:.05em
+}
+.catalog-kind-switch button.active{border-color:rgba(243,210,52,.35);background:rgba(243,210,52,.12);color:#f5dc62}
+.poster-catalog-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;padding:8px;
+  overflow-y:auto!important;min-height:0
+}
+.poster-catalog-card{
+  min-width:0;border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  background:rgba(255,255,255,.028);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)
+}
+.poster-catalog-image-wrap{position:relative;aspect-ratio:4/5;background:#0d1016;overflow:hidden;cursor:pointer}
+.poster-catalog-image{width:100%;height:100%;display:block;object-fit:cover}
+.poster-catalog-rank{
+  position:absolute;left:7px;top:7px;min-width:28px;height:24px;padding:0 7px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.15);border-radius:999px;background:rgba(8,10,15,.82);font-size:8px;font-weight:950
+}
+.poster-catalog-score{
+  position:absolute;right:7px;top:7px;min-width:42px;height:24px;padding:0 7px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(243,210,52,.25);border-radius:999px;background:rgba(20,19,11,.86);color:#f0d85f;font-size:8px;font-weight:950
+}
+.poster-catalog-body{display:grid;gap:7px;padding:9px}
+.poster-catalog-title{font-size:10px;font-weight:950;color:#eef0f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poster-catalog-meta{color:#7f8792;font-size:7px;line-height:1.4}
+.poster-caption{color:#bfc4cc;font-size:9px;line-height:1.45;min-height:26px;white-space:pre-wrap}
+.poster-caption.is-empty{color:#666e79;font-style:italic}
+.poster-caption-editor{
+  width:100%;min-height:62px;padding:7px 8px;border:1px solid rgba(255,255,255,.10);border-radius:9px;
+  resize:vertical;background:rgba(255,255,255,.045);color:#eef0f3;font-size:9px;line-height:1.4
+}
+.poster-caption-status{min-height:12px;color:#7f8792;font-size:7px}
+.poster-vote-block{display:grid;gap:4px}
+.poster-vote-label{display:flex;align-items:center;justify-content:space-between;gap:6px;color:#858d98;font-size:7px;font-weight:900;text-transform:uppercase}
+.poster-vote-scale.rating-scale{margin-top:0}
+.poster-vote-scale.rating-scale button{height:26px;font-size:8px}
+.poster-card-footer{display:flex;align-items:center;justify-content:space-between;gap:7px;color:#7e8792;font-size:7px}
+.poster-comments-count{white-space:nowrap}.poster-detail-button{padding:5px 8px!important;font-size:7px!important}
+.poster-ranking-row{
+  display:grid;grid-template-columns:30px 42px minmax(0,1fr) 58px 58px 58px;gap:7px;align-items:center;
+  min-height:58px;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.06);font-size:9px
+}
+.poster-ranking-row.header{min-height:30px;background:rgba(255,255,255,.025);color:#757e8a;font-size:7px;font-weight:900;text-transform:uppercase}
+.poster-ranking-thumb{width:38px;height:48px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.09);cursor:pointer}
+.poster-ranking-main{min-width:0}.poster-ranking-title{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poster-ranking-caption{margin-top:2px;color:#7d8591;font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poster-ranking-num{text-align:right;font-weight:900}
+.fan-rankings-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+/* Fan poster modal */
+.poster-community-modal{z-index:185!important}
+.poster-community-modal .modal-card{width:min(980px,calc(100vw - 18px))}
+.poster-community-layout{display:grid;grid-template-columns:minmax(230px,.78fr) minmax(0,1.22fr);gap:12px;padding:12px}
+.poster-community-image{width:100%;max-height:70vh;object-fit:contain;border:1px solid rgba(255,255,255,.09);border-radius:14px;background:#0b0e13}
+.poster-community-side{min-width:0;display:flex;flex-direction:column;gap:9px}
+.poster-community-caption{padding:9px;border:1px solid rgba(255,255,255,.07);border-radius:11px;background:rgba(255,255,255,.025);color:#c7ccd4;font-size:10px;line-height:1.5;white-space:pre-wrap}
+.poster-comments{display:grid;gap:5px;max-height:300px;overflow-y:auto!important}
+.poster-comment{
+  padding:8px 9px;border:1px solid rgba(255,255,255,.065);border-radius:10px;background:rgba(255,255,255,.025)
+}
+.poster-comment-head{display:flex;justify-content:space-between;gap:8px;margin-bottom:3px}
+.poster-comment-name{font-size:8px;font-weight:950;color:#e8ebef}.poster-comment-time{font-size:6.5px;color:#6f7782}
+.poster-comment-body{font-size:9px;line-height:1.45;color:#b9c0c9;white-space:pre-wrap;word-break:break-word}
+.poster-comment-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.poster-comment-form textarea{min-height:54px;max-height:120px;padding:8px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.045);color:#fff;resize:vertical}
+.poster-comment-form button{align-self:stretch}
+
+/* 6 voci fan: 3x2 su mobile */
+@media(max-width:720px){
+  #fanApp>.fan-bottom-nav:has(button:nth-child(6):last-child){grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .poster-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:5px;gap:6px}
+  .poster-catalog-body{padding:7px}.poster-caption{font-size:8px}
+  .poster-community-layout{grid-template-columns:1fr;padding:8px}.poster-community-image{max-height:46vh}
+  .poster-ranking-row{grid-template-columns:26px 36px minmax(0,1fr) 52px}
+  .poster-ranking-row>*:nth-child(5),.poster-ranking-row>*:nth-child(6){display:none}
+  .poster-ranking-thumb{width:33px;height:42px}
+  .fan-rankings-grid{display:block!important}
+}
+@media(max-width:430px){
+  .poster-catalog-grid{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 
@@ -1780,7 +1871,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.9.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1813,8 +1904,13 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     </section>
 
     <section id="catalogPage" class="page">
+      <div class="catalog-kind-switch" id="memberCatalogKindSwitch" role="tablist" aria-label="Tipo catalogo">
+        <button type="button" class="active" data-catalog-kind="songs">CANZONI</button>
+        <button type="button" data-catalog-kind="posters">LOCANDINE</button>
+      </div>
       <form id="newSongForm" class="toolbar"><input id="newSongTitle" class="grow" placeholder="Titolo nuova canzone..." required><button type="submit">+ AGGIUNGI / PROPONI</button><button id="openProposalPanelButton" class="secondary proposal-approval-button" type="button" disabled>PROPOSTE DA VALIDARE (0)</button></form>
-      <section class="panel"><div class="panel-header"><h2>CATALOGO UFFICIALE</h2><span id="catalogCounter" class="counter"></span></div><div id="catalogList" class="list"></div></section>
+      <section id="memberSongCatalogPanel" class="panel"><div class="panel-header"><h2>CATALOGO CANZONI</h2><span id="catalogCounter" class="counter"></span></div><div id="catalogList" class="list"></div></section>
+      <section id="memberPosterCatalogPanel" class="panel" hidden><div class="panel-header"><h2>CATALOGO LOCANDINE</h2><div class="panel-header-actions"><span id="memberPosterCatalogCounter" class="counter"></span><span class="counter">voto 1–10 · mezzi voti ammessi</span></div></div><div id="memberPosterCatalogList" class="poster-catalog-grid"></div></section>
     </section>
 
     <section id="membersPage" class="page"><div id="memberTabs" class="member-tabs"></div><section class="panel"><div class="panel-header"><h2 id="memberSetlistTitle">SCALETTA</h2><div class="panel-header-actions member-global-actions"><span id="memberSetlistCounter" class="counter"></span><button id="screenshotAllMemberSetlists" class="small-btn global-screenshot-btn" type="button">SCREENSHOT 5 SCALETTE</button><button id="copyMemberSetlistButton" class="small-btn" type="button">COPIA</button></div></div><div id="memberSetlistLastModified" class="member-last-modified"></div><div id="memberSetlistHeader"></div><div id="memberSetlist" class="song-list"></div></section></section>
@@ -1846,8 +1942,9 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
     <section id="songRankingPage" class="page">
       <p class="section-note">Le classifiche amministrative/membri raccolgono <strong>Brani</strong>, <strong>Fan</strong> e <strong>Concerti</strong>. Per i fan e gli ospiti restano invece governate dal permesso <strong>rankings_view</strong> del Setup.</p>
-      <div class="member-rankings-tabs" id="memberRankingsTabs" role="tablist" aria-label="Classifiche"><button type="button" class="active" data-member-ranking-tab="songs">BRANI</button><button type="button" data-member-ranking-tab="fans">FAN</button><button type="button" data-member-ranking-tab="concerts">CONCERTI</button></div>
+      <div class="member-rankings-tabs" id="memberRankingsTabs" role="tablist" aria-label="Classifiche"><button type="button" class="active" data-member-ranking-tab="songs">BRANI</button><button type="button" data-member-ranking-tab="posters">LOCANDINE</button><button type="button" data-member-ranking-tab="fans">FAN</button><button type="button" data-member-ranking-tab="concerts">CONCERTI</button></div>
       <section class="panel member-ranking-panel active" data-member-ranking-panel="songs"><div class="panel-header"><h2>CLASSIFICA BRANI</h2><span id="songRankingCounter" class="counter"></span></div><div id="songRankingList" class="admin-ranking-scroll"></div></section>
+      <section class="panel member-ranking-panel" data-member-ranking-panel="posters"><div class="panel-header"><h2>CLASSIFICA LOCANDINE</h2><span id="memberPosterRankingCounter" class="counter"></span></div><div id="memberPosterRankingList" class="admin-ranking-scroll"></div></section>
       <section class="panel member-ranking-panel" data-member-ranking-panel="fans"><div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="memberFanRankingCounter" class="counter"></span></div><div id="memberFanRankingList" class="admin-ranking-scroll"></div></section>
       <section class="panel member-ranking-panel" data-member-ranking-panel="concerts"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2><span id="memberConcertRankingCounter" class="counter"></span></div><div id="memberConcertRankingList" class="admin-ranking-scroll"></div></section>
     </section>
@@ -1965,12 +2062,13 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
-  <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.9.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanPostersPage">LOCANDINE</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
+    <section id="fanPostersPage" class="page"><div class="fan-hero"><h2>Locandine</h2><div class="section-note">Vota le locandine dei live da 1 a 10, leggi la didascalia e apri il dettaglio per commentare. I mezzi voti sono ammessi.</div></div><div class="panel"><div class="panel-header"><h2>CATALOGO LOCANDINE</h2><span id="fanPosterCounter" class="counter"></span></div><div id="fanPosterCatalog" class="poster-catalog-grid fan-poster-grid"></div></div></section>
     <section id="fanConcertsPage" class="page"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Apri un concerto per vedere la scaletta, segnare “Io c'ero” e valutare la performance live. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-browser-toolbar"><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="fan" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="fan" data-concert-scope="private">PRIVATE SHOW</button></div><div class="concert-view-switch" data-concert-view-owner="fan"><button type="button" class="active" data-concert-view="list">ELENCO</button><button type="button" data-concert-view="gallery">GALLERIA</button></div></div><div id="publicConcertList" class="list panel"></div><div id="privateConcertList" class="list panel" hidden></div><div id="publicConcertDetail" class="concert-detail-overlay-host" style="margin-top:8px"></div></section>
-    <section id="fanRankingsPage" class="page"><div class="rankings-grid"><section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="publicFanRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="publicSongRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="publicConcertRanking" class="list"></div></section></div></section>
+    <section id="fanRankingsPage" class="page"><div class="rankings-grid fan-rankings-grid"><section class="panel" data-fan-ranking-kind="fans"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="publicFanRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="songs"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="publicSongRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="posters"><div class="panel-header"><h2>CLASSIFICA LOCANDINE</h2></div><div id="publicPosterRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="concerts"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="publicConcertRanking" class="list"></div></section></div></section>
     <section id="fanAnalyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Repertorio e live dei Molesti, in numeri. Nessun dato personale dei fan viene mostrato qui.</div></div><div id="fanAnalyticsContent"></div></section>
     <section id="fanProfilePage" class="page"><div class="fan-hero"><h2>Profilo</h2><div class="section-note">Qui puoi rivedere e aggiornare le risposte del questionario iniziale. Le preferenze e la Top 3 possono cambiare nel tempo: le statistiche delle canzoni si aggiornano con l'ultima versione salvata.</div></div><div id="fanProfileContent" class="panel"></div></section>
   </main>
@@ -2050,7 +2148,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.8.2";
+const APP_VERSION="v4.9.1";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2188,7 +2286,7 @@ async function loadPublicPermissions(role){try{const data=await fanApi("permissi
 function activateFirstVisibleNav(appId,buttonSelector,pageAttr){const app=$(appId),buttons=[...app.querySelectorAll(buttonSelector)].filter(b=>!b.hidden&&!b.classList.contains("hidden")),main=app.querySelector("main");let empty=app.querySelector(".permission-empty-state");if(!buttons.length){app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));if(!empty&&main){empty=document.createElement("div");empty.className="panel empty permission-empty-state";empty.textContent="Nessuna sezione abilitata per questo tipo di accesso.";main.prepend(empty)}return}if(empty)empty.remove();let active=buttons.find(b=>b.classList.contains("active"));if(!active){active=buttons[0];app.querySelectorAll(buttonSelector).forEach(b=>b.classList.remove("active"));active.classList.add("active")}app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));const pageId=active.dataset[pageAttr];if(pageId&&$(pageId))$(pageId).classList.add("active")}
 function canUseDesktopSetup(){return window.matchMedia("(min-width:900px) and (pointer:fine)").matches}
 function applyMemberPermissionsUI(){const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};$("memberNav").querySelectorAll("[data-page]").forEach(btn=>{if(btn.dataset.page==="setupPage"){btn.classList.toggle("hidden",!isEma()||!canUseDesktopSetup());return}const key=map[btn.dataset.page];btn.classList.toggle("hidden",key&&!canMember(key))});$("newSongForm").classList.toggle("hidden",!isEma()&&!canMember("song_propose"));$("concertAdminToolbar").classList.toggle("hidden",!isEma());$("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());activateFirstVisibleNav("memberApp","#memberNav .nav-button","page")}
-function applyPublicPermissionsUI(role){const appId=role==="fan"?"fanApp":"guestApp",attr=role==="fan"?"fanPage":"guestPage",selector=role==="fan"?"[data-fan-page]":"[data-guest-page]",map=role==="fan"?{fanCatalogPage:"catalog_view",fanConcertsPage:"concerts_view",fanRankingsPage:"rankings_view"}:{guestConcertsPage:"concerts_view",guestRankingsPage:"rankings_view"};$(appId).querySelectorAll(selector).forEach(btn=>{const page=btn.dataset[attr],key=map[page];btn.hidden=!!key&&!hasPermission(role,key)});$(appId).querySelectorAll(`.concert-scope-tab[data-concert-owner="${role}"][data-concert-scope="private"]`).forEach(btn=>btn.hidden=!hasPermission(role,"private_shows_view"));activateFirstVisibleNav(appId,selector,attr)}
+function applyPublicPermissionsUI(role){const appId=role==="fan"?"fanApp":"guestApp",attr=role==="fan"?"fanPage":"guestPage",selector=role==="fan"?"[data-fan-page]":"[data-guest-page]",map=role==="fan"?{fanCatalogPage:"catalog_view",fanPostersPage:"catalog_view",fanConcertsPage:"concerts_view",fanRankingsPage:"rankings_view"}:{guestConcertsPage:"concerts_view",guestRankingsPage:"rankings_view"};$(appId).querySelectorAll(selector).forEach(btn=>{const page=btn.dataset[attr],key=map[page];btn.hidden=!!key&&!hasPermission(role,key)});$(appId).querySelectorAll(`.concert-scope-tab[data-concert-owner="${role}"][data-concert-scope="private"]`).forEach(btn=>btn.hidden=!hasPermission(role,"private_shows_view"));activateFirstVisibleNav(appId,selector,attr)}
 function setConcertScope(owner,scope){
   if(scope==="private"&&!hasPermission(owner,"private_shows_view"))scope="public";
   document.querySelectorAll(`.concert-scope-tab[data-concert-owner="${owner}"]`).forEach(btn=>btn.classList.toggle("active",btn.dataset.concertScope===scope));
@@ -3177,7 +3275,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.8.2 — lo scroll è governato solo dal CSS.
+/* v4.9.1 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3617,7 +3715,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.8.2 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.9.1 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -4339,7 +4437,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       cassa:"cashPage",
       setup:"setupPage"
     },
-    fan:{catalogo:"fanCatalogPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
+    fan:{catalogo:"fanCatalogPage",locandine:"fanPostersPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
     guest:{concerti:"guestConcertsPage",classifiche:"guestRankingsPage",statistiche:"guestAnalyticsPage"}
   };
   const SELECTORS={member:"#memberNav [data-page]",fan:"#fanApp [data-fan-page]",guest:"#guestApp [data-guest-page]"};
@@ -4792,7 +4890,7 @@ setMemberRankingTab('songs');
       const {error:dbErr}=await sb.from("songs").update({cover_path:newPath,updated_at:new Date().toISOString()}).eq("id",id);if(dbErr){if(file&&newPath)await sb.storage.from("concert-posters").remove([newPath]);throw dbErr}
       if(oldPath&&oldPath!==newPath)await sb.storage.from("concert-posters").remove([oldPath]);
       song.cover_path=newPath;$("editSongCoverPath").value=newPath||"";input.value="";v481RenderCoverPreview(newPath,song.title);$("songAutoSaveStatus").textContent="Cover salvata ✓";renderCatalog();renderSongRanking()
-    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.8.2.sql in Supabase.")}
+    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.9.1.sql in Supabase.")}
   }
   $("editSongCover")?.addEventListener("change",v481SaveSongCover);$("editSongCoverRemove")?.addEventListener("click",()=>{v481SaveSongCover.removeRequested=true;v481SaveSongCover()});
 
@@ -5033,6 +5131,345 @@ setMemberRankingTab('songs');
   /* Ridisegna le viste già aperte senza interrompere il caricamento globale. */
   try{renderCatalog()}catch(err){console.error(err)}
   try{renderSongRanking()}catch(err){console.error(err)}
+})();
+</script>
+
+
+<script id="v4-9-posters-runtime">
+/* ==========================================================
+   V4.9.0 — LOCANDINE: catalogo membri, fan, voti, commenti
+========================================================== */
+(()=>{
+  const POSTER_API=FAN_API;
+  let memberPosterRows=[];
+  let fanPosterRows=[];
+  let memberPosterCatalogLoaded=false;
+
+  function v49PosterPaths(value){
+    if(Array.isArray(value))return [...new Set(value.filter(Boolean).map(String))];
+    const raw=String(value||"").trim();
+    if(!raw)return [];
+    if(raw.startsWith("[")){
+      try{
+        const parsed=JSON.parse(raw);
+        if(Array.isArray(parsed))return [...new Set(parsed.filter(Boolean).map(String))];
+      }catch{}
+    }
+    return [raw];
+  }
+  function posterAssetUrl(path){
+    return path?sb.storage.from("concert-posters").getPublicUrl(path).data?.publicUrl||"":"";
+  }
+  function posterScoreText(v){
+    const n=Number(v);return Number.isFinite(n)?(n/10).toFixed(1):"—";
+  }
+  function posterDateText(v){return v?formatDate(v):"—"}
+
+  async function posterApi(action,payload={}){
+    const body={action,device_token:getFanDeviceToken(),fingerprint:fanFingerprint(),...payload};
+    const res=await fetch(POSTER_API,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},
+      body:JSON.stringify(body)
+    });
+    let data={};try{data=await res.json()}catch{}
+    if(!res.ok)throw new Error(data.error||`poster-api HTTP ${res.status}`);
+    return data;
+  }
+
+  /* ------------------------------------------------------
+     Sincronizzazione tra poster_path legacy e concert_posters.
+     Mantiene compatibilità con le viste concerto già esistenti.
+  ------------------------------------------------------ */
+  const v49BaseApplyConcertPoster=applyConcertPoster;
+  applyConcertPoster=async function(concertId,oldValue){
+    const serialized=await v49BaseApplyConcertPoster(concertId,oldValue);
+    try{
+      const paths=v49PosterPaths(serialized);
+      const {data:existing,error:readError}=await sb.from("concert_posters").select("id,storage_path,caption,position").eq("concert_id",concertId);
+      if(readError)throw readError;
+      const keep=new Set(paths);
+      const removeIds=(existing||[]).filter(x=>!keep.has(x.storage_path)).map(x=>x.id);
+      if(removeIds.length){
+        const {error}=await sb.from("concert_posters").delete().in("id",removeIds);
+        if(error)throw error;
+      }
+      for(let i=0;i<paths.length;i++){
+        const path=paths[i];
+        const found=(existing||[]).find(x=>x.storage_path===path);
+        if(found){
+          const {error}=await sb.from("concert_posters").update({position:i,updated_at:new Date().toISOString()}).eq("id",found.id);
+          if(error)throw error;
+        }else{
+          const {error}=await sb.from("concert_posters").insert({concert_id:concertId,storage_path:path,position:i});
+          if(error)throw error;
+        }
+      }
+    }catch(err){
+      console.warn("Sync catalogo locandine non disponibile:",err);
+    }
+    return serialized;
+  };
+
+  /* ------------------------------------------------------
+     CATALOGO MEMBRI / ADMIN
+  ------------------------------------------------------ */
+  async function loadMemberPosterRows(force=false){
+    if(memberPosterCatalogLoaded&&!force)return memberPosterRows;
+    const {data,error}=await sb.rpc("get_poster_ranking");
+    if(error)throw error;
+    const rows=data||[];
+    let myMap=new Map();
+    if(currentUser?.id){
+      const {data:mine,error:me}=await sb.from("poster_member_votes").select("poster_id,score").eq("member_id",currentUser.id);
+      if(me)throw me;
+      myMap=new Map((mine||[]).map(x=>[String(x.poster_id),Number(x.score)]));
+    }
+    memberPosterRows=rows.map(r=>({...r,my_member_score:myMap.get(String(r.poster_id))??null}));
+    memberPosterCatalogLoaded=true;
+    return memberPosterRows;
+  }
+
+  async function saveMemberPosterVote(posterId,value,scale,status){
+    const n=Number(value);
+    if(!Number.isFinite(n)||n<1||n>10)return;
+    paintRatingScale(scale,n,"saving");
+    if(status)status.textContent="Salvataggio...";
+    try{
+      const payload={poster_id:posterId,member_id:currentUser.id,score:n,updated_at:new Date().toISOString()};
+      const {error}=await sb.from("poster_member_votes").upsert(payload,{onConflict:"poster_id,member_id"});
+      if(error)throw error;
+      const row=memberPosterRows.find(x=>String(x.poster_id)===String(posterId));if(row)row.my_member_score=n;
+      paintRatingScale(scale,n,"ready");
+      bindMemberPosterScale(posterId,scale,status);
+      if(status)status.textContent="Voto salvato ✓";
+      memberPosterCatalogLoaded=false;
+      await loadMemberPosterRows(true);
+      renderMemberPosterCatalog();
+      renderMemberPosterRanking();
+    }catch(err){
+      paintRatingScale(scale,"","ready");bindMemberPosterScale(posterId,scale,status);
+      if(status)status.textContent=err.message||"Errore";
+    }
+  }
+  function bindMemberPosterScale(posterId,scale,status){
+    scale?.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=()=>saveMemberPosterVote(posterId,Number(btn.dataset.value),scale,status));
+  }
+
+  async function savePosterCaption(posterId,textarea,status){
+    if(!isEma())return;
+    const caption=textarea.value.trim().slice(0,500);
+    status.textContent="Salvataggio...";
+    const {error}=await sb.from("concert_posters").update({caption,updated_at:new Date().toISOString()}).eq("id",posterId);
+    if(error){status.textContent="ERRORE";return alert(error.message)}
+    const row=memberPosterRows.find(x=>String(x.poster_id)===String(posterId));if(row)row.caption=caption;
+    status.textContent="Salvata ✓";
+  }
+
+  function renderMemberPosterCatalog(){
+    const box=$("memberPosterCatalogList");if(!box)return;
+    const rows=[...memberPosterRows].sort((a,b)=>String(b.concert_date||"").localeCompare(String(a.concert_date||""))||Number(a.position||0)-Number(b.position||0));
+    $("memberPosterCatalogCounter").textContent=`${rows.length} locandine`;
+    if(!rows.length){box.innerHTML='<div class="empty">Nessuna locandina disponibile.</div>';return}
+    box.innerHTML="";
+    rows.forEach((r,index)=>{
+      const card=document.createElement("article");card.className="poster-catalog-card";
+      const caption=String(r.caption||"").trim();
+      card.innerHTML=`<div class="poster-catalog-image-wrap"><img class="poster-catalog-image" src="${esc(posterAssetUrl(r.storage_path))}" alt="Locandina ${esc(r.concert_name||"")}"><span class="poster-catalog-score">R ${posterScoreText(r.ranking_score)}</span></div>
+        <div class="poster-catalog-body">
+          <div><div class="poster-catalog-title">${esc(r.concert_name||"Concerto")}</div><div class="poster-catalog-meta">${esc(posterDateText(r.concert_date))} · ${esc(r.venue||r.city||"")}</div></div>
+          ${isEma()?`<textarea class="poster-caption-editor" maxlength="500" placeholder="Didascalia...">${esc(caption)}</textarea><div class="poster-caption-status"></div>`:`<div class="poster-caption${caption?"":" is-empty"}">${esc(caption||"Nessuna didascalia.")}</div>`}
+          <div class="poster-vote-block"><div class="poster-vote-label"><span>IL MIO VOTO</span><span>Fan ${posterScoreText(r.fan_score)} · Band ${posterScoreText(r.member_score)}</span></div><div class="rating-scale poster-vote-scale">${ratingButtonsMarkup(r.my_member_score??"",false)}</div></div>
+          <div class="poster-card-footer"><span>${Number(r.fan_vote_count||0)} voti fan · ${Number(r.member_vote_count||0)} membri</span><span>${Number(r.comment_count||0)} commenti</span></div>
+        </div>`;
+      card.querySelector(".poster-catalog-image-wrap").onclick=()=>openPosterGallery([r.storage_path],r.concert_name||"Locandina",0);
+      const scale=card.querySelector(".poster-vote-scale"),status=card.querySelector(".poster-caption-status");
+      bindMemberPosterScale(r.poster_id,scale,status);
+      if(isEma()){
+        const area=card.querySelector(".poster-caption-editor");
+        let timer=null;
+        area.addEventListener("input",()=>{clearTimeout(timer);status.textContent="...";timer=setTimeout(()=>savePosterCaption(r.poster_id,area,status),650)});
+        area.addEventListener("blur",()=>{clearTimeout(timer);savePosterCaption(r.poster_id,area,status)});
+      }
+      box.appendChild(card);
+    });
+  }
+
+  function renderMemberPosterRanking(){
+    const box=$("memberPosterRankingList");if(!box)return;
+    const rows=[...memberPosterRows].filter(r=>Number(r.fan_vote_count||0)+Number(r.member_vote_count||0)>0)
+      .sort((a,b)=>Number(b.ranking_score||0)-Number(a.ranking_score||0)||String(a.concert_date||"").localeCompare(String(b.concert_date||"")));
+    $("memberPosterRankingCounter").textContent=`${rows.length} votate`;
+    box.innerHTML='<div class="poster-ranking-row header"><div>#</div><div></div><div>LOCANDINA</div><div>R</div><div>FAN</div><div>BAND</div></div>';
+    rows.forEach((r,i)=>{
+      const row=document.createElement("div");row.className="poster-ranking-row";
+      row.innerHTML=`<div class="rank">${i+1}</div><img class="poster-ranking-thumb" src="${esc(posterAssetUrl(r.storage_path))}" alt=""><div class="poster-ranking-main"><div class="poster-ranking-title">${esc(r.concert_name||"Concerto")}</div><div class="poster-ranking-caption">${esc(r.caption||posterDateText(r.concert_date))}</div></div><div class="poster-ranking-num">${posterScoreText(r.ranking_score)}</div><div class="poster-ranking-num">${posterScoreText(r.fan_score)}</div><div class="poster-ranking-num">${posterScoreText(r.member_score)}</div>`;
+      row.querySelector("img").onclick=()=>openPosterGallery([r.storage_path],r.concert_name||"Locandina",0);
+      box.appendChild(row);
+    });
+    if(!rows.length)box.innerHTML+='<div class="empty">Nessuna locandina ancora votata.</div>';
+  }
+
+  function setMemberCatalogKind(kind){
+    const songs=kind!=="posters";
+    $("newSongForm").hidden=!songs;
+    $("memberSongCatalogPanel").hidden=!songs;
+    $("memberPosterCatalogPanel").hidden=songs;
+    document.querySelectorAll("#memberCatalogKindSwitch [data-catalog-kind]").forEach(b=>b.classList.toggle("active",b.dataset.catalogKind===kind));
+    if(!songs)loadMemberPosterRows().then(()=>{renderMemberPosterCatalog();renderMemberPosterRanking()}).catch(err=>{$("memberPosterCatalogList").innerHTML=`<div class="empty">${esc(err.message)}</div>`});
+  }
+  document.querySelectorAll("#memberCatalogKindSwitch [data-catalog-kind]").forEach(btn=>btn.onclick=()=>setMemberCatalogKind(btn.dataset.catalogKind));
+
+  const v49BaseLoadUnifiedMemberRankings=loadUnifiedMemberRankings;
+  loadUnifiedMemberRankings=async function(){
+    await v49BaseLoadUnifiedMemberRankings();
+    try{await loadMemberPosterRows(true);renderMemberPosterRanking()}catch(err){if($("memberPosterRankingList"))$("memberPosterRankingList").innerHTML=`<div class="empty">${esc(err.message)}</div>`}
+  };
+  document.querySelector('[data-member-ranking-tab="posters"]')?.addEventListener("click",()=>loadMemberPosterRows().then(renderMemberPosterRanking).catch(()=>{}));
+
+  /* ------------------------------------------------------
+     FAN — LOCANDINE / VOTO / COMMENTI
+  ------------------------------------------------------ */
+  async function loadFanPosters(){
+    const data=await posterApi("list_posters");
+    fanPosterRows=data.posters||[];
+    renderFanPosterCatalog();
+    renderFanPosterRanking();
+    return fanPosterRows;
+  }
+
+  async function saveFanPosterVote(posterId,value,scale,status){
+    paintRatingScale(scale,value,"saving");if(status)status.textContent="Salvataggio...";
+    try{
+      await posterApi("poster_vote",{poster_id:posterId,score:value});
+      const row=fanPosterRows.find(x=>String(x.poster_id)===String(posterId));if(row)row.my_score=value;
+      paintRatingScale(scale,value,"ready");bindFanPosterScale(posterId,scale,status);
+      if(status)status.textContent="Voto salvato ✓";
+      await loadFanPosters();
+    }catch(err){
+      paintRatingScale(scale,"","ready");bindFanPosterScale(posterId,scale,status);
+      if(status)status.textContent=err.message||"Errore";
+    }
+  }
+  function bindFanPosterScale(posterId,scale,status){
+    scale?.querySelectorAll("button[data-value]").forEach(btn=>btn.onclick=e=>{e.stopPropagation();saveFanPosterVote(posterId,Number(btn.dataset.value),scale,status)});
+  }
+
+  function renderFanPosterCatalog(){
+    const box=$("fanPosterCatalog");if(!box)return;
+    $("fanPosterCounter").textContent=`${fanPosterRows.length} locandine`;
+    box.innerHTML="";
+    if(!fanPosterRows.length){box.innerHTML='<div class="empty">Nessuna locandina disponibile.</div>';return}
+    fanPosterRows.forEach((r,index)=>{
+      const card=document.createElement("article");card.className="poster-catalog-card";
+      const caption=String(r.caption||"").trim();
+      card.innerHTML=`<div class="poster-catalog-image-wrap"><img class="poster-catalog-image" src="${esc(posterAssetUrl(r.storage_path))}" alt="Locandina ${esc(r.concert_name||"")}"><span class="poster-catalog-score">R ${posterScoreText(r.ranking_score)}</span></div>
+        <div class="poster-catalog-body">
+          <div><div class="poster-catalog-title">${esc(r.concert_name||"Concerto")}</div><div class="poster-catalog-meta">${esc(posterDateText(r.concert_date))} · ${esc(r.venue||r.city||"")}</div></div>
+          <div class="poster-caption${caption?"":" is-empty"}">${esc(caption||"Nessuna didascalia.")}</div>
+          <div class="poster-vote-block"><div class="poster-vote-label"><span>IL MIO VOTO</span><span>R ${posterScoreText(r.ranking_score)}</span></div><div class="rating-scale poster-vote-scale">${ratingButtonsMarkup(r.my_score??"",false)}</div><div class="poster-caption-status"></div></div>
+          <div class="poster-card-footer"><span class="poster-comments-count">${Number(r.comment_count||0)} commenti</span><button type="button" class="small-btn poster-detail-button">APRI</button></div>
+        </div>`;
+      card.querySelector(".poster-catalog-image-wrap").onclick=()=>openFanPosterDetail(r.poster_id);
+      card.querySelector(".poster-detail-button").onclick=()=>openFanPosterDetail(r.poster_id);
+      const scale=card.querySelector(".poster-vote-scale"),status=card.querySelector(".poster-caption-status");
+      bindFanPosterScale(r.poster_id,scale,status);
+      box.appendChild(card);
+    });
+  }
+
+  function renderFanPosterRanking(){
+    const box=$("publicPosterRanking");if(!box)return;
+    const rows=[...fanPosterRows].filter(r=>Number(r.fan_vote_count||0)+Number(r.member_vote_count||0)>0)
+      .sort((a,b)=>Number(b.ranking_score||0)-Number(a.ranking_score||0));
+    box.innerHTML="";
+    rows.forEach((r,i)=>{
+      const row=document.createElement("div");row.className="list-row";
+      row.innerHTML=`<div class="rank" style="width:24px">${i+1}</div><img class="poster-ranking-thumb" src="${esc(posterAssetUrl(r.storage_path))}" alt=""><div class="list-main"><div class="list-title">${esc(r.concert_name||"Concerto")}</div><div class="small-info">${esc(r.caption||posterDateText(r.concert_date))}</div></div><strong>${posterScoreText(r.ranking_score)}</strong>`;
+      row.querySelector("img").onclick=()=>openFanPosterDetail(r.poster_id);
+      box.appendChild(row);
+    });
+    if(!rows.length)box.innerHTML='<div class="empty">Nessuna locandina ancora votata.</div>';
+  }
+
+  async function openFanPosterDetail(posterId){
+    let data;
+    try{data=await posterApi("poster_detail",{poster_id:posterId})}catch(err){return alert(err.message)}
+    const r=data.poster,comments=data.comments||[];
+    if(!r)return;
+    const overlay=document.createElement("div");overlay.className="modal open poster-community-modal";
+    const card=document.createElement("div");card.className="modal-card";
+    const caption=String(r.caption||"").trim();
+    card.innerHTML=`<div class="modal-header"><div><h2>${esc(r.concert_name||"Locandina")}</h2><div class="section-note">${esc(posterDateText(r.concert_date))} · ${esc(r.venue||r.city||"")}</div></div><button type="button" class="modal-close">×</button></div>
+      <div class="poster-community-layout">
+        <div><img class="poster-community-image" src="${esc(posterAssetUrl(r.storage_path))}" alt="Locandina"></div>
+        <div class="poster-community-side">
+          <div class="poster-community-caption">${esc(caption||"Nessuna didascalia.")}</div>
+          <div class="poster-vote-block"><div class="poster-vote-label"><span>IL MIO VOTO</span><span>R ${posterScoreText(r.ranking_score)} · Fan ${posterScoreText(r.fan_score)} · Band ${posterScoreText(r.member_score)}</span></div><div class="rating-scale poster-vote-scale">${ratingButtonsMarkup(data.my_score??"",false)}</div><div class="poster-caption-status"></div></div>
+          <div><div class="poster-vote-label"><span>COMMENTI</span><span>${comments.length}</span></div><div class="poster-comments"></div></div>
+          <form class="poster-comment-form"><textarea maxlength="500" required placeholder="Scrivi un commento..."></textarea><button type="submit" class="small-btn primary">INVIA</button></form>
+          <div class="poster-caption-status poster-comment-status"></div>
+        </div>
+      </div>`;
+    overlay.appendChild(card);document.body.appendChild(overlay);
+    const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+    const commentsBox=card.querySelector(".poster-comments");
+    const paintComments=rows=>{
+      commentsBox.innerHTML=rows.length?rows.map(c=>`<div class="poster-comment"><div class="poster-comment-head"><span class="poster-comment-name">${esc(c.fan_name||"Fan")}</span><span class="poster-comment-time">${esc(new Date(c.created_at).toLocaleString("it-IT",{dateStyle:"short",timeStyle:"short"}))}</span></div><div class="poster-comment-body">${esc(c.body||"")}</div></div>`).join(""):'<div class="empty">Nessun commento. Puoi essere il primo.</div>';
+    };
+    paintComments(comments);
+    const scale=card.querySelector(".poster-vote-scale"),voteStatus=card.querySelector(".poster-caption-status");
+    bindFanPosterScale(r.poster_id,scale,voteStatus);
+    const form=card.querySelector(".poster-comment-form"),commentStatus=card.querySelector(".poster-comment-status");
+    form.onsubmit=async e=>{
+      e.preventDefault();const area=form.querySelector("textarea"),body=area.value.trim();if(!body)return;
+      form.querySelector("button").disabled=true;commentStatus.textContent="Invio...";
+      try{
+        const result=await posterApi("poster_comment",{poster_id:r.poster_id,body});
+        area.value="";paintComments(result.comments||[]);
+        commentStatus.textContent="Commento pubblicato ✓";
+        await loadFanPosters();
+      }catch(err){commentStatus.textContent=err.message||"Errore"}
+      form.querySelector("button").disabled=false;
+    };
+  }
+  window.openFanPosterDetail=openFanPosterDetail;
+
+  /* Fan ranking: aggiunge la quarta vista mobile LOCANDINE. */
+  function rebuildFanRankingMobileSubnav(){
+    const page=$("fanRankingsPage");if(!page)return;
+    page.querySelectorAll('.mobile-section-subnav[data-kind="rankings"]').forEach(x=>x.remove());
+    const nav=document.createElement("div");nav.className="mobile-section-subnav";nav.dataset.kind="rankings";
+    const defs=[["fans","FAN"],["songs","CANZONI"],["posters","LOCANDINE"],["concerts","CONCERTI"]];
+    const panels=[...page.querySelectorAll(".rankings-grid>.panel")];
+    const apply=key=>{
+      panels.forEach(p=>p.classList.toggle("mobile-subview-active",p.dataset.fanRankingKind===key));
+      nav.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.key===key));
+    };
+    defs.forEach(([key,label],i)=>{
+      const b=document.createElement("button");b.type="button";b.dataset.key=key;b.textContent=label;b.classList.toggle("active",i===0);b.onclick=()=>apply(key);nav.appendChild(b);
+    });
+    page.insertBefore(nav,page.firstChild);apply("fans");
+  }
+  rebuildFanRankingMobileSubnav();
+
+  const v49BaseRenderPublicRankings=renderPublicRankings;
+  renderPublicRankings=async function(){
+    await v49BaseRenderPublicRankings();
+    try{await loadFanPosters()}catch(err){if($("publicPosterRanking"))$("publicPosterRanking").innerHTML=`<div class="empty">${esc(err.message)}</div>`}
+  };
+
+  /* La nav fan storica attiva già le pagine: aggiungiamo il caricamento dati della nuova pagina. */
+  document.querySelector('[data-fan-page="fanPostersPage"]')?.addEventListener("click",()=>{
+    loadFanPosters().catch(err=>{$("fanPosterCatalog").innerHTML=`<div class="empty">${esc(err.message)}</div>`});
+  });
+
+  /* Se una route hash apre direttamente locandine, carica i dati. */
+  window.addEventListener("hashchange",()=>{
+    if(location.hash.toLowerCase()==="#locandine"&&!$("fanApp").hidden)loadFanPosters().catch(()=>{});
+  });
+
+  setMemberCatalogKind("songs");
 })();
 </script>
 
