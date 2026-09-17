@@ -1860,6 +1860,188 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+<style id="v4-9-4-layout-fixes">
+/* V4.9.4 — SETUP: stesso fix di stretch già applicato alle classifiche. */
+#setupPage.active{
+  align-items:stretch!important;
+}
+#setupPage>.setup-section[hidden]{display:none!important}
+#setupPage>.setup-section:not([hidden]){
+  align-self:stretch!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  flex:1 1 0!important;
+}
+#setupPage>.setup-section.panel:not([hidden]){
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#setupPage>.setup-section.panel:not([hidden])>.panel-header,
+#setupPage>.setup-section.panel:not([hidden])>.section-note,
+#setupPage>.setup-section.panel:not([hidden])>.log-scope-tabs{
+  flex:0 0 auto!important;
+}
+#setupPage>.setup-section.panel:not([hidden])>.label-setup-list,
+#setupPage>.setup-section.panel:not([hidden])>.numeric-settings-list{
+  flex:1 1 0!important;
+  height:auto!important;
+  min-height:120px!important;
+  overflow-y:auto!important;
+}
+#setupPage>.setup-section[data-setup-section="fanlog"]:not([hidden])>[data-log-panel]:not([hidden]){
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#setupPage [data-log-panel]:not([hidden])>.fan-log-toolbar{flex:0 0 auto!important}
+#setupPage [data-log-panel]:not([hidden])>.fan-operation-log{
+  flex:1 1 0!important;
+  height:auto!important;
+  min-height:120px!important;
+  overflow-y:auto!important;
+}
+#setupPage>.setup-section[data-setup-section="venue"]:not([hidden]),
+#setupPage>.setup-section[data-setup-section="permissions"]:not([hidden]){
+  height:100%!important;
+  min-height:0!important;
+  align-self:stretch!important;
+}
+#setupPage>.setup-section[data-setup-section="venue"]>.panel,
+#setupPage>.setup-section[data-setup-section="permissions"]>.panel{
+  flex:1 1 0!important;
+  height:auto!important;
+  min-height:0!important;
+}
+#setupPage .permission-matrix-scroll,
+#setupPage #venueList{
+  flex:1 1 0!important;
+  min-height:120px!important;
+  height:auto!important;
+  overflow-y:auto!important;
+}
+
+/* FAN/OSPITI: 4 classifiche affiancate su display sufficientemente larghi. */
+#fanRankingsPage.active,#guestRankingsPage.active{
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#fanRankingsPage .rankings-grid,
+#guestRankingsPage .rankings-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  gap:8px!important;
+}
+#fanRankingsPage .rankings-grid>.panel,
+#guestRankingsPage .rankings-grid>.panel{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#fanRankingsPage .rankings-grid>.panel>.list,
+#guestRankingsPage .rankings-grid>.panel>.list{
+  flex:1 1 0!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+}
+
+/* Locandine membri: textarea non tagliata e voti sempre cliccabili. */
+.poster-catalog-body{
+  overflow:visible!important;
+  padding:10px 10px 12px!important;
+}
+.poster-caption-editor{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:68px!important;
+  margin:2px 0!important;
+  padding:9px 10px!important;
+  line-height:1.4!important;
+  overflow:auto!important;
+}
+.poster-vote-block{position:relative;z-index:2}
+.poster-vote-scale.rating-scale,
+.poster-vote-scale.rating-scale button{
+  pointer-events:auto!important;
+}
+.poster-vote-status,.poster-caption-status{
+  min-height:13px;
+  color:#7f8792;
+  font-size:7px;
+  line-height:1.3;
+}
+
+/* Quando quattro colonne diventano troppo strette: switch a una classifica alla volta. */
+@media(max-width:1100px){
+  #fanRankingsPage>.mobile-section-subnav[data-kind="rankings"],
+  #guestRankingsPage>.mobile-section-subnav[data-kind="rankings"]{
+    display:flex!important;
+    flex:0 0 auto!important;
+    gap:4px;
+    margin:0 0 7px;
+    padding:4px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    background:rgba(11,14,20,.93);
+    overflow-x:auto!important;
+  }
+  #fanRankingsPage>.mobile-section-subnav[data-kind="rankings"] button,
+  #guestRankingsPage>.mobile-section-subnav[data-kind="rankings"] button{
+    flex:1 0 auto;
+    min-width:78px;
+    padding:7px 9px;
+    border:1px solid transparent;
+    border-radius:9px;
+    background:transparent;
+    color:#7f8792;
+    font-size:8px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+  #fanRankingsPage>.mobile-section-subnav[data-kind="rankings"] button.active,
+  #guestRankingsPage>.mobile-section-subnav[data-kind="rankings"] button.active{
+    border-color:rgba(243,210,52,.25);
+    background:rgba(243,210,52,.08);
+    color:#f1d95b;
+  }
+  #fanRankingsPage .rankings-grid,
+  #guestRankingsPage .rankings-grid{
+    display:block!important;
+    flex:1 1 0!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  #fanRankingsPage .rankings-grid>.panel,
+  #guestRankingsPage .rankings-grid>.panel{
+    display:none!important;
+    height:100%!important;
+  }
+  #fanRankingsPage .rankings-grid>.panel.mobile-subview-active,
+  #guestRankingsPage .rankings-grid>.panel.mobile-subview-active{
+    display:flex!important;
+  }
+}
+@media(min-width:1101px){
+  #fanRankingsPage>.mobile-section-subnav[data-kind="rankings"],
+  #guestRankingsPage>.mobile-section-subnav[data-kind="rankings"]{
+    display:none!important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1909,7 +2091,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.9.3</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.9.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1989,7 +2171,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     </section>
 
     <section id="songRankingPage" class="page">
-      <p class="section-note">Le classifiche amministrative/membri raccolgono <strong>Brani</strong>, <strong>Fan</strong> e <strong>Concerti</strong>. Per i fan e gli ospiti restano invece governate dal permesso <strong>rankings_view</strong> del Setup.</p>
+      <p class="section-note">Le classifiche amministrative/membri raccolgono <strong>Brani</strong>, <strong>Locandine</strong>, <strong>Fan</strong> e <strong>Concerti</strong>. Per i fan e gli ospiti restano invece governate dal permesso <strong>rankings_view</strong> del Setup.</p>
       <div class="member-rankings-tabs" id="memberRankingsTabs" role="tablist" aria-label="Classifiche"><button type="button" class="active" data-member-ranking-tab="songs">BRANI</button><button type="button" data-member-ranking-tab="posters">LOCANDINE</button><button type="button" data-member-ranking-tab="fans">FAN</button><button type="button" data-member-ranking-tab="concerts">CONCERTI</button></div>
       <section class="panel member-ranking-panel active" data-member-ranking-panel="songs"><div class="panel-header"><h2>CLASSIFICA BRANI</h2><span id="songRankingCounter" class="counter"></span></div><div id="songRankingList" class="admin-ranking-scroll"></div></section>
       <section class="panel member-ranking-panel" data-member-ranking-panel="posters"><div class="panel-header"><h2>CLASSIFICA LOCANDINE</h2><span id="memberPosterRankingCounter" class="counter"></span></div><div id="memberPosterRankingList" class="admin-ranking-scroll"></div></section>
@@ -2110,7 +2292,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.9.3</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.9.4</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanPostersPage">LOCANDINE</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -2128,7 +2310,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
   <nav class="fan-bottom-nav"><button class="active" data-guest-page="guestConcertsPage">CONCERTI</button><button data-guest-page="guestRankingsPage">CLASSIFICHE</button><button data-guest-page="guestAnalyticsPage">STATISTICHE</button></nav>
   <main class="fan-main">
     <section id="guestConcertsPage" class="page active"><div class="fan-hero"><h2>Concerti</h2><div class="section-note">Consulta concerti e locandine. La scaletta dei live futuri compare automaticamente dall'orario di inizio. I private show sono raccolti nella scheda dedicata.</div></div><div class="concert-browser-toolbar"><div class="concert-scope-tabs"><button type="button" class="concert-scope-tab active" data-concert-owner="guest" data-concert-scope="public">PUBBLICI</button><button type="button" class="concert-scope-tab" data-concert-owner="guest" data-concert-scope="private">PRIVATE SHOW</button></div><div class="concert-view-switch" data-concert-view-owner="guest"><button type="button" class="active" data-concert-view="list">ELENCO</button><button type="button" data-concert-view="gallery">GALLERIA</button></div></div><div id="guestConcertList" class="list panel"></div><div id="guestPrivateConcertList" class="list panel" hidden></div><div id="guestConcertDetail" class="concert-detail-overlay-host" style="margin-top:8px"></div></section>
-    <section id="guestRankingsPage" class="page"><div class="rankings-grid"><section class="panel"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="guestFanRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="guestSongRanking" class="list"></div></section><section class="panel"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="guestConcertRanking" class="list"></div></section></div></section>
+    <section id="guestRankingsPage" class="page"><div class="rankings-grid guest-rankings-grid"><section class="panel" data-fan-ranking-kind="fans"><div class="panel-header"><h2>CLASSIFICA FAN</h2></div><div id="guestFanRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="songs"><div class="panel-header"><h2>CLASSIFICA CANZONI</h2></div><div id="guestSongRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="posters"><div class="panel-header"><h2>CLASSIFICA LOCANDINE</h2></div><div id="guestPosterRanking" class="list"></div></section><section class="panel" data-fan-ranking-kind="concerts"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2></div><div id="guestConcertRanking" class="list"></div></section></div></section>
     <section id="guestAnalyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Repertorio e storia live dei Molesti, consultabili anche senza registrazione.</div></div><div id="guestAnalyticsContent"></div></section>
   </main>
 </section>
@@ -2196,7 +2378,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.9.3";
+const APP_VERSION="v4.9.4";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -3323,7 +3505,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.9.3 — lo scroll è governato solo dal CSS.
+/* v4.9.4 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3763,7 +3945,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.9.3 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.9.4 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -4938,7 +5120,7 @@ setMemberRankingTab('songs');
       const {error:dbErr}=await sb.from("songs").update({cover_path:newPath,updated_at:new Date().toISOString()}).eq("id",id);if(dbErr){if(file&&newPath)await sb.storage.from("concert-posters").remove([newPath]);throw dbErr}
       if(oldPath&&oldPath!==newPath)await sb.storage.from("concert-posters").remove([oldPath]);
       song.cover_path=newPath;$("editSongCoverPath").value=newPath||"";input.value="";v481RenderCoverPreview(newPath,song.title);$("songAutoSaveStatus").textContent="Cover salvata ✓";renderCatalog();renderSongRanking()
-    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.9.3.sql in Supabase.")}
+    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.9.4.sql in Supabase.")}
   }
   $("editSongCover")?.addEventListener("change",v481SaveSongCover);$("editSongCoverRemove")?.addEventListener("click",()=>{v481SaveSongCover.removeRequested=true;v481SaveSongCover()});
 
@@ -5280,24 +5462,28 @@ setMemberRankingTab('songs');
 
   async function saveMemberPosterVote(posterId,value,scale,status){
     const n=Number(value);
+    if(!currentUser?.id){if(status)status.textContent="Sessione membro non disponibile";return}
     if(!Number.isFinite(n)||n<1||n>10)return;
     paintRatingScale(scale,n,"saving");
     if(status)status.textContent="Salvataggio...";
     try{
-      const payload={poster_id:posterId,member_id:currentUser.id,score:n,updated_at:new Date().toISOString()};
-      const {error}=await sb.from("poster_member_votes").upsert(payload,{onConflict:"poster_id,member_id"});
+      const {error}=await sb.rpc("save_member_poster_vote",{p_poster_id:posterId,p_score:n});
       if(error)throw error;
-      const row=memberPosterRows.find(x=>String(x.poster_id)===String(posterId));if(row)row.my_member_score=n;
+      const row=memberPosterRows.find(x=>String(x.poster_id)===String(posterId));
+      if(row)row.my_member_score=n;
       paintRatingScale(scale,n,"ready");
       bindMemberPosterScale(posterId,scale,status);
-      if(status)status.textContent="Voto salvato ✓";
+      if(status)status.textContent=`Voto ${String(n).replace(".",",")} salvato ✓`;
       memberPosterCatalogLoaded=false;
       await loadMemberPosterRows(true);
       renderMemberPosterCatalog();
       renderMemberPosterRanking();
     }catch(err){
-      paintRatingScale(scale,"","ready");bindMemberPosterScale(posterId,scale,status);
-      if(status)status.textContent=err.message||"Errore";
+      console.error("[JM poster member vote]",err);
+      paintRatingScale(scale,"","ready");
+      bindMemberPosterScale(posterId,scale,status);
+      if(status)status.textContent=err?.message||"Errore nel salvataggio";
+      alert(err?.message||String(err));
     }
   }
   function bindMemberPosterScale(posterId,scale,status){
@@ -5321,23 +5507,23 @@ setMemberRankingTab('songs');
     if(!rows.length){box.innerHTML='<div class="empty">Nessuna locandina disponibile.</div>';return}
     box.innerHTML="";
     rows.forEach((r,index)=>{
-      const card=document.createElement("article");card.className="poster-catalog-card";
+      const card=document.createElement("article");card.className="poster-catalog-card";card.dataset.posterId=r.poster_id;
       const caption=String(r.caption||"").trim();
       card.innerHTML=`<div class="poster-catalog-image-wrap"><img class="poster-catalog-image" src="${esc(posterAssetUrl(r.storage_path))}" alt="Locandina ${esc(r.concert_name||"")}"><span class="poster-catalog-score">R ${posterScoreText(r.ranking_score)}</span></div>
         <div class="poster-catalog-body">
           <div><div class="poster-catalog-title">${esc(r.concert_name||"Concerto")}</div><div class="poster-catalog-meta">${esc(posterDateText(r.concert_date))} · ${esc(r.venue||r.city||"")}</div></div>
           ${isEma()?`<textarea class="poster-caption-editor" maxlength="500" placeholder="Didascalia...">${esc(caption)}</textarea><div class="poster-caption-status"></div>`:`<div class="poster-caption${caption?"":" is-empty"}">${esc(caption||"Nessuna didascalia.")}</div>`}
-          <div class="poster-vote-block"><div class="poster-vote-label"><span>IL MIO VOTO</span><span>Fan ${posterScoreText(r.fan_score)} · Band ${posterScoreText(r.member_score)}</span></div><div class="rating-scale poster-vote-scale">${ratingButtonsMarkup(r.my_member_score??"",false)}</div></div>
+          <div class="poster-vote-block"><div class="poster-vote-label"><span>IL MIO VOTO</span><span>Fan ${posterScoreText(r.fan_score)} · Band ${posterScoreText(r.member_score)}</span></div><div class="rating-scale poster-vote-scale">${ratingButtonsMarkup(r.my_member_score??"",false)}</div><div class="poster-vote-status"></div></div>
           <div class="poster-card-footer"><span>${Number(r.fan_vote_count||0)} voti fan · ${Number(r.member_vote_count||0)} membri</span><span>${Number(r.comment_count||0)} commenti</span></div>
         </div>`;
       card.querySelector(".poster-catalog-image-wrap").onclick=()=>openPosterGallery([r.storage_path],r.concert_name||"Locandina",0);
-      const scale=card.querySelector(".poster-vote-scale"),status=card.querySelector(".poster-caption-status");
-      bindMemberPosterScale(r.poster_id,scale,status);
+      const scale=card.querySelector(".poster-vote-scale"),voteStatus=card.querySelector(".poster-vote-status"),captionStatus=card.querySelector(".poster-caption-status");
+      bindMemberPosterScale(r.poster_id,scale,voteStatus);
       if(isEma()){
         const area=card.querySelector(".poster-caption-editor");
         let timer=null;
-        area.addEventListener("input",()=>{clearTimeout(timer);status.textContent="...";timer=setTimeout(()=>savePosterCaption(r.poster_id,area,status),650)});
-        area.addEventListener("blur",()=>{clearTimeout(timer);savePosterCaption(r.poster_id,area,status)});
+        area.addEventListener("input",()=>{clearTimeout(timer);if(captionStatus)captionStatus.textContent="...";timer=setTimeout(()=>savePosterCaption(r.poster_id,area,captionStatus),650)});
+        area.addEventListener("blur",()=>{clearTimeout(timer);savePosterCaption(r.poster_id,area,captionStatus)});
       }
       box.appendChild(card);
     });
@@ -5703,7 +5889,7 @@ setMemberRankingTab('songs');
     const list=$("songRankingList"),panel=list?.closest(".member-ranking-panel");
     const posterBox=$("memberPosterCatalogList");
     const data={
-      version:"v4.9.3",
+      version:"v4.9.4",
       ranking:{
         diag:window.__JM_RANKING_DIAG||null,
         counter:$("songRankingCounter")?.textContent||"",
@@ -5721,6 +5907,115 @@ setMemberRankingTab('songs');
       }
     };
     console.log("[JM_DEBUG]",data);
+    return data;
+  };
+})();
+</script>
+
+
+<script id="v4-9-4-runtime">
+(()=>{
+  const PUBLIC_RANKING_DEFS=[
+    ["fans","FAN"],
+    ["songs","CANZONI"],
+    ["posters","LOCANDINE"],
+    ["concerts","CONCERTI"]
+  ];
+
+  function publicPosterUrl(path){
+    return path?sb.storage.from("concert-posters").getPublicUrl(path).data?.publicUrl||"":"";
+  }
+  function publicPosterScore(v){
+    const n=Number(v);return Number.isFinite(n)?(n/10).toFixed(1):"—";
+  }
+  function renderPublicPosterRankingRows(rows,boxId,fanMode){
+    const box=$(boxId);if(!box)return;
+    const ranked=[...(rows||[])]
+      .filter(r=>Number(r.fan_vote_count||0)+Number(r.member_vote_count||0)>0)
+      .sort((a,b)=>Number(b.ranking_score??-1)-Number(a.ranking_score??-1));
+    box.innerHTML="";
+    ranked.forEach((r,i)=>{
+      const row=document.createElement("div");row.className="list-row";
+      row.innerHTML=`<div class="rank" style="width:24px">${i+1}</div><img class="poster-ranking-thumb" src="${esc(publicPosterUrl(r.storage_path))}" alt=""><div class="list-main"><div class="list-title">${esc(r.concert_name||"Concerto")}</div><div class="small-info">${esc(r.caption||formatDate(r.concert_date))}</div></div><strong>${publicPosterScore(r.ranking_score)}</strong>`;
+      row.querySelector("img").onclick=()=>{
+        if(fanMode&&typeof window.openFanPosterDetail==="function")window.openFanPosterDetail(r.poster_id);
+        else openPosterGallery([r.storage_path],r.concert_name||"Locandina",0);
+      };
+      box.appendChild(row);
+    });
+    if(!ranked.length)box.innerHTML='<div class="empty">Nessuna locandina ancora classificabile.</div>';
+  }
+
+  /* Classifiche FAN: una sola chiamata rankings fornisce anche le locandine. */
+  renderPublicRankings=async function(){
+    if(!canFan("rankings_view"))return;
+    try{
+      const data=await fanApi("rankings");
+      renderRankingData(data,"publicFanRanking","publicSongRanking","publicConcertRanking",openPublicConcert);
+      renderPublicPosterRankingRows(data.posters||[],"publicPosterRanking",true);
+    }catch(err){
+      ["publicFanRanking","publicSongRanking","publicPosterRanking","publicConcertRanking"].forEach(id=>{
+        if($(id))$(id).innerHTML=`<div class="empty">Errore caricamento: ${esc(err.message)}</div>`;
+      });
+    }
+  };
+
+  /* Classifiche OSPITE: stesse quattro tipologie, locandine in sola lettura. */
+  renderGuestRankings=async function(){
+    if(!canGuest("rankings_view"))return;
+    try{
+      const data=await fanApi("rankings",{guest:true});
+      renderRankingData(data,"guestFanRanking","guestSongRanking","guestConcertRanking",openGuestConcert);
+      renderPublicPosterRankingRows(data.posters||[],"guestPosterRanking",false);
+    }catch(err){
+      ["guestFanRanking","guestSongRanking","guestPosterRanking","guestConcertRanking"].forEach(id=>{
+        if($(id))$(id).innerHTML=`<div class="empty">Errore caricamento: ${esc(err.message)}</div>`;
+      });
+    }
+  };
+
+  function rebuildRankingSwitch(pageId){
+    const page=$(pageId);if(!page)return;
+    page.querySelectorAll('.mobile-section-subnav[data-kind="rankings"]').forEach(x=>x.remove());
+    const grid=page.querySelector(".rankings-grid");
+    const panels=[...(grid?.querySelectorAll(":scope>.panel")||[])];
+    if(!grid||!panels.length)return;
+    const nav=document.createElement("div");
+    nav.className="mobile-section-subnav";
+    nav.dataset.kind="rankings";
+    const apply=key=>{
+      panels.forEach(p=>p.classList.toggle("mobile-subview-active",p.dataset.fanRankingKind===key));
+      nav.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.key===key));
+    };
+    PUBLIC_RANKING_DEFS.forEach(([key,label],i)=>{
+      const b=document.createElement("button");
+      b.type="button";b.dataset.key=key;b.textContent=label;
+      b.classList.toggle("active",i===0);
+      b.onclick=()=>apply(key);
+      nav.appendChild(b);
+    });
+    page.insertBefore(nav,grid);
+    apply("fans");
+  }
+  rebuildRankingSwitch("fanRankingsPage");
+  rebuildRankingSwitch("guestRankingsPage");
+
+  /* Debug mirato SETUP, se dovesse restare una sezione vuota. */
+  window.JM_DEBUG_SETUP=()=>{
+    const active=$("setupPage")?.querySelector(".setup-section:not([hidden])");
+    const data={
+      tab:active?.dataset.setupSection||null,
+      pageHeight:$("setupPage")?.getBoundingClientRect?.().height??null,
+      sectionHeight:active?.getBoundingClientRect?.().height??null,
+      sectionDisplay:active?getComputedStyle(active).display:null,
+      labelRows:$("songLabelSetupList")?.children?.length??null,
+      scoreRows:$("numericSettingsList")?.children?.length??null,
+      parameterRows:$("technicalSettingsList")?.children?.length??null,
+      venueRows:$("venueList")?.children?.length??null,
+      permissionRows:$("permissionMatrix")?.children?.length??null,
+      fanLogRows:$("fanOperationLog")?.children?.length??null
+    };
+    console.log("[JM_DEBUG_SETUP]",data);
     return data;
   };
 })();
