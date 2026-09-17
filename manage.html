@@ -1677,6 +1677,60 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 @media(max-width:430px){.concert-gallery-grid{grid-template-columns:1fr 1fr}.concert-gallery-media{aspect-ratio:1/1}}
 </style>
 
+
+<style id="v4-8-2-fixes">
+/* V4.8.2 — fix ranking/mobile query, cover alignment, setup compattato */
+
+/* SETUP: la categoria è già selezionata nell'header, quindi la barra con il solo bottone SETUP è ridondante. */
+#memberApp:has(#memberCategoryNav [data-member-category="setup"].active) > .member-subnav{
+  display:none!important;
+}
+#setupPage>.setup-tabs{margin-top:0!important}
+.setup-labels-header{align-items:center!important}
+.setup-labels-header .panel-header-actions{min-width:0;flex-wrap:wrap;justify-content:flex-end}
+.setup-label-scope-inline{
+  display:flex!important;
+  margin:0!important;
+  padding:2px!important;
+  gap:2px!important;
+  border-radius:9px!important;
+  background:rgba(17,21,29,.38)!important
+}
+.setup-label-scope-inline .label-scope-tab{
+  min-height:27px!important;
+  padding:5px 9px!important;
+  font-size:7px!important;
+  border-radius:7px!important
+}
+
+/* Catalogo: tutte le righe riservano lo stesso spazio alla cover. */
+.song-cover-thumb.song-cover-placeholder{
+  display:block;
+  visibility:hidden;
+  border-color:transparent!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  pointer-events:none
+}
+
+/* Anche in classifica manteniamo l'identità allineata quando manca una cover. */
+.ranking-song-identity{
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  min-width:0
+}
+.ranking-song-copy{min-width:0}
+
+@media(max-width:720px){
+  .setup-labels-header{align-items:flex-start!important}
+  .setup-labels-header .panel-header-actions{width:auto;max-width:70%}
+  .setup-label-scope-inline{overflow-x:auto!important;max-width:100%}
+  .ranking-song-identity{grid-template-columns:32px minmax(0,1fr)}
+}
+</style>
+
 </head>
 <body>
 
@@ -1726,7 +1780,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.8.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -1852,7 +1906,6 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <section id="analyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Una panoramica del repertorio e della storia live: annate, durate, artisti, territori, scalette e tipologie di venue.</div></div><div id="memberAnalyticsContent"></div></section>
 
     <section id="setupPage" class="page">
-      <div class="fan-hero"><h2>Setup</h2><div class="section-note">Configurazione amministrativa. Le modifiche vengono salvate automaticamente.</div></div>
       <div class="setup-tabs">
         <button type="button" class="setup-tab active" data-setup-tab="labels">ETICHETTE</button>
         <button type="button" class="setup-tab" data-setup-tab="scores">PUNTEGGI</button>
@@ -1862,11 +1915,16 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
         <button type="button" class="setup-tab" data-setup-tab="fanlog">LOG</button>
       </div>
       <section class="panel setup-section" data-setup-section="labels">
-        <div class="panel-header"><h2>GESTIONE ETICHETTE</h2><span id="songLabelCounter" class="counter"></span></div>
-        <div class="label-scope-tabs" role="tablist" aria-label="Tipo etichette">
-          <button type="button" class="label-scope-tab active" data-label-scope="song">CANZONI</button>
-          <button type="button" class="label-scope-tab" data-label-scope="fan">FAN</button>
-          <button type="button" class="label-scope-tab" data-label-scope="setlist">SCALETTE</button>
+        <div class="panel-header setup-labels-header">
+          <h2>GESTIONE ETICHETTE</h2>
+          <div class="panel-header-actions">
+            <div class="label-scope-tabs setup-label-scope-inline" role="tablist" aria-label="Tipo etichette">
+              <button type="button" class="label-scope-tab active" data-label-scope="song">CANZONI</button>
+              <button type="button" class="label-scope-tab" data-label-scope="fan">FAN</button>
+              <button type="button" class="label-scope-tab" data-label-scope="setlist">SCALETTE</button>
+            </div>
+            <span id="songLabelCounter" class="counter"></span>
+          </div>
         </div>
         <div id="songLabelSetupList" class="label-setup-list"></div>
       </section>
@@ -1907,7 +1965,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.1</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.8.2</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -1992,7 +2050,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.8.1";
+const APP_VERSION="v4.8.2";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -3119,7 +3177,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.8.1 — lo scroll è governato solo dal CSS.
+/* v4.8.2 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3559,7 +3617,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.8.1 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.8.2 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -4734,7 +4792,7 @@ setMemberRankingTab('songs');
       const {error:dbErr}=await sb.from("songs").update({cover_path:newPath,updated_at:new Date().toISOString()}).eq("id",id);if(dbErr){if(file&&newPath)await sb.storage.from("concert-posters").remove([newPath]);throw dbErr}
       if(oldPath&&oldPath!==newPath)await sb.storage.from("concert-posters").remove([oldPath]);
       song.cover_path=newPath;$("editSongCoverPath").value=newPath||"";input.value="";v481RenderCoverPreview(newPath,song.title);$("songAutoSaveStatus").textContent="Cover salvata ✓";renderCatalog();renderSongRanking()
-    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.8.1.sql in Supabase.")}
+    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.8.2.sql in Supabase.")}
   }
   $("editSongCover")?.addEventListener("change",v481SaveSongCover);$("editSongCoverRemove")?.addEventListener("click",()=>{v481SaveSongCover.removeRequested=true;v481SaveSongCover()});
 
@@ -4760,6 +4818,221 @@ setMemberRankingTab('songs');
 
   /* Riallinea subito eventuali viste già renderizzate. */
   try{renderConcerts()}catch{};try{renderCatalog()}catch{};try{renderSongRanking()}catch{};
+})();
+</script>
+
+
+<script id="v4-8-2-runtime">
+/* ==========================================================
+   V4.8.2 — fix scope MOBILE_QUERY / ranking / cover / setup
+========================================================== */
+(()=>{
+  const v482MobileQuery=window.matchMedia("(max-width:720px)");
+
+  /* Cover art: il salvataggio DB/storage è separato dal refresh grafico.
+     Un eventuale errore di rendering non deve più far credere che l'upload sia fallito. */
+  if(typeof v481SaveSongCover==="function"){
+    /* La funzione V4.8.1 è locale al suo IIFE e non è raggiungibile qui.
+       Il listener viene quindi sostituito direttamente sugli elementi. */
+  }
+
+  async function v482SaveSongCover(){
+    const id=$("editSongId")?.value;if(!id)return;
+    const song=songs.find(s=>String(s.id)===String(id));if(!song)return;
+    const input=$("editSongCover"),removeBtn=$("editSongCoverRemove");
+    const file=input?.files?.[0]||null;
+    const remove=removeBtn?.dataset.removeRequested==="1";
+    if(removeBtn)delete removeBtn.dataset.removeRequested;
+    const oldPath=$("editSongCoverPath")?.value||song.cover_path||null;
+    if(file&&!String(file.type||"").startsWith("image/")){
+      input.value="";return alert("La cover art deve essere un'immagine.");
+    }
+    if(!file&&!remove)return;
+
+    $("songAutoSaveStatus").textContent="Salvataggio cover...";
+    let newPath=oldPath,uploadedPath=null;
+    try{
+      if(file){
+        const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+        const safe=(file.name.replace(/\.[^.]+$/,"").replace(/[^a-zA-Z0-9_-]+/g,"-").slice(0,40)||"cover");
+        newPath=`song-covers/${id}/${Date.now()}-${safe}.${ext}`;
+        uploadedPath=newPath;
+        const {error:upErr}=await sb.storage.from("concert-posters").upload(newPath,file,{contentType:file.type||undefined,upsert:false});
+        if(upErr)throw upErr;
+      }else if(remove){
+        newPath=null;
+      }
+
+      /* Non inviamo updated_at qui: il resto dell'editor può gestirlo,
+         mentre la cover richiede soltanto la colonna cover_path. */
+      const {error:dbErr}=await sb.from("songs").update({cover_path:newPath}).eq("id",id);
+      if(dbErr){
+        if(uploadedPath)await sb.storage.from("concert-posters").remove([uploadedPath]);
+        throw dbErr;
+      }
+
+      if(oldPath&&oldPath!==newPath){
+        const {error:rmErr}=await sb.storage.from("concert-posters").remove([oldPath]);
+        if(rmErr)console.warn("Vecchia cover non rimossa:",rmErr);
+      }
+
+      song.cover_path=newPath;
+      if($("editSongCoverPath"))$("editSongCoverPath").value=newPath||"";
+      if(input)input.value="";
+      if(typeof v481RenderCoverPreview==="function")v481RenderCoverPreview(newPath,song.title);
+      else{
+        const box=$("editSongCoverPreview");
+        if(box){box.innerHTML=newPath?`<img src="${esc(sb.storage.from("concert-posters").getPublicUrl(newPath).data?.publicUrl||"")}" alt="${esc(song.title||"Cover art")}">`:"";box.classList.toggle("hidden",!newPath)}
+      }
+      $("songAutoSaveStatus").textContent="Cover salvata ✓";
+
+      /* Refresh grafico isolato: non trasforma il salvataggio riuscito in un falso errore. */
+      try{renderCatalog()}catch(err){console.error("Refresh catalogo dopo cover:",err)}
+      try{renderSongRanking()}catch(err){console.error("Refresh classifica dopo cover:",err)}
+    }catch(err){
+      $("songAutoSaveStatus").textContent="Errore cover";
+      alert(err?.message||String(err));
+    }
+  }
+
+  /* Rimuove i listener V4.8.1 sostituendo fisicamente i due controlli,
+     così ogni azione genera un solo salvataggio. */
+  const coverInput=$("editSongCover");
+  if(coverInput){
+    const clone=coverInput.cloneNode(true);
+    coverInput.replaceWith(clone);
+    clone.addEventListener("change",v482SaveSongCover);
+  }
+  const coverRemove=$("editSongCoverRemove");
+  if(coverRemove){
+    const clone=coverRemove.cloneNode(true);
+    coverRemove.replaceWith(clone);
+    clone.addEventListener("click",()=>{
+      clone.dataset.removeRequested="1";
+      v482SaveSongCover();
+    });
+  }
+
+  /* Catalogo: cover a sinistra per tutti; se assente, spazio vuoto identico. */
+  const v482BaseRenderCatalog=renderCatalog;
+  renderCatalog=function(){
+    v482BaseRenderCatalog();
+    document.querySelectorAll("#catalogList .member-catalog-row[data-song-id]").forEach(row=>{
+      const song=songs.find(s=>String(s.id)===String(row.dataset.songId));
+      const main=row.querySelector(".list-main");if(!main)return;
+      main.classList.add("song-cover-layout");
+      main.querySelector(":scope > .song-cover-thumb")?.remove();
+
+      if(song?.cover_path){
+        const img=document.createElement("img");
+        img.className="song-cover-thumb";
+        img.src=sb.storage.from("concert-posters").getPublicUrl(song.cover_path).data?.publicUrl||"";
+        img.alt="";
+        img.title="Cover art";
+        img.onclick=e=>{e.stopPropagation();openPosterGallery([song.cover_path],song.title,0)};
+        main.prepend(img);
+      }else{
+        const placeholder=document.createElement("span");
+        placeholder.className="song-cover-thumb song-cover-placeholder";
+        placeholder.setAttribute("aria-hidden","true");
+        main.prepend(placeholder);
+      }
+    });
+  };
+
+  /* Classifica: MOBILE_QUERY della V4.7.4 era locale al vecchio IIFE.
+     Qui usiamo una MediaQueryList esplicitamente locale e sempre disponibile. */
+  renderSongRanking=function(){
+    const box=$("songRankingList");if(!box)return;
+    const mode=(v482MobileQuery.matches?window.v474MemberRankingMode:"r");
+    const activeRows=activeSongs().map(song=>{
+      const scores=scoreRow(song.id)||{};
+      return {...scores,...song,song_id:song.id,title:song.title,__setlist:getScore(song.id,"setlist")};
+    });
+
+    const canonical=[...activeRows].sort((a,b)=>
+      mode==="s"
+        ? b.__setlist-a.__setlist
+        : Number(b.ranking_score??b.score??0)-Number(a.ranking_score??a.score??0)
+    );
+    const rankMap=new Map(canonical.map((r,i)=>[r.song_id,i+1]));
+    activeRows.forEach(r=>r.__rank=rankMap.get(r.song_id)||9999);
+
+    const val=(r,key)=>
+      key==="rank"?r.__rank:
+      key==="score"?Number(r.ranking_score??r.score??0):
+      key==="title"?r.title:
+      key==="fan"?Number(r.fan_score??0):
+      key==="band"?Number(r.member_score??0):
+      key==="popularity"?Number(r.popularity_score??0):
+      key==="setlist"?r.__setlist:null;
+
+    if(v482MobileQuery.matches){
+      adminSongRankingSort.key=mode==="s"?"setlist":"score";
+      adminSongRankingSort.dir="desc";
+    }
+    activeRows.sort((a,b)=>compareAdminValues(val(a,adminSongRankingSort.key),val(b,adminSongRankingSort.key),adminSongRankingSort.dir));
+
+    box.innerHTML=`<div class="ranking-row header-row">
+      <div>${adminSortHeader("#","rank",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("R","score",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("Brano","title",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("Fan","fan",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("Band","band",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("Pop.","popularity",adminSongRankingSort)}</div>
+      <div>${adminSortHeader("S","setlist",adminSongRankingSort)}</div>
+    </div>`;
+
+    activeRows.forEach(r=>{
+      const row=document.createElement("div");
+      row.className="ranking-row";
+      row.dataset.songId=r.song_id;
+      const badges=songRankingBadges(r,r.__rank-1,canonical,null);
+      const canOpen=isEma()||canMember("song_detail_view");
+      const cover=r.cover_path
+        ? `<img class="song-cover-thumb" src="${esc(sb.storage.from("concert-posters").getPublicUrl(r.cover_path).data?.publicUrl||"")}" alt="">`
+        : `<span class="song-cover-thumb song-cover-placeholder" aria-hidden="true"></span>`;
+
+      row.innerHTML=`<div class="rank">${r.__rank}</div>
+        <div>${scoreBadge(r.song_id,"ranking")}</div>
+        <div class="ranking-title-cell">
+          <div class="ranking-song-identity">
+            ${cover}
+            <div class="ranking-song-copy">
+              <div class="ranking-title-line">
+                <span class="list-title${canOpen?" detail-link":""}">${esc(r.title)}</span>
+                ${badgesHtml(badges)}
+              </div>
+              ${rankingArtistsHtml(r)}
+            </div>
+          </div>
+        </div>
+        <div>${r.fan_score==null?"—":(Number(r.fan_score)/10).toFixed(1)}</div>
+        <div>${r.member_score==null?"—":(Number(r.member_score)/10).toFixed(1)}</div>
+        <div>${r.popularity_score==null?"—":Number(r.popularity_score).toFixed(1)}</div>
+        <div>${r.__setlist.toFixed(0)}</div>`;
+
+      if(canOpen)row.querySelector(".detail-link").onclick=()=>memberSongDetail(r);
+      box.appendChild(row);
+    });
+
+    box.querySelectorAll(".sort-head").forEach(btn=>{
+      btn.onclick=()=>{
+        toggleAdminRankingSort(adminSongRankingSort,btn.dataset.sort);
+        renderSongRanking();
+      };
+    });
+    $("songRankingCounter").textContent=`${activeRows.length} brani`;
+    if(!activeRows.length)box.insertAdjacentHTML("beforeend",'<div class="empty">Nessun brano attivo in classifica.</div>');
+  };
+
+  v482MobileQuery.addEventListener?.("change",()=>{
+    if($("songRankingPage")?.classList.contains("active"))renderSongRanking();
+  });
+
+  /* Ridisegna le viste già aperte senza interrompere il caricamento globale. */
+  try{renderCatalog()}catch(err){console.error(err)}
+  try{renderSongRanking()}catch(err){console.error(err)}
 })();
 </script>
 
