@@ -1,270 +1,240 @@
 <!doctype html>
-<html lang="it" data-theme="dark">
+<html lang="it">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0b0b0b">
-  <title>John & i Molesti</title>
-  <meta name="description" content="Sito pubblico dei John & i Molesti: live, repertorio, classifiche e attività della band.">
-  <link rel="stylesheet" href="./assets/public/public.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./assets/shared/supabase-config.js"></script>
-  <script src="./assets/public/public.js" defer></script>
-  <script src="./assets/public/public-admin.js" defer></script>
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="John & i Molesti — canzoni italiane su basi punk rock. Concerti, classifiche, band e area fan." data-copy-content="global.001">
+  <title data-copy="global.title">John &amp; i Molesti</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/public.css?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/copy-core.js?v=3" defer></script>
+  <script src="js/copy-catalog.js?v=4" defer></script>
+  <script src="js/site-editor.js?v=3" defer></script>
+  <script src="js/public.js?v=5" defer></script>
+<link rel="stylesheet" href="css/site-editor.css?v=3">
+<link rel="stylesheet" href="css/public-updates.css?v=5">
 </head>
-<body class="public-site">
-  <a class="jm-skip" href="#jm-main">Vai al contenuto</a>
+<body>
+  <a class="skip-link" href="#contentStage" data-copy="global.002">Salta al contenuto</a>
+  <div class="edition-strip"><span data-copy="global.003">ITALIAN BEAT / PUNK ROCK</span><span data-copy="global.004">EST. 2025 — VOLUME AL MASSIMO</span></div>
+  <div class="site-noise" aria-hidden="true"></div>
+  <div class="site-glow site-glow-a" aria-hidden="true"></div>
+  <div class="site-glow site-glow-b" aria-hidden="true"></div>
 
-  <header class="jm-header">
-    <a class="jm-brand" href="#/" data-route="home" aria-label="Home John & i Molesti">
-      <span class="jm-mark" aria-hidden="true">JM</span>
-      <span class="jm-brand-copy">
-        <strong data-content-key="brand.name">JOHN & I MOLESTI</strong>
-        <small data-content-key="brand.kicker">PUNK ROCK REVIVAL</small>
-      </span>
+  <header class="site-header" id="siteHeader">
+    <a class="brand-lockup" href="#/home" aria-label="John & i Molesti — Home" data-copy-aria-label="global.005">
+      <span class="brand-mark" aria-hidden="true"><img src="IMG_6259.PNG" alt=""></span>
+      <span class="brand-copy"><strong><span data-copy="global.006">John &amp; i Molesti</span></strong><small data-copy="global.008">ITALIAN BEAT · PUNK ROCK</small></span>
     </a>
 
-    <nav class="jm-desktop-nav" aria-label="Navigazione principale">
-      <button type="button" data-route="home" class="is-active"><span data-content-key="nav.home">Home</span></button>
-      <button type="button" data-route="live"><span data-content-key="nav.live">Live</span></button>
-      <button type="button" data-route="songs"><span data-content-key="nav.songs">Brani</span></button>
-      <button type="button" data-route="rankings"><span data-content-key="nav.rankings">Classifiche</span></button>
-      <button type="button" data-route="band"><span data-content-key="nav.band">La band</span></button>
+    <nav class="main-nav" id="mainNav" aria-label="Navigazione principale" data-copy-aria-label="global.009">
+      <button class="nav-item active" data-route="home" type="button"><span data-copy="global.010">HOME</span></button>
+      <button class="nav-item" data-route="tour" type="button"><span data-copy="global.011">LIVE</span></button>
+      <button class="nav-item" data-route="rankings" type="button"><span data-copy="global.012">CLASSIFICHE</span></button>
+      <button class="nav-item" data-route="band" type="button"><span data-copy="global.013">BAND</span></button>
+      <button class="nav-item" data-route="more" type="button"><span data-copy="global.014">BACKSTAGE</span></button>
     </nav>
 
-    <div class="jm-header-actions">
-      <button class="jm-icon-button" id="themeToggle" type="button" aria-label="Cambia tema" title="Cambia tema">
-        <span aria-hidden="true">◐</span>
-      </button>
-      <button class="jm-account-button" id="accountButton" type="button" aria-haspopup="dialog" aria-controls="accountSheet">
-        <span class="jm-account-dot" id="accountDot"></span>
-        <span id="accountLabel">Ospite</span>
-      </button>
-    </div>
+    <button class="user-entry" id="userEntry" type="button" aria-haspopup="dialog">
+      <span class="user-dot" id="userDot" aria-hidden="true"></span>
+      <span class="user-entry-copy"><small id="userEyebrow">AREA UTENTE</small><strong id="userLabel">LOGIN</strong></span>
+    </button>
   </header>
 
-  <div class="jm-adminbar" id="adminBar" hidden>
-    <div>
-      <strong>MODIFICA SITO</strong>
-      <span id="adminBarStatus">Modalità admin attiva</span>
-    </div>
-    <div class="jm-adminbar-actions">
-      <button class="jm-button jm-button-ghost" type="button" id="toggleEditMode">Modifica elementi</button>
-      <button class="jm-button jm-button-ghost" type="button" id="adminLogoutTop">Esci admin</button>
-    </div>
+  <div class="desktop-frame">
+    <aside class="desktop-rail desktop-rail-left" aria-label="In evidenza" data-copy-aria-label="global.017">
+      <section class="rail-card rail-card-next" id="railNextShow">
+        <span class="rail-kicker" data-copy="ui.bab62916c3bf">NEXT SHOW</span>
+        <div class="rail-loading" data-copy="global.019">Caricamento…</div>
+      </section>
+      <section class="rail-card rail-manifesto">
+        <span class="rail-kicker" data-copy="global.020">MANIFESTO</span>
+        <p data-copy="global.021">Testi italiani. Basi punk. Volumi indecenti.</p>
+        <span class="rail-stamp" data-copy="global.022">DAL 2025</span>
+      </section>
+    </aside>
+
+    <main class="content-stage" id="contentStage" tabindex="-1">
+      <section class="page active" id="homePage" data-page="home">
+        <section class="hero glass-card">
+          <div class="hero-copy">
+            <h1><span class="title-john" data-copy="home.002">JOHN</span><span class="title-and" data-copy="home.003">&amp; I</span><span class="title-molesti" data-copy="home.004">MOLESTI</span></h1>
+            <p class="hero-lead" data-copy="home.005">Classici italiani, soprattutto anni ’60, rivisitati in chiave punk. Cover e mash-up da cantare insieme.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" type="button" data-go="tour" data-copy="home.006">PROSSIMI LIVE</button>
+              <button class="btn btn-ghost" type="button" data-go="rankings" data-copy="home.007">VEDI LE CLASSIFICHE</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="highlights" aria-label="Concerti e novità" aria-roledescription="carosello">
+          <div class="highlights-heading"><h2>In programma & novità</h2><div class="highlights-controls"><button id="highlightPrev" type="button" aria-label="Precedente">←</button><span id="highlightCount" role="status"></span><button id="highlightNext" type="button" aria-label="Successivo">→</button></div></div>
+          <div id="highlightTrack" class="highlight-track" tabindex="0" aria-label="Scorri concerti e novità"><p>Caricamento…</p></div>
+        </section>
+        <section class="home-grid">
+          <article class="feature-card glass-card" id="homeNextShow">
+            <div class="section-kicker" data-copy="ui.a27114e657cc">PROSSIMO CONCERTO</div>
+            <div class="card-loading" data-copy="home.020">Caricamento live…</div>
+          </article>
+          <article class="feature-card glass-card ranking-preview" id="homeRankingPreview">
+            <div class="section-kicker" data-copy="ui.5b0d2517b8b5">HOT RIGHT NOW</div>
+            <div class="card-loading" data-copy="home.022">Caricamento classifica…</div>
+          </article>
+        </section>
+
+        <section class="home-media glass-card" id="homeMedia">
+          <div class="home-media-copy"><h2 data-copy="home.032">Dal palco</h2><p data-copy="home.034">Foto e locandine delle serate.</p><button class="btn btn-ghost" type="button" data-go="more" data-copy="home.035">GUARDA L’ARCHIVIO</button></div>
+          <div class="home-media-wall" id="homeMediaWall" aria-label="Anteprima foto e locandine" data-copy-aria-label="home.036"></div>
+        </section>
+        <section class="home-member-carousel glass-card hidden" id="homeMemberCarousel" aria-label="Foto dei membri della band">
+          <button class="member-carousel-nav" id="memberCarouselPrev" type="button" aria-label="Foto precedente">←</button>
+          <div class="member-carousel-stage" id="memberCarouselStage"></div>
+          <button class="member-carousel-nav" id="memberCarouselNext" type="button" aria-label="Foto successiva">→</button>
+        </section>
+      </section>
+
+      <section class="page" id="tourPage" data-page="tour">
+        <header class="page-hero compact-hero glass-card">
+          <div><span class="section-kicker" data-copy="tour.001">FROM THE RIVER TO THE FIELDS</span><h2 data-copy="tour.002">LIVE / TOUR</h2><p data-copy="tour.003">Prossime date, archivio concerti e scalette svelate quando il live parte.</p></div>
+          <div class="page-hero-ornament" data-copy="tour.004">TOUR</div>
+        </header>
+        <section class="content-section" id="upcomingBlock">
+          <div class="section-heading"><div><span class="section-kicker" data-copy="tour.005">NEXT</span><h3 data-copy="tour.006">Prossimi concerti</h3></div><span class="section-count" id="upcomingCount"></span></div>
+          <div class="concert-grid" id="upcomingConcerts"><div class="empty-state" data-copy="tour.007">Caricamento…</div></div>
+        </section>
+        <section class="content-section" id="archiveBlock">
+          <div class="section-heading"><div><span class="section-kicker" data-copy="tour.008">ARCHIVE</span><h3 data-copy="tour.009">Già molestati</h3></div><span class="section-count" id="pastCount"></span></div>
+          <div class="concert-list" id="pastConcerts"><div class="empty-state" data-copy="tour.010">Caricamento…</div></div>
+        </section>
+      </section>
+
+      <section class="page" id="rankingsPage" data-page="rankings">
+        <header class="page-hero compact-hero glass-card">
+          <div><span class="section-kicker" data-copy="rankings.001">NUMERI, VOTI, LIVE</span><h2 data-copy="rankings.002">CLASSIFICHE</h2><p data-copy="rankings.003">I brani più amati, i fan più presenti, le serate da ricordare.</p></div>
+          <div class="page-hero-ornament" data-copy="rankings.004">RANK</div>
+        </header>
+        <section class="ranking-stack">
+          <article class="ranking-panel glass-card" id="songsRankingBlock">
+            <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.005">01</span><h3 data-copy="rankings.006">Brani</h3></div><button class="text-button" data-expand-ranking="songs" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
+            <div class="ranking-list" id="songsRanking"><div class="empty-state" data-copy="rankings.008">Caricamento…</div></div>
+          </article>
+          <article class="ranking-panel glass-card" id="fansRankingBlock">
+            <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.009">02</span><h3 data-copy="rankings.010">Fan</h3></div><button class="text-button" data-expand-ranking="fans" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
+            <div class="ranking-list" id="fansRanking"><div class="empty-state" data-copy="rankings.012">Caricamento…</div></div>
+          </article>
+          <article class="ranking-panel glass-card" id="concertsRankingBlock">
+            <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.013">03</span><h3 data-copy="rankings.014">Concerti</h3></div><button class="text-button" data-expand-ranking="concerts" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
+            <div class="ranking-list" id="concertsRanking"><div class="empty-state" data-copy="rankings.016">Caricamento…</div></div>
+          </article>
+          <article class="ranking-panel glass-card" id="postersRankingBlock">
+            <div class="panel-heading"><div><span class="section-kicker">04</span><h3>Locandine</h3></div><button class="text-button" data-expand-ranking="posters" type="button">MOSTRA TUTTE</button></div>
+            <div class="ranking-list" id="postersRanking"><div class="empty-state">Caricamento…</div></div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" id="bandPage" data-page="band">
+        <header class="page-hero band-hero glass-card">
+          <div class="band-hero-copy"><span class="section-kicker" data-copy="band.001">5 PERSONE · UNA PESSIMA IDEA</span><h2 data-copy="band.002">LA BAND</h2><p data-copy="band.003">Prendiamo canzoni italiane che conoscono tutti e le facciamo correre molto più del dovuto.</p></div>
+          <img class="band-seal" src="IMG_6259.PNG" alt="Logo John & i Molesti" width="1280" height="1280" data-copy-alt="band.004">
+        </header>
+        <section class="content-section" id="membersBlock">
+          <div class="section-heading"><div><span class="section-kicker" data-copy="band.005">LINE-UP</span><h3 data-copy="band.006">I Molesti</h3></div><button class="text-button hidden" id="manageMemberPhotos" type="button">GESTISCI FOTO</button></div>
+          <div class="member-grid" id="memberGrid">
+            <article class="member-card glass-card"><span class="member-no" data-copy="band.007">01</span><div class="member-avatar" data-copy="band.008">E</div><h4 data-copy="band.009">EMA</h4><p><span data-copy="band.010">John &amp; i Molesti</span></p></article>
+            <article class="member-card glass-card"><span class="member-no" data-copy="band.012">02</span><div class="member-avatar" data-copy="band.013">K</div><h4 data-copy="band.014">KEKKO</h4><p><span data-copy="band.015">John &amp; i Molesti</span></p></article>
+            <article class="member-card glass-card"><span class="member-no" data-copy="band.017">03</span><div class="member-avatar" data-copy="band.018">G</div><h4 data-copy="band.019">GIANNI</h4><p><span data-copy="band.020">John &amp; i Molesti</span></p></article>
+            <article class="member-card glass-card"><span class="member-no" data-copy="band.022">04</span><div class="member-avatar" data-copy="band.023">C</div><h4 data-copy="band.024">CARLO</h4><p><span data-copy="band.025">John &amp; i Molesti</span></p></article>
+            <article class="member-card glass-card"><span class="member-no" data-copy="band.027">05</span><div class="member-avatar" data-copy="band.028">A</div><h4 data-copy="band.029">ALE</h4><p data-copy="band.030">aka Lazza</p></article>
+          </div>
+        </section>
+        <section class="content-section" id="conceptBlock">
+          <article class="concept-card glass-card">
+            <span class="section-kicker" data-copy="band.031">COME FUNZIONA</span>
+            <h3 data-copy="band.032">Una canzone italiana entra in un locale punk.</h3>
+            <p data-copy="band.033">Il testo rimane riconoscibile. La base cambia epoca, velocità e attitudine. Il risultato è familiare per qualche secondo, poi parte il pogo.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" id="morePage" data-page="more">
+        <header class="page-hero compact-hero glass-card">
+          <div><span class="section-kicker" data-copy="more.001">FOTO, MERCH, CONTATTI</span><h2 data-copy="more.002">BACKSTAGE</h2><p data-copy="more.003">Locandine, ricordi dal palco e tutto quello che succede attorno ai live.</p></div>
+          <div class="page-hero-ornament" data-copy="more.004">MORE</div>
+        </header>
+        <section class="more-grid">
+          <article class="gallery-card glass-card" id="galleryBlock">
+            <div class="gallery-heading"><div><span class="section-kicker" data-copy="more.005">ARCHIVIO VISIVO</span><h3><span data-copy="more.006">Foto &amp; locandine</span></h3></div><span id="galleryCount"></span></div>
+            <div class="media-gallery" id="mediaGallery"><div class="empty-state" data-copy="more.008">Caricamento archivio…</div></div>
+          </article>
+          <article class="more-card glass-card" id="merchBlock">
+            <span class="section-kicker" data-copy="more.009">MERCH</span><h3 data-copy="more.010">Offline, come piace a noi.</h3><p data-copy="more.011">Magliette e altre cattive idee. Quando c’è roba disponibile la trovi ai live: passa al banchetto.</p><div class="merch-stamp" data-copy="more.012">CHIEDI AL BANCHETTO</div>
+          </article>
+          <article class="more-card glass-card" id="contactsBlock">
+            <span class="section-kicker" data-copy="more.013">CONTATTI</span><h3 data-copy="more.014">Booking, serate, idee discutibili.</h3><p data-copy="more.015">Vuoi portarci sul tuo palco? Qui trovi i nostri canali, appena disponibili.</p><div class="contact-actions" id="contactActions"><span class="muted-inline" data-copy="ui.a020039b9031">Canali in aggiornamento.</span></div>
+          </article>
+          <article class="more-card glass-card management-card" id="managementBlock">
+            <span class="section-kicker" data-copy="more.017">AREA BAND</span><h3 data-copy="more.018">Gestionale completo.</h3><p data-copy="more.019">Scalette, catalogo, concerti e strumenti interni riservati a membri e admin.</p><a class="btn btn-ghost" href="manage.html" data-copy="more.020">APRI IL GESTIONALE</a>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <aside class="desktop-rail desktop-rail-right" aria-label="Azioni contestuali" data-copy-aria-label="global.023">
+      <section class="rail-card" id="contextRail"><span class="rail-kicker" data-copy="global.024">IN QUESTA PAGINA</span><div class="rail-links" id="contextRailLinks"></div></section>
+      <section class="rail-card member-rail hidden" id="memberRail"><span class="rail-kicker" data-copy="global.025">AREA BAND</span><strong id="memberRailName">Membro</strong><a class="rail-action" href="manage.html" data-copy="global.027">APRI GESTIONALE →</a></section>
+    </aside>
   </div>
 
-  <main id="jm-main" class="jm-main">
-    <section class="jm-page is-active" data-page="home" aria-labelledby="homeTitle">
-      <div class="jm-hero">
-        <div class="jm-hero-copy">
-          <p class="jm-eyebrow" data-content-key="home.hero.eyebrow">DAL VENETO, SENZA GRAZIA</p>
-          <h1 id="homeTitle" data-content-key="home.hero.title">JOHN & I MOLESTI</h1>
-          <p class="jm-hero-lead" data-content-key="home.hero.lead">Canzoni italiane, attitudine punk e amplificatori abbastanza alti.</p>
-          <div class="jm-hero-actions">
-            <button class="jm-button jm-button-primary" type="button" data-route="live"><span data-content-key="actions.live">Prossimi live</span></button>
-            <button class="jm-button" type="button" data-route="songs"><span data-content-key="actions.songs">Ascolta il repertorio</span></button>
-          </div>
-        </div>
-        <figure class="jm-hero-media jm-editable-image">
-          <img data-content-key="home.hero.image" data-content-type="image" src="" alt="John & i Molesti dal vivo">
-          <figcaption data-content-key="home.hero.caption">JOHN & I MOLESTI · LIVE</figcaption>
-        </figure>
-      </div>
-
-      <section class="jm-section" aria-labelledby="nextLiveHeading">
-        <div class="jm-section-head">
-          <div>
-            <p class="jm-eyebrow" data-content-key="home.live.eyebrow">PROSSIMA MOLESTIA</p>
-            <h2 id="nextLiveHeading" data-content-key="home.live.title">Il prossimo live</h2>
-          </div>
-          <button class="jm-text-button" type="button" data-route="live"><span data-content-key="actions.allLive">Tutti i live</span> →</button>
-        </div>
-        <div id="homeNextLive" class="jm-feature-live jm-loading">Caricamento…</div>
-      </section>
-
-      <section class="jm-section" aria-labelledby="homeSongsHeading">
-        <div class="jm-section-head">
-          <div>
-            <p class="jm-eyebrow" data-content-key="home.songs.eyebrow">REPERTORIO</p>
-            <h2 id="homeSongsHeading" data-content-key="home.songs.title">Brani in rotazione</h2>
-            <p data-content-key="home.songs.lead">Un po' di beat italiano, un po' di distorsione.</p>
-          </div>
-          <button class="jm-text-button" type="button" data-route="songs"><span data-content-key="actions.allSongs">Tutti i brani</span> →</button>
-        </div>
-        <div id="homeSongs" class="jm-song-strip"></div>
-      </section>
-
-      <section class="jm-section jm-overview" aria-labelledby="overviewHeading">
-        <div class="jm-section-head">
-          <div>
-            <p class="jm-eyebrow" data-content-key="home.overview.eyebrow">IN BREVE</p>
-            <h2 id="overviewHeading" data-content-key="home.overview.title">I Molesti in numeri</h2>
-          </div>
-        </div>
-        <div class="jm-kpi-grid" id="homeKpis">
-          <article class="jm-kpi"><strong>—</strong><span>BRANI</span></article>
-          <article class="jm-kpi"><strong>—</strong><span>LIVE</span></article>
-          <article class="jm-kpi"><strong>—</strong><span>FAN</span></article>
-        </div>
-      </section>
-    </section>
-
-    <section class="jm-page" data-page="live" aria-labelledby="liveTitle">
-      <header class="jm-page-head">
-        <p class="jm-eyebrow" data-content-key="live.eyebrow">DAL VIVO</p>
-        <h1 id="liveTitle" data-content-key="live.title">Live</h1>
-        <p data-content-key="live.lead">Prossime date e archivio dei concerti.</p>
-      </header>
-      <div class="jm-segmented" id="liveTabs" role="tablist" aria-label="Periodo live">
-        <button type="button" class="is-active" data-live-tab="future" role="tab"><span data-content-key="live.tab.future">Prossimi</span></button>
-        <button type="button" data-live-tab="past" role="tab"><span data-content-key="live.tab.past">Passati</span></button>
-      </div>
-      <div id="liveGrid" class="jm-live-grid jm-loading">Caricamento…</div>
-    </section>
-
-    <section class="jm-page" data-page="songs" aria-labelledby="songsTitle">
-      <header class="jm-page-head jm-page-head-split">
-        <div>
-          <p class="jm-eyebrow" data-content-key="songs.eyebrow">REPERTORIO</p>
-          <h1 id="songsTitle" data-content-key="songs.title">Brani</h1>
-          <p data-content-key="songs.lead">Il catalogo pubblico dei John & i Molesti.</p>
-        </div>
-        <label class="jm-search">
-          <span class="jm-visually-hidden">Cerca un brano</span>
-          <input id="songSearch" type="search" placeholder="Cerca un brano…" autocomplete="off">
-        </label>
-      </header>
-      <div id="songGrid" class="jm-song-grid jm-loading">Caricamento…</div>
-    </section>
-
-    <section class="jm-page" data-page="rankings" aria-labelledby="rankingsTitle">
-      <header class="jm-page-head">
-        <p class="jm-eyebrow" data-content-key="rankings.eyebrow">CLASSIFICHE</p>
-        <h1 id="rankingsTitle" data-content-key="rankings.title">Classifiche</h1>
-        <p data-content-key="rankings.lead">Brani, live e fan. Senza fogli Excel in vista.</p>
-      </header>
-      <div class="jm-segmented" id="rankingTabs" role="tablist" aria-label="Tipo classifica">
-        <button type="button" class="is-active" data-ranking-tab="songs"><span data-content-key="rankings.tab.songs">Brani</span></button>
-        <button type="button" data-ranking-tab="concerts"><span data-content-key="rankings.tab.live">Live</span></button>
-        <button type="button" data-ranking-tab="fans"><span data-content-key="rankings.tab.fans">Fan</span></button>
-      </div>
-      <div class="jm-ranking-list" id="rankingList"></div>
-    </section>
-
-    <section class="jm-page" data-page="band" aria-labelledby="bandTitle">
-      <div class="jm-band-layout">
-        <div class="jm-band-copy">
-          <p class="jm-eyebrow" data-content-key="band.eyebrow">JOHN & I MOLESTI</p>
-          <h1 id="bandTitle" data-content-key="band.title">La band</h1>
-          <p class="jm-band-lead" data-content-key="band.lead">Punk rock revival su materiale italiano che non aveva chiesto di esserlo.</p>
-          <p data-content-key="band.body">Cinque Molesti, canzoni italiane e basi punk rock. Il resto succede sul palco.</p>
-        </div>
-        <figure class="jm-band-photo jm-editable-image">
-          <img data-content-key="band.image" data-content-type="image" src="" alt="John & i Molesti">
-          <figcaption data-content-key="band.caption">JOHN & I MOLESTI</figcaption>
-        </figure>
-      </div>
-      <div class="jm-members" aria-label="Componenti della band">
-        <article><strong data-content-key="band.member.1.name">Kekko</strong><span data-content-key="band.member.1.role">Chitarra</span></article>
-        <article><strong data-content-key="band.member.2.name">Ema</strong><span data-content-key="band.member.2.role">Batteria</span></article>
-        <article><strong data-content-key="band.member.3.name">Gianni</strong><span data-content-key="band.member.3.role">Voce</span></article>
-        <article><strong data-content-key="band.member.4.name">Carlo</strong><span data-content-key="band.member.4.role">Basso</span></article>
-        <article><strong data-content-key="band.member.5.name">Ale Lazza</strong><span data-content-key="band.member.5.role">Chitarra</span></article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="jm-footer">
-    <div>
-      <strong data-content-key="footer.title">JOHN & I MOLESTI</strong>
-      <p data-content-key="footer.text">Punk Rock Revival · Veneto</p>
-    </div>
-    <small data-content-key="footer.note">© John & i Molesti</small>
+  <footer class="site-footer">
+    <div><strong><span data-copy="footer.001">JOHN &amp; I MOLESTI</span></strong><span data-copy="footer.003">Italian beat × punk rock</span></div>
+    <div class="footer-right"><a href="manage.html" data-copy="footer.004">Gestionale</a><span id="siteVersion">public v1.1</span></div>
   </footer>
 
-  <nav class="jm-mobile-nav" aria-label="Navigazione mobile">
-    <button type="button" data-route="home" class="is-active"><span>⌂</span><small data-content-key="nav.home">Home</small></button>
-    <button type="button" data-route="live"><span>●</span><small data-content-key="nav.live">Live</small></button>
-    <button type="button" data-route="songs"><span>♫</span><small data-content-key="nav.songs">Brani</small></button>
-    <button type="button" data-route="rankings"><span>≡</span><small data-content-key="nav.rankings">Classifiche</small></button>
-    <button type="button" data-route="band"><span>JM</span><small data-content-key="nav.band">Band</small></button>
-  </nav>
-
-  <div class="jm-sheet-backdrop" id="accountBackdrop" hidden></div>
-  <aside class="jm-sheet" id="accountSheet" aria-hidden="true" aria-label="Account">
-    <div class="jm-sheet-handle"></div>
-    <div class="jm-sheet-head">
-      <div>
-        <p class="jm-eyebrow">ACCOUNT</p>
-        <h2 id="sheetAccountName">Ospite</h2>
-      </div>
-      <button class="jm-icon-button" id="closeAccount" type="button" aria-label="Chiudi">×</button>
-    </div>
-    <div class="jm-account-panel" id="fanAccountPanel">
-      <p id="fanAccountStatus">Entra come fan per votare e segnare i live a cui hai partecipato.</p>
-      <button class="jm-button jm-button-primary" id="openFanLogin" type="button"><span data-content-key="actions.fanLogin">Entra come fan</span></button>
-      <button class="jm-button jm-button-ghost" id="fanLogout" type="button" hidden>Esci dal profilo fan</button>
-    </div>
-    <div class="jm-sheet-divider"></div>
-    <div class="jm-account-panel">
-      <p class="jm-small" data-content-key="admin.login.hint">Gestione dei soli contenuti del sito pubblico.</p>
-      <button class="jm-text-button" id="openAdminLogin" type="button">Accesso admin sito</button>
-    </div>
-  </aside>
-
-  <div class="jm-modal-backdrop" id="fanLoginModal" hidden>
-    <section class="jm-modal jm-modal-small" role="dialog" aria-modal="true" aria-labelledby="fanLoginTitle">
-      <button class="jm-modal-close" type="button" data-close-modal="fanLoginModal" aria-label="Chiudi">×</button>
-      <p class="jm-eyebrow">AREA FAN</p>
-      <h2 id="fanLoginTitle">Come ti chiami?</h2>
-      <p class="jm-muted">Ti riconosciamo su questo dispositivo senza chiederti una password.</p>
-      <label class="jm-field"><span>Nome o nickname</span><input id="fanNameInput" maxlength="40" autocomplete="nickname"></label>
-      <p class="jm-form-message" id="fanLoginMessage"></p>
-      <button class="jm-button jm-button-primary jm-button-full" id="fanLoginSubmit" type="button">Entra</button>
-    </section>
-  </div>
-
-  <div class="jm-modal-backdrop" id="adminLoginModal" hidden>
-    <section class="jm-modal jm-modal-small" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
-      <button class="jm-modal-close" type="button" data-close-modal="adminLoginModal" aria-label="Chiudi">×</button>
-      <p class="jm-eyebrow">ADMIN SITO</p>
-      <h2 id="adminLoginTitle">Modifica contenuti</h2>
-      <p class="jm-muted">Questo accesso modifica il sito pubblico. Non apre il gestionale.</p>
-      <label class="jm-field"><span>Username</span><input id="adminUsername" autocomplete="username"></label>
-      <label class="jm-field"><span>Password</span><input id="adminPassword" type="password" autocomplete="current-password"></label>
-      <p class="jm-form-message" id="adminLoginMessage"></p>
-      <button class="jm-button jm-button-primary jm-button-full" id="adminLoginSubmit" type="button">Accedi</button>
-    </section>
-  </div>
-
-  <div class="jm-modal-backdrop" id="contentEditorModal" hidden>
-    <section class="jm-modal" role="dialog" aria-modal="true" aria-labelledby="contentEditorTitle">
-      <button class="jm-modal-close" type="button" data-close-modal="contentEditorModal" aria-label="Chiudi">×</button>
-      <p class="jm-eyebrow">EDITOR SITO</p>
-      <h2 id="contentEditorTitle">Modifica elemento</h2>
-      <p class="jm-content-key" id="editorKey"></p>
-      <label class="jm-field" id="editorTextField"><span>Contenuto</span><textarea id="editorValue" rows="7"></textarea></label>
-      <div id="editorImageField" hidden>
-        <div class="jm-editor-preview"><img id="editorImagePreview" alt="Anteprima"></div>
-        <label class="jm-field"><span>URL immagine</span><input id="editorImageUrl" type="url"></label>
-        <label class="jm-field"><span>Oppure carica un file</span><input id="editorImageFile" type="file" accept="image/*"></label>
-      </div>
-      <p class="jm-form-message" id="editorMessage"></p>
-      <div class="jm-modal-actions">
-        <button class="jm-button jm-button-ghost" id="editorReset" type="button">Ripristina predefinito</button>
-        <button class="jm-button jm-button-primary" id="editorSave" type="button">Salva</button>
+  <div class="modal" id="userModal" hidden>
+    <div class="modal-backdrop" data-close-modal="userModal"></div>
+    <section class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
+      <header class="modal-head"><div><span class="section-kicker" data-copy="account.001">AREA UTENTE</span><h2 id="userModalTitle" data-copy="account.002">Entra</h2></div><button class="modal-close" type="button" data-close-modal="userModal" aria-label="Chiudi" data-copy-aria-label="account.003" data-copy="account.004">×</button></header>
+      <div class="modal-body" id="userModalBody">
+        <div class="login-switch" id="loginSwitch"><button class="active" type="button" data-login-mode="fan" data-copy="account.005">FAN</button><button type="button" data-login-mode="member" data-copy="account.006">BAND</button></div>
+        <form class="login-form" id="fanLoginForm">
+          <label><span data-copy="account.007">Come ti chiami?</span><input id="fanNameInput" maxlength="20" autocomplete="name" placeholder="Es. Marco" required data-copy-placeholder="account.008"></label>
+          <p data-copy="account.009">Non serve una password: questo dispositivo ti riconoscerà le prossime volte.</p>
+          <button class="btn btn-primary" type="submit" data-copy="account.010">ENTRA COME FAN</button>
+          <div class="form-message" id="fanLoginMessage"></div>
+        </form>
+        <form class="login-form hidden" id="memberLoginForm">
+          <label><span data-copy="account.011">Username</span><input id="memberUsernameInput" autocomplete="username" required></label>
+          <label><span data-copy="account.012">Password</span><input id="memberPasswordInput" type="password" autocomplete="current-password" required></label>
+          <button class="btn btn-primary" type="submit" data-copy="account.013">ACCEDI ALLA BAND</button>
+          <div class="form-message" id="memberLoginMessage"></div>
+        </form>
+        <div class="user-session hidden" id="userSessionPanel"></div>
       </div>
     </section>
   </div>
 
-  <div class="jm-modal-backdrop" id="detailModal" hidden>
-    <section class="jm-modal jm-modal-wide" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
-      <button class="jm-modal-close" type="button" data-close-modal="detailModal" aria-label="Chiudi">×</button>
-      <div id="detailModalBody"><div class="jm-empty">Caricamento…</div></div>
+  <div class="modal" id="concertModal" hidden>
+    <div class="modal-backdrop" data-close-modal="concertModal"></div>
+    <section class="modal-card concert-modal-card" role="dialog" aria-modal="true" aria-labelledby="concertModalTitle">
+      <header class="modal-head"><div><span class="section-kicker" id="concertModalKicker">LIVE</span><h2 id="concertModalTitle">Concerto</h2></div><button class="modal-close" type="button" data-close-modal="concertModal" aria-label="Chiudi" data-copy-aria-label="live.003" data-copy="live.004">×</button></header>
+      <div class="modal-body concert-modal-body" id="concertModalBody"><div class="empty-state" data-copy="live.005">Caricamento…</div></div>
     </section>
   </div>
 
-  <div class="jm-toast-stack" id="toastStack" aria-live="polite"></div>
-</body>
+  <div class="modal" id="fanAreaModal" hidden>
+    <div class="modal-backdrop" data-close-modal="fanAreaModal"></div>
+    <section class="modal-card fan-area-modal-card" role="dialog" aria-modal="true" aria-labelledby="fanAreaTitle">
+      <header class="modal-head"><div><span class="section-kicker" data-copy="account.014">AREA FAN</span><h2 id="fanAreaTitle" data-copy="account.015">Vota il catalogo</h2></div><button class="modal-close" type="button" data-close-modal="fanAreaModal" aria-label="Chiudi" data-copy-aria-label="account.016" data-copy="account.017">×</button></header>
+      <div class="fan-area-toolbar"><input id="fanCatalogSearch" type="search" placeholder="Cerca un brano…" data-copy-placeholder="account.018"><span id="fanCatalogCount"></span></div>
+      <div class="modal-body fan-catalog-list" id="fanCatalogList"><div class="empty-state" data-copy="account.019">Caricamento…</div></div>
+    </section>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+<button id="editSiteEntry" class="edit-site-entry" type="button" hidden>✎ MODIFICA SITO</button>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d2757adb2f6076',t:'MTc4OTc1NjYxNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
