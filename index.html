@@ -13,9 +13,9 @@
   <script src="js/copy-core.js?v=3" defer></script>
   <script src="js/copy-catalog.js?v=4" defer></script>
   <script src="js/site-editor.js?v=3" defer></script>
-  <script src="js/public.js?v=4" defer></script>
+  <script src="js/public.js?v=5" defer></script>
 <link rel="stylesheet" href="css/site-editor.css?v=3">
-<link rel="stylesheet" href="css/public-updates.css?v=4">
+<link rel="stylesheet" href="css/public-updates.css?v=5">
 </head>
 <body>
   <a class="skip-link" href="#contentStage" data-copy="global.002">Salta al contenuto</a>
@@ -89,6 +89,11 @@
           <div class="home-media-copy"><h2 data-copy="home.032">Dal palco</h2><p data-copy="home.034">Foto e locandine delle serate.</p><button class="btn btn-ghost" type="button" data-go="more" data-copy="home.035">GUARDA L’ARCHIVIO</button></div>
           <div class="home-media-wall" id="homeMediaWall" aria-label="Anteprima foto e locandine" data-copy-aria-label="home.036"></div>
         </section>
+        <section class="home-member-carousel glass-card hidden" id="homeMemberCarousel" aria-label="Foto dei membri della band">
+          <button class="member-carousel-nav" id="memberCarouselPrev" type="button" aria-label="Foto precedente">←</button>
+          <div class="member-carousel-stage" id="memberCarouselStage"></div>
+          <button class="member-carousel-nav" id="memberCarouselNext" type="button" aria-label="Foto successiva">→</button>
+        </section>
       </section>
 
       <section class="page" id="tourPage" data-page="tour">
@@ -124,6 +129,10 @@
             <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.013">03</span><h3 data-copy="rankings.014">Concerti</h3></div><button class="text-button" data-expand-ranking="concerts" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
             <div class="ranking-list" id="concertsRanking"><div class="empty-state" data-copy="rankings.016">Caricamento…</div></div>
           </article>
+          <article class="ranking-panel glass-card" id="postersRankingBlock">
+            <div class="panel-heading"><div><span class="section-kicker">04</span><h3>Locandine</h3></div><button class="text-button" data-expand-ranking="posters" type="button">MOSTRA TUTTE</button></div>
+            <div class="ranking-list" id="postersRanking"><div class="empty-state">Caricamento…</div></div>
+          </article>
         </section>
       </section>
 
@@ -133,7 +142,7 @@
           <img class="band-seal" src="IMG_6259.PNG" alt="Logo John & i Molesti" width="1280" height="1280" data-copy-alt="band.004">
         </header>
         <section class="content-section" id="membersBlock">
-          <div class="section-heading"><div><span class="section-kicker" data-copy="band.005">LINE-UP</span><h3 data-copy="band.006">I Molesti</h3></div></div>
+          <div class="section-heading"><div><span class="section-kicker" data-copy="band.005">LINE-UP</span><h3 data-copy="band.006">I Molesti</h3></div><button class="text-button hidden" id="manageMemberPhotos" type="button">GESTISCI FOTO</button></div>
           <div class="member-grid" id="memberGrid">
             <article class="member-card glass-card"><span class="member-no" data-copy="band.007">01</span><div class="member-avatar" data-copy="band.008">E</div><h4 data-copy="band.009">EMA</h4><p><span data-copy="band.010">John &amp; i Molesti</span></p></article>
             <article class="member-card glass-card"><span class="member-no" data-copy="band.012">02</span><div class="member-avatar" data-copy="band.013">K</div><h4 data-copy="band.014">KEKKO</h4><p><span data-copy="band.015">John &amp; i Molesti</span></p></article>
