@@ -1,636 +1,270 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#080b14">
-  <meta name="color-scheme" content="dark">
-  <title>John & i Molesti — Sito</title>
-  <meta name="description" content="John & i Molesti — vecchie canzoni italiane, basi punk, live e voti dal pubblico.">
+  <meta name="theme-color" content="#0b0b0b">
+  <title>John & i Molesti</title>
+  <meta name="description" content="Sito pubblico dei John & i Molesti: live, repertorio, classifiche e attività della band.">
+  <link rel="stylesheet" href="./assets/public/public.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{
-      --bg:#070a12;
-      --bg-2:#0b1020;
-      --panel:#101728;
-      --panel-2:#131c31;
-      --panel-3:#18233a;
-      --text:#f5f7ff;
-      --muted:#929cb3;
-      --muted-2:#6f7890;
-      --line:#29334d;
-      --line-soft:rgba(255,255,255,.08);
-      --gold:#c69a2b;
-      --gold-2:#edc85f;
-      --gold-deep:#8d6718;
-      --gold-soft:rgba(198,154,43,.18);
-      --cyan:#2bd8f0;
-      --green:#34d17b;
-      --orange:#ff9f2f;
-      --red:#ff4e6a;
-      --yellow:#f4d430;
-      --shadow:0 22px 70px rgba(0,0,0,.34);
-      --radius:18px;
-      --radius-sm:12px;
-      --header-h:70px;
-      --sidebar-w:220px;
-      --max:1460px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;background:var(--bg)}
-    body{margin:0;min-height:100dvh;background:
-      radial-gradient(circle at 82% -10%,rgba(198,154,43,.18),transparent 34rem),
-      radial-gradient(circle at 2% 78%,rgba(229,187,73,.10),transparent 32rem),
-      linear-gradient(160deg,var(--bg),#090e1a 58%,#090b14);color:var(--text);font:500 15px/1.45 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    a{color:inherit;text-decoration:none}
-    img{display:block;max-width:100%}
-    [hidden]{display:none!important}
-    .icon{width:18px;height:18px;display:inline-block;flex:0 0 auto}
-    .icon path,.icon circle,.icon rect,.icon line,.icon polyline{vector-effect:non-scaling-stroke}
-
-    /* TOP BAR */
-    .topbar{position:sticky;top:0;z-index:80;height:var(--header-h);display:flex;align-items:center;border-bottom:1px solid rgba(198,154,43,.38);background:rgba(7,10,18,.80);backdrop-filter:blur(18px) saturate(140%);box-shadow:0 12px 40px rgba(0,0,0,.24)}
-    .topbar-inner{width:min(var(--max),100%);height:100%;margin:auto;padding:0 18px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px}
-    .brand{display:flex;align-items:center;gap:10px;min-width:max-content}
-    .brand-mark{width:40px;height:40px;border:1px solid rgba(255,255,255,.18);border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(198,154,43,.28),rgba(229,187,73,.10));box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
-    .brand-mark svg{width:25px;height:25px}
-    .brand-copy strong{display:block;font-size:16px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase}.brand-copy span{display:block;margin-top:4px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.24em;text-transform:uppercase}
-    .topnav{display:flex;justify-content:center;gap:4px;min-width:0}.topnav button{border:0;background:transparent;color:#b7bed0;padding:11px 13px;border-radius:10px;font-size:12px;font-weight:850;letter-spacing:.03em}.topnav button:hover{color:#fff;background:rgba(255,255,255,.05)}.topnav button.active{color:#fff;background:linear-gradient(180deg,rgba(198,154,43,.22),rgba(198,154,43,.07));box-shadow:inset 0 -2px 0 var(--gold-2)}
-    .user-menu{position:relative;display:flex;align-items:center;gap:8px}.user-button{display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#fff;border-radius:999px;padding:6px 10px 6px 7px}.avatar{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;font-size:11px;font-weight:900;background:linear-gradient(145deg,var(--gold),var(--gold-2));box-shadow:0 0 0 2px rgba(255,255,255,.06)}.user-copy{max-width:120px;text-align:left}.user-copy strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-copy span{display:block;color:var(--muted);font-size:8px;text-transform:uppercase;letter-spacing:.08em}.user-popover{position:absolute;top:calc(100% + 10px);right:0;width:220px;border:1px solid var(--line);border-radius:14px;background:#0e1423;box-shadow:var(--shadow);padding:8px}.user-popover button,.user-popover a{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border:0;border-radius:9px;background:transparent;color:#c8cede;text-align:left;font-size:11px;font-weight:750}.user-popover button:hover,.user-popover a:hover{background:rgba(255,255,255,.06);color:#fff}.user-popover .sep{height:1px;background:var(--line-soft);margin:6px 0}
-    .mobile-menu-btn{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.04);color:#fff;align-items:center;justify-content:center}
-
-    /* GLOBAL LAYOUT */
-    .site-shell{width:min(var(--max),100%);margin:0 auto;padding:16px 18px 50px;display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);gap:14px}
-    .sidebar{position:sticky;top:calc(var(--header-h) + 16px);align-self:start;max-height:calc(100dvh - var(--header-h) - 32px);border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(16,23,40,.95),rgba(10,15,27,.94));box-shadow:var(--shadow);overflow:hidden}
-    .side-head{display:flex;align-items:center;gap:9px;padding:14px 14px 12px;border-bottom:1px solid var(--line-soft);font-size:12px;font-weight:900}.side-nav{padding:8px}.side-nav button{width:100%;display:flex;align-items:center;gap:11px;border:0;background:transparent;color:#aeb6c8;border-radius:10px;padding:11px;font-size:11px;font-weight:800;text-align:left}.side-nav button:hover{background:rgba(255,255,255,.05);color:#fff}.side-nav button.active{background:linear-gradient(90deg,rgba(198,154,43,.86),rgba(198,154,43,.44));color:#fff;box-shadow:0 8px 24px rgba(198,154,43,.18)}
-    .side-live{margin:8px;padding:12px;border-top:1px solid var(--line-soft);background:rgba(255,255,255,.02)}.eyebrow{color:var(--cyan);font-size:8px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}.side-live strong{display:block;margin-top:6px;font-size:12px}.side-live p{margin:5px 0 0;color:var(--muted);font-size:9px}.side-live button{margin-top:10px;width:100%}
-    .main{min-width:0}.page{display:none}.page.active{display:block;animation:pageIn .22s ease-out}@keyframes pageIn{from{opacity:.2;transform:translateY(7px)}to{opacity:1;transform:none}}
-
-    /* HERO */
-    .hero{position:relative;min-height:360px;border:1px solid rgba(198,154,43,.68);border-radius:var(--radius);overflow:hidden;background:
-      linear-gradient(90deg,rgba(7,9,17,.94) 0%,rgba(7,9,17,.70) 43%,rgba(7,9,17,.18) 80%),
-      radial-gradient(circle at 75% 25%,rgba(229,187,73,.34),transparent 26rem),
-      radial-gradient(circle at 50% 130%,rgba(198,154,43,.40),transparent 35rem),
-      #101629;box-shadow:0 0 0 1px rgba(229,187,73,.12),var(--shadow);background-size:cover;background-position:center}
-    .hero::after{content:"";position:absolute;inset:auto 0 0;height:42%;background:linear-gradient(0deg,rgba(7,10,18,.82),transparent);pointer-events:none}.hero-noise{position:absolute;inset:0;opacity:.20;background-image:linear-gradient(120deg,transparent 0 46%,rgba(255,255,255,.04) 47% 47.5%,transparent 48% 100%);background-size:42px 42px;mix-blend-mode:screen}.hero-content{position:relative;z-index:2;min-height:360px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:42px clamp(24px,5vw,68px);max-width:820px}.hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid rgba(43,216,240,.34);border-radius:999px;background:rgba(5,24,30,.45);color:#93f5ff;font-size:9px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.pulse{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 5px rgba(43,216,240,.11)}
-    .hero h1{margin:17px 0 0;font-size:clamp(42px,6vw,82px);line-height:.90;letter-spacing:-.055em;text-transform:uppercase;text-shadow:0 6px 34px rgba(0,0,0,.45)}.hero h1 span{display:block;color:#f0cf75}.hero-sub{margin:20px 0 0;max-width:630px;color:#d4d9e7;font-size:clamp(14px,1.5vw,19px);line-height:1.55}.hero-sub strong{color:#fff}.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}.btn{min-height:41px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.04);color:#eef1fa;padding:0 15px;font-size:10px;font-weight:900;letter-spacing:.035em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{border-color:#50607f;background:rgba(255,255,255,.07)}.btn.primary{border-color:#d8ad3d;background:linear-gradient(135deg,var(--gold),#9b721d);box-shadow:0 10px 28px rgba(198,154,43,.24)}.btn.primary:hover{filter:brightness(1.08)}.btn.green{border-color:#2aaf66;background:#188947}.btn.ghost{background:rgba(8,12,21,.55);backdrop-filter:blur(8px)}.btn.sm{min-height:34px;padding:0 11px;font-size:9px}
-    .hero-live-card{position:absolute;z-index:3;right:22px;bottom:20px;width:min(340px,38%);border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(10,15,27,.75);backdrop-filter:blur(16px);padding:13px 14px;box-shadow:0 14px 38px rgba(0,0,0,.28)}.hero-live-card .row{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.hero-live-card h3{margin:4px 0 0;font-size:14px}.hero-live-meta{margin-top:8px;color:#b7bfd0;font-size:9px}.mode-chip{display:inline-flex;align-items:center;height:18px;padding:0 6px;border:1px solid currentColor;border-radius:999px;background:transparent;font-size:7px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.mode-standard{color:#d7b552}.mode-mixed{color:#58e1ef}.mode-jukebox{color:#f0c95a}
-
-    /* TICKER + SECTIONS */
-    .ticker{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.025);white-space:nowrap}.ticker-track{display:inline-flex;gap:30px;min-width:max-content;padding:9px 0;animation:ticker 24s linear infinite;color:#9fa8bd;font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.ticker-track span::after{content:"•";margin-left:30px;color:var(--gold-2)}@keyframes ticker{to{transform:translateX(-50%)}}
-    .section{margin-top:15px}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px;padding:0 2px}.section-head h2{margin:0;font-size:18px;letter-spacing:.01em}.section-head p{margin:3px 0 0;color:var(--muted);font-size:10px}.section-head .btn{flex:0 0 auto}
-    .grid{display:grid;gap:12px}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .card{position:relative;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(160deg,rgba(19,28,49,.93),rgba(12,18,32,.95));box-shadow:0 16px 45px rgba(0,0,0,.18);overflow:hidden}.card-pad{padding:16px}.card h3{margin:0}.card p{color:var(--muted)}
-    .stat-card{min-height:118px;padding:15px}.stat-card .stat-label{color:var(--muted);font-size:8px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.stat-card strong{display:block;margin-top:7px;font-size:30px;letter-spacing:-.04em}.stat-card .stat-note{margin-top:4px;color:#aab2c4;font-size:9px}.stat-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(var(--gold),var(--gold-2))}
-    .live-card{min-height:210px;display:flex;flex-direction:column;cursor:pointer;transition:.18s transform,.18s border-color}.live-card:hover{transform:translateY(-3px);border-color:#d5aa3a}.live-poster{height:108px;background:linear-gradient(135deg,#252d45,#111827);overflow:hidden}.live-poster img{width:100%;height:100%;object-fit:cover}.live-card-body{padding:12px;display:flex;flex-direction:column;gap:5px;flex:1}.live-card-body h3{font-size:13px}.live-date{color:#fff;font-size:10px;font-weight:850}.live-meta{color:var(--muted);font-size:9px}.live-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}.status{font-size:7px;font-weight:950;letter-spacing:.09em;text-transform:uppercase}.status.future{color:var(--cyan)}.status.completed{color:var(--muted)}.status.confirmed{color:var(--green)}
-
-    /* TABS / TOOLBARS / LISTS */
-    .tabs{display:flex;gap:5px;padding:5px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025)}.tabs button{flex:1;border:0;border-radius:9px;background:transparent;color:#9da6ba;padding:10px;font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}.tabs button.active{color:#fff;background:linear-gradient(180deg,rgba(198,154,43,.32),rgba(198,154,43,.12));box-shadow:inset 0 -2px 0 var(--gold-2)}
-    .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}.field{height:40px;border:1px solid var(--line);border-radius:10px;background:#0c1220;color:#e7ebf5;padding:0 11px;outline:none}.field:focus{border-color:#a57b22;box-shadow:0 0 0 3px rgba(198,154,43,.10)}.field.grow{flex:1;min-width:180px}.toolbar select{min-width:145px}
-    .table-card{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:rgba(14,20,35,.94)}.table-head,.song-row{display:grid;grid-template-columns:44px minmax(230px,1fr) 140px 110px 190px;gap:8px;align-items:center}.table-head{min-height:38px;padding:0 12px;background:#121a2c;color:#8994aa;font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--line)}.song-row{min-height:52px;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.055)}.song-row:last-child{border-bottom:0}.song-row:hover{background:rgba(255,255,255,.025)}.song-pos{color:#7d879c;font-size:9px;text-align:center}.song-title{min-width:0}.song-title strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.song-title span{display:block;margin-top:2px;color:var(--muted);font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.song-meta{color:#b8c0d0;font-size:9px}.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:10px}
-    .tag{display:inline-flex;align-items:center;min-height:20px;padding:0 7px;border:1px solid rgba(255,255,255,.14);border-radius:999px;color:#bfc7d7;background:rgba(255,255,255,.04);font-size:7px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
-
-    /* RATING */
-    .rating{display:flex;align-items:center;gap:2px;min-width:max-content}.rate-int,.rate-half{position:relative;border:0;background:transparent;padding:0;color:#667087;height:28px;display:grid;place-items:center;font-weight:950}.rate-int{width:26px;font-size:9px;border:1px solid #313a50;border-radius:7px;background:#111827}.rate-half{width:9px;font-size:0}.rate-half::before{content:"";width:4px;height:4px;border-radius:50%;background:#556079;box-shadow:0 0 0 1px #1b2437}.rate-int:hover,.rate-half:hover{filter:brightness(1.35)}.rate-int.on{color:#111;background:linear-gradient(180deg,#f5d94b,#dcae18);border-color:#ffe979;box-shadow:0 0 16px rgba(244,212,48,.20)}.rate-half.on::before{background:#f7dc52;box-shadow:0 0 10px rgba(244,212,48,.8)}
-    .rate-int.half-left{border-color:#574b2b;background:linear-gradient(90deg,#111827 0 46%,rgba(245,217,75,.78) 68%,rgba(245,217,75,.22) 100%);color:#d4b945;text-shadow:2px 0 5px rgba(244,212,48,.35)}.rate-int.half-right{border-color:#574b2b;background:linear-gradient(90deg,rgba(245,217,75,.22) 0%,rgba(245,217,75,.78) 32%,#111827 54% 100%);color:#d4b945;text-shadow:-2px 0 5px rgba(244,212,48,.35)}
-    .rating.compact .rate-int{width:24px;height:25px}.rating.compact .rate-half{height:25px}
-    .vote-state{font-size:8px;color:var(--muted);min-width:38px;text-align:right}
-
-    /* STATS */
-    .chart-card{padding:16px}.chart-card h3{font-size:12px}.bar-list{display:grid;gap:8px;margin-top:13px}.bar-row{display:grid;grid-template-columns:minmax(80px,140px) 1fr 32px;gap:9px;align-items:center;font-size:9px}.bar-row span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c6cddd}.bar{height:8px;border-radius:999px;background:#0a0f1b;overflow:hidden;border:1px solid rgba(255,255,255,.05)}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold-2))}.bar-row b{text-align:right;color:#9ca6ba;font-size:8px}
-
-    /* BAND */
-    .band-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.member-card{padding:16px;text-align:center}.member-avatar{width:72px;height:72px;margin:auto;border-radius:22px;display:grid;place-items:center;background:linear-gradient(145deg,#263251,#111829);border:1px solid #39435e;color:#fff;font-size:22px;font-weight:950;box-shadow:inset 0 0 30px rgba(198,154,43,.14)}.member-card h3{margin-top:12px;font-size:12px}.member-card p{margin:3px 0 0;font-size:8px}.manifesto{padding:22px;background:linear-gradient(120deg,rgba(198,154,43,.13),rgba(229,187,73,.07)),#101728}.manifesto blockquote{margin:0;font-size:clamp(20px,3vw,38px);line-height:1.1;font-weight:900;letter-spacing:-.035em}.manifesto p{max-width:780px;margin:14px 0 0;color:#adb5c8}
-
-    /* DRAWER */
-    .drawer-backdrop{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}.drawer{position:fixed;z-index:111;left:0;top:0;bottom:0;width:min(310px,86vw);background:#0b101d;border-right:1px solid #4e421f;box-shadow:30px 0 80px rgba(0,0,0,.45);padding:14px;transform:translateX(-102%);transition:.22s ease}.drawer.open{transform:none}.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 12px;border-bottom:1px solid var(--line-soft)}.drawer-close{width:36px;height:36px;border:1px solid var(--line);border-radius:9px;background:transparent;color:#fff}.drawer .side-nav{padding-top:10px}.drawer-foot{position:absolute;left:14px;right:14px;bottom:18px;color:var(--muted);font-size:9px;border-top:1px solid var(--line-soft);padding-top:12px}
-
-    /* MODALS */
-    .modal-backdrop{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:16px;background:rgba(2,5,10,.70);backdrop-filter:blur(8px)}.modal{width:min(820px,100%);max-height:min(88dvh,920px);display:grid;grid-template-rows:auto minmax(0,1fr);border:1px solid #44516d;border-radius:18px;background:#0d1422;box-shadow:0 28px 100px rgba(0,0,0,.55);overflow:hidden}.modal.sm{width:min(450px,100%)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border-bottom:1px solid var(--line);background:#121a2b}.modal-head h2{margin:0;font-size:14px}.modal-close{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:transparent;color:#fff;font-size:20px}.modal-body{min-height:0;overflow-y:auto;padding:15px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.modal-poster{width:150px;aspect-ratio:4/5;object-fit:cover;border-radius:12px;border:1px solid var(--line)}.concert-hero{display:grid;grid-template-columns:auto 1fr;gap:15px}.concert-hero h3{margin:2px 0 0;font-size:19px}.concert-hero p{margin:5px 0 0;color:var(--muted);font-size:10px}.concert-setlist{margin-top:14px;border:1px solid var(--line);border-radius:13px;overflow:hidden}.concert-song{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:46px;padding:6px 10px;border-bottom:1px solid var(--line-soft)}.concert-song:last-child{border-bottom:0}.execution{font-size:7px;color:var(--muted);text-transform:uppercase}.reaction-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}.react{border:1px solid var(--line);border-radius:999px;background:#101827;color:#9ba5b9;padding:5px 8px;font-size:7px;font-weight:900}.react.on{color:#fff;border-color:#b28824;background:rgba(198,154,43,.25)}
-    .form-group{display:grid;gap:5px;margin-bottom:10px}.form-group label{color:#8f99ad;font-size:8px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}.form-group .field{width:100%}.form-note{color:var(--muted);font-size:9px}.login-actions{display:flex;gap:8px;margin-top:12px}.login-actions .btn{flex:1}.message{margin-top:9px;color:#ff9fac;font-size:9px;min-height:14px}.message.ok{color:#8df0b5}
-
-    /* TOAST */
-    .toast-stack{position:fixed;z-index:200;right:14px;bottom:14px;display:grid;gap:8px;width:min(340px,calc(100vw - 28px))}.toast{border:1px solid #34405a;border-radius:12px;background:#101827;padding:11px 12px;box-shadow:0 18px 55px rgba(0,0,0,.36);font-size:9px;color:#dce1eb}.toast.error{border-color:rgba(255,78,106,.45)}.toast.ok{border-color:rgba(52,209,123,.38)}
-
-
-    /* CONTEXT / BACKSTAGE */
-    .context-nav{display:grid;gap:6px;padding:9px}.context-group-label{padding:7px 5px 2px;color:var(--muted-2);font-size:7px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.context-nav button,.context-nav a{width:100%;min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid transparent;border-radius:10px;background:rgba(255,255,255,.025);color:#b9c0cf;padding:8px 10px;font-size:9px;font-weight:850;text-align:left}.context-nav button:hover,.context-nav a:hover{color:#fff;border-color:rgba(198,154,43,.28);background:rgba(198,154,43,.08)}.context-nav button.active{color:#17130a;border-color:var(--gold-2);background:linear-gradient(135deg,var(--gold-2),var(--gold));box-shadow:0 8px 22px rgba(198,154,43,.18)}.context-nav small{color:inherit;opacity:.72}.drawer-context{padding:12px 0}.backstage-content{margin-top:12px}.backstage-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);gap:12px}.backstage-panel{overflow:hidden}.backstage-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}.backstage-panel-head h3{margin:0;font-size:12px}.backstage-list{max-height:62dvh;overflow-y:auto;overscroll-behavior:contain}.manage-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:48px;padding:7px 10px;border-bottom:1px solid var(--line-soft)}.manage-row:last-child{border-bottom:0}.manage-row strong{font-size:10px}.manage-row span{display:block;color:var(--muted);font-size:8px}.manage-actions{display:flex;gap:5px;align-items:center}.icon-btn{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:#111827;color:#cbd1dd;display:grid;place-items:center}.icon-btn:hover{border-color:rgba(198,154,43,.45);color:var(--gold-2)}.quick-setting{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line-soft)}.quick-setting strong{display:block;font-size:9px}.quick-setting span{display:block;color:var(--muted);font-size:8px}.member-chip{display:inline-flex;align-items:center;padding:4px 7px;border:1px solid rgba(198,154,43,.35);border-radius:999px;background:rgba(198,154,43,.08);color:var(--gold-2);font-size:7px;font-weight:900;text-transform:uppercase}.topnav{scrollbar-width:none}.topnav::-webkit-scrollbar{display:none}
-
-    /* RESPONSIVE */
-    @media(max-width:1180px){:root{--header-h:108px}.topbar{height:var(--header-h)}.topbar-inner{grid-template-columns:auto 1fr auto;grid-template-rows:58px 50px;gap:0 10px}.topnav{display:flex;grid-column:1/-1;grid-row:2;justify-content:flex-start;overflow-x:auto;border-top:1px solid var(--line-soft);padding:4px 0}.topnav button{flex:0 0 auto;padding:9px 11px;font-size:10px}.mobile-menu-btn{display:flex;margin-left:auto}.site-shell{grid-template-columns:1fr}.sidebar{display:none}.hero-live-card{width:340px}.band-grid{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:820px){:root{--header-h:102px}.topbar-inner{padding:0 11px;gap:10px}.brand-mark{width:35px;height:35px}.brand-copy strong{font-size:13px}.brand-copy span{font-size:7px}.user-copy{display:none}.user-button{padding-right:6px}.site-shell{padding:10px 10px 35px}.hero{min-height:520px}.hero-content{min-height:520px;justify-content:flex-start;padding:38px 22px 150px}.hero h1{font-size:clamp(43px,14vw,68px)}.hero-live-card{left:16px;right:16px;bottom:15px;width:auto}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.band-grid{grid-template-columns:repeat(2,1fr)}.table-head{display:none}.song-row{grid-template-columns:36px minmax(0,1fr);gap:7px;padding:9px}.song-row>.song-meta,.song-row>.rating,.song-row>.vote-state{grid-column:2}.song-row>.rating{overflow-x:auto;padding-bottom:2px}.toolbar{align-items:stretch}.toolbar .field,.toolbar select{width:100%;min-width:0}.toolbar .field.grow{flex-basis:100%}.concert-hero{grid-template-columns:1fr}.modal-poster{width:100%;max-height:260px;aspect-ratio:auto}.concert-song{grid-template-columns:28px minmax(0,1fr)}.concert-song>.rating{grid-column:2;overflow-x:auto}.reaction-row{grid-column:2}.ticker{margin-top:9px}.backstage-grid{grid-template-columns:1fr}.backstage-list{max-height:none}.backstage-tabs{overflow-x:auto}.backstage-tabs button{flex:0 0 auto;min-width:120px}}
-    @media(max-width:520px){.brand-copy strong{font-size:12px}.hero-content{padding-left:17px;padding-right:17px}.hero-sub{font-size:13px}.hero-actions{width:100%}.hero-actions .btn{flex:1;min-width:140px}.section-head{align-items:flex-start}.section-head .btn{display:none}.stat-card{min-height:103px}.stat-card strong{font-size:26px}.band-grid{grid-template-columns:1fr 1fr}.member-card{padding:12px}.member-avatar{width:58px;height:58px;border-radius:18px}.modal-backdrop{padding:7px;align-items:end}.modal{max-height:94dvh;border-radius:17px 17px 0 0}.modal.sm{width:100%}.modal-body{padding:12px}.rating{gap:1px}.rate-int{width:24px}.rate-half{width:7px}.topbar .avatar{width:28px;height:28px}.user-button{border:0;background:transparent}}
-  
-
-    /* V3 — list/table + cover + detail card + song modal */
-    .content-workbench{display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:12px;align-items:start}
-    .content-workbench>.table-card{min-width:0}
-    .song-table-head,.song-row.song-row-rich{grid-template-columns:40px minmax(270px,1.35fr) minmax(150px,.8fr) 92px minmax(190px,.9fr) 74px}
-    .song-cell{display:flex;align-items:center;gap:10px;min-width:0}
-    .song-cover{width:42px;height:42px;flex:0 0 42px;border-radius:8px;object-fit:cover;border:1px solid rgba(229,187,73,.28);background:#141b2a;box-shadow:0 5px 15px rgba(0,0,0,.28)}
-    .song-cover.sm{width:34px;height:34px;flex-basis:34px;border-radius:7px}.song-cover.lg{width:138px;height:138px;border-radius:15px;flex-basis:138px}
-    .song-row[data-song-select],.manage-row[data-song-select],.setlist-song-row[data-song-select]{cursor:pointer}
-    .song-row[data-song-select]:hover,.manage-row[data-song-select]:hover,.setlist-song-row[data-song-select]:hover{background:rgba(198,154,43,.06)}
-    .song-row.is-selected,.manage-row.is-selected,.setlist-song-row.is-selected{background:linear-gradient(90deg,rgba(198,154,43,.10),rgba(198,154,43,.025));box-shadow:inset 3px 0 0 var(--gold-2)}
-    .row-actions{display:flex;justify-content:flex-end;gap:5px}.row-action{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025);color:#bec6d6}.row-action:hover{border-color:rgba(229,187,73,.55);color:var(--gold-2);background:var(--gold-soft)}.row-action svg{width:15px;height:15px}
-    .song-detail-card{position:sticky;top:calc(var(--header-h) + 16px);overflow:hidden;min-height:318px}
-    .song-detail-cover{width:100%;aspect-ratio:1/1;object-fit:cover;background:#141b2a;border-bottom:1px solid var(--line)}
-    .song-detail-body{padding:13px}.song-detail-body h3{margin:0;font-size:17px;line-height:1.1}.song-detail-body p{margin:5px 0 0;color:var(--muted);font-size:9px}.detail-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:12px}.detail-kpi{padding:8px;border:1px solid var(--line-soft);border-radius:10px;background:rgba(255,255,255,.025)}.detail-kpi span{display:block;color:var(--muted);font-size:7px;text-transform:uppercase;letter-spacing:.08em}.detail-kpi strong{display:block;margin-top:2px;font-size:11px}.detail-actions{display:flex;gap:6px;margin-top:12px}.detail-actions .btn{flex:1}
-    .song-detail-modal{width:min(760px,100%)}.song-modal-grid{display:grid;grid-template-columns:190px minmax(0,1fr);gap:18px}.song-modal-cover{width:190px;height:190px;border-radius:16px;object-fit:cover;border:1px solid rgba(229,187,73,.30);box-shadow:0 16px 36px rgba(0,0,0,.36)}.song-modal-copy h3{margin:2px 0 0;font-size:27px;line-height:1}.song-modal-copy .lead{margin:9px 0 0;color:#cbd1df;font-size:11px}.song-modal-copy .rating{margin-top:12px}.song-modal-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:15px}.song-modal-meta .detail-kpi{min-height:55px}
-    .setlist-page-view{margin-top:10px}.setlist-shell{display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:12px;align-items:start}.setlist-card{overflow:hidden}.setlist-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);background:#121a2c}.setlist-head h3{margin:0;font-size:12px}.setlist-list{display:grid}.setlist-song-row{display:grid;grid-template-columns:34px 44px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--line-soft);min-height:52px}.setlist-song-row:last-child{border-bottom:0}.setlist-song-row .song-title strong{font-size:10px}.setlist-song-row .song-title span{font-size:8px}.setlist-score{font-size:8px;color:var(--muted);text-align:right}.setlist-member-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.setlist-member-grid .setlist-card{min-width:0}.setlist-member-grid .setlist-list{max-height:66vh;overflow:auto}
-    .manage-row{grid-template-columns:42px minmax(0,1fr) auto!important}.manage-row>.song-pos{display:none}.manage-row .song-cover{grid-column:1}.manage-row>div:nth-child(2){grid-column:2}.manage-row>.manage-actions,.manage-row>.vote-state{grid-column:3}
-    .ranking-song-row{grid-template-columns:40px minmax(260px,1.4fr) 120px 100px 70px!important}
-
-    @media(max-width:1080px){.content-workbench,.setlist-shell{grid-template-columns:1fr}.song-detail-card{position:relative;top:auto}.catalog-workbench .song-detail-card,.ranking-workbench .song-detail-card{display:none}.song-table-head,.song-row.song-row-rich{grid-template-columns:36px minmax(220px,1fr) 120px 80px 180px 64px}.setlist-member-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:820px){.song-table-head{display:none}.song-row.song-row-rich,.ranking-song-row{grid-template-columns:34px 44px minmax(0,1fr) auto!important;gap:7px}.song-row.song-row-rich>.song-pos,.ranking-song-row>.song-pos{grid-column:1}.song-row.song-row-rich>.song-cell,.ranking-song-row>.song-cell{grid-column:2/4}.song-row.song-row-rich>.song-meta,.song-row.song-row-rich>.vote-state,.song-row.song-row-rich>.rating{grid-column:3/5}.song-row.song-row-rich>.row-actions{grid-column:4;grid-row:1/3}.setlist-member-grid{grid-template-columns:1fr}.song-modal-grid{grid-template-columns:110px minmax(0,1fr);gap:12px}.song-modal-cover{width:110px;height:110px;border-radius:12px}.song-modal-copy h3{font-size:21px}.song-modal-meta{grid-template-columns:repeat(2,1fr)}.setlist-song-row{grid-template-columns:30px 38px minmax(0,1fr) auto}.song-cover{width:38px;height:38px;flex-basis:38px}}
-    @media(max-width:520px){.song-modal-grid{grid-template-columns:1fr}.song-modal-cover{width:132px;height:132px}.song-modal-meta{grid-template-columns:1fr 1fr}.setlist-song-row{padding:7px}.row-action{width:28px;height:28px}}
-
-  
-    .concert-song .rating-wrap{grid-column:3/5;overflow-x:auto;padding-top:4px}.concert-song .reaction-row{grid-column:3/5}.concert-song .row-actions{align-self:start}
-  </style>
+  <script src="./assets/shared/supabase-config.js"></script>
+  <script src="./assets/public/public.js" defer></script>
+  <script src="./assets/public/public-admin.js" defer></script>
 </head>
-<body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="#home" data-route="home" aria-label="John & i Molesti home">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><path d="M10 27V13m0 0V8.5c0-1.4 1.1-2.5 2.5-2.5S15 7.1 15 8.5V14m0-2V6.5C15 5.1 16.1 4 17.5 4S20 5.1 20 6.5V14m0-3V8c0-1.4 1.1-2.5 2.5-2.5S25 6.6 25 8v9.5c0 5.2-4.3 9.5-9.5 9.5H14c-4.4 0-8-3.6-8-8v-4.2c0-1.5 1.2-2.8 2.8-2.8H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
-        <span class="brand-copy"><strong>John & i Molesti</strong><span>punk mash-up dal Brenta</span></span>
-      </a>
-      <nav class="topnav" aria-label="Navigazione principale">
-        <button data-route="home" class="active">Home</button>
-        <button data-route="live">Live</button>
-        <button data-route="catalog">Repertorio</button>
-        <button data-route="band">La band</button>
-        <button data-route="setlists">Scalette</button>
-        <button data-route="rankings" data-permission="rankings_view" hidden>Classifiche</button>
-        <button data-route="backstage" id="backstageTopNav" hidden>Backstage</button>
-      </nav>
-      <div class="user-menu">
-        <button class="mobile-menu-btn" id="mobileMenuButton" aria-label="Apri menu">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </button>
-        <button class="user-button" id="userButton" aria-haspopup="menu" aria-expanded="false">
-          <span class="avatar" id="userAvatar">JM</span>
-          <span class="user-copy"><strong id="userName">Ospite</strong><span id="userRole">entra come fan</span></span>
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="user-popover" id="userPopover" hidden>
-          <button id="fanLoginMenu"><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 7a7 7 0 0 0-14 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><span id="fanMenuLabel">Entra come fan</span></button>
-          <button id="fanLogoutMenu" hidden><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M9 5H5v14h4M13 8l4 4-4 4m4-4H9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Esci dall'area fan</button>
-          <div class="sep"></div>
-          <button id="memberLoginMenu"><svg class="icon" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Backstage membri</button>
-          <button id="memberLogoutMenu" hidden><svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M9 5H5v14h4M13 8l4 4-4 4m4-4H9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Esci dal backstage</button>
-        </div>
-      </div>
+<body class="public-site">
+  <a class="jm-skip" href="#jm-main">Vai al contenuto</a>
+
+  <header class="jm-header">
+    <a class="jm-brand" href="#/" data-route="home" aria-label="Home John & i Molesti">
+      <span class="jm-mark" aria-hidden="true">JM</span>
+      <span class="jm-brand-copy">
+        <strong data-content-key="brand.name">JOHN & I MOLESTI</strong>
+        <small data-content-key="brand.kicker">PUNK ROCK REVIVAL</small>
+      </span>
+    </a>
+
+    <nav class="jm-desktop-nav" aria-label="Navigazione principale">
+      <button type="button" data-route="home" class="is-active"><span data-content-key="nav.home">Home</span></button>
+      <button type="button" data-route="live"><span data-content-key="nav.live">Live</span></button>
+      <button type="button" data-route="songs"><span data-content-key="nav.songs">Brani</span></button>
+      <button type="button" data-route="rankings"><span data-content-key="nav.rankings">Classifiche</span></button>
+      <button type="button" data-route="band"><span data-content-key="nav.band">La band</span></button>
+    </nav>
+
+    <div class="jm-header-actions">
+      <button class="jm-icon-button" id="themeToggle" type="button" aria-label="Cambia tema" title="Cambia tema">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button class="jm-account-button" id="accountButton" type="button" aria-haspopup="dialog" aria-controls="accountSheet">
+        <span class="jm-account-dot" id="accountDot"></span>
+        <span id="accountLabel">Ospite</span>
+      </button>
     </div>
   </header>
 
-  <div class="site-shell">
-    <aside class="sidebar" aria-label="Navigazione laterale">
-      <div class="side-head">
-        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span id="contextTitle">In questa sezione</span>
-      </div>
-      <div id="contextNavDesktop" class="context-nav"></div>
-      <div class="side-live" id="sideLive">
-        <div class="eyebrow">Prossimo live</div>
-        <strong>Caricamento…</strong>
-        <p>Recupero il calendario dal database.</p>
-        <button class="btn sm" data-route="live">Vedi live</button>
-      </div>
-    </aside>
-
-    <main class="main">
-      <section class="page active" data-page="home">
-        <div class="hero" id="hero">
-          <div class="hero-noise"></div>
-          <div class="hero-content">
-            <div class="hero-kicker"><span class="pulse"></span> live, rumore e cattive reinterpretazioni</div>
-            <h1>John & i <span>Molesti</span></h1>
-            <p class="hero-sub"><strong>Vecchie canzoni italiane. Basi punk.</strong> Un sito per seguire i live, curiosare nel repertorio e — se sei abbastanza coraggioso — votare quello che combiniamo sul palco.</p>
-            <div class="hero-actions">
-              <button class="btn primary" data-route="live">Prossimi live</button>
-              <button class="btn ghost" id="heroFanButton">Entra come fan</button>
-            </div>
-          </div>
-          <div class="hero-live-card" id="heroLiveCard">
-            <div class="eyebrow">Prossimo live</div>
-            <div class="row"><h3>Caricamento…</h3><span class="mode-chip mode-standard">standard</span></div>
-            <div class="hero-live-meta">Sto leggendo il calendario.</div>
-          </div>
-        </div>
-        <div class="ticker" aria-hidden="true"><div class="ticker-track"><span>PUNK MASH-UP</span><span>DAL BRENTA AI CAMPI</span><span>CANTA FORTE</span><span>POGO RESPONSABILE</span><span>VOTA I PEZZI</span><span>PUNK MASH-UP</span><span>DAL BRENTA AI CAMPI</span><span>CANTA FORTE</span><span>POGO RESPONSABILE</span><span>VOTA I PEZZI</span></div></div>
-
-        <section class="section">
-          <div class="section-head"><div><h2>In arrivo</h2><p>I prossimi appuntamenti, direttamente dal calendario Molesti.</p></div><button class="btn sm" data-route="live">Tutti i live</button></div>
-          <div class="grid grid-3" id="homeLiveGrid"><div class="card empty">Caricamento concerti…</div></div>
-        </section>
-
-        <section class="section">
-          <div class="section-head"><div><h2>Molesti in breve</h2><p>Qualche numero reale del repertorio e dei live, senza trasformare il sito in un foglio Excel.</p></div></div>
-          <div class="grid grid-4" id="homeStatsGrid">
-            <div class="card stat-card"><div class="stat-label">Brani</div><strong>—</strong><div class="stat-note">repertorio attivo</div></div>
-            <div class="card stat-card"><div class="stat-label">Live</div><strong>—</strong><div class="stat-note">concerti conclusi</div></div>
-            <div class="card stat-card"><div class="stat-label">Durata media</div><strong>—</strong><div class="stat-note">per brano</div></div>
-            <div class="card stat-card"><div class="stat-label">Territorio</div><strong>—</strong><div class="stat-note">zona più battuta</div></div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="card manifesto">
-            <div class="eyebrow">Manifesto non richiesto</div>
-            <blockquote>“Se una canzone italiana può stare sopra una base punk, prima o poi ci proveremo.”</blockquote>
-            <p>Il repertorio vive insieme ai concerti: i pezzi cambiano, il pubblico vota, le scalette si spostano e ogni serata lascia qualche dato — oltre a qualche dubbio morale.</p>
-          </div>
-        </section>
-      </section>
-
-      <section class="page" data-page="live">
-        <div class="section-head"><div><h2>Live</h2><p>Prossimi concerti, passato recente e scalette quando disponibili.</p></div></div>
-        <div class="tabs" id="liveTabs"><button class="active" data-live-tab="future">Prossimi</button><button data-live-tab="past">Passati</button></div>
-        <div class="toolbar"><input class="field grow" id="liveSearch" type="search" placeholder="Cerca live, località o venue…"><select class="field" id="liveMode"><option value="">Tutte le modalità</option><option value="standard">Standard</option><option value="mixed">Mixed</option><option value="jukebox">Jukebox</option></select></div>
-        <div class="grid grid-3" id="liveGrid"><div class="card empty">Caricamento concerti…</div></div>
-      </section>
-
-      <section class="page" data-page="catalog">
-        <div class="section-head"><div><h2>Repertorio</h2><p>Il catalogo diventa interattivo quando entri come fan.</p></div><button class="btn sm" id="catalogFanButton">Entra come fan</button></div>
-        <div id="catalogGuestCard" class="card card-pad">
-          <div class="eyebrow">Area fan</div><h3 style="margin-top:6px">Vota i pezzi, senza compilare moduli infiniti.</h3><p>Accedi con il nome che usi nell'area fan: ritrovi i tuoi voti e puoi aggiornare al volo la “Versione Molesti”.</p><button class="btn primary" id="catalogGuestLogin">Entra come fan</button>
-        </div>
-        <div id="catalogFanArea" hidden>
-          <div class="toolbar"><input class="field grow" id="catalogSearch" type="search" placeholder="Cerca un brano…"><select class="field" id="catalogSort"><option value="title">Ordina per titolo</option><option value="vote">Prima i miei voti</option></select></div>
-          <div class="content-workbench catalog-workbench">
-            <div class="table-card"><div class="table-head song-table-head"><div>#</div><div>Brano</div><div>Base / testo</div><div>Il mio voto</div><div>Voto rapido</div><div>Azioni</div></div><div id="catalogList"><div class="empty">Caricamento catalogo…</div></div></div>
-            <aside id="catalogDetailCard" class="card song-detail-card"><div class="empty">Seleziona un brano per aprire la scheda.</div></aside>
-          </div>
-        </div>
-      </section>
-
-      <section class="page" data-page="setlists">
-        <div class="section-head"><div><h2>Scalette</h2><p>Le scalette dei live e, quando accedi come membro, le preferenze della band.</p></div></div>
-        <div class="tabs" id="setlistTabs">
-          <button class="active" data-setlist-tab="live">Live</button>
-          <button data-setlist-tab="mine" data-member-only hidden>La mia</button>
-          <button data-setlist-tab="members" data-member-only hidden>Membri</button>
-        </div>
-        <div id="setlistLiveToolbar" class="toolbar" style="margin-top:10px">
-          <select class="field grow" id="setlistConcertSelect"><option value="">Seleziona un concerto…</option></select>
-        </div>
-        <div id="setlistView" class="setlist-page-view"><div class="card empty">Caricamento scalette…</div></div>
-      </section>
-
-      <section class="page" data-page="band">
-        <div class="section-head"><div><h2>La band</h2><p>Cinque persone, molte basi punk, troppe idee.</p></div></div>
-        <div class="band-grid">
-          <article class="card member-card"><div class="member-avatar">K</div><h3>Kekko</h3><p>Molesto certificato</p></article>
-          <article class="card member-card"><div class="member-avatar">E</div><h3>Ema</h3><p>Molesto certificato</p></article>
-          <article class="card member-card"><div class="member-avatar">G</div><h3>Gianni</h3><p>Molesto certificato</p></article>
-          <article class="card member-card"><div class="member-avatar">C</div><h3>Carlo</h3><p>Molesto certificato</p></article>
-          <article class="card member-card"><div class="member-avatar">A</div><h3>Ale</h3><p>Molesto certificato</p></article>
-        </div>
-        <section class="section"><div class="grid grid-2"><div class="card card-pad"><div class="eyebrow">Il metodo</div><h3 style="margin-top:7px">Italiano sopra punk, finché regge.</h3><p>Il punto di partenza è semplice: prendere una canzone italiana e farla convivere con una base punk/rock che abbia abbastanza incastri per funzionare davvero dal vivo.</p></div><div class="card card-pad"><div class="eyebrow">Il territorio</div><h3 style="margin-top:7px">From the River to the Fields.</h3><p>Live, sagre, feste e paesi lungo il Brenta. Il sito usa i dati reali delle venue e dei concerti per raccontare dove siamo passati.</p></div></div></section>
-      </section>
-
-      <section class="page" data-internal-page="stats" hidden>
-        <div class="section-head"><div><h2>Numeri</h2><p>Una fotografia dinamica di repertorio, live e geografia Molesta.</p></div><button class="btn sm" id="refreshStats">Aggiorna</button></div>
-        <div class="grid grid-4" id="statsKpis"></div>
-        <div class="grid grid-2 section" id="statsCharts"></div>
-      </section>
-
-      <section class="page" data-page="rankings" data-permission="rankings_view" hidden>
-        <div class="section-head"><div><h2>Classifiche</h2><p>Brani, fan e live. Per fan/ospiti la visibilità continua a dipendere dal Setup; i membri usano i dati completi.</p></div></div>
-        <div class="tabs" id="rankingTabs"><button class="active" data-ranking-tab="songs">Brani</button><button data-ranking-tab="concerts">Live</button><button data-ranking-tab="fans">Fan</button></div>
-        <div class="content-workbench ranking-workbench" style="margin-top:10px">
-          <div class="table-card"><div id="rankingList"><div class="empty">Caricamento classifiche…</div></div></div>
-          <aside id="rankingDetailCard" class="card song-detail-card"><div class="empty">Seleziona un brano dalla classifica.</div></aside>
-        </div>
-      </section>
-      <section class="page" data-page="backstage" id="backstagePage" hidden>
-        <div class="section-head"><div><h2>Backstage</h2><p>Gestione rapida collegata allo stesso database del cockpit.</p></div><a class="btn sm" href="index.html">Cockpit completo</a></div>
-        <div class="tabs backstage-tabs" id="backstageTabs">
-          <button class="active" data-backstage-tab="setlist">La mia scaletta</button>
-          <button data-backstage-tab="catalog">Catalogo</button>
-          <button data-backstage-tab="concerts">Concerti</button>
-          <button data-backstage-tab="members">Scalette membri</button>
-          <button data-backstage-tab="fans">Fan</button>
-          <button data-backstage-tab="setup">Setup rapido</button>
-        </div>
-        <div id="backstageContent" class="backstage-content"><div class="card empty">Accedi come membro per usare il backstage.</div></div>
-      </section>
-    </main>
+  <div class="jm-adminbar" id="adminBar" hidden>
+    <div>
+      <strong>MODIFICA SITO</strong>
+      <span id="adminBarStatus">Modalità admin attiva</span>
+    </div>
+    <div class="jm-adminbar-actions">
+      <button class="jm-button jm-button-ghost" type="button" id="toggleEditMode">Modifica elementi</button>
+      <button class="jm-button jm-button-ghost" type="button" id="adminLogoutTop">Esci admin</button>
+    </div>
   </div>
 
-  <div id="drawerBackdrop" class="drawer-backdrop" hidden></div>
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawer-head"><span class="brand"><span class="brand-mark"><svg viewBox="0 0 32 32" fill="none"><path d="M10 27V13m0 0V8.5c0-1.4 1.1-2.5 2.5-2.5S15 7.1 15 8.5V14m0-2V6.5C15 5.1 16.1 4 17.5 4S20 5.1 20 6.5V14m0-3V8c0-1.4 1.1-2.5 2.5-2.5S25 6.6 25 8v9.5c0 5.2-4.3 9.5-9.5 9.5H14c-4.4 0-8-3.6-8-8v-4.2c0-1.5 1.2-2.8 2.8-2.8H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand-copy"><strong id="drawerContextTitle">Strumenti</strong><span>Sottomenu e selezioni</span></span></span><button class="drawer-close" id="drawerClose" aria-label="Chiudi menu">×</button></div>
-    <div id="contextNavDrawer" class="context-nav drawer-context"></div>
-    <div class="drawer-foot">Sito pubblico collegato allo stesso database e alle stesse API dell'app Molesti.</div>
+  <main id="jm-main" class="jm-main">
+    <section class="jm-page is-active" data-page="home" aria-labelledby="homeTitle">
+      <div class="jm-hero">
+        <div class="jm-hero-copy">
+          <p class="jm-eyebrow" data-content-key="home.hero.eyebrow">DAL VENETO, SENZA GRAZIA</p>
+          <h1 id="homeTitle" data-content-key="home.hero.title">JOHN & I MOLESTI</h1>
+          <p class="jm-hero-lead" data-content-key="home.hero.lead">Canzoni italiane, attitudine punk e amplificatori abbastanza alti.</p>
+          <div class="jm-hero-actions">
+            <button class="jm-button jm-button-primary" type="button" data-route="live"><span data-content-key="actions.live">Prossimi live</span></button>
+            <button class="jm-button" type="button" data-route="songs"><span data-content-key="actions.songs">Ascolta il repertorio</span></button>
+          </div>
+        </div>
+        <figure class="jm-hero-media jm-editable-image">
+          <img data-content-key="home.hero.image" data-content-type="image" src="" alt="John & i Molesti dal vivo">
+          <figcaption data-content-key="home.hero.caption">JOHN & I MOLESTI · LIVE</figcaption>
+        </figure>
+      </div>
+
+      <section class="jm-section" aria-labelledby="nextLiveHeading">
+        <div class="jm-section-head">
+          <div>
+            <p class="jm-eyebrow" data-content-key="home.live.eyebrow">PROSSIMA MOLESTIA</p>
+            <h2 id="nextLiveHeading" data-content-key="home.live.title">Il prossimo live</h2>
+          </div>
+          <button class="jm-text-button" type="button" data-route="live"><span data-content-key="actions.allLive">Tutti i live</span> →</button>
+        </div>
+        <div id="homeNextLive" class="jm-feature-live jm-loading">Caricamento…</div>
+      </section>
+
+      <section class="jm-section" aria-labelledby="homeSongsHeading">
+        <div class="jm-section-head">
+          <div>
+            <p class="jm-eyebrow" data-content-key="home.songs.eyebrow">REPERTORIO</p>
+            <h2 id="homeSongsHeading" data-content-key="home.songs.title">Brani in rotazione</h2>
+            <p data-content-key="home.songs.lead">Un po' di beat italiano, un po' di distorsione.</p>
+          </div>
+          <button class="jm-text-button" type="button" data-route="songs"><span data-content-key="actions.allSongs">Tutti i brani</span> →</button>
+        </div>
+        <div id="homeSongs" class="jm-song-strip"></div>
+      </section>
+
+      <section class="jm-section jm-overview" aria-labelledby="overviewHeading">
+        <div class="jm-section-head">
+          <div>
+            <p class="jm-eyebrow" data-content-key="home.overview.eyebrow">IN BREVE</p>
+            <h2 id="overviewHeading" data-content-key="home.overview.title">I Molesti in numeri</h2>
+          </div>
+        </div>
+        <div class="jm-kpi-grid" id="homeKpis">
+          <article class="jm-kpi"><strong>—</strong><span>BRANI</span></article>
+          <article class="jm-kpi"><strong>—</strong><span>LIVE</span></article>
+          <article class="jm-kpi"><strong>—</strong><span>FAN</span></article>
+        </div>
+      </section>
+    </section>
+
+    <section class="jm-page" data-page="live" aria-labelledby="liveTitle">
+      <header class="jm-page-head">
+        <p class="jm-eyebrow" data-content-key="live.eyebrow">DAL VIVO</p>
+        <h1 id="liveTitle" data-content-key="live.title">Live</h1>
+        <p data-content-key="live.lead">Prossime date e archivio dei concerti.</p>
+      </header>
+      <div class="jm-segmented" id="liveTabs" role="tablist" aria-label="Periodo live">
+        <button type="button" class="is-active" data-live-tab="future" role="tab"><span data-content-key="live.tab.future">Prossimi</span></button>
+        <button type="button" data-live-tab="past" role="tab"><span data-content-key="live.tab.past">Passati</span></button>
+      </div>
+      <div id="liveGrid" class="jm-live-grid jm-loading">Caricamento…</div>
+    </section>
+
+    <section class="jm-page" data-page="songs" aria-labelledby="songsTitle">
+      <header class="jm-page-head jm-page-head-split">
+        <div>
+          <p class="jm-eyebrow" data-content-key="songs.eyebrow">REPERTORIO</p>
+          <h1 id="songsTitle" data-content-key="songs.title">Brani</h1>
+          <p data-content-key="songs.lead">Il catalogo pubblico dei John & i Molesti.</p>
+        </div>
+        <label class="jm-search">
+          <span class="jm-visually-hidden">Cerca un brano</span>
+          <input id="songSearch" type="search" placeholder="Cerca un brano…" autocomplete="off">
+        </label>
+      </header>
+      <div id="songGrid" class="jm-song-grid jm-loading">Caricamento…</div>
+    </section>
+
+    <section class="jm-page" data-page="rankings" aria-labelledby="rankingsTitle">
+      <header class="jm-page-head">
+        <p class="jm-eyebrow" data-content-key="rankings.eyebrow">CLASSIFICHE</p>
+        <h1 id="rankingsTitle" data-content-key="rankings.title">Classifiche</h1>
+        <p data-content-key="rankings.lead">Brani, live e fan. Senza fogli Excel in vista.</p>
+      </header>
+      <div class="jm-segmented" id="rankingTabs" role="tablist" aria-label="Tipo classifica">
+        <button type="button" class="is-active" data-ranking-tab="songs"><span data-content-key="rankings.tab.songs">Brani</span></button>
+        <button type="button" data-ranking-tab="concerts"><span data-content-key="rankings.tab.live">Live</span></button>
+        <button type="button" data-ranking-tab="fans"><span data-content-key="rankings.tab.fans">Fan</span></button>
+      </div>
+      <div class="jm-ranking-list" id="rankingList"></div>
+    </section>
+
+    <section class="jm-page" data-page="band" aria-labelledby="bandTitle">
+      <div class="jm-band-layout">
+        <div class="jm-band-copy">
+          <p class="jm-eyebrow" data-content-key="band.eyebrow">JOHN & I MOLESTI</p>
+          <h1 id="bandTitle" data-content-key="band.title">La band</h1>
+          <p class="jm-band-lead" data-content-key="band.lead">Punk rock revival su materiale italiano che non aveva chiesto di esserlo.</p>
+          <p data-content-key="band.body">Cinque Molesti, canzoni italiane e basi punk rock. Il resto succede sul palco.</p>
+        </div>
+        <figure class="jm-band-photo jm-editable-image">
+          <img data-content-key="band.image" data-content-type="image" src="" alt="John & i Molesti">
+          <figcaption data-content-key="band.caption">JOHN & I MOLESTI</figcaption>
+        </figure>
+      </div>
+      <div class="jm-members" aria-label="Componenti della band">
+        <article><strong data-content-key="band.member.1.name">Kekko</strong><span data-content-key="band.member.1.role">Chitarra</span></article>
+        <article><strong data-content-key="band.member.2.name">Ema</strong><span data-content-key="band.member.2.role">Batteria</span></article>
+        <article><strong data-content-key="band.member.3.name">Gianni</strong><span data-content-key="band.member.3.role">Voce</span></article>
+        <article><strong data-content-key="band.member.4.name">Carlo</strong><span data-content-key="band.member.4.role">Basso</span></article>
+        <article><strong data-content-key="band.member.5.name">Ale Lazza</strong><span data-content-key="band.member.5.role">Chitarra</span></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="jm-footer">
+    <div>
+      <strong data-content-key="footer.title">JOHN & I MOLESTI</strong>
+      <p data-content-key="footer.text">Punk Rock Revival · Veneto</p>
+    </div>
+    <small data-content-key="footer.note">© John & i Molesti</small>
+  </footer>
+
+  <nav class="jm-mobile-nav" aria-label="Navigazione mobile">
+    <button type="button" data-route="home" class="is-active"><span>⌂</span><small data-content-key="nav.home">Home</small></button>
+    <button type="button" data-route="live"><span>●</span><small data-content-key="nav.live">Live</small></button>
+    <button type="button" data-route="songs"><span>♫</span><small data-content-key="nav.songs">Brani</small></button>
+    <button type="button" data-route="rankings"><span>≡</span><small data-content-key="nav.rankings">Classifiche</small></button>
+    <button type="button" data-route="band"><span>JM</span><small data-content-key="nav.band">Band</small></button>
+  </nav>
+
+  <div class="jm-sheet-backdrop" id="accountBackdrop" hidden></div>
+  <aside class="jm-sheet" id="accountSheet" aria-hidden="true" aria-label="Account">
+    <div class="jm-sheet-handle"></div>
+    <div class="jm-sheet-head">
+      <div>
+        <p class="jm-eyebrow">ACCOUNT</p>
+        <h2 id="sheetAccountName">Ospite</h2>
+      </div>
+      <button class="jm-icon-button" id="closeAccount" type="button" aria-label="Chiudi">×</button>
+    </div>
+    <div class="jm-account-panel" id="fanAccountPanel">
+      <p id="fanAccountStatus">Entra come fan per votare e segnare i live a cui hai partecipato.</p>
+      <button class="jm-button jm-button-primary" id="openFanLogin" type="button"><span data-content-key="actions.fanLogin">Entra come fan</span></button>
+      <button class="jm-button jm-button-ghost" id="fanLogout" type="button" hidden>Esci dal profilo fan</button>
+    </div>
+    <div class="jm-sheet-divider"></div>
+    <div class="jm-account-panel">
+      <p class="jm-small" data-content-key="admin.login.hint">Gestione dei soli contenuti del sito pubblico.</p>
+      <button class="jm-text-button" id="openAdminLogin" type="button">Accesso admin sito</button>
+    </div>
   </aside>
 
-  <div id="fanLoginModal" class="modal-backdrop" hidden>
-    <section class="modal sm" role="dialog" aria-modal="true" aria-labelledby="fanLoginTitle">
-      <div class="modal-head"><h2 id="fanLoginTitle">Entra come fan</h2><button class="modal-close" data-close-modal="fanLoginModal">×</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label for="fanNameInput">Come ti chiami?</label><input class="field" id="fanNameInput" maxlength="20" autocomplete="nickname" placeholder="Nome o nickname"></div>
-        <div class="form-note">Useremo lo stesso profilo dell'area fan esistente. Se questo dispositivo è già associato a un profilo, verrà riconosciuto automaticamente.</div>
-        <div class="login-actions"><button class="btn" data-close-modal="fanLoginModal">Annulla</button><button class="btn primary" id="fanLoginSubmit">Entra</button></div>
-        <div class="message" id="fanLoginMessage"></div>
+  <div class="jm-modal-backdrop" id="fanLoginModal" hidden>
+    <section class="jm-modal jm-modal-small" role="dialog" aria-modal="true" aria-labelledby="fanLoginTitle">
+      <button class="jm-modal-close" type="button" data-close-modal="fanLoginModal" aria-label="Chiudi">×</button>
+      <p class="jm-eyebrow">AREA FAN</p>
+      <h2 id="fanLoginTitle">Come ti chiami?</h2>
+      <p class="jm-muted">Ti riconosciamo su questo dispositivo senza chiederti una password.</p>
+      <label class="jm-field"><span>Nome o nickname</span><input id="fanNameInput" maxlength="40" autocomplete="nickname"></label>
+      <p class="jm-form-message" id="fanLoginMessage"></p>
+      <button class="jm-button jm-button-primary jm-button-full" id="fanLoginSubmit" type="button">Entra</button>
+    </section>
+  </div>
+
+  <div class="jm-modal-backdrop" id="adminLoginModal" hidden>
+    <section class="jm-modal jm-modal-small" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+      <button class="jm-modal-close" type="button" data-close-modal="adminLoginModal" aria-label="Chiudi">×</button>
+      <p class="jm-eyebrow">ADMIN SITO</p>
+      <h2 id="adminLoginTitle">Modifica contenuti</h2>
+      <p class="jm-muted">Questo accesso modifica il sito pubblico. Non apre il gestionale.</p>
+      <label class="jm-field"><span>Username</span><input id="adminUsername" autocomplete="username"></label>
+      <label class="jm-field"><span>Password</span><input id="adminPassword" type="password" autocomplete="current-password"></label>
+      <p class="jm-form-message" id="adminLoginMessage"></p>
+      <button class="jm-button jm-button-primary jm-button-full" id="adminLoginSubmit" type="button">Accedi</button>
+    </section>
+  </div>
+
+  <div class="jm-modal-backdrop" id="contentEditorModal" hidden>
+    <section class="jm-modal" role="dialog" aria-modal="true" aria-labelledby="contentEditorTitle">
+      <button class="jm-modal-close" type="button" data-close-modal="contentEditorModal" aria-label="Chiudi">×</button>
+      <p class="jm-eyebrow">EDITOR SITO</p>
+      <h2 id="contentEditorTitle">Modifica elemento</h2>
+      <p class="jm-content-key" id="editorKey"></p>
+      <label class="jm-field" id="editorTextField"><span>Contenuto</span><textarea id="editorValue" rows="7"></textarea></label>
+      <div id="editorImageField" hidden>
+        <div class="jm-editor-preview"><img id="editorImagePreview" alt="Anteprima"></div>
+        <label class="jm-field"><span>URL immagine</span><input id="editorImageUrl" type="url"></label>
+        <label class="jm-field"><span>Oppure carica un file</span><input id="editorImageFile" type="file" accept="image/*"></label>
+      </div>
+      <p class="jm-form-message" id="editorMessage"></p>
+      <div class="jm-modal-actions">
+        <button class="jm-button jm-button-ghost" id="editorReset" type="button">Ripristina predefinito</button>
+        <button class="jm-button jm-button-primary" id="editorSave" type="button">Salva</button>
       </div>
     </section>
   </div>
 
-  <div id="memberLoginModal" class="modal-backdrop" hidden>
-    <section class="modal sm" role="dialog" aria-modal="true" aria-labelledby="memberLoginTitle">
-      <div class="modal-head"><h2 id="memberLoginTitle">Backstage membri</h2><button class="modal-close" data-close-modal="memberLoginModal">×</button></div>
-      <div class="modal-body" id="memberLoginBody">
-        <div class="form-group"><label for="memberUsername">Username</label><input class="field" id="memberUsername" autocomplete="username" placeholder="ema, kekko…"></div>
-        <div class="form-group"><label for="memberPassword">Password</label><input class="field" id="memberPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-        <div class="form-note">Usa le stesse credenziali dell'app gestionale. Dopo l'accesso puoi gestire le funzioni principali direttamente qui; il cockpit completo resta disponibile per le operazioni avanzate.</div>
-        <div class="login-actions"><button class="btn" data-close-modal="memberLoginModal">Annulla</button><button class="btn primary" id="memberLoginSubmit">Accedi</button></div>
-        <div class="message" id="memberLoginMessage"></div>
-      </div>
+  <div class="jm-modal-backdrop" id="detailModal" hidden>
+    <section class="jm-modal jm-modal-wide" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <button class="jm-modal-close" type="button" data-close-modal="detailModal" aria-label="Chiudi">×</button>
+      <div id="detailModalBody"><div class="jm-empty">Caricamento…</div></div>
     </section>
   </div>
 
-
-  <div id="songDetailModal" class="modal-backdrop" hidden>
-    <section class="modal song-detail-modal" role="dialog" aria-modal="true" aria-labelledby="songDetailModalTitle">
-      <div class="modal-head"><h2 id="songDetailModalTitle">Dettaglio brano</h2><button class="modal-close" data-close-modal="songDetailModal">×</button></div>
-      <div class="modal-body" id="songDetailModalBody"></div>
-    </section>
-  </div>
-
-  <div id="songAdminModal" class="modal-backdrop" hidden>
-    <section class="modal sm" role="dialog" aria-modal="true">
-      <div class="modal-head"><h2>Modifica brano</h2><button class="modal-close" data-close-modal="songAdminModal">×</button></div>
-      <div class="modal-body">
-        <input type="hidden" id="adminSongId">
-        <div class="form-group"><label>Titolo</label><input class="field" id="adminSongTitle"></div>
-        <div class="grid grid-2"><div class="form-group"><label>BPM</label><input class="field" id="adminSongBpm" type="number"></div><div class="form-group"><label>Durata (secondi)</label><input class="field" id="adminSongDuration" type="number"></div></div>
-        <div class="form-group"><label>Base — artista</label><input class="field" id="adminSongBaseArtist"></div>
-        <div class="form-group"><label>Testo — artista</label><input class="field" id="adminSongLyricsArtist"></div>
-        <label class="form-note"><input id="adminSongActive" type="checkbox"> Brano attivo</label>
-        <div class="login-actions"><button class="btn" data-close-modal="songAdminModal">Annulla</button><button class="btn primary" id="adminSongSave">Salva</button></div>
-        <div class="message" id="adminSongMessage"></div>
-      </div>
-    </section>
-  </div>
-
-  <div id="concertModal" class="modal-backdrop" hidden>
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="concertModalTitle">
-      <div class="modal-head"><h2 id="concertModalTitle">Live</h2><button class="modal-close" data-close-modal="concertModal">×</button></div>
-      <div class="modal-body" id="concertModalBody"><div class="empty">Caricamento…</div></div>
-    </section>
-  </div>
-
-  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
-
-<script>
-(() => {
-  'use strict';
-  const SUPABASE_URL='https://etzwybamvfpeitkttwrc.supabase.co';
-  const SUPABASE_KEY='sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
-  const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
-  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-  const $=id=>document.getElementById(id);
-  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const state={route:'home',permissions:{},currentFan:null,concerts:[],analytics:null,catalog:[],rankings:null,liveTab:'future',rankingTab:'songs',memberUser:null,memberProfile:null,memberPermissions:{},backstageTab:'setlist',setlistTab:'live',publicSetlistConcertId:null,memberSongs:[],memberVotes:[],mySetlistId:null,mySetlistItems:[],memberProfiles:[],memberSetlists:[],memberSetlistItems:[],memberConcerts:[],memberFanRanking:[],memberSettings:[]};
-  const MODE={standard:{label:'STANDARD',cls:'mode-standard'},mixed:{label:'MIXED',cls:'mode-mixed'},jukebox:{label:'JUKEBOX',cls:'mode-jukebox'}};
-
-  function getFanDeviceToken(){let t=localStorage.getItem('jm_fan_device_token');if(!t){t=crypto.randomUUID();localStorage.setItem('jm_fan_device_token',t)}return t}
-  function fanFingerprint(){return [navigator.userAgent,navigator.language,Intl.DateTimeFormat().resolvedOptions().timeZone,screen.width,screen.height,window.devicePixelRatio||1].join('|')}
-  async function fanApi(action,payload={}){
-    const guest=payload?.guest===true;
-    const body=guest?{action,...payload}:{action,device_token:getFanDeviceToken(),fingerprint:fanFingerprint(),...payload};
-    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
-    try{
-      const res=await fetch(FAN_API,{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify(body)});
-      let data={};try{data=await res.json()}catch{}
-      if(!res.ok)throw new Error(data.error||`fan-api HTTP ${res.status}`);
-      return data;
-    }catch(err){if(err?.name==='AbortError')throw new Error('La richiesta sta impiegando troppo tempo. Riprova.');throw err}finally{clearTimeout(timer)}
-  }
-  function guestPayload(extra={}){return state.currentFan?extra:{guest:true,...extra}}
-  function toast(message,type=''){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=message;$('toastStack').appendChild(el);setTimeout(()=>el.remove(),3200)}
-  function fmtDate(v){if(!v)return '—';const d=new Date(`${String(v).slice(0,10)}T12:00:00`);return new Intl.DateTimeFormat('it-IT',{day:'2-digit',month:'short',year:'numeric'}).format(d)}
-  function fmtTime(v){return v?String(v).slice(0,5):'—'}
-  function fmtDuration(sec){sec=Number(sec);if(!Number.isFinite(sec)||sec<=0)return '—';const m=Math.floor(sec/60),s=Math.round(sec%60);return `${m}:${String(s).padStart(2,'0')}`}
-  function modeInfo(c){return MODE[String(c?.event_mode||'standard')]||MODE.standard}
-  function posterUrl(path){if(!path)return null;try{return sb.storage.from('concert-posters').getPublicUrl(path).data.publicUrl||null}catch{return null}}
-  function publicLocation(c){if(c?.private_show)return 'Evento privato';const arr=[c?.venue,c?.locality,c?.municipality||c?.city,c?.province].filter(Boolean);return arr.join(' · ')||'Location da definire'}
-  function isPast(c){return c.status==='completed'||String(c.concert_date)<new Date().toISOString().slice(0,10)}
-  function nextConcert(){return [...state.concerts].filter(c=>!isPast(c)&&!c.private_show).sort((a,b)=>String(a.concert_date).localeCompare(String(b.concert_date))||String(a.start_time).localeCompare(String(b.start_time)))[0]||null}
-
-
-  function isMember(){return !!state.memberUser}
-  function isBandAdmin(){const u=String(state.memberProfile?.username||'').toLowerCase();return ['ema','kekko'].includes(u)}
-  function canMember(key){return Object.prototype.hasOwnProperty.call(state.memberPermissions,key)?!!state.memberPermissions[key]:true}
-  async function loadMemberPermissions(){try{const {data,error}=await sb.rpc('get_my_app_permissions');if(error)throw error;state.memberPermissions=Object.fromEntries((data||[]).map(r=>[r.permission_key,!!r.allowed]))}catch(err){console.warn('Permessi membro non disponibili, uso accesso base',err);state.memberPermissions={rankings_view:true,member_setlist_view:true,member_setlist_edit:true,catalog_view:true,catalog_vote:true,concerts_view:true,member_setlists_view:true,fan_section_view:true}}}
-  async function restoreMemberSession(){try{const {data:{user}}=await sb.auth.getUser();if(!user)return false;const {data:p,error}=await sb.from('profiles').select('*').eq('id',user.id).single();if(error)throw error;state.memberUser=user;state.memberProfile=p;await loadMemberPermissions();updateUserUI();setPermissionUI();return true}catch(err){console.warn('Sessione membro non ripristinata',err);return false}}
-  function memberRankingAllowed(){return isBandAdmin()?true:isMember()?canMember('rankings_view'):!!state.permissions.rankings_view}
-  function setContextTitle(title){if($('contextTitle'))$('contextTitle').textContent=title;if($('drawerContextTitle'))$('drawerContextTitle').textContent=title}
-  function contextButton(label,action,{active=false,sub='' }={}){return `<button type="button" data-context-action="${esc(action)}" class="${active?'active':''}"><span>${esc(label)}</span>${sub?`<small>${esc(sub)}</small>`:''}</button>`}
-  function contextHtml(){
-    const r=state.route,items=[];
-    if(r==='live'){
-      setContextTitle('Live');items.push('<div class="context-group-label">Periodo</div>',contextButton('Prossimi','live:future',{active:state.liveTab==='future'}),contextButton('Passati','live:past',{active:state.liveTab==='past'}),'<div class="context-group-label">Modalità</div>',contextButton('Tutte','mode:',{active:!$('liveMode')?.value}),contextButton('Standard','mode:standard',{active:$('liveMode')?.value==='standard'}),contextButton('Mixed','mode:mixed',{active:$('liveMode')?.value==='mixed'}),contextButton('Jukebox','mode:jukebox',{active:$('liveMode')?.value==='jukebox'}));
-    }else if(r==='catalog'){
-      setContextTitle('Repertorio');items.push('<div class="context-group-label">Azioni</div>',contextButton(state.currentFan?'Area fan attiva':'Entra come fan','fan:login',{active:!!state.currentFan}),contextButton('Ordina A–Z','catalog:title',{active:$('catalogSort')?.value==='title'}),contextButton('Prima i miei voti','catalog:vote',{active:$('catalogSort')?.value==='vote'}));
-    }else if(r==='rankings'){
-      setContextTitle('Classifiche');items.push('<div class="context-group-label">Classifica</div>',contextButton('Brani','ranking:songs',{active:state.rankingTab==='songs'}),contextButton('Fan','ranking:fans',{active:state.rankingTab==='fans'}),contextButton('Live','ranking:concerts',{active:state.rankingTab==='concerts'}));
-    }else if(r==='backstage'){
-      setContextTitle('Backstage');const labels={setlist:'La mia scaletta',catalog:'Catalogo',concerts:'Concerti',members:'Scalette membri',fans:'Fan',setup:'Setup rapido'};items.push('<div class="context-group-label">Gestione</div>',...Object.entries(labels).map(([k,l])=>contextButton(l,`backstage:${k}`,{active:state.backstageTab===k})),`<a href="index.html"><span>Cockpit completo</span><small>avanzato</small></a>`);
-    }else if(r==='stats'){
-      setContextTitle('Statistiche');items.push('<div class="context-group-label">Dati</div>',contextButton('Aggiorna statistiche','stats:refresh'));
-    }else if(r==='home'){
-      setContextTitle('Accesso rapido');items.push(contextButton('Prossimi live','route:live'),contextButton(state.currentFan?'Fan attivo':'Entra come fan','fan:login'),contextButton(isMember()?'Apri backstage':'Accesso membri','member:login'));
-    }else{
-      setContextTitle('In questa sezione');items.push(contextButton('Home','route:home'),contextButton('Prossimi live','route:live'),contextButton(isMember()?'Backstage':'Accesso membri','member:login'));
-    }
-    return items.join('');
-  }
-  function renderContextNav(){const html=contextHtml();if($('contextNavDesktop'))$('contextNavDesktop').innerHTML=html;if($('contextNavDrawer'))$('contextNavDrawer').innerHTML=html}
-  async function handleContextAction(action){
-    if(action.startsWith('route:'))return routeTo(action.slice(6));
-    if(action.startsWith('live:')){state.liveTab=action.slice(5);document.querySelectorAll('#liveTabs [data-live-tab]').forEach(b=>b.classList.toggle('active',b.dataset.liveTab===state.liveTab));renderLiveGrid();renderContextNav();return}
-    if(action.startsWith('mode:')){if($('liveMode'))$('liveMode').value=action.slice(5);renderLiveGrid();renderContextNav();return}
-    if(action==='fan:login'){if(!state.currentFan)openFanLogin();else toast(`Fan attivo: ${state.currentFan.display_name||state.currentFan.nickname||''}`);return}
-    if(action==='member:login'){if(isMember())routeTo('backstage');else openMemberLogin();return}
-    if(action.startsWith('catalog:')){if($('catalogSort'))$('catalogSort').value=action.slice(8);if(state.currentFan)renderCatalog();renderContextNav();return}
-    if(action.startsWith('ranking:')){state.rankingTab=action.slice(8);document.querySelectorAll('#rankingTabs [data-ranking-tab]').forEach(b=>b.classList.toggle('active',b.dataset.rankingTab===state.rankingTab));renderRankings();renderContextNav();return}
-    if(action.startsWith('backstage:')){await openBackstageTab(action.slice(10));renderContextNav();return}
-    if(action==='stats:refresh'){await loadAnalytics();return}
-  }
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-context-action]');if(b){e.preventDefault();handleContextAction(b.dataset.contextAction);closeDrawer()}});
-
-  async function loadMemberCore(){
-    if(!isMember())return;
-    const jobs=[sb.from('songs').select('*').order('title'),sb.from('member_votes').select('*').eq('member_id',state.memberUser.id),sb.from('profiles').select('id,display_name,username')];
-    const [sr,vr,pr]=await Promise.all(jobs);if(sr.error)throw sr.error;if(vr.error)throw vr.error;if(pr.error)throw pr.error;state.memberSongs=sr.data||[];state.memberVotes=vr.data||[];state.memberProfiles=pr.data||[];
-    let {data:setlist,error:se}=await sb.from('setlists').select('*').eq('owner_id',state.memberUser.id).eq('name','Scaletta ideale').maybeSingle();if(se)throw se;
-    if(!setlist&&canMember('member_setlist_edit')){const ins=await sb.from('setlists').insert({owner_id:state.memberUser.id,name:'Scaletta ideale'}).select('*').single();if(ins.error)throw ins.error;setlist=ins.data}
-    state.mySetlistId=setlist?.id||null;if(state.mySetlistId){const ir=await sb.from('setlist_items').select('*').eq('setlist_id',state.mySetlistId);if(ir.error)throw ir.error;state.mySetlistItems=ir.data||[]}else state.mySetlistItems=[];
-  }
-  function memberVote(songId){return state.memberVotes.find(v=>v.song_id===songId)?.molesti_score??null}
-  async function saveMemberVote(songId,score){const payload={member_id:state.memberUser.id,song_id:songId,molesti_score:score};const {error}=await sb.from('member_votes').upsert(payload,{onConflict:'member_id,song_id'});if(error)throw error;const ex=state.memberVotes.find(v=>v.song_id===songId);if(ex)ex.molesti_score=score;else state.memberVotes.push(payload)}
-  function setlistSongRows(){const map=new Map(state.memberSongs.map(s=>[s.id,s]));const incl=state.mySetlistItems.filter(x=>x.included!==false).sort((a,b)=>(a.position??9999)-(b.position??9999)).map(x=>({...x,song:map.get(x.song_id)})).filter(x=>x.song);const exc=state.mySetlistItems.filter(x=>x.included===false).map(x=>({...x,song:map.get(x.song_id)})).filter(x=>x.song);const present=new Set(state.mySetlistItems.map(x=>x.song_id));for(const song of state.memberSongs.filter(s=>s.active!==false&&!present.has(s.id)))incl.push({song_id:song.id,included:true,position:incl.length,song});return{incl,exc}}
-  async function persistMySetlist(rows){if(!state.mySetlistId)return;const payload=[...rows.incl.map((x,i)=>({setlist_id:state.mySetlistId,song_id:x.song_id,included:true,position:i})),...rows.exc.map(x=>({setlist_id:state.mySetlistId,song_id:x.song_id,included:false,position:null}))];if(payload.length){const {error}=await sb.from('setlist_items').upsert(payload,{onConflict:'setlist_id,song_id'});if(error)throw error}state.mySetlistItems=payload}
-  function renderBackstageSetlist(){const {incl,exc}=setlistSongRows();$('backstageContent').innerHTML=`<div class="backstage-grid"><section class="card backstage-panel"><div class="backstage-panel-head"><h3>LA MIA SCALETTA</h3><span class="member-chip">${incl.length} brani</span></div><div class="backstage-list" id="bsSetlistIncluded">${incl.map((x,i)=>`<div class="manage-row" data-bs-song="${esc(x.song_id)}"><div class="song-pos">${i+1}</div><div><strong>${esc(x.song.title)}</strong><span>${esc(x.song.base_artist||'')} ${x.song.bpm?`· ${x.song.bpm} BPM`:''}</span></div><div class="manage-actions"><button class="icon-btn" data-bs-move="up" title="Su">↑</button><button class="icon-btn" data-bs-move="down" title="Giù">↓</button><button class="icon-btn" data-bs-toggle="exclude" title="Escludi">×</button></div></div>`).join('')||'<div class="empty">Nessun brano.</div>'}</div></section><section class="card backstage-panel"><div class="backstage-panel-head"><h3>ESCLUSE</h3><span class="member-chip">${exc.length}</span></div><div class="backstage-list">${exc.map(x=>`<div class="manage-row" data-bs-song="${esc(x.song_id)}"><div class="song-pos">—</div><div><strong>${esc(x.song.title)}</strong><span>Fuori dalla scaletta personale</span></div><div class="manage-actions"><button class="icon-btn" data-bs-toggle="include" title="Reinserisci">+</button></div></div>`).join('')||'<div class="empty">Nessun brano escluso.</div>'}</div></section></div>`;
-    $('backstageContent').querySelectorAll('[data-bs-move],[data-bs-toggle]').forEach(b=>b.onclick=async()=>{const row=b.closest('[data-bs-song]'),id=row.dataset.bsSong,rows=setlistSongRows();if(b.dataset.bsMove){const i=rows.incl.findIndex(x=>x.song_id===id),j=b.dataset.bsMove==='up'?i-1:i+1;if(i<0||j<0||j>=rows.incl.length)return;[rows.incl[i],rows.incl[j]]=[rows.incl[j],rows.incl[i]]}else if(b.dataset.bsToggle==='exclude'){const i=rows.incl.findIndex(x=>x.song_id===id);if(i>=0)rows.exc.push(rows.incl.splice(i,1)[0])}else{const i=rows.exc.findIndex(x=>x.song_id===id);if(i>=0)rows.incl.push(rows.exc.splice(i,1)[0])}try{await persistMySetlist(rows);renderBackstageSetlist()}catch(err){toast(err.message,'error')}})
-  }
-  function renderBackstageCatalog(){const rows=state.memberSongs.filter(s=>s.active!==false).sort((a,b)=>String(a.title).localeCompare(String(b.title),'it'));$('backstageContent').innerHTML=`<section class="card backstage-panel"><div class="backstage-panel-head"><h3>CATALOGO</h3><span class="member-chip">${rows.length} brani</span></div><div class="backstage-list">${rows.map((s,i)=>`<div class="manage-row" data-member-song="${esc(s.id)}"><div class="song-pos">${i+1}</div><div><strong>${esc(s.title)}</strong><span>${esc(s.base_artist||'—')} · ${s.bpm||'—'} BPM</span><div style="margin-top:5px;overflow-x:auto">${ratingHtml(memberVote(s.id),s.id,'member-catalog')}</div></div><div class="manage-actions">${isBandAdmin()?`<button class="icon-btn" data-admin-edit-song="${esc(s.id)}" title="Modifica">✎</button>`:''}</div></div>`).join('')}</div></section>`;bindRatings($('backstageContent'));$('backstageContent').querySelectorAll('[data-admin-edit-song]').forEach(b=>b.onclick=()=>openAdminSongEdit(b.dataset.adminEditSong))}
-  async function loadMemberConcerts(){const {data,error}=await sb.from('concerts').select('*').order('concert_date',{ascending:false});if(error)throw error;state.memberConcerts=data||[]}
-  function renderBackstageConcerts(){const rows=state.memberConcerts;$('backstageContent').innerHTML=`<section class="card backstage-panel"><div class="backstage-panel-head"><h3>CONCERTI</h3>${isBandAdmin()?'<button class="btn sm" id="bsNewConcert">+ Nuovo</button>':''}</div><div class="backstage-list">${rows.map(c=>`<div class="manage-row"><div class="song-pos">${esc(fmtDate(c.concert_date))}</div><div><strong>${esc(c.name)}</strong><span>${esc(fmtTime(c.start_time))} · ${esc(c.status||'')} · ${esc(c.event_mode||'standard')}</span></div><div class="manage-actions">${isBandAdmin()?`<button class="icon-btn" data-edit-concert="${esc(c.id)}">✎</button>`:''}</div></div>`).join('')||'<div class="empty">Nessun concerto.</div>'}</div></section>`;if($('bsNewConcert'))$('bsNewConcert').onclick=()=>openQuickConcertEditor();$('backstageContent').querySelectorAll('[data-edit-concert]').forEach(b=>b.onclick=()=>openQuickConcertEditor(state.memberConcerts.find(c=>c.id===b.dataset.editConcert)))}
-  function openQuickConcertEditor(c=null){if(!isBandAdmin())return;const id='quickConcertEditor';let el=$(id);if(!el){el=document.createElement('div');el.id=id;el.className='modal-backdrop';el.innerHTML='<section class="modal sm"><div class="modal-head"><h2>Concerto</h2><button class="modal-close" data-qc-close>×</button></div><div class="modal-body"><div class="form-group"><label>Nome</label><input class="field" data-qc="name"></div><div class="grid grid-2"><div class="form-group"><label>Data</label><input class="field" data-qc="concert_date" type="date"></div><div class="form-group"><label>Ora</label><input class="field" data-qc="start_time" type="time"></div></div><div class="grid grid-2"><div class="form-group"><label>Stato</label><select class="field" data-qc="status"><option value="draft">Bozza</option><option value="future">Futuro</option><option value="confirmed">Confermato</option><option value="completed">Concluso</option><option value="cancelled">Annullato</option></select></div><div class="form-group"><label>Modalità</label><select class="field" data-qc="event_mode"><option value="standard">Standard</option><option value="mixed">Mixed</option><option value="jukebox">Jukebox</option></select></div></div><div class="login-actions"><button class="btn" data-qc-close>Annulla</button><button class="btn primary" data-qc-save>Salva</button></div><div class="message" data-qc-msg></div></div></section>';document.body.appendChild(el);el.querySelectorAll('[data-qc-close]').forEach(b=>b.onclick=()=>{el.hidden=true;document.body.style.overflow=''})}el.hidden=false;document.body.style.overflow='hidden';el.dataset.id=c?.id||'';for(const k of ['name','concert_date','start_time','status','event_mode']){const f=el.querySelector(`[data-qc="${k}"]`);if(f)f.value=k==='start_time'?(c?.[k]?String(c[k]).slice(0,5):'21:30'):(c?.[k]|| (k==='status'?'draft':k==='event_mode'?'standard':''))}el.querySelector('[data-qc-save]').onclick=async()=>{const payload={};for(const k of ['name','concert_date','start_time','status','event_mode'])payload[k]=el.querySelector(`[data-qc="${k}"]`).value||null;const res=el.dataset.id?await sb.from('concerts').update(payload).eq('id',el.dataset.id):await sb.from('concerts').insert(payload);if(res.error){el.querySelector('[data-qc-msg]').textContent=res.error.message;return}el.hidden=true;document.body.style.overflow='';await loadMemberConcerts();renderBackstageConcerts();toast('Concerto salvato','ok')}}
-  async function loadMemberSetlists(){const [sr,ir]=await Promise.all([sb.from('setlists').select('*').eq('name','Scaletta ideale'),sb.from('setlist_items').select('*')]);if(sr.error)throw sr.error;if(ir.error)throw ir.error;state.memberSetlists=sr.data||[];state.memberSetlistItems=ir.data||[]}
-  function renderBackstageMembers(){const songs=new Map(state.memberSongs.map(s=>[s.id,s]));$('backstageContent').innerHTML=`<div class="grid grid-2">${state.memberProfiles.map(p=>{const sl=state.memberSetlists.find(x=>x.owner_id===p.id),items=state.memberSetlistItems.filter(x=>x.setlist_id===sl?.id&&x.included!==false).sort((a,b)=>(a.position??9999)-(b.position??9999));return `<section class="card backstage-panel"><div class="backstage-panel-head"><h3>${esc(p.display_name||p.username||'Membro')}</h3><span class="member-chip">${items.length}</span></div><div class="backstage-list">${items.map((x,i)=>`<div class="manage-row"><div class="song-pos">${i+1}</div><div><strong>${esc(songs.get(x.song_id)?.title||'Brano')}</strong></div><div></div></div>`).join('')||'<div class="empty">Scaletta vuota.</div>'}</div></section>`}).join('')}</div>`}
-  async function loadMemberFanRanking(){const [r,b]=await Promise.all([sb.rpc('get_fan_ranking'),sb.rpc('get_fan_onboarding_point_totals')]);if(r.error)throw r.error;const bonus=new Map((b.data||[]).map(x=>[x.fan_id,Number(x.points||0)]));state.memberFanRanking=(r.data||[]).map(x=>({...x,points:Number(x.points||0)+(bonus.get(x.fan_id)||0)})).sort((a,b)=>Number(b.points||0)-Number(a.points||0))}
-  function renderBackstageFans(){const rows=state.memberFanRanking;$('backstageContent').innerHTML=`<section class="card backstage-panel"><div class="backstage-panel-head"><h3>FAN</h3><span class="member-chip">${rows.length}</span></div><div class="backstage-list">${rows.map((r,i)=>`<div class="manage-row"><div class="song-pos">${i+1}</div><div><strong>${esc(String(r.fan_name||'').toUpperCase())}</strong><span>${Number(r.attendance_count||0)} live · ${Number(r.rated_song_count||0)} brani votati</span></div><div class="vote-state">${Number(r.points||0)}</div></div>`).join('')||'<div class="empty">Nessun fan.</div>'}</div></section>`}
-  async function loadMemberSettings(){if(!isBandAdmin()){state.memberSettings=[];return}const {data,error}=await sb.from('app_numeric_settings').select('*').order('sort_order');if(error)throw error;state.memberSettings=data||[]}
-  function renderBackstageSetup(){if(!isBandAdmin()){$('backstageContent').innerHTML='<div class="card empty">Il Setup rapido è disponibile solo agli admin. Il cockpit completo applica comunque i permessi del tuo account.</div>';return}$('backstageContent').innerHTML=`<section class="card backstage-panel"><div class="backstage-panel-head"><h3>SETUP RAPIDO</h3><a class="btn sm" href="index.html#setup">Setup completo</a></div><div class="backstage-list">${state.memberSettings.map(r=>`<label class="quick-setting"><span><strong>${esc(r.label||r.setting_key)}</strong><span>${esc(r.description||r.setting_key)}</span></span><input class="field" type="number" step="${esc(r.step??1)}" value="${esc(r.value)}" data-setting-key="${esc(r.setting_key)}"></label>`).join('')||'<div class="empty">Nessun parametro.</div>'}</div></section>`;$('backstageContent').querySelectorAll('[data-setting-key]').forEach(input=>input.onchange=async()=>{const {error}=await sb.from('app_numeric_settings').update({value:Number(input.value)}).eq('setting_key',input.dataset.settingKey);if(error)toast(error.message,'error');else toast('Parametro aggiornato','ok')})}
-  async function openBackstageTab(tab){if(!isMember()){openMemberLogin();return}state.backstageTab=tab;document.querySelectorAll('#backstageTabs [data-backstage-tab]').forEach(b=>b.classList.toggle('active',b.dataset.backstageTab===tab));$('backstageContent').innerHTML='<div class="card empty">Caricamento…</div>';try{if(['setlist','catalog','members'].includes(tab)&&!state.memberSongs.length)await loadMemberCore();if(tab==='setlist')renderBackstageSetlist();else if(tab==='catalog')renderBackstageCatalog();else if(tab==='concerts'){await loadMemberConcerts();renderBackstageConcerts()}else if(tab==='members'){await loadMemberSetlists();renderBackstageMembers()}else if(tab==='fans'){await loadMemberFanRanking();renderBackstageFans()}else if(tab==='setup'){await loadMemberSettings();renderBackstageSetup()}}catch(err){$('backstageContent').innerHTML=`<div class="card empty">${esc(err.message)}</div>`;toast(err.message,'error')}renderContextNav()}
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-backstage-tab]');if(b)openBackstageTab(b.dataset.backstageTab)});
-  function openAdminSongEdit(id){const song=state.memberSongs.find(s=>s.id===id);if(!song||!isBandAdmin())return;$('adminSongId').value=id;$('adminSongTitle').value=song.title||'';$('adminSongBpm').value=song.bpm??'';$('adminSongDuration').value=song.duration_seconds??'';$('adminSongBaseArtist').value=song.base_artist||'';$('adminSongLyricsArtist').value=song.lyrics_artist||'';$('adminSongActive').checked=song.active!==false;$('adminSongMessage').textContent='';openModal('songAdminModal')}
-  if($('adminSongSave'))$('adminSongSave').onclick=async()=>{const id=$('adminSongId').value,payload={title:$('adminSongTitle').value.trim(),bpm:$('adminSongBpm').value?Number($('adminSongBpm').value):null,duration_seconds:$('adminSongDuration').value?Number($('adminSongDuration').value):null,base_artist:$('adminSongBaseArtist').value.trim()||null,lyrics_artist:$('adminSongLyricsArtist').value.trim()||null,active:$('adminSongActive').checked,updated_at:new Date().toISOString()};const {error}=await sb.from('songs').update(payload).eq('id',id);if(error){$('adminSongMessage').textContent=error.message;return}const song=state.memberSongs.find(x=>x.id===id);if(song)Object.assign(song,payload);closeModal('songAdminModal');renderBackstageCatalog();toast('Brano aggiornato','ok')};
-
-  function routeTo(route,push=true){
-    if(route==='rankings'&&!memberRankingAllowed())route='home';
-    if(route==='backstage'&&!isMember()){openMemberLogin();route='home'}
-    state.route=route;
-    document.querySelectorAll('.page[data-page]').forEach(p=>p.classList.toggle('active',p.dataset.page===route));
-    document.querySelectorAll('[data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===route));
-    if(push&&location.hash!==`#${route}`)history.pushState(null,'',`#${route}`);
-    closeDrawer();window.scrollTo({top:0,behavior:'smooth'});
-    if(route==='catalog'&&state.currentFan)loadCatalog();
-    if(route==='stats'&&!state.analytics)loadAnalytics();
-    if(route==='rankings'&&memberRankingAllowed())loadRankings();
-    if(route==='backstage'&&isMember())openBackstageTab(state.backstageTab);
-    renderContextNav();
-  }
-  document.addEventListener('click',e=>{const r=e.target.closest('[data-route]');if(r){e.preventDefault();routeTo(r.dataset.route)}});
-  window.addEventListener('popstate',()=>routeTo((location.hash||'#home').slice(1),false));
-
-  function setPermissionUI(){document.querySelectorAll('[data-permission]').forEach(el=>{const key=el.dataset.permission;el.hidden=key==='rankings_view'?!memberRankingAllowed():!state.permissions[key]});if($('backstageTopNav'))$('backstageTopNav').hidden=!isMember();if($('backstagePage'))$('backstagePage').hidden=!isMember();renderContextNav()}
-  async function loadPermissions(){try{const d=await fanApi('permissions',guestPayload());state.permissions=d.permissions||{};setPermissionUI()}catch(err){console.warn('Permessi pubblici non disponibili',err);state.permissions={};setPermissionUI()}}
-
-  async function loadConcerts(){
-    try{const d=await fanApi('list_concerts',guestPayload());state.concerts=(d.concerts||[]).filter(c=>!c.private_show||state.permissions.private_shows_view);renderHero();renderHomeLives();renderLiveGrid();renderSideLive()}
-    catch(err){toast(`Concerti: ${err.message}`,'error');$('homeLiveGrid').innerHTML='<div class="card empty">Calendario temporaneamente non disponibile.</div>';$('liveGrid').innerHTML='<div class="card empty">Calendario temporaneamente non disponibile.</div>'}
-  }
-  function renderHero(){const c=nextConcert(),hero=$('hero'),card=$('heroLiveCard');if(!c){card.innerHTML='<div class="eyebrow">Prossimo live</div><div class="row"><h3>Nessuna data pubblica</h3></div><div class="hero-live-meta">Torna a controllare più avanti.</div>';return}const p=posterUrl(c.poster_path);if(p)hero.style.backgroundImage=`linear-gradient(90deg,rgba(7,9,17,.95) 0%,rgba(7,9,17,.72) 43%,rgba(7,9,17,.20) 80%),url("${p.replace(/"/g,'%22')}")`;const m=modeInfo(c);card.innerHTML=`<div class="eyebrow">Prossimo live</div><div class="row"><h3>${esc(c.name)}</h3><span class="mode-chip ${m.cls}">${m.label}</span></div><div class="hero-live-meta">${esc(fmtDate(c.concert_date))} · ${esc(fmtTime(c.start_time))} · ${esc(publicLocation(c))}</div>`;card.onclick=()=>openConcert(c.id)}
-  function concertCard(c){const p=posterUrl(c.poster_path),m=modeInfo(c),status=isPast(c)?'completed':(c.status==='confirmed'?'confirmed':'future');const statusText=isPast(c)?'PASSATO':(c.status==='confirmed'?'CONFERMATO':'IN ARRIVO');return `<article class="card live-card" data-concert-id="${esc(c.id)}"><div class="live-poster">${p?`<img src="${esc(p)}" alt="Locandina ${esc(c.name)}" loading="lazy">`:''}</div><div class="live-card-body"><div class="live-date">${esc(fmtDate(c.concert_date))} · ${esc(fmtTime(c.start_time))}</div><h3>${esc(c.name)}</h3><div class="live-meta">${esc(publicLocation(c))}</div><div class="live-bottom"><span class="status ${status}">${statusText}</span><span class="mode-chip ${m.cls}">${m.label}</span></div></div></article>`}
-  function bindConcertCards(root){root.querySelectorAll('[data-concert-id]').forEach(el=>el.onclick=()=>openConcert(el.dataset.concertId))}
-  function renderHomeLives(){const rows=[...state.concerts].filter(c=>!isPast(c)&&!c.private_show).sort((a,b)=>String(a.concert_date).localeCompare(String(b.concert_date))).slice(0,3);$('homeLiveGrid').innerHTML=rows.length?rows.map(concertCard).join(''):'<div class="card empty">Nessun live pubblico in programma.</div>';bindConcertCards($('homeLiveGrid'))}
-  function renderSideLive(){const c=nextConcert(),box=$('sideLive');if(!c){box.innerHTML='<div class="eyebrow">Prossimo live</div><strong>Nessuna data pubblica</strong><p>Il calendario è tranquillo. Sospettosamente tranquillo.</p><button class="btn sm" data-route="live">Vedi live</button>';return}box.innerHTML=`<div class="eyebrow">Prossimo live</div><strong>${esc(c.name)}</strong><p>${esc(fmtDate(c.concert_date))} · ${esc(publicLocation(c))}</p><button class="btn sm" data-concert-id="${esc(c.id)}">Apri</button>`;box.querySelector('[data-concert-id]').onclick=()=>openConcert(c.id)}
-  function renderLiveGrid(){const q=$('liveSearch').value.trim().toLowerCase(),mode=$('liveMode').value;let rows=state.concerts.filter(c=>state.liveTab==='past'?isPast(c):!isPast(c));rows=rows.filter(c=>!c.private_show||state.permissions.private_shows_view);if(q)rows=rows.filter(c=>[c.name,c.venue,c.locality,c.municipality,c.city,c.province].some(v=>String(v||'').toLowerCase().includes(q)));if(mode)rows=rows.filter(c=>String(c.event_mode||'standard')===mode);rows.sort((a,b)=>state.liveTab==='past'?String(b.concert_date).localeCompare(String(a.concert_date)):String(a.concert_date).localeCompare(String(b.concert_date)));$('liveGrid').innerHTML=rows.length?rows.map(concertCard).join(''):'<div class="card empty">Nessun concerto in questa vista.</div>';bindConcertCards($('liveGrid'))}
-  $('liveTabs').onclick=e=>{const b=e.target.closest('[data-live-tab]');if(!b)return;state.liveTab=b.dataset.liveTab;$('liveTabs').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderLiveGrid();renderContextNav()};$('liveSearch').oninput=renderLiveGrid;$('liveMode').onchange=()=>{renderLiveGrid();renderContextNav()};
-
-  async function loadAnalytics(){try{const d=await fanApi('analytics',{guest:true});state.analytics=d;renderAnalytics()}catch(err){toast(`Statistiche: ${err.message}`,'error')}}
-  function renderAnalytics(){const a=state.analytics;if(!a)return;const home=[['Brani',a.song_count,'repertorio attivo'],['Live',a.concert_count,'concerti conclusi'],['Durata media',fmtDuration(a.duration?.avg_seconds),'per brano'],['Territorio',a.top_zone?.name||a.top_city?.name||'—','zona più battuta']];$('homeStatsGrid').innerHTML=home.map(x=>`<div class="card stat-card"><div class="stat-label">${esc(x[0])}</div><strong>${esc(x[1])}</strong><div class="stat-note">${esc(x[2])}</div></div>`).join('');const k=[['Brani attivi',a.song_count,'nel repertorio'],['Live conclusi',a.concert_count,'storico utile'],['Durata media',fmtDuration(a.duration?.avg_seconds),'durata brano'],['Città top',a.top_city?.name||'—',a.top_city?`${a.top_city.count} live`:'nessun dato']];$('statsKpis').innerHTML=k.map(x=>`<div class="card stat-card"><div class="stat-label">${esc(x[0])}</div><strong>${esc(x[1])}</strong><div class="stat-note">${esc(x[2])}</div></div>`).join('');const charts=[];charts.push(chartCard('Zone / CAP',(a.zones||[]).slice(0,8).map(x=>({label:x.name,count:x.count}))));charts.push(chartCard('Tipologie venue',(a.venue_types||[]).slice(0,8)));charts.push(chartCard('Artisti delle basi',(a.artists?.base||[]).slice(0,8)));charts.push(chartCard('Modalità di esecuzione',(a.execution_types||[]).slice(0,8)));$('statsCharts').innerHTML=charts.join('')}
-  function chartCard(title,rows){const max=Math.max(1,...rows.map(x=>Number(x.count)||0));return `<article class="card chart-card"><h3>${esc(title)}</h3><div class="bar-list">${rows.length?rows.map(x=>`<div class="bar-row"><span>${esc(x.label||x.name||'—')}</span><span class="bar"><i style="width:${Math.max(3,100*(Number(x.count)||0)/max)}%"></i></span><b>${Number(x.count)||0}</b></div>`).join(''):'<div class="empty">Nessun dato.</div>'}</div></article>`}
-  $('refreshStats').onclick=loadAnalytics;
-
-  async function loadCatalog(){if(!state.currentFan)return;try{$('catalogList').innerHTML='<div class="empty">Caricamento catalogo…</div>';const d=await fanApi('catalog');state.catalog=d.songs||[];renderCatalog()}catch(err){$('catalogList').innerHTML=`<div class="empty">${esc(err.message)}</div>`;toast(err.message,'error')}}
-  function myCatalogVote(s){return s.my_vote?.molesti_score??s.effective_molesti_score??null}
-  function renderCatalog(){let rows=[...state.catalog],q=$('catalogSearch').value.trim().toLowerCase();if(q)rows=rows.filter(s=>[s.title,s.base_title,s.base_artist,s.lyrics_title,s.lyrics_artist].some(v=>String(v||'').toLowerCase().includes(q)));if($('catalogSort').value==='vote')rows.sort((a,b)=>(Number(myCatalogVote(b))||0)-(Number(myCatalogVote(a))||0)||String(a.title).localeCompare(String(b.title),'it'));else rows.sort((a,b)=>String(a.title).localeCompare(String(b.title),'it'));$('catalogList').innerHTML=rows.length?rows.map((s,i)=>`<div class="song-row" data-song-id="${esc(s.id)}"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(s.title)}</strong><span>${esc(s.base_title||s.base_artist||'Base non indicata')} · ${esc(s.lyrics_title||s.lyrics_artist||'Testo non indicato')}</span></div><div class="song-meta">${esc(s.base_artist||'—')} / ${esc(s.lyrics_artist||'—')}</div><div class="vote-state">${myCatalogVote(s)==null?'—':Number(myCatalogVote(s)).toFixed(1)}</div><div>${ratingHtml(myCatalogVote(s),s.id,'catalog')}</div></div>`).join(''):'<div class="empty">Nessun brano trovato.</div>';bindRatings($('catalogList'))}
-  $('catalogSearch').oninput=renderCatalog;$('catalogSort').onchange=renderCatalog;
-  function ratingHtml(value,id,scope='generic',compact=true){value=value==null?null:Number(value);let html=`<div class="rating ${compact?'compact':''}" data-rating-id="${esc(id)}" data-rating-scope="${esc(scope)}" data-value="${value??''}">`;for(let n=1;n<=10;n++){let cls='';if(value===n)cls='on';else if(value!=null&&value===n+.5)cls='half-left';else if(value!=null&&value===n-.5)cls='half-right';html+=`<button type="button" class="rate-int ${cls}" data-score="${n}" aria-label="Voto ${n}">${n}</button>`;if(n<10){html+=`<button type="button" class="rate-half ${value===n+.5?'on':''}" data-score="${n+.5}" aria-label="Voto ${n+.5}"></button>`}}return html+'</div>'}
-  function bindRatings(root){root.querySelectorAll('.rating').forEach(box=>box.onclick=async e=>{const b=e.target.closest('[data-score]');if(!b)return;const score=Number(b.dataset.score),id=box.dataset.ratingId,scope=box.dataset.ratingScope;box.style.pointerEvents='none';try{if(scope==='catalog'){await fanApi('catalog_vote',{song_id:id,molesti_score:score,preserve_advanced:true});const s=state.catalog.find(x=>x.id===id);if(s){s.my_vote={...(s.my_vote||{}),molesti_score:score};s.effective_molesti_score=score}renderCatalog();toast(`Voto salvato: ${score.toFixed(1)}`,'ok')}else if(scope.startsWith('live:')){const concertId=scope.slice(5);await fanApi('save_live_feedback',{concert_id:concertId,songs:[{song_id:id,performance_score:score}]});box.outerHTML=ratingHtml(score,id,scope);bindRatings(document);toast('Voto live salvato','ok')}else if(scope.startsWith('concert:')){const concertId=id;await fanApi('concert_rate',{concert_id:concertId,performance_score:score});box.outerHTML=ratingHtml(score,concertId,scope);bindRatings(document);toast('Voto concerto salvato','ok')}else if(scope==='member-catalog'){await saveMemberVote(id,score);box.outerHTML=ratingHtml(score,id,scope);bindRatings(document);toast(`Voto membro salvato: ${score.toFixed(1)}`,'ok')}}catch(err){toast(err.message,'error')}finally{box.style.pointerEvents=''}})}
-
-  async function openConcert(id){openModal('concertModal');$('concertModalBody').innerHTML='<div class="empty">Caricamento live…</div>';try{const d=await fanApi('concert_detail',guestPayload({concert_id:id}));renderConcertModal(d)}catch(err){$('concertModalBody').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}
-  function renderConcertModal(d){const c=d.concert||{},songs=d.songs||[],p=posterUrl(c.poster_path),m=modeInfo(c),privateInfo=c.private_show?'Evento privato':publicLocation(c);$('concertModalTitle').textContent=c.name||'Live';let html=`<div class="concert-hero">${p?`<img class="modal-poster" src="${esc(p)}" alt="Locandina ${esc(c.name)}">`:''}<div><div class="eyebrow">${esc(fmtDate(c.concert_date))} · ${esc(fmtTime(c.start_time))}</div><h3>${esc(c.name)}</h3><p>${esc(privateInfo)}</p><p><span class="mode-chip ${m.cls}">${m.label}</span></p>`;
-    if(state.currentFan){html+=`<div style="margin-top:12px"><label class="react ${d.attended?'on':''}" style="display:inline-flex;align-items:center;gap:6px"><input id="attendCheck" type="checkbox" ${d.attended?'checked':''}> IO C'ERO</label></div>`;if(d.attended&&d.voting_open){html+=`<div style="margin-top:12px"><div class="eyebrow">Voto generale live</div><div style="margin-top:5px">${ratingHtml(d.my_concert_rating,c.id,`concert:${c.id}`,false)}</div></div>`}}
-    html+='</div></div>';
-    if(!d.setlist_available)html+='<div class="card empty" style="margin-top:14px">La scaletta non è ancora disponibile.</div>';else html+=`<div class="concert-setlist">${songs.length?songs.map((s,i)=>`<div class="concert-song"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(s.title)}</strong><span>${esc(s.base_artist||'')} ${s.execution_type&&s.execution_type!=='planned'?`· ${esc(s.execution_type.toUpperCase())}`:''}</span></div>${state.currentFan&&d.attended&&d.voting_open?`<div>${ratingHtml(s.my_vote?.molesti_score,s.id,`live:${c.id}`)}</div><div></div><div class="reaction-row" data-react-song="${esc(s.id)}" data-concert="${esc(c.id)}"><button class="react ${s.my_reactions?.pogo?'on':''}" data-react="pogo">POGO</button><button class="react ${s.my_reactions?.sang_along?'on':''}" data-react="sang_along">CANTATA</button><button class="react ${s.my_reactions?.moving?'on':''}" data-react="moving">MOSSO/A</button><button class="react ${s.my_reactions?.enjoyed?'on':''}" data-react="enjoyed">GODUTA</button></div>`:''}</div>`).join(''):'<div class="empty">Nessun brano disponibile.</div>'}</div>`;
-    $('concertModalBody').innerHTML=html;bindRatings($('concertModalBody'));const att=$('attendCheck');if(att)att.onchange=async()=>{att.disabled=true;try{await fanApi('attend',{concert_id:c.id,attended:att.checked});toast(att.checked?'Presenza registrata':'Presenza rimossa','ok');await openConcert(c.id)}catch(err){att.checked=!att.checked;toast(err.message,'error')}finally{att.disabled=false}};$('concertModalBody').querySelectorAll('[data-react-song]').forEach(row=>row.onclick=async e=>{const b=e.target.closest('[data-react]');if(!b)return;b.classList.toggle('on');const payload={song_id:row.dataset.reactSong};row.querySelectorAll('[data-react]').forEach(x=>payload[x.dataset.react]=x.classList.contains('on'));try{await fanApi('save_live_feedback',{concert_id:row.dataset.concert,songs:[payload]});toast('Reazione salvata','ok')}catch(err){b.classList.toggle('on');toast(err.message,'error')}})}
-
-  async function loadRankings(){if(!memberRankingAllowed())return;try{if(isMember()){const [songs,fans,concerts,bonus]=await Promise.all([sb.rpc('get_song_scores'),sb.rpc('get_fan_ranking'),sb.rpc('get_concert_ranking'),sb.rpc('get_fan_onboarding_point_totals')]);if(songs.error)throw songs.error;if(fans.error)throw fans.error;if(concerts.error)throw concerts.error;const bm=new Map((bonus.data||[]).map(x=>[x.fan_id,Number(x.points||0)]));state.rankings={songs:songs.data||[],fans:(fans.data||[]).map(x=>({...x,points:Number(x.points||0)+(bm.get(x.fan_id)||0)})).sort((a,b)=>Number(b.points||0)-Number(a.points||0)),concerts:concerts.data||[]}}else state.rankings=await fanApi('rankings',guestPayload());renderRankings()}catch(err){$('rankingList').innerHTML=`<div class="empty">${esc(err.message)}</div>`}}
-  function renderRankings(){const d=state.rankings;if(!d)return;let rows=[];if(state.rankingTab==='songs')rows=(d.songs||[]).slice(0,40).map((r,i)=>`<div class="song-row"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(r.title)}</strong><span>R ${Number(r.ranking_score||0).toFixed(0)} · S ${Number(r.setlist_score||0).toFixed(0)}</span></div><div class="song-meta">Fan ${r.fan_score==null?'—':(Number(r.fan_score)/10).toFixed(1)}</div><div class="vote-state">${Number(r.ranking_score||0).toFixed(0)}</div><div></div></div>`);else if(state.rankingTab==='concerts')rows=(d.concerts||[]).slice(0,40).map((r,i)=>`<div class="song-row"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(r.concert_name||r.name||'Live')}</strong><span>${esc(fmtDate(r.concert_date))}</span></div><div class="song-meta">${Number(r.attendance_count||0)} presenze</div><div class="vote-state">${Number(r.score??r.rating_score??r.average_score??0).toFixed(1)}</div><div></div></div>`);else rows=(d.fans||[]).slice(0,40).map((r,i)=>`<div class="song-row"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(String(r.fan_name||'').toUpperCase())}</strong><span>${Number(r.attendance_count||0)} live</span></div><div class="song-meta">${Number(r.rated_song_count||0)} brani votati</div><div class="vote-state">${Number(r.points||0)}</div><div></div></div>`);$('rankingList').innerHTML=rows.length?rows.join(''):'<div class="empty">Nessun dato.</div>'}
-  $('rankingTabs').onclick=e=>{const b=e.target.closest('[data-ranking-tab]');if(!b)return;state.rankingTab=b.dataset.rankingTab;$('rankingTabs').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderRankings();renderContextNav()};
-
-  function openModal(id){$(id).hidden=false;document.body.style.overflow='hidden'}
-  function closeModal(id){$(id).hidden=true;if(!document.querySelector('.modal-backdrop:not([hidden])'))document.body.style.overflow=''}
-  document.addEventListener('click',e=>{const c=e.target.closest('[data-close-modal]');if(c)closeModal(c.dataset.closeModal)});
-  document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)closeModal(b.id)}));
-
-  function openFanLogin(){closeUserPopover();$('fanNameInput').value=localStorage.getItem('jm_site_fan_name')||'';$('fanLoginMessage').textContent='';openModal('fanLoginModal');setTimeout(()=>$('fanNameInput').focus(),30)}
-  async function doFanLogin(){const name=$('fanNameInput').value.trim();if(!name)return;$('fanLoginSubmit').disabled=true;$('fanLoginMessage').textContent='Accesso in corso…';try{const d=await fanApi('enter',{display_name:name});state.currentFan=d.fan||d;localStorage.setItem('jm_site_fan_name',state.currentFan.display_name||name);await loadPermissions();updateUserUI();closeModal('fanLoginModal');toast(`Ciao ${state.currentFan.display_name||name}`,'ok');await loadConcerts();if(state.route==='catalog')await loadCatalog();$('catalogGuestCard').hidden=true;$('catalogFanArea').hidden=false;$('catalogFanButton').hidden=true}catch(err){$('fanLoginMessage').textContent=err.message}finally{$('fanLoginSubmit').disabled=false}}
-  $('fanLoginSubmit').onclick=doFanLogin;$('fanNameInput').addEventListener('keydown',e=>{if(e.key==='Enter')doFanLogin()});$('heroFanButton').onclick=openFanLogin;$('catalogFanButton').onclick=openFanLogin;$('catalogGuestLogin').onclick=openFanLogin;$('fanLoginMenu').onclick=openFanLogin;
-  function fanLogout(){state.currentFan=null;localStorage.removeItem('jm_site_fan_name');updateUserUI();$('catalogGuestCard').hidden=false;$('catalogFanArea').hidden=true;$('catalogFanButton').hidden=false;loadPermissions().then(loadConcerts);toast('Area fan chiusa')}
-  $('fanLogoutMenu').onclick=()=>{closeUserPopover();fanLogout()};
-  function updateUserUI(){const member=state.memberProfile,fan=state.currentFan,name=member?.display_name||fan?.nickname||fan?.display_name||'Ospite';$('userName').textContent=name;$('userRole').textContent=member?(isBandAdmin()?'admin / membro':'membro'):fan?'fan riconosciuto':'entra come fan';$('userAvatar').textContent=(member||fan)?String(name).trim().slice(0,2).toUpperCase():'JM';$('fanMenuLabel').textContent=fan?'Profilo fan attivo':'Entra come fan';$('fanLogoutMenu').hidden=!fan;$('memberLoginMenu').hidden=!!member;$('memberLogoutMenu').hidden=!member;if($('backstageTopNav'))$('backstageTopNav').hidden=!member;if($('backstagePage'))$('backstagePage').hidden=!member;$('catalogGuestCard').hidden=!!fan;$('catalogFanArea').hidden=!fan;$('catalogFanButton').hidden=!!fan;setPermissionUI();renderContextNav()}
-
-  function openUserPopover(){$('userPopover').hidden=false;$('userButton').setAttribute('aria-expanded','true')}
-  function closeUserPopover(){$('userPopover').hidden=true;$('userButton').setAttribute('aria-expanded','false')}
-  $('userButton').onclick=e=>{e.stopPropagation();$('userPopover').hidden?openUserPopover():closeUserPopover()};document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))closeUserPopover()});
-
-  function openMemberLogin(){closeUserPopover();$('memberLoginMessage').textContent='';openModal('memberLoginModal');setTimeout(()=>$('memberUsername').focus(),30)}
-  $('memberLoginMenu').onclick=openMemberLogin;
-  $('memberLoginSubmit').onclick=async()=>{const username=$('memberUsername').value.trim().toLowerCase(),password=$('memberPassword').value;$('memberLoginSubmit').disabled=true;$('memberLoginMessage').textContent='Accesso in corso…';try{if(!username)throw new Error('Inserisci lo username.');if(password.length<6)throw new Error('Password troppo corta.');const {data:members,error:me}=await sb.rpc('check_member',{p_username:username});if(me)throw me;if(!members?.length)throw new Error('Username non riconosciuto.');const member=members[0],email=`${username}@johnimolesti.app`;if(!member.activated){const {data:su,error:se}=await sb.auth.signUp({email,password});if(se){const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw se}else if(!su.session)throw new Error('Supabase richiede la conferma email.');const {error:ce}=await sb.rpc('claim_member',{p_username:username});if(ce)throw ce}else{const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw new Error('Password errata.')}const {data:{user}}=await sb.auth.getUser();const {data:p,error:pe}=await sb.from('profiles').select('*').eq('id',user.id).single();if(pe)throw pe;state.memberUser=user;state.memberProfile=p;await loadMemberPermissions();await loadMemberCore();updateUserUI();closeModal('memberLoginModal');toast(`Backstage attivo: ${p.display_name||username}`,'ok');routeTo('backstage')}catch(err){$('memberLoginMessage').textContent=err.message}finally{$('memberLoginSubmit').disabled=false}};
-  $('memberLogoutMenu').onclick=async()=>{closeUserPopover();await sb.auth.signOut();state.memberUser=null;state.memberProfile=null;state.memberPermissions={};state.memberSongs=[];state.memberVotes=[];updateUserUI();if(state.route==='backstage')routeTo('home');toast('Backstage chiuso')};
-
-  function openDrawer(){$('drawerBackdrop').hidden=false;$('drawer').classList.add('open');$('drawer').setAttribute('aria-hidden','false');document.body.style.overflow='hidden'}
-  function closeDrawer(){$('drawerBackdrop').hidden=true;$('drawer').classList.remove('open');$('drawer').setAttribute('aria-hidden','true');if(!document.querySelector('.modal-backdrop:not([hidden])'))document.body.style.overflow=''}
-  $('mobileMenuButton').onclick=openDrawer;$('drawerClose').onclick=closeDrawer;$('drawerBackdrop').onclick=closeDrawer;
-
-  async function autoFan(){const name=localStorage.getItem('jm_site_fan_name');if(!name)return false;try{const d=await fanApi('enter',{display_name:name});state.currentFan=d.fan||d;updateUserUI();return true}catch{localStorage.removeItem('jm_site_fan_name');return false}}
-
-  /* V3 UI: covers, detail cards, dedicated setlists and rankings */
-  function songById(id){return state.memberSongs.find(x=>x.id===id)||state.catalog.find(x=>x.id===id)||(state.rankings?.songs||[]).find(x=>(x.song_id||x.id)===id)||null}
-  function colorFromText(text,offset=0){let h=2166136261;for(const ch of String(text||'JM'))h=(h^ch.charCodeAt(0))*16777619>>>0;return (h+offset)%360}
-  function coverSvgData(song){const title=String(song?.title||'John & i Molesti'),sub=String(song?.base_artist||song?.lyrics_artist||'John & i Molesti'),h=colorFromText(title),h2=(h+38)%360,initials=title.split(/\s+/).filter(Boolean).slice(0,3).map(x=>x[0]).join('').toUpperCase().slice(0,3);const safe=x=>String(x).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="hsl(${h} 24% 14%)"/><stop offset="1" stop-color="hsl(${h2} 38% 8%)"/></linearGradient><radialGradient id="r"><stop stop-color="#e7bf55" stop-opacity=".55"/><stop offset="1" stop-color="#e7bf55" stop-opacity="0"/></radialGradient></defs><rect width="420" height="420" rx="28" fill="url(#g)"/><circle cx="338" cy="78" r="210" fill="url(#r)"/><path d="M-40 326 C72 240 156 410 294 285 C350 234 403 238 470 172" fill="none" stroke="#d4a934" stroke-opacity=".32" stroke-width="18"/><rect x="24" y="24" width="372" height="372" rx="20" fill="none" stroke="#f0ca63" stroke-opacity=".26"/><text x="31" y="68" fill="#f0ca63" font-family="Arial,sans-serif" font-size="16" font-weight="800" letter-spacing="3">JOHN &amp; I MOLESTI</text><text x="31" y="255" fill="#fff" font-family="Arial,sans-serif" font-size="94" font-weight="900">${safe(initials)}</text><text x="31" y="322" fill="#fff" font-family="Arial,sans-serif" font-size="25" font-weight="800">${safe(title.slice(0,25))}</text><text x="31" y="353" fill="#bdc4d2" font-family="Arial,sans-serif" font-size="16">${safe(sub.slice(0,34))}</text></svg>`;return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg)}
-  function songCoverUrl(song){const direct=song?.cover_url||song?.artwork_url||song?.image_url||song?.cover_image_url;if(direct)return direct;const path=song?.cover_path||song?.artwork_path;if(path){try{return sb.storage.from('song-covers').getPublicUrl(path).data.publicUrl||coverSvgData(song)}catch{}}return coverSvgData(song)}
-  function songCoverHtml(song,cls=''){return `<img class="song-cover ${esc(cls)}" src="${esc(songCoverUrl(song))}" alt="Copertina ${esc(song?.title||'brano')}" loading="lazy">`}
-  function songSubline(song){const base=song?.base_title||song?.base_artist||'Base non indicata',lyrics=song?.lyrics_title||song?.lyrics_artist||'Testo non indicato';return `${base} · ${lyrics}`}
-  function songDetailHtml(song,{ranking=null,compact=false}={}){if(!song)return '<div class="empty">Dettaglio non disponibile.</div>';const vote=isMember()?memberVote(song.id||song.song_id):state.currentFan?myCatalogVote(song):null,id=song.id||song.song_id,rank=ranking||song;return `<img class="song-detail-cover" src="${esc(songCoverUrl(song))}" alt="Copertina ${esc(song.title||'Brano')}"><div class="song-detail-body"><div class="eyebrow">Scheda brano</div><h3>${esc(song.title||'Brano')}</h3><p>${esc(songSubline(song))}</p><div class="detail-kpis"><div class="detail-kpi"><span>BPM</span><strong>${esc(song.bpm??'—')}</strong></div><div class="detail-kpi"><span>Durata</span><strong>${esc(fmtDuration(song.duration_seconds))}</strong></div><div class="detail-kpi"><span>Tonalità</span><strong>${esc([song.key_note,song.key_mode].filter(Boolean).join(' ')||'—')}</strong></div><div class="detail-kpi"><span>${rank?.ranking_score!=null?'R · Apprezzamento':'Anno Molesti'}</span><strong>${rank?.ranking_score!=null?Number(rank.ranking_score).toFixed(0):esc(song.molesti_year||'—')}</strong></div></div>${vote!=null?`<p style="margin-top:10px">Il mio voto: <strong style="color:var(--gold-2)">${Number(vote).toFixed(1)}</strong></p>`:''}<div class="detail-actions"><button class="btn sm primary" type="button" data-song-detail="${esc(id)}">Apri</button>${isBandAdmin()&&state.memberSongs.some(x=>x.id===id)?`<button class="btn sm" type="button" data-admin-edit-song="${esc(id)}">Modifica</button>`:''}</div></div>`}
-  function renderSideSongDetail(targetId,song,opts={}){const box=$(targetId);if(box)box.innerHTML=songDetailHtml(song,opts)}
-  function selectSongRow(root,id){if(!root)return;root.querySelectorAll('[data-song-select]').forEach(x=>x.classList.toggle('is-selected',x.dataset.songSelect===id))}
-  function modalSongBody(song){const id=song?.id||song?.song_id,ranking=(state.rankings?.songs||[]).find(x=>(x.song_id||x.id)===id)||song,vote=isMember()?memberVote(id):state.currentFan?myCatalogVote(song):null;let rating='';if(isMember()&&state.memberSongs.some(x=>x.id===id))rating=ratingHtml(vote,id,'member-catalog',false);else if(state.currentFan&&state.catalog.some(x=>x.id===id))rating=ratingHtml(vote,id,'catalog',false);return `<div class="song-modal-grid"><img class="song-modal-cover" src="${esc(songCoverUrl(song))}" alt="Copertina ${esc(song?.title||'Brano')}"><div class="song-modal-copy"><div class="eyebrow">John & i Molesti</div><h3>${esc(song?.title||'Brano')}</h3><p class="lead">${esc(songSubline(song))}</p>${rating?`<div style="margin-top:13px"><div class="form-note" style="margin-bottom:5px">Voto Versione Molesti</div>${rating}</div>`:''}<div class="song-modal-meta"><div class="detail-kpi"><span>BPM</span><strong>${esc(song?.bpm??'—')}</strong></div><div class="detail-kpi"><span>Durata</span><strong>${esc(fmtDuration(song?.duration_seconds))}</strong></div><div class="detail-kpi"><span>Tonalità</span><strong>${esc([song?.key_note,song?.key_mode].filter(Boolean).join(' ')||'—')}</strong></div><div class="detail-kpi"><span>Anno Molesti</span><strong>${esc(song?.molesti_year||'—')}</strong></div><div class="detail-kpi"><span>R · Apprezzamento</span><strong>${ranking?.ranking_score==null?'—':Number(ranking.ranking_score).toFixed(0)}</strong></div><div class="detail-kpi"><span>S · Scaletta</span><strong>${ranking?.setlist_score==null?'—':Number(ranking.setlist_score).toFixed(0)}</strong></div></div>${isBandAdmin()&&state.memberSongs.some(x=>x.id===id)?`<div class="detail-actions"><button class="btn primary" data-admin-edit-song="${esc(id)}">Modifica brano</button></div>`:''}</div></div>`}
-  function openSongDetail(id){const song=songById(id);if(!song)return toast('Dettaglio brano non disponibile','error');$('songDetailModalTitle').textContent=song.title||'Dettaglio brano';$('songDetailModalBody').innerHTML=modalSongBody(song);openModal('songDetailModal');bindRatings($('songDetailModalBody'))}
-
-  function renderCatalog(){let rows=[...state.catalog],q=$('catalogSearch').value.trim().toLowerCase();if(q)rows=rows.filter(s=>[s.title,s.base_title,s.base_artist,s.lyrics_title,s.lyrics_artist].some(v=>String(v||'').toLowerCase().includes(q)));if($('catalogSort').value==='vote')rows.sort((a,b)=>(Number(myCatalogVote(b))||0)-(Number(myCatalogVote(a))||0)||String(a.title).localeCompare(String(b.title),'it'));else rows.sort((a,b)=>String(a.title).localeCompare(String(b.title),'it'));$('catalogList').innerHTML=rows.length?rows.map((s,i)=>`<div class="song-row song-row-rich" data-song-select="${esc(s.id)}"><div class="song-pos">${i+1}</div><div class="song-cell">${songCoverHtml(s)}<div class="song-title"><strong>${esc(s.title)}</strong><span>${esc(songSubline(s))}</span></div></div><div class="song-meta">${esc(s.base_artist||'—')} / ${esc(s.lyrics_artist||'—')}</div><div class="vote-state">${myCatalogVote(s)==null?'—':Number(myCatalogVote(s)).toFixed(1)}</div><div>${ratingHtml(myCatalogVote(s),s.id,'catalog')}</div><div class="row-actions"><button class="row-action" type="button" data-song-detail="${esc(s.id)}" title="Dettagli"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div></div>`).join(''):'<div class="empty">Nessun brano trovato.</div>';bindRatings($('catalogList'));const first=rows[0];if(first)renderSideSongDetail('catalogDetailCard',first);bindSongSelection($('catalogList'),'catalogDetailCard')}
-
-  function renderRankings(){const d=state.rankings;if(!d)return;let rows=[];if(state.rankingTab==='songs'){rows=(d.songs||[]).slice(0,50);$('rankingList').innerHTML=rows.length?rows.map((r,i)=>{const song=state.memberSongs.find(x=>x.id===(r.song_id||r.id))||state.catalog.find(x=>x.id===(r.song_id||r.id))||r,id=r.song_id||r.id;return `<div class="song-row song-row-rich ranking-song-row" data-song-select="${esc(id)}"><div class="song-pos">${i+1}</div><div class="song-cell">${songCoverHtml(song)}<div class="song-title"><strong>${esc(r.title||song.title||'Brano')}</strong><span>R ${Number(r.ranking_score||0).toFixed(0)} · S ${Number(r.setlist_score||0).toFixed(0)}</span></div></div><div class="song-meta">Fan ${r.fan_score==null?'—':(Number(r.fan_score)/10).toFixed(1)}</div><div class="vote-state">${Number(r.ranking_score||0).toFixed(0)}</div><div class="row-actions"><button class="row-action" data-song-detail="${esc(id)}" title="Dettagli"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div></div>`}).join(''):'<div class="empty">Nessun dato.</div>';const first=rows[0];if(first){const song=state.memberSongs.find(x=>x.id===(first.song_id||first.id))||state.catalog.find(x=>x.id===(first.song_id||first.id))||first;renderSideSongDetail('rankingDetailCard',song,{ranking:first})}bindSongSelection($('rankingList'),'rankingDetailCard',true)}else if(state.rankingTab==='concerts'){$('rankingList').innerHTML=(d.concerts||[]).slice(0,50).map((r,i)=>`<div class="song-row"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(r.concert_name||r.name||'Live')}</strong><span>${esc(fmtDate(r.concert_date))}</span></div><div class="song-meta">${Number(r.attendance_count||0)} presenze</div><div class="vote-state">${Number(r.score??r.rating_score??r.average_score??0).toFixed(1)}</div><div></div></div>`).join('')||'<div class="empty">Nessun dato.</div>';$('rankingDetailCard').innerHTML='<div class="empty">La scheda dettaglio è disponibile nella classifica brani.</div>'}else{$('rankingList').innerHTML=(d.fans||[]).slice(0,50).map((r,i)=>`<div class="song-row"><div class="song-pos">${i+1}</div><div class="song-title"><strong>${esc(String(r.fan_name||'').toUpperCase())}</strong><span>${Number(r.attendance_count||0)} live</span></div><div class="song-meta">${Number(r.rated_song_count||0)} brani votati</div><div class="vote-state">${Number(r.points||0)}</div><div></div></div>`).join('')||'<div class="empty">Nessun dato.</div>';$('rankingDetailCard').innerHTML='<div class="empty">La scheda dettaglio è disponibile nella classifica brani.</div>'}}
-  function bindSongSelection(root,detailId,ranking=false){if(!root)return;root.querySelectorAll('[data-song-select]').forEach(row=>row.onclick=e=>{if(e.target.closest('button,.rating,input,select,a'))return;const id=row.dataset.songSelect,song=songById(id);if(!song)return;selectSongRow(root,id);if(window.matchMedia('(max-width:1080px)').matches)openSongDetail(id);else{const rr=ranking?(state.rankings?.songs||[]).find(x=>(x.song_id||x.id)===id):null;renderSideSongDetail(detailId,song,{ranking:rr})}})}
-
-  function renderBackstageSetlist(){const {incl,exc}=setlistSongRows();$('backstageContent').innerHTML=`<div class="backstage-grid"><section class="card backstage-panel"><div class="backstage-panel-head"><h3>LA MIA SCALETTA</h3><span class="member-chip">${incl.length} brani</span></div><div class="backstage-list" id="bsSetlistIncluded">${incl.map((x,i)=>`<div class="manage-row" data-bs-song="${esc(x.song_id)}" data-song-select="${esc(x.song_id)}">${songCoverHtml(x.song,'sm')}<div><strong>${esc(x.song.title)}</strong><span>${esc(x.song.base_artist||'')} ${x.song.bpm?`· ${x.song.bpm} BPM`:''}</span></div><div class="manage-actions"><button class="icon-btn" data-song-detail="${esc(x.song_id)}" title="Dettagli">i</button><button class="icon-btn" data-bs-move="up" title="Su">↑</button><button class="icon-btn" data-bs-move="down" title="Giù">↓</button><button class="icon-btn" data-bs-toggle="exclude" title="Escludi">×</button></div></div>`).join('')||'<div class="empty">Nessun brano.</div>'}</div></section><section class="card backstage-panel"><div class="backstage-panel-head"><h3>ESCLUSE</h3><span class="member-chip">${exc.length}</span></div><div class="backstage-list">${exc.map(x=>`<div class="manage-row" data-bs-song="${esc(x.song_id)}" data-song-select="${esc(x.song_id)}">${songCoverHtml(x.song,'sm')}<div><strong>${esc(x.song.title)}</strong><span>Fuori dalla scaletta personale</span></div><div class="manage-actions"><button class="icon-btn" data-song-detail="${esc(x.song_id)}" title="Dettagli">i</button><button class="icon-btn" data-bs-toggle="include" title="Reinserisci">+</button></div></div>`).join('')||'<div class="empty">Nessun brano escluso.</div>'}</div></section></div>`;$('backstageContent').querySelectorAll('[data-bs-move],[data-bs-toggle]').forEach(b=>b.onclick=async e=>{e.stopPropagation();const row=b.closest('[data-bs-song]'),id=row.dataset.bsSong,rows=setlistSongRows();if(b.dataset.bsMove){const i=rows.incl.findIndex(x=>x.song_id===id),j=b.dataset.bsMove==='up'?i-1:i+1;if(i<0||j<0||j>=rows.incl.length)return;[rows.incl[i],rows.incl[j]]=[rows.incl[j],rows.incl[i]]}else if(b.dataset.bsToggle==='exclude'){const i=rows.incl.findIndex(x=>x.song_id===id);if(i>=0)rows.exc.push(rows.incl.splice(i,1)[0])}else{const i=rows.exc.findIndex(x=>x.song_id===id);if(i>=0)rows.incl.push(rows.exc.splice(i,1)[0])}try{await persistMySetlist(rows);renderBackstageSetlist()}catch(err){toast(err.message,'error')}})}
-  function renderBackstageCatalog(){const rows=state.memberSongs.filter(s=>s.active!==false).sort((a,b)=>String(a.title).localeCompare(String(b.title),'it'));$('backstageContent').innerHTML=`<section class="card backstage-panel"><div class="backstage-panel-head"><h3>CATALOGO</h3><span class="member-chip">${rows.length} brani</span></div><div class="backstage-list">${rows.map((s,i)=>`<div class="manage-row" data-member-song="${esc(s.id)}" data-song-select="${esc(s.id)}">${songCoverHtml(s,'sm')}<div><strong>${esc(s.title)}</strong><span>${esc(s.base_artist||'—')} · ${s.bpm||'—'} BPM</span><div style="margin-top:5px;overflow-x:auto">${ratingHtml(memberVote(s.id),s.id,'member-catalog')}</div></div><div class="manage-actions"><button class="icon-btn" data-song-detail="${esc(s.id)}" title="Dettagli">i</button>${isBandAdmin()?`<button class="icon-btn" data-admin-edit-song="${esc(s.id)}" title="Modifica">✎</button>`:''}</div></div>`).join('')}</div></section>`;bindRatings($('backstageContent'));$('backstageContent').querySelectorAll('[data-admin-edit-song]').forEach(b=>b.onclick=e=>{e.stopPropagation();openAdminSongEdit(b.dataset.adminEditSong)})}
-  function renderBackstageMembers(){const songs=new Map(state.memberSongs.map(s=>[s.id,s]));$('backstageContent').innerHTML=`<div class="setlist-member-grid">${state.memberProfiles.map(p=>{const sl=state.memberSetlists.find(x=>x.owner_id===p.id),items=state.memberSetlistItems.filter(x=>x.setlist_id===sl?.id&&x.included!==false).sort((a,b)=>(a.position??9999)-(b.position??9999));return `<section class="card setlist-card"><div class="setlist-head"><h3>${esc(p.display_name||p.username||'Membro')}</h3><span class="member-chip">${items.length} brani</span></div><div class="setlist-list">${items.map((x,i)=>{const song=songs.get(x.song_id)||{id:x.song_id,title:'Brano'};return `<div class="setlist-song-row" data-song-select="${esc(x.song_id)}"><div class="song-pos">${i+1}</div>${songCoverHtml(song,'sm')}<div class="song-title"><strong>${esc(song.title||'Brano')}</strong><span>${esc(song.base_artist||'')}</span></div><button class="row-action" data-song-detail="${esc(x.song_id)}" title="Dettagli">i</button></div>`}).join('')||'<div class="empty">Scaletta vuota.</div>'}</div></section>`}).join('')}</div>`}
-
-  function setlistSongRow(song,i,extra=''){const id=song.id||song.song_id;return `<div class="setlist-song-row" data-song-select="${esc(id)}"><div class="song-pos">${i+1}</div>${songCoverHtml(song,'sm')}<div class="song-title"><strong>${esc(song.title||'Brano')}</strong><span>${esc(songSubline(song))}${extra?` · ${esc(extra)}`:''}</span></div><button class="row-action" data-song-detail="${esc(id)}" title="Dettagli">i</button></div>`}
-  function fillSetlistConcertSelect(){const sel=$('setlistConcertSelect');if(!sel)return;const rows=[...state.concerts].filter(c=>!c.private_show||state.permissions.private_shows_view).sort((a,b)=>String(b.concert_date).localeCompare(String(a.concert_date)));const cur=state.publicSetlistConcertId||rows.find(c=>c.setlist_available)?.id||rows[0]?.id||'';state.publicSetlistConcertId=cur;sel.innerHTML='<option value="">Seleziona un concerto…</option>'+rows.map(c=>`<option value="${esc(c.id)}" ${c.id===cur?'selected':''}>${esc(fmtDate(c.concert_date))} · ${esc(c.name)}</option>`).join('')}
-  async function renderPublicLiveSetlist(){fillSetlistConcertSelect();const id=state.publicSetlistConcertId||$('setlistConcertSelect')?.value;if(!id){$('setlistView').innerHTML='<div class="card empty">Nessun concerto disponibile.</div>';return}$('setlistView').innerHTML='<div class="card empty">Caricamento scaletta…</div>';try{const d=await fanApi('concert_detail',guestPayload({concert_id:id})),c=d.concert||{},songs=d.songs||[];if(!d.setlist_available){$('setlistView').innerHTML=`<div class="card card-pad"><div class="eyebrow">${esc(fmtDate(c.concert_date))}</div><h3>${esc(c.name||'Live')}</h3><p>La scaletta non è ancora disponibile.</p></div>`;return}$('setlistView').innerHTML=`<div class="setlist-shell"><section class="card setlist-card"><div class="setlist-head"><h3>${esc(c.name||'Scaletta live')}</h3><span class="member-chip">${songs.length} brani</span></div><div class="setlist-list">${songs.map((x,i)=>setlistSongRow(x,i,x.execution_type&&x.execution_type!=='planned'?x.execution_type.toUpperCase():'' )).join('')||'<div class="empty">Nessun brano.</div>'}</div></section><aside class="card song-detail-card" id="setlistDetailCard"><div class="empty">Seleziona un brano.</div></aside></div>`;if(songs[0])renderSideSongDetail('setlistDetailCard',songs[0]);bindSongSelection($('setlistView'),'setlistDetailCard')}catch(err){$('setlistView').innerHTML=`<div class="card empty">${esc(err.message)}</div>`}}
-  async function renderMySetlistPage(){if(!isMember()){openMemberLogin();return}if(!state.memberSongs.length)await loadMemberCore();const {incl,exc}=setlistSongRows();$('setlistView').innerHTML=`<div class="setlist-shell"><section class="card setlist-card"><div class="setlist-head"><h3>La mia scaletta</h3><span class="member-chip">${incl.length} brani</span></div><div class="setlist-list">${incl.map((x,i)=>setlistSongRow(x.song,i)).join('')||'<div class="empty">Scaletta vuota.</div>'}</div></section><aside class="card song-detail-card" id="setlistDetailCard"><div class="empty">Seleziona un brano.</div></aside></div>`;if(incl[0])renderSideSongDetail('setlistDetailCard',incl[0].song);bindSongSelection($('setlistView'),'setlistDetailCard')}
-  async function renderMemberSetlistsPage(){if(!isMember()){openMemberLogin();return}if(!state.memberSongs.length)await loadMemberCore();await loadMemberSetlists();const songs=new Map(state.memberSongs.map(s=>[s.id,s]));$('setlistView').innerHTML=`<div class="setlist-member-grid">${state.memberProfiles.map(p=>{const sl=state.memberSetlists.find(x=>x.owner_id===p.id),items=state.memberSetlistItems.filter(x=>x.setlist_id===sl?.id&&x.included!==false).sort((a,b)=>(a.position??9999)-(b.position??9999));return `<section class="card setlist-card"><div class="setlist-head"><h3>${esc(p.display_name||p.username||'Membro')}</h3><span class="member-chip">${items.length}</span></div><div class="setlist-list">${items.map((x,i)=>setlistSongRow(songs.get(x.song_id)||{id:x.song_id,title:'Brano'},i)).join('')||'<div class="empty">Scaletta vuota.</div>'}</div></section>`}).join('')}</div>`}
-  async function renderSetlistsPage(){document.querySelectorAll('#setlistTabs [data-member-only]').forEach(b=>b.hidden=!isMember());$('setlistLiveToolbar').hidden=state.setlistTab!=='live';if(state.setlistTab==='live')await renderPublicLiveSetlist();else if(state.setlistTab==='mine')await renderMySetlistPage();else await renderMemberSetlistsPage();renderContextNav()}
-  $('setlistTabs').onclick=e=>{const b=e.target.closest('[data-setlist-tab]');if(!b||b.hidden)return;state.setlistTab=b.dataset.setlistTab;$('setlistTabs').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderSetlistsPage()};$('setlistConcertSelect').onchange=()=>{state.publicSetlistConcertId=$('setlistConcertSelect').value;renderPublicLiveSetlist()}
-
-  function renderConcertModal(d){const c=d.concert||{},songs=d.songs||[],p=posterUrl(c.poster_path),m=modeInfo(c),privateInfo=c.private_show?'Evento privato':publicLocation(c);$('concertModalTitle').textContent=c.name||'Live';let html=`<div class="concert-hero">${p?`<img class="modal-poster" src="${esc(p)}" alt="Locandina ${esc(c.name)}">`:''}<div><div class="eyebrow">${esc(fmtDate(c.concert_date))} · ${esc(fmtTime(c.start_time))}</div><h3>${esc(c.name)}</h3><p>${esc(privateInfo)}</p><p><span class="mode-chip ${m.cls}">${m.label}</span></p>`;if(state.currentFan&&d.attendance_available)html+=`<label class="attend"><input id="attendCheck" type="checkbox" ${d.attended?'checked':''}> Io c'ero</label>`;if(state.currentFan&&d.attended&&d.voting_open)html+=`<div style="margin-top:12px"><div class="form-note">Voto generale live</div>${ratingHtml(d.my_concert_rating?.performance_score,c.id,`concert:${c.id}`,false)}</div>`;html+='</div></div>';if(!d.setlist_available)html+='<div class="card empty" style="margin-top:14px">La scaletta non è ancora disponibile.</div>';else html+=`<div class="concert-setlist">${songs.length?songs.map((s,i)=>`<div class="concert-song" style="grid-template-columns:30px 38px minmax(0,1fr) auto" data-song-select="${esc(s.id)}"><div class="song-pos">${i+1}</div>${songCoverHtml(s,'sm')}<div class="song-title"><strong>${esc(s.title)}</strong><span>${esc(s.base_artist||'')} ${s.execution_type&&s.execution_type!=='planned'?`· ${esc(s.execution_type.toUpperCase())}`:''}</span></div><div class="row-actions"><button class="row-action" data-song-detail="${esc(s.id)}" title="Dettagli">i</button></div>${state.currentFan&&d.attended&&d.voting_open?`<div></div><div></div><div class="rating-wrap">${ratingHtml(s.my_vote?.molesti_score,s.id,`live:${c.id}`)}</div><div class="reaction-row" data-react-song="${esc(s.id)}" data-concert="${esc(c.id)}"><button class="react ${s.my_reactions?.pogo?'on':''}" data-react="pogo">POGO</button><button class="react ${s.my_reactions?.sang_along?'on':''}" data-react="sang_along">CANTATA</button><button class="react ${s.my_reactions?.moving?'on':''}" data-react="moving">MOSSO/A</button><button class="react ${s.my_reactions?.enjoyed?'on':''}" data-react="enjoyed">GODUTA</button></div>`:''}</div>`).join(''):'<div class="empty">Nessun brano disponibile.</div>'}</div>`;$('concertModalBody').innerHTML=html;bindRatings($('concertModalBody'));const att=$('attendCheck');if(att)att.onchange=async()=>{att.disabled=true;try{await fanApi('attend',{concert_id:c.id,attended:att.checked});toast(att.checked?'Presenza registrata':'Presenza rimossa','ok');await openConcert(c.id)}catch(err){att.checked=!att.checked;toast(err.message,'error')}finally{att.disabled=false}};$('concertModalBody').querySelectorAll('[data-react-song]').forEach(row=>row.onclick=async e=>{const b=e.target.closest('[data-react]');if(!b)return;b.classList.toggle('on');const payload={song_id:row.dataset.reactSong};row.querySelectorAll('[data-react]').forEach(x=>payload[x.dataset.react]=x.classList.contains('on'));try{await fanApi('save_live_feedback',{concert_id:row.dataset.concert,songs:[payload]});toast('Reazione salvata','ok')}catch(err){b.classList.toggle('on');toast(err.message,'error')}})}
-
-  function contextHtml(){const r=state.route,items=[];if(r==='live'){setContextTitle('Live');items.push('<div class="context-group-label">Periodo</div>',contextButton('Prossimi','live:future',{active:state.liveTab==='future'}),contextButton('Passati','live:past',{active:state.liveTab==='past'}),'<div class="context-group-label">Modalità</div>',contextButton('Tutte','mode:',{active:!$('liveMode')?.value}),contextButton('Standard','mode:standard',{active:$('liveMode')?.value==='standard'}),contextButton('Mixed','mode:mixed',{active:$('liveMode')?.value==='mixed'}),contextButton('Jukebox','mode:jukebox',{active:$('liveMode')?.value==='jukebox'}));}else if(r==='catalog'){setContextTitle('Repertorio');items.push('<div class="context-group-label">Azioni</div>',contextButton(state.currentFan?'Area fan attiva':'Entra come fan','fan:login',{active:!!state.currentFan}),contextButton('Ordina A–Z','catalog:title',{active:$('catalogSort')?.value==='title'}),contextButton('Prima i miei voti','catalog:vote',{active:$('catalogSort')?.value==='vote'}));}else if(r==='setlists'){setContextTitle('Scalette');items.push('<div class="context-group-label">Vista</div>',contextButton('Live','setlist:live',{active:state.setlistTab==='live'}));if(isMember())items.push(contextButton('La mia','setlist:mine',{active:state.setlistTab==='mine'}),contextButton('Membri','setlist:members',{active:state.setlistTab==='members'}));}else if(r==='rankings'){setContextTitle('Classifiche');items.push('<div class="context-group-label">Classifica</div>',contextButton('Brani','ranking:songs',{active:state.rankingTab==='songs'}),contextButton('Fan','ranking:fans',{active:state.rankingTab==='fans'}),contextButton('Live','ranking:concerts',{active:state.rankingTab==='concerts'}));}else if(r==='backstage'){setContextTitle('Backstage');const labels={setlist:'La mia scaletta',catalog:'Catalogo',concerts:'Concerti',members:'Scalette membri',fans:'Fan',setup:'Setup rapido'};items.push('<div class="context-group-label">Gestione</div>',...Object.entries(labels).map(([k,l])=>contextButton(l,`backstage:${k}`,{active:state.backstageTab===k})),`<a href="index.html"><span>Cockpit completo</span><small>avanzato</small></a>`);}else if(r==='home'){setContextTitle('Accesso rapido');items.push(contextButton('Prossimi live','route:live'),contextButton('Scalette','route:setlists'),contextButton(state.currentFan?'Fan attivo':'Entra come fan','fan:login'),contextButton(isMember()?'Apri backstage':'Accesso membri','member:login'));}else{setContextTitle('In questa sezione');items.push(contextButton('Home','route:home'),contextButton('Prossimi live','route:live'),contextButton('Scalette','route:setlists'),contextButton(isMember()?'Backstage':'Accesso membri','member:login'));}return items.join('')}
-  async function handleContextAction(action){if(action.startsWith('setlist:')){state.setlistTab=action.slice(8);document.querySelectorAll('#setlistTabs [data-setlist-tab]').forEach(b=>b.classList.toggle('active',b.dataset.setlistTab===state.setlistTab));await renderSetlistsPage();return}if(action.startsWith('route:'))return routeTo(action.slice(6));if(action.startsWith('live:')){state.liveTab=action.slice(5);document.querySelectorAll('#liveTabs [data-live-tab]').forEach(b=>b.classList.toggle('active',b.dataset.liveTab===state.liveTab));renderLiveGrid();renderContextNav();return}if(action.startsWith('mode:')){if($('liveMode'))$('liveMode').value=action.slice(5);renderLiveGrid();renderContextNav();return}if(action==='fan:login'){if(!state.currentFan)openFanLogin();else toast(`Fan attivo: ${state.currentFan.display_name||state.currentFan.nickname||''}`);return}if(action==='member:login'){if(isMember())routeTo('backstage');else openMemberLogin();return}if(action.startsWith('catalog:')){if($('catalogSort'))$('catalogSort').value=action.slice(8);if(state.currentFan)renderCatalog();renderContextNav();return}if(action.startsWith('ranking:')){state.rankingTab=action.slice(8);document.querySelectorAll('#rankingTabs [data-ranking-tab]').forEach(b=>b.classList.toggle('active',b.dataset.rankingTab===state.rankingTab));renderRankings();renderContextNav();return}if(action.startsWith('backstage:')){await openBackstageTab(action.slice(10));renderContextNav();return}}
-
-  function routeTo(route,push=true){if(route==='rankings'&&!memberRankingAllowed())route='home';if(route==='backstage'&&!isMember()){openMemberLogin();route='home'};state.route=route;document.querySelectorAll('.page[data-page]').forEach(p=>p.classList.toggle('active',p.dataset.page===route));document.querySelectorAll('[data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===route));if(push&&location.hash!==`#${route}`)history.pushState(null,'',`#${route}`);closeDrawer();window.scrollTo({top:0,behavior:'smooth'});if(route==='catalog'&&state.currentFan)loadCatalog();if(route==='rankings'&&memberRankingAllowed())loadRankings();if(route==='setlists')renderSetlistsPage();if(route==='backstage'&&isMember())openBackstageTab(state.backstageTab);renderContextNav()}
-  function updateUserUI(){const member=state.memberProfile,fan=state.currentFan,name=member?.display_name||fan?.nickname||fan?.display_name||'Ospite';$('userName').textContent=name;$('userRole').textContent=member?(isBandAdmin()?'admin / membro':'membro'):fan?'fan riconosciuto':'entra come fan';$('userAvatar').textContent=(member||fan)?String(name).trim().slice(0,2).toUpperCase():'JM';$('fanMenuLabel').textContent=fan?'Profilo fan attivo':'Entra come fan';$('fanLogoutMenu').hidden=!fan;$('memberLoginMenu').hidden=!!member;$('memberLogoutMenu').hidden=!member;if($('backstageTopNav'))$('backstageTopNav').hidden=!member;if($('backstagePage'))$('backstagePage').hidden=!member;document.querySelectorAll('[data-member-only]').forEach(x=>x.hidden=!member);$('catalogGuestCard').hidden=!!fan;$('catalogFanArea').hidden=!fan;$('catalogFanButton').hidden=!!fan;setPermissionUI();renderContextNav()}
-  document.addEventListener('click',e=>{const d=e.target.closest('[data-song-detail]');if(d){e.preventDefault();e.stopPropagation();openSongDetail(d.dataset.songDetail);return}const edit=e.target.closest('[data-admin-edit-song]');if(edit&&isBandAdmin()){e.preventDefault();e.stopPropagation();closeModal('songDetailModal');openAdminSongEdit(edit.dataset.adminEditSong)}})
-
-  async function init(){
-    await Promise.all([autoFan(),restoreMemberSession()]);
-    updateUserUI();
-    await loadPermissions();
-    await loadConcerts();
-    loadAnalytics().catch(()=>{});
-    const route=(location.hash||'#home').slice(1);routeTo(['home','live','catalog','band','setlists','rankings','backstage'].includes(route)?route:'home',false);
-    if(state.currentFan&&state.route==='catalog')await loadCatalog();
-    if(state.memberUser&&state.route==='backstage')await openBackstageTab(state.backstageTab);
-    renderContextNav();
-  }
-  init();
-})();
-</script>
+  <div class="jm-toast-stack" id="toastStack" aria-live="polite"></div>
 </body>
 </html>
