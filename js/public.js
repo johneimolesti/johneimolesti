@@ -24,6 +24,9 @@
   let activeConcertId = null;
   let expandedRankings = new Set();
   let siteNews = [], contacts = [];
+  let memberMedia = [];
+  let memberCarouselIndex = 0;
+  let fanOnboardingStatus = null;
   let highlightSignature = '', concertRequest = 0, lastConcertData = null;
   let refreshBusy = false, concertDirty = false;
 
@@ -67,6 +70,88 @@
   function posterUrl(path) {
     if (!path || !sb) return null;
     try { return sb.storage.from('concert-posters').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
+  }
+  function publicSiteAssetUrl(path) {
+    if (!path || !sb) return null;
+    try { return sb.storage.from('public-site').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
+  }
+  async function loadMemberMedia() {
+    try {
+      const {data,error} = await sb.from('public_site_content').select('content_key,content_type,value').like('content_key','band.member.%');
+      if (error) throw error;
+      const bySlot = new Map();
+      (data || []).forEach(row => {
+        const match = String(row.content_key || '').match(/^band\.member\.(\d+)\.(name|role|image)$/);
+        if (!match) return;
+        const slot = Number(match[1]);
+        if (!bySlot.has(slot)) bySlot.set(slot,{slot});
+        bySlot.get(slot)[match[2]] = row.value || '';
+      });
+      memberMedia = [...bySlot.values()].filter(x => x.slot >= 1 && x.slot <= 5).sort((a,b) => a.slot-b.slot);
+    } catch (err) {
+      console.warn('Foto membri non disponibili',err);
+      memberMedia = [];
+    }
+    renderMemberMedia();
+    return memberMedia;
+  }
+  function renderMemberMedia() {
+    const fallback = [
+      {slot:1,name:'KEKKO',role:'Chitarra'},
+      {slot:2,name:'EMA',role:'Batteria'},
+      {slot:3,name:'GIANNI',role:'Voce'},
+      {slot:4,name:'CARLO',role:'Basso'},
+      {slot:5,name:'ALE LAZZA',role:'Chitarra'}
+    ];
+    const members = fallback.map(base => ({...base,...(memberMedia.find(x=>x.slot===base.slot)||{})}));
+    const grid = $('memberGrid');
+    if (grid) grid.innerHTML = members.map((m,i) => {
+      const src = publicSiteAssetUrl(m.image);
+      const avatar = src ? `<div class="member-avatar has-photo"><img src="${esc(src)}" alt="${esc(m.name)}" loading="lazy"></div>` : `<div class="member-avatar">${esc(String(m.name || '?').charAt(0))}</div>`;
+      return `<article class="member-card glass-card"><span class="member-no">${String(i+1).padStart(2,'0')}</span>${avatar}<h4>${esc(String(m.name||'').toUpperCase())}</h4><p>${esc(m.role||'John & i Molesti')}</p></article>`;
+    }).join('');
+    const photos = members.map(m => ({...m,src:publicSiteAssetUrl(m.image)})).filter(m => m.src);
+    const carousel = $('homeMemberCarousel'), stage = $('memberCarouselStage');
+    if (!carousel || !stage) return;
+    carousel.classList.toggle('hidden',!photos.length);
+    memberCarouselIndex = photos.length ? Math.min(memberCarouselIndex,photos.length-1) : 0;
+    stage.innerHTML = photos.map((m,i)=>`<figure class="member-carousel-slide${i===memberCarouselIndex?' active':''}"><img src="${esc(m.src)}" alt="${esc(m.name)}"><figcaption class="member-carousel-caption">${esc(String(m.name||'').toUpperCase())} · ${esc(m.role||'')}</figcaption></figure>`).join('');
+  }
+  function moveMemberCarousel(delta) {
+    const slides = $$('.member-carousel-slide',$('memberCarouselStage'));
+    if (!slides.length) return;
+    memberCarouselIndex = (memberCarouselIndex + delta + slides.length) % slides.length;
+    slides.forEach((slide,i)=>slide.classList.toggle('active',i===memberCarouselIndex));
+  }
+  function openMemberPhotoManager() {
+    if (!currentMember || !MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase())) return;
+    const members = [1,2,3,4,5].map(slot => memberMedia.find(x=>x.slot===slot) || {slot,name:`Membro ${slot}`,role:''});
+    const overlay = document.createElement('div');
+    overlay.className = 'modal';
+    overlay.innerHTML = `<div class="modal-backdrop"></div><section class="modal-card member-photo-manager"><div class="modal-head"><div><span class="section-kicker">LA BAND</span><h2>Foto membri</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></div><div class="modal-body"><div class="member-photo-grid">${members.map(m=>{const src=publicSiteAssetUrl(m.image);return `<label class="member-photo-slot" data-member-slot="${m.slot}">${src?`<img src="${esc(src)}" alt="${esc(m.name)}">`:'<span class="member-avatar">'+esc(String(m.name||'?').charAt(0))+'</span>'}<strong>${esc(m.name||`Membro ${m.slot}`)}</strong><input type="file" accept="image/*"><span class="member-photo-status"></span></label>`}).join('')}</div></div></section>`;
+    document.body.appendChild(overlay);
+    document.documentElement.style.overflow='hidden';
+    const close=()=>{overlay.remove();if(!$$('.modal:not([hidden])').length)document.documentElement.style.removeProperty('overflow')};
+    overlay.querySelector('.modal-close').onclick=close;
+    overlay.querySelector('.modal-backdrop').onclick=close;
+    overlay.querySelectorAll('input[type="file"]').forEach(input=>input.onchange=async()=>{
+      const file=input.files?.[0],slotNode=input.closest('[data-member-slot]'),slot=Number(slotNode.dataset.memberSlot),status=slotNode.querySelector('.member-photo-status');
+      if(!file)return;
+      if(!String(file.type||'').startsWith('image/')){status.textContent='Scegli un file immagine.';return}
+      input.disabled=true;status.textContent='Caricamento…';
+      try{
+        const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        const path=`band-members/member-${slot}/${Date.now()}.${ext}`;
+        const {error:uploadError}=await sb.storage.from('public-site').upload(path,file,{contentType:file.type||undefined,upsert:false});
+        if(uploadError)throw uploadError;
+        const {error:saveError}=await sb.from('public_site_content').upsert({content_key:`band.member.${slot}.image`,content_type:'image',value:path,updated_by:currentMember.id,updated_at:new Date().toISOString()},{onConflict:'content_key'});
+        if(saveError){await sb.storage.from('public-site').remove([path]);throw saveError}
+        status.textContent='Foto pubblicata ✓';
+        await loadMemberMedia();
+        const current=memberMedia.find(x=>x.slot===slot),img=slotNode.querySelector('img');
+        if(img)img.src=publicSiteAssetUrl(current?.image)||'';
+      }catch(err){status.textContent=err.message||'Caricamento non riuscito'}finally{input.disabled=false;input.value=''}
+    });
   }
   function getFanDeviceToken() {
     let token = localStorage.getItem('jm_fan_device_token');
@@ -142,7 +227,7 @@
     const configs = {
       home:[[window.JMCopy.text('ui.f9d0a39219d7'),'homeNextShow'],[window.JMCopy.text('ui.5b0d2517b8b5'),'homeRankingPreview']],
       tour:[[window.JMCopy.text('ui.0449f09cec41'),'upcomingBlock'],[window.JMCopy.text('ui.801a122f224b'),'archiveBlock']],
-      rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
+      rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],['Locandine','postersRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
       more:[[window.JMCopy.text('ui.1362ca19ad39'),'galleryBlock'],[window.JMCopy.text('ui.90e63b56a4dc'),'merchBlock'],[window.JMCopy.text('ui.1067809f644e'),'contactsBlock'],[window.JMCopy.text('ui.c349676fc048'),'managementBlock']]
     };
@@ -178,6 +263,8 @@
       window.JMCopy.write($('userLabel'),'ui.d4fc4761f015');
       $('memberRail').classList.add('hidden');
     }
+    const managePhotos = $('manageMemberPhotos');
+    if (managePhotos) managePhotos.classList.toggle('hidden',!(currentMember && MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase())));
   }
 
   function showLoginMode(mode) {
@@ -203,7 +290,10 @@
     } else {
       const attended = concerts.filter(c => c.attended);
       const me = (rankingData?.fans || []).find(r => currentFan?.id && r.fan_id === currentFan.id);
-      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
+      const questionnaireDone = !!fanOnboardingStatus?.flow_completed;
+      const questionnaireLabel = questionnaireDone ? 'QUESTIONARIO COMPLETATO' : (fanOnboardingStatus?.onboarding_state?.intro_seen_at ? 'RIPRENDI IL QUESTIONARIO' : 'INIZIA IL QUESTIONARIO');
+      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div><div class="fan-questionnaire-summary"><strong>${esc(questionnaireLabel)}</strong><span>${questionnaireDone?'Puoi rivedere e modificare le risposte dal profilo.':'Il flusso iniziale è ancora disponibile e riparte dal punto lasciato.'}</span></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanQuestionnaire">${questionnaireDone?'VEDI RISPOSTE':'APRI QUESTIONARIO'}</button><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
+      $('openFanQuestionnaire')?.addEventListener('click',()=>{window.location.href='manage.html#profilo';});
       $('openFanCatalog')?.addEventListener('click', () => { closeModal('userModal'); openFanCatalog(); });
       $('openMyShows')?.addEventListener('click', () => { closeModal('userModal'); go('tour'); setTimeout(() => $('archiveBlock')?.scrollIntoView({behavior:'smooth'}), 50); });
       $('fanRecovery')?.addEventListener('click', setFanRecovery);
@@ -244,6 +334,8 @@
     localStorage.setItem('jm_public_fan_name', currentFan.display_name || name);
     const perms = await fanApi('permissions');
     fanPermissions = perms.permissions || {};
+    try { fanOnboardingStatus = await fanApi('onboarding_status'); }
+    catch (err) { console.warn('Stato questionario non disponibile',err); fanOnboardingStatus = null; }
     currentMember = null;
     updateUserUI();
     startRealtime();
@@ -286,7 +378,7 @@
   }
   async function logout(type) {
     if (type === 'member') { await sb.auth.signOut(); currentMember = null; }
-    if (type === 'fan') { currentFan = null; localStorage.removeItem('jm_public_fan_name'); }
+    if (type === 'fan') { currentFan = null; fanOnboardingStatus = null; localStorage.removeItem('jm_public_fan_name'); }
     updateUserUI();
     renderUserModal();
     closeModal('userModal');
@@ -318,14 +410,14 @@
     if (rankingData && !force) return rankingData;
     const role = currentFan ? 'fan' : 'guest';
     if (!can(role,'rankings_view')) {
-      rankingData = {fans:[],songs:[],concerts:[],blocked:true};
+      rankingData = {fans:[],songs:[],concerts:[],posters:[],blocked:true};
       return rankingData;
     }
     try {
       rankingData = currentFan ? await fanApi('rankings') : await fanApi('rankings',{guest:true});
       return rankingData;
     } catch (err) {
-      console.error(err); rankingData = {fans:[],songs:[],concerts:[],error:err.message}; return rankingData;
+      console.error(err); rankingData = {fans:[],songs:[],concerts:[],posters:[],error:err.message}; return rankingData;
     }
   }
 
@@ -414,7 +506,8 @@
 
   function rankingSongRow(r, i) {
     const artists = [r.base_artist, r.lyrics_artist].filter(Boolean).join(' / ');
-    return `<div class="ranking-row"><div class="ranking-pos">${i+1}</div><div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || '')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
+    const cover = posterUrl(r.cover_path);
+    return `<div class="ranking-row${cover?' has-cover':''}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || '')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
@@ -425,21 +518,29 @@
     const score = r.score ?? r.rating ?? r.avg_score ?? r.average_score ?? '—';
     return `<div class="ranking-row" data-ranking-concert="${esc(r.concert_id || r.id || '')}"><div class="ranking-pos">${i+1}</div><div class="ranking-main"><div class="ranking-title">${esc(name)}</div><div class="ranking-meta">${esc(formatDate(r.concert_date))}${r.attendance_count != null ? ` · ${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count)}))}` : ''}</div></div><div class="ranking-score">${esc(score)}<small data-copy="ui.6990f01ad9d2">LIVE</small></div></div>`;
   }
+  function rankingPosterRow(r, i) {
+    const src = posterUrl(r.storage_path || r.poster_path);
+    const raw = Number(r.ranking_score);
+    const score = Number.isFinite(raw) ? (raw/10).toFixed(1) : '—';
+    return `<div class="ranking-row${src?' has-cover':''}" data-ranking-poster="${esc(r.poster_id||'')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-poster-thumb" src="${esc(src)}" alt="Locandina ${esc(r.concert_name||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.concert_name||'Concerto')}</div><div class="ranking-meta">${esc(r.caption||formatDate(r.concert_date))}</div></div><div class="ranking-score">${esc(score)}<small>POSTER</small></div></div>`;
+  }
   function renderRankings() {
     const data = rankingData || {};
     if (data.blocked) {
-      ['songsRanking','fansRanking','concertsRanking'].forEach(id => $(id).innerHTML = '<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>');
+      ['songsRanking','fansRanking','concertsRanking','postersRanking'].forEach(id => $(id).innerHTML = '<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>');
       return;
     }
     if (data.error) {
-      ['songsRanking','fansRanking','concertsRanking'].forEach(id => $(id).innerHTML = `<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`);
+      ['songsRanking','fansRanking','concertsRanking','postersRanking'].forEach(id => $(id).innerHTML = `<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`);
       return;
     }
     const limit = key => expandedRankings.has(key) ? Infinity : 8;
     $('songsRanking').innerHTML = (data.songs || []).slice(0,limit('songs')).map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
     $('fansRanking').innerHTML = (data.fans || []).slice(0,limit('fans')).map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
     $('concertsRanking').innerHTML = (data.concerts || []).slice(0,limit('concerts')).map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
+    $('postersRanking').innerHTML = (data.posters || []).slice(0,limit('posters')).map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
     $$('[data-ranking-concert]', $('concertsRanking')).forEach(row => { if (row.dataset.rankingConcert) row.onclick = () => openConcert(row.dataset.rankingConcert); });
+    $$('[data-ranking-poster]', $('postersRanking')).forEach((row,i) => { const poster=(data.posters||[])[i]; const src=posterUrl(poster?.storage_path||poster?.poster_path); if(src)row.onclick=()=>openPoster(src,poster?.concert_name||'Locandina'); });
     $$('[data-expand-ranking]').forEach(btn => {
       const key = btn.dataset.expandRanking;
       const expanded = expandedRankings.has(key);
@@ -701,6 +802,9 @@
     $$('.nav-item').forEach(b => b.onclick = () => go(b.dataset.route));
     $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     $('userEntry').onclick = () => { renderUserModal(); openModal('userModal'); };
+    $('manageMemberPhotos')?.addEventListener('click',openMemberPhotoManager);
+    $('memberCarouselPrev')?.addEventListener('click',()=>moveMemberCarousel(-1));
+    $('memberCarouselNext')?.addEventListener('click',()=>moveMemberCarousel(1));
     $$('[data-close-modal]').forEach(n => n.onclick = () => closeModal(n.dataset.closeModal));
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { const open = $$('.modal:not([hidden])').at(-1); if (open) closeModal(open.id); } });
     $$('#loginSwitch [data-login-mode]').forEach(b => b.onclick = () => showLoginMode(b.dataset.loginMode));
@@ -746,7 +850,7 @@
       }
     }
     updateUserUI();
-    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates()]);
+    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia()]);
     renderHome(); renderTour(); renderRankings(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
