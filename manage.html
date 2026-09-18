@@ -2131,6 +2131,59 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 }
 </style>
 
+
+<style id="v4-10-0-audit-log-ui">
+/* V4.10 — Audit operazioni + accessi */
+.audit-log-toolbar{grid-template-columns:minmax(180px,1.7fr) repeat(3,minmax(120px,.7fr))!important}
+.access-log-toolbar{grid-template-columns:minmax(220px,1.7fr) minmax(120px,.65fr) minmax(140px,.75fr)!important}
+.audit-privacy-note{margin:6px 8px 0;padding:7px 9px;border:1px solid rgba(255,255,255,.055);border-radius:9px;background:rgba(255,255,255,.018)}
+.audit-operation-log,.audit-access-log{padding:6px!important}
+.audit-row{
+  display:grid;grid-template-columns:118px minmax(125px,.8fr) 78px minmax(135px,.9fr) minmax(0,1.6fr) auto;
+  gap:8px;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.055);font-size:8px
+}
+.audit-row:hover{background:rgba(255,255,255,.025)}
+.audit-time{color:#808894;white-space:nowrap;font-variant-numeric:tabular-nums}
+.audit-actor{min-width:0}.audit-actor strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.audit-sub{margin-top:2px;color:#69727e;font-size:6.5px}
+.audit-badge{display:inline-flex;align-items:center;justify-content:center;min-height:21px;padding:3px 7px;border:1px solid rgba(255,255,255,.1);border-radius:999px;font-size:6.5px;font-weight:950;letter-spacing:.04em}
+.audit-badge.op-insert{color:#8bd1a0;border-color:rgba(83,190,112,.25);background:rgba(83,190,112,.07)}
+.audit-badge.op-update{color:#efcf6a;border-color:rgba(239,207,106,.24);background:rgba(239,207,106,.06)}
+.audit-badge.op-delete{color:#ed929a;border-color:rgba(222,91,104,.27);background:rgba(222,91,104,.07)}
+.audit-badge.op-action{color:#9bb8ee;border-color:rgba(117,151,215,.28);background:rgba(117,151,215,.07)}
+.audit-source{min-width:0;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audit-summary{min-width:0;color:#b7bec8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audit-detail-button{padding:5px 7px!important;font-size:6.5px!important}
+.audit-details{
+  grid-column:1/-1;margin:1px 0 5px;padding:8px;border:1px solid rgba(255,255,255,.065);border-radius:9px;
+  background:#0d1016;overflow:auto!important;max-height:330px
+}
+.audit-details[hidden]{display:none!important}
+.audit-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.audit-detail-box{min-width:0}.audit-detail-title{margin-bottom:4px;color:#717b87;font-size:6.5px;font-weight:900;text-transform:uppercase}
+.audit-json{margin:0;white-space:pre-wrap;word-break:break-word;color:#c4cad2;font:7px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+.audit-access-row{
+  display:grid;grid-template-columns:128px minmax(125px,.85fr) 76px minmax(140px,1fr) minmax(100px,.65fr) auto;
+  gap:8px;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.055);font-size:8px
+}
+.audit-device{min-width:0}.audit-device strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.audit-ip{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#abb2bc;font-size:7px;word-break:break-all}
+@media(max-width:1100px){
+  .audit-log-toolbar,.access-log-toolbar{display:grid!important;grid-template-columns:1fr 1fr!important}
+  .audit-log-toolbar input,.access-log-toolbar input{grid-column:1/-1}
+  .audit-row{grid-template-columns:98px minmax(110px,1fr) 70px minmax(0,1.2fr) auto}
+  .audit-row>.audit-source{display:none}
+  .audit-access-row{grid-template-columns:104px minmax(110px,1fr) 68px minmax(0,1.2fr) auto}
+  .audit-access-row>.audit-ip{display:none}
+}
+@media(max-width:720px){
+  .audit-log-toolbar,.access-log-toolbar{grid-template-columns:1fr!important}
+  .audit-log-toolbar input,.access-log-toolbar input{grid-column:auto}
+  .audit-row,.audit-access-row{grid-template-columns:86px minmax(0,1fr) auto}
+  .audit-row>.audit-badge,.audit-row>.audit-source,.audit-access-row>.audit-badge,.audit-access-row>.audit-ip{display:none}
+  .audit-summary,.audit-device{grid-column:2/3}
+  .audit-detail-grid{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 
@@ -2180,7 +2233,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.9.6</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.10.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -2364,10 +2417,28 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       </section>
       <section class="panel setup-section" data-setup-section="fanlog" hidden>
         <div class="panel-header"><h2>LOG</h2><span id="fanOperationLogStatus" class="counter"></span></div>
-        <div class="log-scope-tabs" role="tablist" aria-label="Tipo log"><button type="button" class="log-scope-tab active" data-log-scope="fan">OPERAZIONI FAN</button><button type="button" class="log-scope-tab" data-log-scope="system">SISTEMA / BROWSER</button></div>
-        <div data-log-panel="fan">
-          <div class="fan-log-toolbar"><input id="fanOperationLogSearch" type="search" autocomplete="off" placeholder="Filtra per fan o operazione..."><select id="fanOperationLogType"><option value="">TUTTE LE OPERAZIONI</option></select></div>
-          <div id="fanOperationLog" class="fan-operation-log"></div>
+        <div class="log-scope-tabs" role="tablist" aria-label="Tipo log">
+          <button type="button" class="log-scope-tab active" data-log-scope="operations">OPERAZIONI</button>
+          <button type="button" class="log-scope-tab" data-log-scope="access">ACCESSI</button>
+          <button type="button" class="log-scope-tab" data-log-scope="system">SISTEMA / BROWSER</button>
+        </div>
+        <div data-log-panel="operations">
+          <div class="fan-log-toolbar audit-log-toolbar">
+            <input id="appOperationLogSearch" type="search" autocomplete="off" placeholder="Utente, tabella, ID, dettaglio...">
+            <select id="appOperationLogOperation"><option value="">TUTTE</option><option value="INSERT">INSERT</option><option value="UPDATE">UPDATE</option><option value="DELETE">DELETE</option><option value="ACTION">AZIONI FAN</option></select>
+            <select id="appOperationLogRole"><option value="">TUTTI GLI UTENTI</option><option value="admin">ADMIN</option><option value="member">MEMBRI</option><option value="fan">FAN</option><option value="system">SISTEMA</option></select>
+            <select id="appOperationLogTable"><option value="">TUTTE LE TABELLE</option></select>
+          </div>
+          <div id="appOperationLog" class="fan-operation-log audit-operation-log"></div>
+        </div>
+        <div data-log-panel="access" hidden>
+          <div class="fan-log-toolbar audit-log-toolbar access-log-toolbar">
+            <input id="appAccessLogSearch" type="search" autocomplete="off" placeholder="Utente, dispositivo, browser o IP...">
+            <select id="appAccessLogRole"><option value="">TUTTI GLI ACCESSI</option><option value="admin">ADMIN</option><option value="member">MEMBRI</option><option value="fan">FAN</option><option value="guest">OSPITI</option></select>
+            <select id="appAccessLogEvent"><option value="">TUTTI GLI EVENTI</option></select>
+          </div>
+          <div class="section-note audit-privacy-note">L'IP in chiaro viene registrato dalla V4.10.0 in poi. Per gli accessi storici precedenti è disponibile solo l'hash già memorizzato.</div>
+          <div id="appAccessLog" class="fan-operation-log audit-access-log"></div>
         </div>
         <div data-log-panel="system" hidden>
           <div class="fan-log-toolbar"><input id="browserSystemLogSearch" type="search" autocomplete="off" placeholder="Filtra console / errori..."><select id="browserSystemLogLevel"><option value="">TUTTI I LIVELLI</option><option value="error">ERROR</option><option value="warn">WARN</option><option value="info">INFO</option><option value="log">LOG</option></select><button id="clearBrowserSystemLog" class="small-btn" type="button">SVUOTA</button></div>
@@ -2381,7 +2452,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 <!-- APP FAN: CATALOGO / CONCERTI / CLASSIFICHE -->
 <section id="fanApp" hidden>
-  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.9.6</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
+  <header><div class="brand"><h1>John & i Molesti</h1><p>Area fan</p></div><div class="user-area"><strong id="currentFanName"></strong><span class="app-version">v4.10.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="fanLogout" class="small-btn">Esci</button></div></header>
   <nav class="fan-bottom-nav"><button class="active" data-fan-page="fanCatalogPage">CATALOGO</button><button data-fan-page="fanPostersPage">LOCANDINE</button><button data-fan-page="fanConcertsPage">CONCERTI</button><button data-fan-page="fanRankingsPage">CLASSIFICHE</button><button data-fan-page="fanAnalyticsPage">STATISTICHE</button><button data-fan-page="fanProfilePage">PROFILO</button></nav>
   <main class="fan-main">
     <section id="fanCatalogPage" class="page active"><div class="fan-hero"><h2>Catalogo</h2><div class="section-note"><strong>Voto rapido:</strong> voto generale della versione Molesti, +10 pt la prima volta. Con <strong>AVANZATO</strong> puoi aggiungere gusto Base/Testo e conoscenza Base/Testo: +5 pt per ciascuno dei 4 campi compilati la prima volta. Basta ottenere punti dal catalogo per sbloccare le classifiche.</div></div><div id="fanCatalogList" class="panel"></div></section>
@@ -2467,7 +2538,7 @@ const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const APP_VERSION="v4.9.6";
+const APP_VERSION="v4.10.0";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2654,7 +2725,8 @@ $("chooseMember").onclick=()=>showOnly("memberLoginScreen");$("chooseFan").oncli
 $("memberLoginForm").addEventListener("submit",async e=>{e.preventDefault();const username=$("memberUsername").value.trim().toLowerCase(),password=$("memberPassword").value;$("memberLoginButton").disabled=true;$("memberLoginMessage").textContent="Accesso in corso...";try{if(!username)throw new Error("Inserisci lo username.");if(password.length<6)throw new Error("La password deve contenere almeno 6 caratteri.");const {data:members,error:me}=await sb.rpc("check_member",{p_username:username});if(me)throw me;if(!members?.length)throw new Error("Username non riconosciuto.");const member=members[0],email=`${username}@johnimolesti.app`;if(!member.activated){const {data:su,error:se}=await sb.auth.signUp({email,password});if(se){const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw se}else if(!su.session)throw new Error("Supabase richiede la conferma email.");const {error:ce}=await sb.rpc("claim_member",{p_username:username});if(ce)throw ce}else{const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw new Error("Password errata.")}await startMemberApp()}catch(err){console.error(err);$("memberLoginMessage").textContent=err.message}finally{$("memberLoginButton").disabled=false}});
 $("memberLogout").onclick=async()=>{await sb.auth.signOut();currentUser=currentProfile=null;showOnly("welcomeScreen")};
 
-async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;await loadMemberPermissions();showOnly("memberApp");applyMemberPermissionsUI();await refreshAll();applyMemberPermissionsUI();}
+async function recordMemberAccess(event="access"){try{const {data:{session}}=await sb.auth.getSession();if(!session?.access_token)return;await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({action:"access_log",event})})}catch(err){console.warn("Member access log",err)}}
+async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;recordMemberAccess("access");await loadMemberPermissions();showOnly("memberApp");applyMemberPermissionsUI();await refreshAll();applyMemberPermissionsUI();}
 
 /* MEMBER NAV */
 $("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{if(btn.classList.contains("hidden")||btn.hidden)return;$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await Promise.all([loadCommunityData(),loadSongs(),loadSongScores(),loadMemberSongPreferences()]);calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadUnifiedMemberRankings()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}if(btn.dataset.page==="analyticsPage")await renderAnalyticsInto("memberAnalyticsContent");if(btn.dataset.page==="setupPage"&&isEma()){if(!canUseDesktopSetup()){alert("SETUP è disponibile solo da PC.");return}await loadSetupPage()}}catch(err){console.error(err);alert(err.message)}});
@@ -3594,7 +3666,7 @@ function setScrollAutoImportant(el){
   if(!el||el.hidden)return;
   if(el.style.getPropertyValue("overflow-y")!=="auto"||el.style.getPropertyPriority("overflow-y")!=="important")el.style.setProperty("overflow-y","auto","important")
 }
-/* v4.9.6 — lo scroll è governato solo dal CSS.
+/* v4.10.0 — lo scroll è governato solo dal CSS.
    Le vecchie scansioni runtime percorrevano l'intero DOM, leggevano layout/computed style
    e su dispositivi touch potevano saturare il main thread. Manteniamo solo il fit leggero. */
 function enforceScrollContract(){return}
@@ -3977,7 +4049,7 @@ function renderRankingData(data,fanBox,songBox,concertBox,concertOpen){
 }
 async function renderPublicRankings(){if(!canFan("rankings_view"))return;try{const data=await fanApi("rankings");renderRankingData(data,"publicFanRanking","publicSongRanking","publicConcertRanking",openPublicConcert)}catch(err){["publicFanRanking","publicSongRanking","publicConcertRanking"].forEach(id=>{if($(id))$(id).innerHTML=`<div class="empty">Errore caricamento: ${esc(err.message)}</div>`})}}
 
-async function startGuestApp(){currentGuest=true;currentFan=null;await Promise.all([loadPublicPermissions("guest"),loadFanLabelDefinitions(),loadVenueTypes().catch(()=>{})]);showOnly("guestApp");applyPublicPermissionsUI("guest");startPublicRealtimeSync();const jobs=[];if(canGuest("concerts_view"))jobs.push(loadGuestConcerts());if(canGuest("rankings_view"))jobs.push(renderGuestRankings());await Promise.all(jobs)}
+async function startGuestApp(){currentGuest=true;currentFan=null;await Promise.all([loadPublicPermissions("guest"),loadFanLabelDefinitions(),loadVenueTypes().catch(()=>{})]);showOnly("guestApp");fanApi("access_log",{guest:true,event:"access"}).catch(err=>console.warn("Guest access log",err));applyPublicPermissionsUI("guest");startPublicRealtimeSync();const jobs=[];if(canGuest("concerts_view"))jobs.push(loadGuestConcerts());if(canGuest("rankings_view"))jobs.push(renderGuestRankings());await Promise.all(jobs)}
 async function loadGuestConcerts(){if(!canGuest("concerts_view"))return;try{const scope=document.querySelector('.concert-scope-tab[data-concert-owner="guest"].active')?.dataset.concertScope||"public",data=await fanApi("list_concerts",{guest:true});guestConcerts=data.concerts||[];renderConcertCollection(guestConcerts.filter(c=>!c.private_show),$("guestConcertList"),openGuestConcert,"Nessun concerto pubblico disponibile.");renderConcertCollection(guestConcerts.filter(c=>c.private_show),$("guestPrivateConcertList"),openGuestConcert,"Nessun private show disponibile.");setConcertScope("guest",scope)}catch(err){$("guestConcertList").innerHTML=`<div class="empty"><strong>Errore caricamento concerti</strong><br>${esc(err.message)}</div>`;$("guestPrivateConcertList").innerHTML=`<div class="empty">${esc(err.message)}</div>`}}
 async function openGuestConcert(id){
   openGuestConcertId=id;stopConcertRevealTimer("guest");
@@ -4034,7 +4106,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
     ".list",".song-list","[id$=\"List\"]","[class$=\"-list\"]","[class*=\"-list \"]",
     "[data-scroll-container]"
   ].join(",");
-  /* v4.9.6 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
+  /* v4.10.0 — nessuna riscrittura inline dell'overflow: il CSS è l'unica fonte
      del contratto di scroll, così touch/iOS non pagano scansioni ripetute del DOM. */
   function v474SetScrollAuto(){return}
   function v474UnlockScroll(){return}
@@ -5209,7 +5281,7 @@ setMemberRankingTab('songs');
       const {error:dbErr}=await sb.from("songs").update({cover_path:newPath,updated_at:new Date().toISOString()}).eq("id",id);if(dbErr){if(file&&newPath)await sb.storage.from("concert-posters").remove([newPath]);throw dbErr}
       if(oldPath&&oldPath!==newPath)await sb.storage.from("concert-posters").remove([oldPath]);
       song.cover_path=newPath;$("editSongCoverPath").value=newPath||"";input.value="";v481RenderCoverPreview(newPath,song.title);$("songAutoSaveStatus").textContent="Cover salvata ✓";renderCatalog();renderSongRanking()
-    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.9.6.sql in Supabase.")}
+    }catch(err){$("songAutoSaveStatus").textContent="Errore cover";alert((err?.message||String(err))+"\n\nSe compare un errore sulla colonna cover_path, esegui prima migration_v4.10.0.sql in Supabase.")}
   }
   $("editSongCover")?.addEventListener("change",v481SaveSongCover);$("editSongCoverRemove")?.addEventListener("click",()=>{v481SaveSongCover.removeRequested=true;v481SaveSongCover()});
 
@@ -5978,7 +6050,7 @@ setMemberRankingTab('songs');
     const list=$("songRankingList"),panel=list?.closest(".member-ranking-panel");
     const posterBox=$("memberPosterCatalogList");
     const data={
-      version:"v4.9.6",
+      version:"v4.10.0",
       ranking:{
         diag:window.__JM_RANKING_DIAG||null,
         counter:$("songRankingCounter")?.textContent||"",
@@ -6115,6 +6187,190 @@ setMemberRankingTab('songs');
     console.log("[JM_DEBUG_SETUP]",data);
     return data;
   };
+})();
+</script>
+
+
+<script id="v4-10-0-audit-log-runtime">
+(()=>{
+  let operationRows=[];
+  let accessRows=[];
+  let operationLoaded=false;
+  let accessLoaded=false;
+  logSetupScope="operations";
+
+  const fmtLogTime=v=>v?new Date(v).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"—";
+  const roleLabel=r=>({admin:"ADMIN",member:"MEMBRO",fan:"FAN",guest:"OSPITE",system:"SISTEMA"}[r]||String(r||"—").toUpperCase());
+  const safeJson=v=>{try{return JSON.stringify(v??{},null,2)}catch{return String(v??"")}};
+  const shortId=v=>{const s=String(v||"");return s.length>18?`${s.slice(0,8)}…${s.slice(-5)}`:s};
+
+  function operationSummary(r){
+    if(r.operation==="UPDATE"&&r.changed_fields?.length)return `Modificati: ${r.changed_fields.join(", ")}`;
+    if(r.operation==="DELETE")return `Eliminato record ${shortId(r.source_id)||""}`.trim();
+    if(r.operation==="INSERT")return `Creato record ${shortId(r.source_id)||""}`.trim();
+    if(r.action_key)return String(r.action_key).replace(/^fan\./,"").replaceAll("_"," ");
+    return r.operation||"Operazione";
+  }
+
+  function renderOperationLog(){
+    const box=$("appOperationLog");if(!box)return;
+    const q=String($("appOperationLogSearch")?.value||"").trim().toLowerCase();
+    const op=$("appOperationLogOperation")?.value||"";
+    const role=$("appOperationLogRole")?.value||"";
+    const table=$("appOperationLogTable")?.value||"";
+    const rows=operationRows.filter(r=>{
+      if(op&&r.operation!==op)return false;
+      if(role&&r.actor_role!==role)return false;
+      if(table&&r.source_table!==table)return false;
+      if(!q)return true;
+      return `${r.actor_name||""} ${r.actor_role||""} ${r.operation||""} ${r.action_key||""} ${r.source_table||""} ${r.source_id||""} ${JSON.stringify(r.details||{})} ${(r.changed_fields||[]).join(" ")}`.toLowerCase().includes(q);
+    });
+    box.innerHTML="";
+    rows.forEach(r=>{
+      const row=document.createElement("div");row.className="audit-row";
+      const cls=`op-${String(r.operation||"action").toLowerCase()}`;
+      row.innerHTML=`<div class="audit-time">${esc(fmtLogTime(r.occurred_at))}</div>
+        <div class="audit-actor"><strong>${esc(r.actor_name||"Sistema")}</strong><div class="audit-sub">${esc(roleLabel(r.actor_role))}</div></div>
+        <div><span class="audit-badge ${esc(cls)}">${esc(r.operation||"ACTION")}</span></div>
+        <div class="audit-source">${esc(r.source_table||"—")}${r.source_id?` · ${esc(shortId(r.source_id))}`:""}</div>
+        <div class="audit-summary">${esc(operationSummary(r))}</div>
+        <button type="button" class="small-btn audit-detail-button">DETTAGLI</button>
+        <div class="audit-details" hidden>
+          <div class="audit-detail-grid">
+            <div class="audit-detail-box"><div class="audit-detail-title">Dettagli</div><pre class="audit-json">${esc(safeJson(r.details||{}))}</pre></div>
+            <div class="audit-detail-box"><div class="audit-detail-title">Campi modificati</div><pre class="audit-json">${esc((r.changed_fields||[]).join("\\n")||"—")}</pre></div>
+            <div class="audit-detail-box"><div class="audit-detail-title">Prima</div><pre class="audit-json">${esc(safeJson(r.old_data))}</pre></div>
+            <div class="audit-detail-box"><div class="audit-detail-title">Dopo</div><pre class="audit-json">${esc(safeJson(r.new_data))}</pre></div>
+          </div>
+        </div>`;
+      const detail=row.querySelector(".audit-details"),btn=row.querySelector(".audit-detail-button");
+      btn.onclick=()=>{detail.hidden=!detail.hidden;btn.textContent=detail.hidden?"DETTAGLI":"CHIUDI"};
+      box.appendChild(row);
+    });
+    if(!rows.length)box.innerHTML='<div class="empty">Nessuna operazione corrispondente.</div>';
+    if(logSetupScope==="operations")$("fanOperationLogStatus").textContent=`${rows.length} operazioni`;
+  }
+
+  async function loadOperationLog(force=false){
+    if(operationLoaded&&!force){renderOperationLog();return}
+    const box=$("appOperationLog");if(box)box.innerHTML='<div class="empty">Caricamento operazioni...</div>';
+    const {data,error}=await sb.from("app_operation_log")
+      .select("id,occurred_at,operation,action_key,source_table,source_id,actor_role,actor_user_id,actor_fan_id,actor_name,changed_fields,details,old_data,new_data")
+      .order("occurred_at",{ascending:false}).limit(1200);
+    if(error)throw error;
+    operationRows=data||[];operationLoaded=true;
+    const tableSel=$("appOperationLogTable");
+    if(tableSel){
+      const current=tableSel.value;
+      const tables=[...new Set(operationRows.map(x=>x.source_table).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"it"));
+      tableSel.innerHTML='<option value="">TUTTE LE TABELLE</option>'+tables.map(t=>`<option value="${esc(t)}">${esc(t.toUpperCase())}</option>`).join("");
+      tableSel.value=current;
+    }
+    renderOperationLog();
+  }
+
+  function accessIpLabel(r){
+    if(r.ip_address)return r.ip_address;
+    if(r.ip_hash)return `hash:${String(r.ip_hash).slice(0,12)}…`;
+    return "—";
+  }
+  function renderAccessLog(){
+    const box=$("appAccessLog");if(!box)return;
+    const q=String($("appAccessLogSearch")?.value||"").trim().toLowerCase();
+    const role=$("appAccessLogRole")?.value||"";
+    const event=$("appAccessLogEvent")?.value||"";
+    const rows=accessRows.filter(r=>{
+      if(role&&r.actor_role!==role)return false;
+      if(event&&r.event!==event)return false;
+      if(!q)return true;
+      return `${r.actor_name||""} ${r.actor_role||""} ${r.event||""} ${r.device_label||""} ${r.browser_label||""} ${r.ip_address||""} ${r.ip_hash||""} ${r.user_agent||""}`.toLowerCase().includes(q);
+    });
+    box.innerHTML="";
+    rows.forEach(r=>{
+      const row=document.createElement("div");row.className="audit-access-row";
+      row.innerHTML=`<div class="audit-time">${esc(fmtLogTime(r.occurred_at))}</div>
+        <div class="audit-actor"><strong>${esc(r.actor_name||"Ospite")}</strong><div class="audit-sub">${esc(roleLabel(r.actor_role))} · ${esc(r.event||"access")}</div></div>
+        <div><span class="audit-badge op-action">${esc(roleLabel(r.actor_role))}</span></div>
+        <div class="audit-device"><strong>${esc(r.device_label||"Dispositivo")}</strong><div class="audit-sub">${esc(r.browser_label||"Browser")}</div></div>
+        <div class="audit-ip">${esc(accessIpLabel(r))}</div>
+        <button type="button" class="small-btn audit-detail-button">DETTAGLI</button>
+        <div class="audit-details" hidden>
+          <div class="audit-detail-grid">
+            <div class="audit-detail-box"><div class="audit-detail-title">User agent</div><pre class="audit-json">${esc(r.user_agent||"Non disponibile")}</pre></div>
+            <div class="audit-detail-box"><div class="audit-detail-title">Rete / dispositivo</div><pre class="audit-json">${esc(safeJson({ip_address:r.ip_address||null,ip_hash:r.ip_hash||null,device_token_hash:r.device_token_hash||null,fingerprint_hash:r.fingerprint_hash||null}))}</pre></div>
+            <div class="audit-detail-box"><div class="audit-detail-title">Dettagli</div><pre class="audit-json">${esc(safeJson(r.details||{}))}</pre></div>
+          </div>
+        </div>`;
+      const detail=row.querySelector(".audit-details"),btn=row.querySelector(".audit-detail-button");
+      btn.onclick=()=>{detail.hidden=!detail.hidden;btn.textContent=detail.hidden?"DETTAGLI":"CHIUDI"};
+      box.appendChild(row);
+    });
+    if(!rows.length)box.innerHTML='<div class="empty">Nessun accesso corrispondente.</div>';
+    if(logSetupScope==="access")$("fanOperationLogStatus").textContent=`${rows.length} accessi`;
+  }
+
+  async function loadAccessLog(force=false){
+    if(accessLoaded&&!force){renderAccessLog();return}
+    const box=$("appAccessLog");if(box)box.innerHTML='<div class="empty">Caricamento accessi...</div>';
+    const {data,error}=await sb.from("app_access_log")
+      .select("id,occurred_at,event,actor_role,actor_user_id,actor_fan_id,actor_name,device_label,browser_label,user_agent,ip_address,ip_hash,device_token_hash,fingerprint_hash,details")
+      .order("occurred_at",{ascending:false}).limit(1200);
+    if(error)throw error;
+    accessRows=data||[];accessLoaded=true;
+    const sel=$("appAccessLogEvent");
+    if(sel){
+      const current=sel.value;
+      const events=[...new Set(accessRows.map(x=>x.event).filter(Boolean))].sort();
+      sel.innerHTML='<option value="">TUTTI GLI EVENTI</option>'+events.map(v=>`<option value="${esc(v)}">${esc(String(v).toUpperCase())}</option>`).join("");
+      sel.value=current;
+    }
+    renderAccessLog();
+  }
+
+  loadFanOperationLog=async function(){
+    const status=$("fanOperationLogStatus");
+    if(status)status.textContent="Caricamento...";
+    try{
+      await loadOperationLog(true);
+    }catch(err){
+      if(status)status.textContent="Log non disponibile";
+      if($("appOperationLog"))$("appOperationLog").innerHTML=`<div class="empty">${esc(err.message)}</div>`;
+      throw err;
+    }
+  };
+
+  bindLogScopeTabs=function(){
+    document.querySelectorAll(".log-scope-tab").forEach(btn=>{
+      btn.classList.toggle("active",btn.dataset.logScope===logSetupScope);
+      btn.onclick=async()=>{
+        logSetupScope=btn.dataset.logScope||"operations";
+        document.querySelectorAll(".log-scope-tab").forEach(x=>x.classList.toggle("active",x===btn));
+        document.querySelectorAll("[data-log-panel]").forEach(p=>p.hidden=p.dataset.logPanel!==logSetupScope);
+        try{
+          if(logSetupScope==="operations")await loadOperationLog();
+          else if(logSetupScope==="access")await loadAccessLog();
+          else renderBrowserSystemLog();
+        }catch(err){
+          $("fanOperationLogStatus").textContent=err.message||"Errore log";
+        }
+      };
+    });
+  };
+
+  ["appOperationLogSearch","appOperationLogOperation","appOperationLogRole","appOperationLogTable"].forEach(id=>{
+    $(id)?.addEventListener(id.endsWith("Search")?"input":"change",renderOperationLog);
+  });
+  ["appAccessLogSearch","appAccessLogRole","appAccessLogEvent"].forEach(id=>{
+    $(id)?.addEventListener(id.endsWith("Search")?"input":"change",renderAccessLog);
+  });
+
+  window.JM_LOG_DEBUG=()=>({
+    scope:logSetupScope,
+    operations:operationRows.length,
+    accesses:accessRows.length,
+    operationPanelHeight:$("appOperationLog")?.getBoundingClientRect?.().height??null,
+    accessPanelHeight:$("appAccessLog")?.getBoundingClientRect?.().height??null
+  });
 })();
 </script>
 
