@@ -3,6 +3,7 @@
 
   const MEDIA_BUCKET='public-media';
   const DEMO_BUCKET='demo-audio';
+  const LABEL_BUCKET='public-media';
 
   const q=(s,r=document)=>r.querySelector(s);
   const qa=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -35,6 +36,15 @@
     st.id='secureDemoAdminStyles';
     st.textContent=`
       .secure-demo-button.has-demo{border-color:rgba(126,205,145,.30)!important;color:#8ed7a0!important}
+      .jukebox-label-button.has-label{border-color:rgba(243,210,52,.45)!important;color:#f3d234!important}
+      .jukebox-label-manager{position:fixed;z-index:10000;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));padding:11px;border:1px solid #4a4f58;border-radius:12px;background:#171b22;box-shadow:0 12px 38px #000a}
+      .jukebox-label-manager-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+      .jukebox-label-manager-head strong{font-size:10px}
+      .jukebox-label-preview{display:grid;place-items:center;min-height:84px;padding:8px;border:1px solid #444;background:#0c0d10}
+      .jukebox-label-preview img{display:block;width:100%;max-height:120px;object-fit:contain}
+      .jukebox-label-empty{color:#7f8791;font-size:8px;text-transform:uppercase;letter-spacing:.08em}
+      .jukebox-label-note{margin-top:7px;color:#8f97a1;font-size:7px;line-height:1.4}
+      .jukebox-label-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
       .secure-demo-player{position:fixed;z-index:9999;right:12px;bottom:12px;width:min(390px,calc(100vw - 24px));padding:11px;border:1px solid #4a4f58;border-radius:12px;background:#171b22;box-shadow:0 12px 38px #000a}
       .secure-demo-player-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.secure-demo-player-head strong{font-size:10px}
       .secure-demo-player audio{width:100%;height:34px}.secure-demo-player-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
@@ -203,23 +213,17 @@
       return;
     }
 
-    let url='';
-    try{url=await signedUrl(song)}
-    catch(err){return alert(err.message||String(err))}
-
+    const legacy=(song.audio_bucket||MEDIA_BUCKET)!==DEMO_BUCKET;
     const pop=document.createElement('div');
     pop.id='secureDemoPlayer';
     pop.className='secure-demo-player';
-
-    const legacy=(song.audio_bucket||MEDIA_BUCKET)!==DEMO_BUCKET;
-
     pop.innerHTML=`
       <div class="secure-demo-player-head">
         <strong>${esc(song.title)}</strong>
         <button type="button" data-close style="background:none;border:0;color:#ddd;font-size:18px">×</button>
       </div>
-      <audio controls preload="none" controlsList="nodownload" src="${esc(url)}"></audio>
-      ${legacy?'<div class="secure-demo-warning">Questa demo è ancora nel vecchio bucket pubblico. Migrala nel bucket privato per applicare realmente le regole di accesso.</div>':''}
+      <div data-demo-loading style="padding:7px 0;color:#9ca3ad;font-size:8px">Caricamento demo…</div>
+      ${legacy?'<div class="secure-demo-warning">Demo precedente rilevata: il file è ancora nel vecchio bucket pubblico. Puoi ascoltarlo e poi usare “METTI AL SICURO”.</div>':''}
       <div class="secure-demo-player-actions">
         ${isAdmin()?`
           ${legacy?'<button type="button" class="small-btn primary" data-migrate>METTI AL SICURO</button>':''}
@@ -233,6 +237,26 @@
     q('[data-replace]',pop)?.addEventListener('click',()=>{pop.remove();chooseDemo(song,anchor)});
     q('[data-remove]',pop)?.addEventListener('click',()=>removeDemo(song,pop));
     q('[data-migrate]',pop)?.addEventListener('click',()=>migrateLegacy(song,pop));
+
+    try{
+      const url=await signedUrl(song);
+      if(!url)throw new Error('URL audio non disponibile.');
+      const loading=q('[data-demo-loading]',pop);
+      if(!loading)return;
+      const audio=document.createElement('audio');
+      audio.controls=true;
+      audio.preload='none';
+      audio.controlsList='nodownload';
+      audio.src=url;
+      audio.style.cssText='width:100%;height:34px';
+      loading.replaceWith(audio);
+    }catch(err){
+      const loading=q('[data-demo-loading]',pop);
+      if(loading){
+        loading.textContent=`Errore audio: ${err.message||String(err)}`;
+        loading.style.color='#e89a9a';
+      }
+    }
   }
 
   function refreshCatalogButtons(){
@@ -245,11 +269,13 @@
       if(!btn.classList.contains('secure-demo-button'))btn.remove();
     });
 
-    const ordered=[...songList()].sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it'));
+    const allSongs=[...songList()];
+    const byId=new Map(allSongs.map(song=>[String(song.id),song]));
+    const ordered=[...allSongs].sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it'));
     const rows=qa('.catalog-compact-row',box);
 
     rows.forEach((row,i)=>{
-      const song=ordered[i];
+      const song=byId.get(String(row.dataset.songId||''))||ordered[i];
       if(!song)return;
       const actions=q('.row-buttons',row);
       if(!actions)return;
@@ -264,19 +290,166 @@
         btn=document.createElement('button');
         btn.type='button';
         btn.className='small-btn catalog-audio-button secure-demo-button';
-        btn.onclick=e=>{
-          e.stopPropagation();
-          openPlayer(song,btn);
-        };
         actions.prepend(btn);
       }
+
+      btn.dataset.catalogAudio=String(song.id);
+      btn.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        void openPlayer(song,btn);
+      };
 
       btn.classList.toggle('has-demo',!!song.audio_path);
       btn.textContent=song.audio_path?'▶ DEMO':'+ DEMO';
       btn.title=song.audio_path
-        ? 'Ascolta la demo'
+        ? ((song.audio_bucket||MEDIA_BUCKET)===DEMO_BUCKET
+            ? 'Ascolta la demo privata'
+            : 'Ascolta la vecchia demo e mettila al sicuro')
         : 'Carica una demo privata';
+
+      if(isAdmin()){
+        let labelBtn=q('.jukebox-label-button',actions);
+        if(!labelBtn){
+          labelBtn=document.createElement('button');
+          labelBtn.type='button';
+          labelBtn.className='small-btn jukebox-label-button';
+          actions.prepend(labelBtn);
+        }
+        labelBtn.classList.toggle('has-label',!!song.jukebox_label_path);
+        labelBtn.textContent=song.jukebox_label_path?'LABEL':' + LABEL';
+        labelBtn.title=song.jukebox_label_path
+          ? 'Anteprima / sostituisci etichetta Jukebox'
+          : 'Carica etichetta Jukebox';
+        labelBtn.onclick=e=>{
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          openJukeboxLabelManager(song,labelBtn);
+        };
+      }
     });
+  }
+
+
+  function jukeboxLabelUrl(song){
+    if(!song?.jukebox_label_path)return '';
+    try{
+      return sb.storage.from(LABEL_BUCKET).getPublicUrl(song.jukebox_label_path).data.publicUrl||'';
+    }catch{return ''}
+  }
+
+  async function uploadJukeboxLabel(song,file,anchor){
+    if(!isAdmin())return;
+    if(!file||!String(file.type||'').startsWith('image/'))return alert('Seleziona un file immagine.');
+    if(file.size>8*1024*1024)return alert('Immagine massima 8 MB.');
+
+    anchor.disabled=true;
+    const original=anchor.textContent;
+    anchor.textContent='CARICO…';
+
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+    const path=`jukebox-labels/${song.id}/${Date.now()}-${safeFile(file.name)}.${ext}`;
+
+    try{
+      const {error:up}=await sb.storage.from(LABEL_BUCKET).upload(path,file,{
+        contentType:file.type||undefined,
+        upsert:false
+      });
+      if(up)throw up;
+
+      const oldPath=song.jukebox_label_path||null;
+      const {error:update}=await sb.from('songs').update({
+        jukebox_label_path:path,
+        updated_at:new Date().toISOString()
+      }).eq('id',song.id);
+
+      if(update){
+        await sb.storage.from(LABEL_BUCKET).remove([path]);
+        throw update;
+      }
+
+      if(oldPath)await sb.storage.from(LABEL_BUCKET).remove([oldPath]);
+
+      song.jukebox_label_path=path;
+      if(typeof loadSongs==='function')await loadSongs();
+      if(typeof renderCatalog==='function')renderCatalog();
+      setTimeout(refreshCatalogButtons,0);
+    }catch(err){
+      alert(err.message||String(err));
+    }finally{
+      anchor.disabled=false;
+      anchor.textContent=original;
+    }
+  }
+
+  function chooseJukeboxLabel(song,anchor){
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='image/*';
+    input.hidden=true;
+    document.body.appendChild(input);
+    input.onchange=async()=>{
+      const file=input.files?.[0];
+      if(file)await uploadJukeboxLabel(song,file,anchor);
+      input.remove();
+    };
+    input.click();
+  }
+
+  async function removeJukeboxLabel(song,panel){
+    if(!isAdmin()||!song?.jukebox_label_path)return;
+    if(!confirm(`Rimuovere l'etichetta Jukebox di "${song.title}"?`))return;
+
+    const oldPath=song.jukebox_label_path;
+    const {error}=await sb.from('songs').update({
+      jukebox_label_path:null,
+      updated_at:new Date().toISOString()
+    }).eq('id',song.id);
+
+    if(error)return alert(error.message);
+
+    await sb.storage.from(LABEL_BUCKET).remove([oldPath]);
+    song.jukebox_label_path=null;
+    panel?.remove();
+
+    if(typeof loadSongs==='function')await loadSongs();
+    if(typeof renderCatalog==='function')renderCatalog();
+    setTimeout(refreshCatalogButtons,0);
+  }
+
+  function openJukeboxLabelManager(song,anchor){
+    document.getElementById('jukeboxLabelManager')?.remove();
+
+    if(!song.jukebox_label_path){
+      chooseJukeboxLabel(song,anchor);
+      return;
+    }
+
+    const panel=document.createElement('div');
+    panel.id='jukeboxLabelManager';
+    panel.className='jukebox-label-manager';
+    const src=jukeboxLabelUrl(song);
+
+    panel.innerHTML=`
+      <div class="jukebox-label-manager-head">
+        <strong>ETICHETTA JUKEBOX · ${esc(song.title)}</strong>
+        <button type="button" data-close style="background:none;border:0;color:#ddd;font-size:18px">×</button>
+      </div>
+      <div class="jukebox-label-preview">
+        ${src?`<img src="${esc(src)}" alt="Etichetta Jukebox ${esc(song.title)}">`:'<span class="jukebox-label-empty">Etichetta non disponibile</span>'}
+      </div>
+      <div class="jukebox-label-note">Formato consigliato: immagine orizzontale larga, circa 6:1. Nel Jukebox viene adattata automaticamente allo slot.</div>
+      <div class="jukebox-label-actions">
+        <button type="button" class="small-btn primary" data-replace>SOSTITUISCI</button>
+        <button type="button" class="small-btn danger" data-remove>RIMUOVI</button>
+      </div>`;
+
+    document.body.appendChild(panel);
+    q('[data-close]',panel).onclick=()=>panel.remove();
+    q('[data-replace]',panel).onclick=()=>{panel.remove();chooseJukeboxLabel(song,anchor)};
+    q('[data-remove]',panel).onclick=()=>removeJukeboxLabel(song,panel);
   }
 
   function disableLegacyAudioUi(){
