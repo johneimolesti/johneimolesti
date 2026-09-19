@@ -28,6 +28,7 @@
   let bookingCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let memberMedia = [];
   let memberCarouselIndex = 0;
+  let tourPrivateMode = false;
   let fanOnboardingStatus = null;
   let highlightSignature = '', concertRequest = 0, lastConcertData = null;
   let refreshBusy = false, concertDirty = false;
@@ -396,84 +397,224 @@
     await loadBookingAvailability();renderBookingCalendar();
   }
 
+  function bandMemberPeriod(member) {
+    const from = Number(member?.active_from_year) || null;
+    const to = Number(member?.active_to_year) || null;
+    if (member?.is_current) return from ? `DAL ${from}` : 'LINE-UP ATTUALE';
+    if (from && to) return `${from}–${to}`;
+    if (from) return `DAL ${from}`;
+    if (to) return `FINO AL ${to}`;
+    return 'EX MEMBRO';
+  }
+
   async function loadMemberMedia() {
     try {
-      const {data,error} = await sb.from('public_site_content').select('content_key,content_type,value').like('content_key','band.member.%');
+      const {data,error} = await sb.from('public_band_members')
+        .select('id,name,role,description,image_path,sort_order,is_current,active_from_year,active_to_year,published,created_at')
+        .order('sort_order',{ascending:true})
+        .order('created_at',{ascending:true});
       if (error) throw error;
-      const bySlot = new Map();
-      (data || []).forEach(row => {
-        const match = String(row.content_key || '').match(/^band\.member\.(\d+)\.(name|role|image)$/);
-        if (!match) return;
-        const slot = Number(match[1]);
-        if (!bySlot.has(slot)) bySlot.set(slot,{slot});
-        bySlot.get(slot)[match[2]] = row.value || '';
-      });
-      memberMedia = [...bySlot.values()].filter(x => x.slot >= 1 && x.slot <= 5).sort((a,b) => a.slot-b.slot);
+      memberMedia = data || [];
     } catch (err) {
-      console.warn('Foto membri non disponibili',err);
-      memberMedia = [];
+      console.warn('Membri band non disponibili',err);
+      memberMedia = [
+        {id:'fallback-kekko',name:'Kekko',role:'Chitarra',description:'',sort_order:10,is_current:true,active_from_year:2025,published:true},
+        {id:'fallback-ema',name:'Ema',role:'Batteria',description:'',sort_order:20,is_current:true,active_from_year:2025,published:true},
+        {id:'fallback-gianni',name:'Gianni',role:'Voce',description:'',sort_order:30,is_current:true,active_from_year:2025,published:true},
+        {id:'fallback-carlo',name:'Carlo',role:'Basso',description:'',sort_order:40,is_current:true,active_from_year:2025,published:true},
+        {id:'fallback-ale',name:'Ale Lazza',role:'Chitarra',description:'',sort_order:50,is_current:true,active_from_year:2025,published:true}
+      ];
     }
     renderMemberMedia();
     return memberMedia;
   }
-  function renderMemberMedia() {
-    const fallback = [
-      {slot:1,name:'KEKKO',role:'Chitarra'},
-      {slot:2,name:'EMA',role:'Batteria'},
-      {slot:3,name:'GIANNI',role:'Voce'},
-      {slot:4,name:'CARLO',role:'Basso'},
-      {slot:5,name:'ALE LAZZA',role:'Chitarra'}
-    ];
-    const members = fallback.map(base => ({...base,...(memberMedia.find(x=>x.slot===base.slot)||{})}));
-    const grid = $('memberGrid');
-    if (grid) grid.innerHTML = members.map((m,i) => {
-      const src = publicSiteAssetUrl(m.image);
-      const avatar = src ? `<div class="member-avatar has-photo"><img src="${esc(src)}" alt="${esc(m.name)}" loading="lazy"></div>` : `<div class="member-avatar">${esc(String(m.name || '?').charAt(0))}</div>`;
-      return `<article class="member-card glass-card"><span class="member-no">${String(i+1).padStart(2,'0')}</span>${avatar}<h4>${esc(String(m.name||'').toUpperCase())}</h4><p>${esc(m.role||'John & i Molesti')}</p></article>`;
-    }).join('');
-    const photos = members.map(m => ({...m,src:publicSiteAssetUrl(m.image)})).filter(m => m.src);
-    const carousel = $('homeMemberCarousel'), stage = $('memberCarouselStage');
-    if (!carousel || !stage) return;
-    carousel.classList.toggle('hidden',!photos.length);
-    memberCarouselIndex = photos.length ? Math.min(memberCarouselIndex,photos.length-1) : 0;
-    stage.innerHTML = photos.map((m,i)=>`<figure class="member-carousel-slide${i===memberCarouselIndex?' active':''}"><img src="${esc(m.src)}" alt="${esc(m.name)}"><figcaption class="member-carousel-caption">${esc(String(m.name||'').toUpperCase())} · ${esc(m.role||'')}</figcaption></figure>`).join('');
+
+  function bandMemberCard(member,index,{former=false}={}) {
+    const src = publicSiteAssetUrl(member.image_path);
+    const avatar = src
+      ? `<div class="member-avatar has-photo"><img src="${esc(src)}" alt="${esc(member.name)}" loading="lazy"></div>`
+      : `<div class="member-avatar">${esc(String(member.name || '?').charAt(0))}</div>`;
+    return `<article class="member-card glass-card${former?' former-member-card':''}">
+      <span class="member-no">${String(index+1).padStart(2,'0')}</span>
+      ${avatar}
+      <h4>${esc(String(member.name||'').toUpperCase())}</h4>
+      <p class="member-role">${esc(member.role||'John & i Molesti')}</p>
+      ${member.description?`<p class="member-description">${esc(member.description)}</p>`:''}
+      <span class="member-period">${esc(bandMemberPeriod(member))}</span>
+    </article>`;
   }
+
+  function renderMemberMedia() {
+    const published = memberMedia.filter(m => m.published !== false);
+    const current = published.filter(m => m.is_current).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+    const former = published.filter(m => !m.is_current).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+
+    const grid = $('memberGrid');
+    if (grid) grid.innerHTML = current.map((m,i)=>bandMemberCard(m,i)).join('') || '<div class="empty-state">Line-up in aggiornamento.</div>';
+
+    const membersBlock = $('membersBlock');
+    let formerBlock = $('formerMembersBlock');
+    if (membersBlock && !formerBlock) {
+      formerBlock = document.createElement('section');
+      formerBlock.id = 'formerMembersBlock';
+      formerBlock.className = 'content-section former-members-block';
+      formerBlock.innerHTML = `<div class="section-heading"><div><span class="section-kicker">ARCHIVIO</span><h3>Ex Molesti</h3></div></div><div class="member-grid former-member-grid" id="formerMemberGrid"></div>`;
+      membersBlock.insertAdjacentElement('afterend',formerBlock);
+    }
+    if (formerBlock) {
+      formerBlock.hidden = !former.length;
+      const formerGrid = $('formerMemberGrid');
+      if (formerGrid) formerGrid.innerHTML = former.map((m,i)=>bandMemberCard(m,i,{former:true})).join('');
+    }
+
+    const photos = current.map(m => ({...m,src:publicSiteAssetUrl(m.image_path)})).filter(m => m.src);
+    const carousel = $('homeMemberCarousel'), stage = $('memberCarouselStage');
+    if (carousel && stage) {
+      carousel.classList.toggle('hidden',!photos.length);
+      memberCarouselIndex = photos.length ? Math.min(memberCarouselIndex,photos.length-1) : 0;
+      stage.innerHTML = photos.map((m,i)=>`<figure class="member-carousel-slide${i===memberCarouselIndex?' active':''}"><img src="${esc(m.src)}" alt="${esc(m.name)}"><figcaption class="member-carousel-caption">${esc(String(m.name||'').toUpperCase())} · ${esc(m.role||'')}</figcaption></figure>`).join('');
+    }
+
+    const manage = $('manageMemberPhotos');
+    if (manage) manage.textContent = 'GESTISCI MEMBRI';
+  }
+
   function moveMemberCarousel(delta) {
     const slides = $$('.member-carousel-slide',$('memberCarouselStage'));
     if (!slides.length) return;
     memberCarouselIndex = (memberCarouselIndex + delta + slides.length) % slides.length;
     slides.forEach((slide,i)=>slide.classList.toggle('active',i===memberCarouselIndex));
   }
-  function openMemberPhotoManager() {
+
+  async function saveBandMemberRow(row,member) {
+    const name = row.querySelector('[data-band-name]').value.trim();
+    if (!name) throw new Error('Inserisci il nome.');
+    const role = row.querySelector('[data-band-role]').value.trim();
+    const description = row.querySelector('[data-band-description]').value.trim();
+    const fromRaw = row.querySelector('[data-band-from]').value;
+    const toRaw = row.querySelector('[data-band-to]').value;
+    const isCurrent = row.querySelector('[data-band-current]').checked;
+    const published = row.querySelector('[data-band-published]').checked;
+    const active_from_year = fromRaw ? Number(fromRaw) : null;
+    const active_to_year = isCurrent ? null : (toRaw ? Number(toRaw) : null);
+    const {error} = await sb.from('public_band_members').update({
+      name,role,description,active_from_year,active_to_year,is_current:isCurrent,published
+    }).eq('id',member.id);
+    if (error) throw error;
+  }
+
+  async function moveBandMember(member,direction) {
+    const ordered=[...memberMedia].sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+    const index=ordered.findIndex(x=>String(x.id)===String(member.id));
+    const swapIndex=index+direction;
+    if(index<0||swapIndex<0||swapIndex>=ordered.length)return;
+    const other=ordered[swapIndex];
+    const a=Number(member.sort_order||0),b=Number(other.sort_order||0);
+    const {error:e1}=await sb.from('public_band_members').update({sort_order:b}).eq('id',member.id);
+    if(e1)throw e1;
+    const {error:e2}=await sb.from('public_band_members').update({sort_order:a}).eq('id',other.id);
+    if(e2)throw e2;
+    await loadMemberMedia();
+    openBandMemberEditor(true);
+  }
+
+  async function uploadBandMemberImage(member,file,status) {
+    if(!file)return;
+    if(!String(file.type||'').startsWith('image/'))throw new Error('Scegli un file immagine.');
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+    const path=`band-members/${member.id}/${Date.now()}.${ext}`;
+    status.textContent='Caricamento…';
+    const {error:uploadError}=await sb.storage.from('public-site').upload(path,file,{contentType:file.type||undefined,upsert:false});
+    if(uploadError)throw uploadError;
+    const old=member.image_path||null;
+    const {error:saveError}=await sb.from('public_band_members').update({image_path:path}).eq('id',member.id);
+    if(saveError){await sb.storage.from('public-site').remove([path]);throw saveError}
+    if(old)await sb.storage.from('public-site').remove([old]);
+    status.textContent='Foto pubblicata ✓';
+    await loadMemberMedia();
+  }
+
+  function bandEditorRow(member) {
+    const src=publicSiteAssetUrl(member.image_path);
+    return `<article class="band-editor-row" data-band-member="${esc(member.id)}">
+      <div class="band-editor-photo">${src?`<img src="${esc(src)}" alt="${esc(member.name)}">`:`<span>${esc(String(member.name||'?').charAt(0))}</span>`}<label class="band-editor-photo-button">FOTO<input type="file" accept="image/*" data-band-photo></label><small data-band-photo-status></small></div>
+      <div class="band-editor-fields">
+        <label>NOME<input data-band-name maxlength="120" value="${esc(member.name||'')}"></label>
+        <label>RUOLO<input data-band-role maxlength="160" value="${esc(member.role||'')}"></label>
+        <label class="full">DESCRIZIONE<textarea data-band-description maxlength="2000" rows="3">${esc(member.description||'')}</textarea></label>
+        <label>DAL<input data-band-from type="number" min="1950" max="2100" value="${esc(member.active_from_year||'')}"></label>
+        <label>AL<input data-band-to type="number" min="1950" max="2100" value="${esc(member.active_to_year||'')}" ${member.is_current?'disabled':''}></label>
+        <label class="band-editor-check"><input data-band-current type="checkbox" ${member.is_current?'checked':''}> MEMBRO ATTUALE</label>
+        <label class="band-editor-check"><input data-band-published type="checkbox" ${member.published!==false?'checked':''}> PUBBLICATO</label>
+      </div>
+      <div class="band-editor-actions">
+        <button type="button" data-band-up title="Sposta su">↑</button>
+        <button type="button" data-band-down title="Sposta giù">↓</button>
+        <button type="button" class="primary" data-band-save>SALVA</button>
+        <button type="button" class="danger" data-band-delete>ELIMINA</button>
+      </div>
+    </article>`;
+  }
+
+  async function openBandMemberEditor(reopen=false) {
     if (!currentMember || !MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase())) return;
-    const members = [1,2,3,4,5].map(slot => memberMedia.find(x=>x.slot===slot) || {slot,name:`Membro ${slot}`,role:''});
-    const overlay = document.createElement('div');
-    overlay.className = 'modal';
-    overlay.innerHTML = `<div class="modal-backdrop"></div><section class="modal-card member-photo-manager"><div class="modal-head"><div><span class="section-kicker">LA BAND</span><h2>Foto membri</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></div><div class="modal-body"><div class="member-photo-grid">${members.map(m=>{const src=publicSiteAssetUrl(m.image);return `<label class="member-photo-slot" data-member-slot="${m.slot}">${src?`<img src="${esc(src)}" alt="${esc(m.name)}">`:'<span class="member-avatar">'+esc(String(m.name||'?').charAt(0))+'</span>'}<strong>${esc(m.name||`Membro ${m.slot}`)}</strong><input type="file" accept="image/*"><span class="member-photo-status"></span></label>`}).join('')}</div></div></section>`;
+    if(reopen) document.getElementById('bandMemberEditorModal')?.remove();
+    let overlay=document.getElementById('bandMemberEditorModal');
+    if(overlay)return;
+    overlay=document.createElement('div');
+    overlay.id='bandMemberEditorModal';
+    overlay.className='modal';
+    const ordered=[...memberMedia].sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+    overlay.innerHTML=`<div class="modal-backdrop"></div><section class="modal-card band-member-editor-card"><div class="modal-head"><div><span class="section-kicker">MODIFICA SITO · BAND</span><h2>Membri della band</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></div><div class="modal-body"><div class="band-editor-note">Riordina con ↑ ↓. Per gli ex membri disattiva “Membro attuale” e indica il periodo di attività.</div><div class="band-editor-list">${ordered.map(bandEditorRow).join('')}</div><button class="btn btn-primary" id="addBandMember" type="button">+ AGGIUNGI MEMBRO / EX MEMBRO</button></div></section>`;
     document.body.appendChild(overlay);
     document.documentElement.style.overflow='hidden';
     const close=()=>{overlay.remove();if(!$$('.modal:not([hidden])').length)document.documentElement.style.removeProperty('overflow')};
     overlay.querySelector('.modal-close').onclick=close;
     overlay.querySelector('.modal-backdrop').onclick=close;
-    overlay.querySelectorAll('input[type="file"]').forEach(input=>input.onchange=async()=>{
-      const file=input.files?.[0],slotNode=input.closest('[data-member-slot]'),slot=Number(slotNode.dataset.memberSlot),status=slotNode.querySelector('.member-photo-status');
-      if(!file)return;
-      if(!String(file.type||'').startsWith('image/')){status.textContent='Scegli un file immagine.';return}
-      input.disabled=true;status.textContent='Caricamento…';
-      try{
-        const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
-        const path=`band-members/member-${slot}/${Date.now()}.${ext}`;
-        const {error:uploadError}=await sb.storage.from('public-site').upload(path,file,{contentType:file.type||undefined,upsert:false});
-        if(uploadError)throw uploadError;
-        const {error:saveError}=await sb.from('public_site_content').upsert({content_key:`band.member.${slot}.image`,content_type:'image',value:path,updated_by:currentMember.id,updated_at:new Date().toISOString()},{onConflict:'content_key'});
-        if(saveError){await sb.storage.from('public-site').remove([path]);throw saveError}
-        status.textContent='Foto pubblicata ✓';
-        await loadMemberMedia();
-        const current=memberMedia.find(x=>x.slot===slot),img=slotNode.querySelector('img');
-        if(img)img.src=publicSiteAssetUrl(current?.image)||'';
-      }catch(err){status.textContent=err.message||'Caricamento non riuscito'}finally{input.disabled=false;input.value=''}
+
+    overlay.querySelectorAll('[data-band-member]').forEach(row=>{
+      const member=memberMedia.find(x=>String(x.id)===row.dataset.bandMember);
+      if(!member)return;
+      const current=row.querySelector('[data-band-current]'),to=row.querySelector('[data-band-to]');
+      current.onchange=()=>{to.disabled=current.checked;if(current.checked)to.value=''};
+      row.querySelector('[data-band-save]').onclick=async()=>{
+        const btn=row.querySelector('[data-band-save]');btn.disabled=true;
+        try{await saveBandMemberRow(row,member);await loadMemberMedia();btn.textContent='SALVATO ✓';setTimeout(()=>btn.textContent='SALVA',1000)}
+        catch(err){alert(err.message||String(err))}
+        finally{btn.disabled=false}
+      };
+      row.querySelector('[data-band-up]').onclick=()=>moveBandMember(member,-1).catch(err=>alert(err.message));
+      row.querySelector('[data-band-down]').onclick=()=>moveBandMember(member,1).catch(err=>alert(err.message));
+      row.querySelector('[data-band-delete]').onclick=async()=>{
+        if(!confirm(`Eliminare “${member.name}” dalla storia della band?`))return;
+        const {error}=await sb.from('public_band_members').delete().eq('id',member.id);
+        if(error)return alert(error.message);
+        if(member.image_path)await sb.storage.from('public-site').remove([member.image_path]);
+        await loadMemberMedia();openBandMemberEditor(true);
+      };
+      row.querySelector('[data-band-photo]').onchange=async e=>{
+        const status=row.querySelector('[data-band-photo-status]');
+        try{await uploadBandMemberImage(member,e.target.files?.[0],status);openBandMemberEditor(true)}
+        catch(err){status.textContent=err.message||String(err)}
+      };
     });
+
+    overlay.querySelector('#addBandMember').onclick=async()=>{
+      const max=Math.max(0,...memberMedia.map(x=>Number(x.sort_order||0)));
+      const {error}=await sb.from('public_band_members').insert({
+        name:'Nuovo membro',role:'',description:'',sort_order:max+10,is_current:false,published:false
+      });
+      if(error)return alert(error.message);
+      await loadMemberMedia();openBandMemberEditor(true);
+    };
   }
+
+  function openMemberPhotoManager() {
+    openBandMemberEditor();
+  }
+
+  window.JMBandEditor={open:openBandMemberEditor,refresh:loadMemberMedia};
+
   function getFanDeviceToken() {
     let token = localStorage.getItem('jm_fan_device_token');
     if (!token) {
@@ -707,6 +848,7 @@
   async function logout(type) {
     if (type === 'member') { await sb.auth.signOut(); currentMember = null; }
     if (type === 'fan') { currentFan = null; fanOnboardingStatus = null; localStorage.removeItem('jm_public_fan_name'); }
+    tourPrivateMode = false;
     updateUserUI();
     renderUserModal();
     closeModal('userModal');
@@ -727,7 +869,7 @@
     if (concerts.length && !force) return concerts;
     try {
       const data = currentFan ? await fanApi('list_concerts') : await fanApi('list_concerts',{guest:true});
-      concerts = (data.concerts || []).filter(c => !c.private_show);
+      concerts = data.concerts || [];
       concerts.sort((a,b) => String(b.concert_date).localeCompare(String(a.concert_date)) || String(b.start_time || '').localeCompare(String(a.start_time || '')));
       return concerts;
     } catch (err) {
@@ -842,14 +984,27 @@
     syncPublicAdminControls();
   }
 
-  function upcomingConcerts() {
+  function publicConcertPool() {
+    return concerts.filter(c => !c.private_show);
+  }
+  function tourConcertPool() {
+    if (!tourPrivateMode) return concerts.filter(c => !c.private_show);
     const now = Date.now();
-    return concerts.filter(c => c.status !== 'completed' && c.status !== 'cancelled' && (!Number.isFinite(concertStartMs(c)) || concertStartMs(c) >= now - 6*60*60*1000)).sort((a,b) => concertStartMs(a)-concertStartMs(b));
+    return concerts.filter(c => {
+      if (!c.private_show || c.status === 'cancelled') return false;
+      if (c.status === 'completed') return true;
+      const start = concertStartMs(c);
+      return Number.isFinite(start) && start <= now;
+    });
   }
-  function pastConcerts() {
-    return concerts.filter(c => c.status === 'completed' || (Number.isFinite(concertStartMs(c)) && concertStartMs(c) < Date.now() - 6*60*60*1000)).sort((a,b) => concertStartMs(b)-concertStartMs(a));
+  function upcomingConcerts(pool = publicConcertPool()) {
+    const now = Date.now();
+    return pool.filter(c => c.status !== 'completed' && c.status !== 'cancelled' && (!Number.isFinite(concertStartMs(c)) || concertStartMs(c) >= now - 6*60*60*1000)).sort((a,b) => concertStartMs(a)-concertStartMs(b));
   }
-  function nextConcert() { return upcomingConcerts()[0] || null; }
+  function pastConcerts(pool = publicConcertPool()) {
+    return pool.filter(c => c.status === 'completed' || (Number.isFinite(concertStartMs(c)) && concertStartMs(c) < Date.now() - 6*60*60*1000)).sort((a,b) => concertStartMs(b)-concertStartMs(a));
+  }
+  function nextConcert() { return upcomingConcerts(publicConcertPool())[0] || null; }
 
   function renderRailNextShow() {
     const box = $('railNextShow');
@@ -877,7 +1032,7 @@
   }
 
   function renderMedia() {
-    const items = concerts.flatMap(c => {
+    const items = publicConcertPool().flatMap(c => {
       const paths = posterPaths(c.poster_path);
       return paths.map((path,index) => ({src:posterUrl(path),path,label:c.name,id:c.id,index,total:paths.length}));
     }).filter(item => item.src).slice(0,8);
@@ -912,20 +1067,49 @@
 
   function concertCardHtml(c) {
     const d = dateParts(c.concert_date), [status, cls] = statusInfo(c);
-    return `<article class="concert-card" data-concert-id="${esc(c.id)}"><div class="concert-date-block"><strong>${d.day}</strong><span>${d.month} ${d.year}</span></div><div class="concert-card-main"><h4>${esc(c.name)}</h4><div class="concert-meta-line"><b>${esc(prettyPlace(c) || window.JMCopy.text('ui.4f5bf6522767'))}</b>${c.start_time ? `<br>${esc(formatTime(c.start_time))}` : ''}${c.event_mode ? ` · ${esc(String(c.event_mode).toUpperCase())}` : ''}</div><span class="status-pill status-${cls}">${esc(status)}</span></div></article>`;
+    return `<article class="concert-card${c.private_show?' is-private-show':''}" data-concert-id="${esc(c.id)}"><div class="concert-date-block"><strong>${d.day}</strong><span>${d.month} ${d.year}</span></div><div class="concert-card-main"><h4>${esc(c.name)}</h4><div class="concert-meta-line"><b>${esc(prettyPlace(c) || window.JMCopy.text('ui.4f5bf6522767'))}</b>${c.start_time ? `<br>${esc(formatTime(c.start_time))}` : ''}</div>${c.private_show?'<span class="private-show-chip">PRIVATE SHOW</span>':''}<span class="status-pill status-${cls}">${esc(status)}</span></div></article>`;
   }
   function pastRowHtml(c) {
     const [status, cls] = statusInfo(c);
-    return `<article class="concert-row" data-concert-id="${esc(c.id)}"><div class="concert-row-date">${formatDate(c.concert_date)}</div><div><h4>${esc(c.name)}</h4><p>${esc(prettyPlace(c))}</p></div><span class="status-pill status-${cls}">${esc(status)}</span></article>`;
+    return `<article class="concert-row${c.private_show?' is-private-show':''}" data-concert-id="${esc(c.id)}"><div class="concert-row-date">${formatDate(c.concert_date)}</div><div><h4>${esc(c.name)}</h4><p>${esc(prettyPlace(c))}</p>${c.private_show?'<span class="private-show-chip">PRIVATE SHOW</span>':''}</div><span class="status-pill status-${cls}">${esc(status)}</span></article>`;
   }
   function bindConcertClicks(root) { $$('[data-concert-id]', root).forEach(n => n.onclick = () => openConcert(n.dataset.concertId)); }
   function renderTour() {
-    const up = upcomingConcerts(), past = pastConcerts();
+    const pool = tourConcertPool();
+    const up = upcomingConcerts(pool), past = pastConcerts(pool);
     window.JMCopy.write($('upcomingCount'),'ui.36ac180307ba',{count:up.length});
     window.JMCopy.write($('pastCount'),'ui.532d1db69c6e',{count:past.length});
-    $('upcomingConcerts').innerHTML = up.map(concertCardHtml).join('') || '<div class="empty-state" data-copy="ui.083de1b415bc">Nessuna data futura pubblicata.</div>';
-    $('pastConcerts').innerHTML = past.map(pastRowHtml).join('') || '<div class="empty-state" data-copy="ui.9248335d92aa">Archivio non disponibile.</div>';
+    $('upcomingConcerts').innerHTML = up.map(concertCardHtml).join('') || `<div class="empty-state">${tourPrivateMode?'Nessun private show futuro.':'Nessuna data futura pubblicata.'}</div>`;
+    $('pastConcerts').innerHTML = past.map(pastRowHtml).join('') || `<div class="empty-state">${tourPrivateMode?'Nessun private show in archivio.':'Archivio non disponibile.'}</div>`;
     bindConcertClicks($('upcomingConcerts')); bindConcertClicks($('pastConcerts'));
+
+    const archive = $('archiveBlock');
+    let switcher = $('privateShowSwitch');
+    if (!switcher && archive) {
+      switcher = document.createElement('div');
+      switcher.id = 'privateShowSwitch';
+      switcher.className = 'private-show-switch';
+      archive.appendChild(switcher);
+    }
+    if (switcher) {
+      const now = Date.now();
+      const privateCount = concerts.filter(c => c.private_show && c.status !== 'cancelled' && (c.status === 'completed' || (Number.isFinite(concertStartMs(c)) && concertStartMs(c) <= now))).length;
+      const role = currentFan ? 'fan' : 'guest';
+      const allowed = !!currentMember || can(role,'private_shows_view');
+      if (!allowed || (!tourPrivateMode && !privateCount)) {
+        switcher.hidden = true;
+      } else {
+        switcher.hidden = false;
+        switcher.innerHTML = tourPrivateMode
+          ? `<div><strong>PRIVATE SHOW</strong><span>Stai vedendo le date riservate / a inviti.</span></div><button type="button" class="text-button" data-private-show-switch>TORNA AI LIVE PUBBLICI →</button>`
+          : `<div><strong>SEI STATO A QUALCHE PRIVATE SHOW?</strong><span>Le serate private non compaiono nell’archivio pubblico normale.</span></div><button type="button" class="text-button" data-private-show-switch>CLICCA QUI →</button>`;
+        switcher.querySelector('[data-private-show-switch]').onclick = () => {
+          tourPrivateMode = !tourPrivateMode;
+          renderTour();
+          $('upcomingBlock')?.scrollIntoView({behavior:'smooth',block:'start'});
+        };
+      }
+    }
   }
 
   function rankingSongRow(r, i) {
@@ -1151,7 +1335,7 @@
       const canVote = !!currentFan && !!data.voting_open && !!data.attended;
       const mapQuery = encodeURIComponent([c.venue,c.city].filter(Boolean).join(', '));
       const posterCarousel = posters.length ? `<div class="concert-poster-carousel" data-concert-poster-carousel><div class="concert-poster-stage"><button class="poster-open concert-poster-frame" type="button" aria-label="Ingrandisci locandina"><img class="concert-poster" src="${esc(posters[0])}" alt="${esc(window.JMCopy.text('ui.poster',{name:c.name}))}" draggable="false"></button>${posters.length>1?`<button class="concert-poster-nav concert-poster-prev" type="button" aria-label="Locandina precedente">‹</button><button class="concert-poster-nav concert-poster-next" type="button" aria-label="Locandina successiva">›</button>`:''}</div>${posters.length>1?`<div class="concert-poster-footer"><div class="concert-poster-dots">${posters.map((_,i)=>`<button type="button" class="concert-poster-dot${i===0?' active':''}" data-poster-index="${i}" aria-label="Locandina ${i+1}"></button>`).join('')}</div><span class="concert-poster-count">1 / ${posters.length}</span></div>`:''}</div>` : '';
-      let html = `<div class="concert-detail-top"><div class="concert-detail-meta"><span class="status-pill status-${cls}">${esc(status)}</span><p><strong>${esc(formatDate(c.concert_date))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</strong><br>${esc(prettyPlace(c))}${c.event_mode ? ` · ${esc(String(c.event_mode).toUpperCase())}` : ''}</p><div class="concert-public-actions">${mapQuery ? `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener" data-copy="ui.d2f10e06593c">INDICAZIONI</a>` : ''}<button class="btn btn-ghost" id="addConcertCalendar" type="button" data-copy="ui.84253b1ec4ee">+ CALENDARIO</button></div></div>${posterCarousel}</div>`;
+      let html = `<div class="concert-detail-top"><div class="concert-detail-meta"><span class="status-pill status-${cls}">${esc(status)}</span>${c.private_show?'<span class="private-show-chip">PRIVATE SHOW</span>':''}<p><strong>${esc(formatDate(c.concert_date))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</strong><br>${esc(prettyPlace(c))}</p><div class="concert-public-actions">${mapQuery ? `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener" data-copy="ui.d2f10e06593c">INDICAZIONI</a>` : ''}<button class="btn btn-ghost" id="addConcertCalendar" type="button" data-copy="ui.84253b1ec4ee">+ CALENDARIO</button></div></div>${posterCarousel}</div>`;
       if (canAttend) {
         html += `<div class="fan-live-tools"><div class="attendance-toggle"><label><input id="fanAttendanceToggle" type="checkbox" ${data.attended?'checked':''}> <span data-copy="ui.attendance">IO C’ERO</span></label><span class="save-indicator">${esc(data.attended ? window.JMCopy.text('ui.706fd3934ba2') : window.JMCopy.text('ui.57d90e8ecbe0'))}</span></div>${data.attended && data.voting_open ? `<div class="general-score"><span data-copy="ui.5ba790e94203">Voto generale al live</span><select id="concertGeneralScore" class="score-select"><option value="">—</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(data.my_concert_rating)===n+1?'selected':''}>${n+1}</option>`).join('')}</select></div>` : ''}</div>`;
       }
