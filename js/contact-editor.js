@@ -9,16 +9,16 @@
     : null;
 
   const TYPES={
-    instagram:{label:'Instagram',placeholder:'https://instagram.com/...'},
-    facebook:{label:'Facebook',placeholder:'https://facebook.com/...'},
-    youtube:{label:'YouTube',placeholder:'https://youtube.com/@...'},
+    instagram:{label:'Instagram',placeholder:'@username oppure link Instagram'},
+    facebook:{label:'Facebook',placeholder:'nome pagina oppure link Facebook'},
+    youtube:{label:'YouTube',placeholder:'@canale oppure link YouTube'},
     email:{label:'E-mail',placeholder:'booking@esempio.it'},
-    website:{label:'Sito web',placeholder:'https://...'},
+    website:{label:'Sito web',placeholder:'dominio.it oppure https://...'},
     phone:{label:'Telefono',placeholder:'+39 ...'},
-    whatsapp:{label:'WhatsApp',placeholder:'+39 ... oppure https://wa.me/...'},
-    tiktok:{label:'TikTok',placeholder:'https://tiktok.com/@...'},
-    spotify:{label:'Spotify',placeholder:'https://open.spotify.com/...'},
-    x:{label:'X',placeholder:'https://x.com/...'},
+    whatsapp:{label:'WhatsApp',placeholder:'+39 ... oppure link wa.me'},
+    tiktok:{label:'TikTok',placeholder:'@username oppure link TikTok'},
+    spotify:{label:'Spotify',placeholder:'link open.spotify.com/...'},
+    x:{label:'X',placeholder:'@username oppure link x.com'},
     other:{label:'Altro',placeholder:'https://...'}
   };
 
@@ -32,29 +32,59 @@
   function safeHttps(value){
     try{
       const u=new URL(String(value||'').trim());
-      if(u.protocol!=='https:'||u.username||u.password)return '';
+      if(!['https:','http:'].includes(u.protocol)||u.username||u.password)return '';
+      if(u.protocol==='http:')u.protocol='https:';
       return u.href;
     }catch{return ''}
   }
 
-  function hrefFor(type,value){
+  function cleanHandle(value){
+    return String(value||'').trim().replace(/^@+/,'').replace(/^\/+|\/+$/g,'');
+  }
+
+  function normalizeValue(type,value){
     const raw=String(value||'').trim();
     if(!raw)return '';
+
     if(type==='email'){
       const mail=raw.replace(/^mailto:/i,'').trim();
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)?`mailto:${mail}`:'';
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)?mail:'';
     }
     if(type==='phone'){
       const phone=raw.replace(/^tel:/i,'').replace(/[^\d+]/g,'');
-      return /^\+?\d{5,20}$/.test(phone)?`tel:${phone}`:'';
+      return /^\+?\d{5,20}$/.test(phone)?phone:'';
     }
     if(type==='whatsapp'){
-      const https=safeHttps(raw);
-      if(https)return https;
+      const url=safeHttps(raw);
+      if(url)return url;
       const digits=raw.replace(/[^\d]/g,'');
-      return digits.length>=6?`https://wa.me/${digits}`:'';
+      return digits.length>=6?digits:'';
     }
-    return safeHttps(raw);
+
+    const direct=safeHttps(raw);
+    if(direct)return direct;
+    if(type==='website')return safeHttps('https://'+raw.replace(/^\/+/,''));
+
+    const handle=cleanHandle(raw);
+    if(!handle)return '';
+    if(type==='instagram')return 'https://instagram.com/'+handle;
+    if(type==='facebook')return 'https://facebook.com/'+handle;
+    if(type==='youtube')return 'https://youtube.com/@'+handle.replace(/^@/,'');
+    if(type==='tiktok')return 'https://tiktok.com/@'+handle;
+    if(type==='x')return 'https://x.com/'+handle;
+    return '';
+  }
+
+  function hrefFor(type,value){
+    const normalized=normalizeValue(type,value);
+    if(!normalized)return '';
+    if(type==='email')return 'mailto:'+normalized;
+    if(type==='phone')return 'tel:'+normalized;
+    if(type==='whatsapp'){
+      if(/^https?:\/\//i.test(normalized))return normalized;
+      return 'https://wa.me/'+normalized;
+    }
+    return normalized;
   }
 
   function valuePreview(type,value){
@@ -222,7 +252,7 @@
     panel.innerHTML=`
       <div class="contacts-editor-head">
         <strong>MODIFICA CONTATTI</strong>
-        <span>Tipo di canale e riferimento pubblico</span>
+        <span>Tipo di canale e link / contatto pubblico</span>
       </div>
       <div class="contacts-editor-new">
         <select data-new-type>${typeOptions('instagram')}</select>
@@ -280,11 +310,12 @@
     if(!admin)return;
     const panel=buildEditor();
     const type=q('[data-new-type]',panel).value;
-    const value=q('[data-new-value]',panel).value.trim();
+    const rawValue=q('[data-new-value]',panel).value.trim();
+    const value=normalizeValue(type,rawValue);
     const sort_order=Number(q('[data-new-order]',panel).value)||0;
 
-    if(!value)return setStatus('Inserisci il riferimento.',true);
-    if(!hrefFor(type,value))return setStatus('Riferimento non valido per il tipo selezionato.',true);
+    if(!rawValue)return setStatus('Inserisci il link, username o contatto.',true);
+    if(!value||!hrefFor(type,value))return setStatus('Valore non riconosciuto per il canale selezionato.',true);
 
     setStatus('Salvataggio…');
     const {error}=await client.from('site_contacts').insert({
@@ -306,12 +337,13 @@
     if(!admin)return;
     const id=row.dataset.contactId;
     const type=q('.contact-type',row).value;
-    const value=q('.contact-value',row).value.trim();
+    const rawValue=q('.contact-value',row).value.trim();
+    const value=normalizeValue(type,rawValue);
     const sort_order=Number(q('.contact-order',row).value)||0;
     const enabled=q('.contact-enabled input',row).checked;
 
-    if(!value)return setStatus('Il riferimento non può essere vuoto.',true);
-    if(!hrefFor(type,value))return setStatus('Riferimento non valido per il tipo selezionato.',true);
+    if(!rawValue)return setStatus('Il link / contatto non può essere vuoto.',true);
+    if(!value||!hrefFor(type,value))return setStatus('Valore non riconosciuto per il canale selezionato.',true);
 
     setStatus('Salvataggio…');
     const {error}=await client.from('site_contacts').update({
