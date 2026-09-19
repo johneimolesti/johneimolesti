@@ -137,6 +137,28 @@
     const routeSelect=document.getElementById('copyRoute');
     const groupSelect=document.getElementById('copyGroup');
 
+    const panel=document.getElementById('siteCopyPanel');
+    if(panel&&!document.getElementById('copyBandMembers')){
+      const button=document.createElement('button');
+      button.id='copyBandMembers';
+      button.type='button';
+      button.className='copy-manage';
+      button.textContent='Gestisci membri della band →';
+      button.dataset.editorUi='';
+      const manageLink=panel.querySelector('.copy-manage');
+      if(manageLink)manageLink.before(button);
+      else panel.appendChild(button);
+      button.onclick=()=>{
+        if(window.JMBandEditor?.open)window.JMBandEditor.open();
+        else alert('Gestione membri non disponibile.');
+      };
+    }
+    const bandButton=document.getElementById('copyBandMembers');
+    if(bandButton){
+      const route=location.hash.replace(/^#\/?/,'').split('/')[0]||'home';
+      bandButton.hidden=route!=='band';
+    }
+
     for(const [route,label] of Object.entries(ROUTE_LABELS)){
       if(routeSelect&&!routeSelect.querySelector(`option[value="${route}"]`)){
         const o=document.createElement('option');
