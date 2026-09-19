@@ -52,16 +52,93 @@
       .demo-cert-layout{display:grid;grid-template-columns:minmax(260px,.75fr) minmax(0,1.25fr);gap:8px}
       .demo-cert-form,.demo-code-form{display:grid;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
       .demo-cert-form label,.demo-code-form label{display:grid;gap:4px;color:#8d95a0;font-size:7px;font-weight:900}
-      .demo-cert-form select,.demo-code-form input{width:100%;min-height:32px;padding:6px 8px;border:1px solid #414750;border-radius:7px;background:#171b22;color:#fff;font-size:9px}
+      .demo-cert-form select,.demo-code-form input,.demo-code-form select{width:100%;min-height:32px;padding:6px 8px;border:1px solid #414750;border-radius:7px;background:#171b22;color:#fff;font-size:9px}
       .demo-cert-form button,.demo-code-form button{min-height:31px;border:0;border-radius:7px;background:#f3d234;color:#111;font-size:8px;font-weight:950}
       .demo-cert-list,.demo-code-list{min-height:0;max-height:68vh;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:12px}
       .demo-cert-row,.demo-code-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px;border-bottom:1px solid rgba(255,255,255,.06)}
       .demo-cert-row:last-child,.demo-code-row:last-child{border-bottom:0}
       .demo-cert-row strong,.demo-code-row strong{display:block;font-size:9px}.demo-cert-row span,.demo-code-row span{display:block;margin-top:2px;color:#838b97;font-size:7px;line-height:1.4}
       .demo-code-created{padding:9px;border:1px solid #6b5e1f;border-radius:8px;background:#292611;color:#f3d234;font:900 13px/1.4 monospace;letter-spacing:.08em;word-break:break-all}
+      .demo-code-song-picker{display:grid;gap:4px;max-height:180px;overflow:auto;padding:6px;border:1px solid #414750;border-radius:7px;background:#111}
+      .demo-code-song-picker label{display:grid!important;grid-template-columns:16px minmax(0,1fr);align-items:center;gap:6px!important;color:#c7cbd1!important;font-size:8px!important}.demo-code-song-picker input{width:13px!important;height:13px!important;min-height:0!important;padding:0!important}
+      .demo-request-admin-list{display:grid;gap:6px;margin-bottom:12px}.demo-request-admin-row{padding:9px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.025)}
+      .demo-request-admin-row strong{display:block;font-size:9px}.demo-request-admin-row span{display:block;margin-top:3px;color:#89919d;font-size:7px;line-height:1.45}.demo-request-admin-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
       @media(max-width:850px){.demo-cert-layout{grid-template-columns:1fr}}
     `;
     document.head.appendChild(st);
+  }
+
+  async function makePreviewWav(blob,seconds=30){
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)throw new Error('Browser non compatibile con la generazione anteprima.');
+    const ctx=new AudioCtx();
+    try{
+      const source=await ctx.decodeAudioData((await blob.arrayBuffer()).slice(0));
+      const channels=Math.min(2,source.numberOfChannels);
+      const frames=Math.max(1,Math.min(source.length,Math.floor(source.sampleRate*seconds)));
+      const dataSize=frames*channels*2;
+      const buffer=new ArrayBuffer(44+dataSize);
+      const view=new DataView(buffer);
+      const write=(offset,text)=>{for(let i=0;i<text.length;i++)view.setUint8(offset+i,text.charCodeAt(i))};
+      write(0,'RIFF');view.setUint32(4,36+dataSize,true);write(8,'WAVE');
+      write(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);
+      view.setUint16(22,channels,true);view.setUint32(24,source.sampleRate,true);
+      view.setUint32(28,source.sampleRate*channels*2,true);view.setUint16(32,channels*2,true);
+      view.setUint16(34,16,true);write(36,'data');view.setUint32(40,dataSize,true);
+      const channelData=Array.from({length:channels},(_,ch)=>source.getChannelData(ch));
+      let offset=44;
+      for(let i=0;i<frames;i++){
+        for(let ch=0;ch<channels;ch++){
+          const sample=Math.max(-1,Math.min(1,channelData[ch][i]||0));
+          view.setInt16(offset,sample<0?sample*0x8000:sample*0x7fff,true);
+          offset+=2;
+        }
+      }
+      return new Blob([buffer],{type:'audio/wav'});
+    }finally{
+      try{await ctx.close()}catch{}
+    }
+  }
+
+  async function uploadPreview(song,blob,stamp=Date.now()){
+    const preview=await makePreviewWav(blob,30);
+    const path=`songs/${song.id}/${stamp}-preview-30s.wav`;
+    const {error}=await sb.storage.from(DEMO_BUCKET).upload(path,preview,{
+      contentType:'audio/wav',
+      upsert:false
+    });
+    if(error)throw error;
+    return path;
+  }
+
+  async function generatePreviewForExisting(song,host){
+    if(!isAdmin()||!song?.audio_path||song.audio_bucket!==DEMO_BUCKET)return;
+    const btn=q('[data-generate-preview]',host);
+    if(btn)btn.disabled=true;
+    try{
+      const {data:blob,error:downloadError}=await sb.storage.from(DEMO_BUCKET).download(song.audio_path);
+      if(downloadError)throw downloadError;
+      const previewPath=await uploadPreview(song,blob);
+      const old=song.audio_preview_path||null;
+      const {error:updateError}=await sb.from('songs').update({
+        audio_preview_path:previewPath,
+        updated_at:new Date().toISOString()
+      }).eq('id',song.id);
+      if(updateError){
+        await sb.storage.from(DEMO_BUCKET).remove([previewPath]);
+        throw updateError;
+      }
+      if(old)await sb.storage.from(DEMO_BUCKET).remove([old]);
+      song.audio_preview_path=previewPath;
+      alert('Anteprima 30 secondi generata.');
+      host.remove();
+      if(typeof loadSongs==='function')await loadSongs();
+      if(typeof renderCatalog==='function')renderCatalog();
+      setTimeout(refreshCatalogButtons,0);
+    }catch(err){
+      alert(err.message||String(err));
+      if(btn)btn.disabled=false;
+    }
   }
 
   async function signedUrl(song){
@@ -91,10 +168,15 @@
       });
       if(uploadError)throw uploadError;
 
+      let previewPath=null;
+      try{previewPath=await uploadPreview(song,blob)}catch(err){console.warn('Anteprima non generata',err)}
+
       const oldBucket=song.audio_bucket||MEDIA_BUCKET;
       const oldPath=song.audio_path;
+      const oldPreview=song.audio_preview_path||null;
       const {error:updateError}=await sb.from('songs').update({
         audio_path:next,
+        audio_preview_path:previewPath,
         audio_bucket:DEMO_BUCKET,
         updated_at:new Date().toISOString()
       }).eq('id',song.id);
@@ -104,7 +186,9 @@
       }
 
       await sb.storage.from(oldBucket).remove([oldPath]);
+      if(oldPreview&&oldBucket===DEMO_BUCKET)await sb.storage.from(DEMO_BUCKET).remove([oldPreview]);
       song.audio_path=next;
+      song.audio_preview_path=previewPath;
       song.audio_bucket=DEMO_BUCKET;
 
       if(typeof loadSongs==='function')await loadSongs();
@@ -136,11 +220,16 @@
       });
       if(up)throw up;
 
+      let previewPath=null;
+      try{previewPath=await uploadPreview(song,file)}catch(err){console.warn('Anteprima non generata',err)}
+
       const oldPath=song.audio_path||null;
+      const oldPreview=song.audio_preview_path||null;
       const oldBucket=song.audio_bucket||MEDIA_BUCKET;
 
       const {error:update}=await sb.from('songs').update({
         audio_path:path,
+        audio_preview_path:previewPath,
         audio_bucket:DEMO_BUCKET,
         updated_at:new Date().toISOString()
       }).eq('id',song.id);
@@ -151,8 +240,10 @@
       }
 
       if(oldPath)await sb.storage.from(oldBucket).remove([oldPath]);
+      if(oldPreview&&oldBucket===DEMO_BUCKET)await sb.storage.from(DEMO_BUCKET).remove([oldPreview]);
 
       song.audio_path=path;
+      song.audio_preview_path=previewPath;
       song.audio_bucket=DEMO_BUCKET;
 
       if(typeof loadSongs==='function')await loadSongs();
@@ -186,9 +277,11 @@
 
     const bucket=song.audio_bucket||MEDIA_BUCKET;
     const path=song.audio_path;
+    const preview=song.audio_preview_path||null;
 
     const {error}=await sb.from('songs').update({
       audio_path:null,
+      audio_preview_path:null,
       audio_bucket:DEMO_BUCKET,
       updated_at:new Date().toISOString()
     }).eq('id',song.id);
@@ -196,7 +289,9 @@
     if(error)return alert(error.message);
 
     await sb.storage.from(bucket).remove([path]);
+    if(preview&&bucket===DEMO_BUCKET)await sb.storage.from(DEMO_BUCKET).remove([preview]);
     song.audio_path=null;
+    song.audio_preview_path=null;
     song.audio_bucket=DEMO_BUCKET;
 
     host.remove();
@@ -227,6 +322,7 @@
       <div class="secure-demo-player-actions">
         ${isAdmin()?`
           ${legacy?'<button type="button" class="small-btn primary" data-migrate>METTI AL SICURO</button>':''}
+          ${!legacy&&!song.audio_preview_path?'<button type="button" class="small-btn primary" data-generate-preview>CREA PREVIEW 30S</button>':''}
           <button type="button" class="small-btn" data-replace>SOSTITUISCI</button>
           <button type="button" class="small-btn danger" data-remove>RIMUOVI</button>
         `:''}
@@ -237,6 +333,7 @@
     q('[data-replace]',pop)?.addEventListener('click',()=>{pop.remove();chooseDemo(song,anchor)});
     q('[data-remove]',pop)?.addEventListener('click',()=>removeDemo(song,pop));
     q('[data-migrate]',pop)?.addEventListener('click',()=>migrateLegacy(song,pop));
+    q('[data-generate-preview]',pop)?.addEventListener('click',()=>generatePreviewForExisting(song,pop));
 
     try{
       const url=await signedUrl(song);
@@ -590,6 +687,37 @@
     return `MOLESTI-${part()}-${part()}`;
   }
 
+  function demoSongsForCodes(){
+    return songList()
+      .filter(s=>s.active&&!s.hidden_track&&s.audio_path)
+      .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it'));
+  }
+
+  function scopeSongIds(root,prefix){
+    const scope=q(`#${prefix}Scope`,root)?.value||'all';
+    if(scope==='all')return [];
+    return qa(`[data-${prefix.toLowerCase()}-song]:checked`,root).map(x=>x.value);
+  }
+
+  function renderCodeSongPicker(root,prefix,scopeValue='all',selected=[]){
+    const wrap=q(`#${prefix}SongsWrap`,root);
+    const box=q(`#${prefix}Songs`,root);
+    if(!wrap||!box)return;
+    wrap.hidden=scopeValue==='all';
+    const selectedSet=new Set((selected||[]).map(String));
+    box.innerHTML=demoSongsForCodes().map(song=>`
+      <label>
+        <input type="checkbox" data-${prefix.toLowerCase()}-song value="${esc(song.id)}" ${selectedSet.has(String(song.id))?'checked':''}>
+        <span>${esc(song.title)}</span>
+      </label>`).join('')||'<div class="empty">Nessuna demo disponibile.</div>';
+  }
+
+  function validateScope(scope,ids){
+    if(scope==='single'&&ids.length!==1)return 'Seleziona esattamente 1 canzone.';
+    if(scope==='bundle'&&(ids.length<3||ids.length>5))return 'Il bundle richiede da 3 a 5 canzoni.';
+    return '';
+  }
+
   function createCodesPage(){
     if(!isAdmin()||document.getElementById('demoCodesPage'))return;
 
@@ -603,7 +731,7 @@
     button.dataset.category='management';
     button.dataset.page='demoCodesPage';
     button.type='button';
-    button.textContent='CODICI DEMO';
+    button.textContent='ACCESSI DEMO';
 
     const media=document.getElementById('publicMediaAdminNav');
     if(media)media.after(button);
@@ -613,49 +741,88 @@
     page.id='demoCodesPage';
     page.className='page';
     page.innerHTML=`
-      <div class="panel-header"><h2>CODICI SBLOCCO DEMO</h2><span class="counter" id="demoCodeStatus"></span></div>
+      <div class="panel-header"><h2>ACCESSI E CODICI DEMO</h2><span class="counter" id="demoCodeStatus"></span></div>
       <div class="demo-cert-layout">
         <form class="demo-code-form" id="demoCodeForm">
-          <div class="section-note">Il codice può essere dato anche a chi non è registrato come fan. Lo sblocco resta associato a quel browser finché il codice rimane attivo.</div>
+          <div class="section-note">Crea uno sblocco singolo, un bundle da 3–5 canzoni oppure l’accesso a tutte le demo. La validità decorre dal momento in cui il codice viene usato.</div>
           <label>CODICE
             <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px">
               <input id="demoCodeValue" required maxlength="64" autocomplete="off">
               <button id="demoGenerateCode" type="button">GENERA</button>
             </div>
           </label>
-          <label>ETICHETTA / NOTA
-            <input id="demoCodeLabel" maxlength="160" placeholder="Es. amici Vaccarino">
+          <label>NOTA ADMIN
+            <input id="demoCodeLabel" maxlength="160" placeholder="Es. backstage Vaccarino">
+          </label>
+          <label>TIPO SBLOCCO
+            <select id="demoCodeScope">
+              <option value="single">Singola canzone</option>
+              <option value="bundle">Bundle 3–5 canzoni</option>
+              <option value="all" selected>Tutte le demo</option>
+            </select>
+          </label>
+          <div id="demoCodeSongsWrap" hidden>
+            <label>CANZONI</label>
+            <div class="demo-code-song-picker" id="demoCodeSongs"></div>
+          </div>
+          <label>MODALITÀ
+            <select id="demoCodeMode">
+              <option value="preview_30">Anteprima 30 secondi</option>
+              <option value="full">Brano intero</option>
+            </select>
+          </label>
+          <label>VALIDITÀ DOPO LO SBLOCCO
+            <select id="demoCodeDays">
+              <option value="15" selected>15 giorni</option>
+              <option value="30">30 giorni</option>
+            </select>
           </label>
           <label>MAX UTILIZZI
             <input id="demoCodeMaxUses" type="number" min="1" placeholder="vuoto = illimitato">
           </label>
-          <label>SCADENZA
+          <label>SCADENZA DEL CODICE (FACOLTATIVA)
             <input id="demoCodeExpires" type="datetime-local">
           </label>
           <button type="submit">CREA CODICE</button>
           <div id="demoCodeCreated"></div>
         </form>
-        <div class="demo-code-list" id="demoCodeList"></div>
+
+        <div>
+          <div class="panel-header" style="padding:0 0 6px"><h3>RICHIESTE UTENTI</h3><span class="counter" id="demoRequestCounter"></span></div>
+          <div class="demo-request-admin-list" id="demoRequestAdminList"></div>
+          <div class="panel-header" style="padding:8px 0 6px"><h3>CODICI GENERATI</h3></div>
+          <div class="demo-code-list" id="demoCodeList"></div>
+        </div>
       </div>`;
     main.appendChild(page);
 
     button.onclick=openCodesPage;
     q('#demoGenerateCode',page).onclick=()=>q('#demoCodeValue').value=randomCode();
     q('#demoCodeForm',page).onsubmit=createCode;
+
+    const scope=q('#demoCodeScope',page);
+    const sync=()=>{
+      renderCodeSongPicker(page,'demoCode',scope.value,scopeSongIds(page,'demoCode'));
+    };
+    scope.onchange=sync;
+    sync();
   }
 
   async function loadCodes(){
-    const {data,error}=await sb.rpc('admin_list_demo_unlock_codes');
+    const {data,error}=await sb.rpc('admin_list_demo_unlock_codes_v2');
     if(error)throw error;
 
     const list=q('#demoCodeList');
     list.innerHTML=(data||[]).map(x=>{
       const expired=x.expires_at&&Date.parse(x.expires_at)<=Date.now();
       const state=!x.active?'DISATTIVATO':expired?'SCADUTO':'ATTIVO';
+      const scope=x.scope_type==='all'?'TUTTE':x.scope_type==='bundle'?`BUNDLE ${x.song_titles?.length||0}`:'SINGOLA';
+      const mode=x.access_mode==='preview_30'?'30S':'INTERA';
+      const songs=x.song_titles?.length?` · ${x.song_titles.join(' / ')}`:'';
       return `<div class="demo-code-row">
         <div>
           <strong>${esc(x.label||'Codice demo')} · ••••${esc(x.code_hint)}</strong>
-          <span>${state} · usi ${Number(x.uses||0)}${x.max_uses!=null?'/'+Number(x.max_uses):''}${x.expires_at?' · scade '+esc(new Date(x.expires_at).toLocaleString('it-IT')):''}</span>
+          <span>${state} · ${scope} · ${mode} · ${x.validity_days}gg · usi ${Number(x.uses||0)}${x.max_uses!=null?'/'+Number(x.max_uses):''}${songs}</span>
         </div>
         <button class="small-btn" type="button" data-code-id="${esc(x.id)}" data-code-active="${x.active?'1':'0'}">${x.active?'DISATTIVA':'RIATTIVA'}</button>
       </div>`;
@@ -673,6 +840,82 @@
     q('#demoCodeStatus').textContent=`${(data||[]).length} CODICI`;
   }
 
+  async function loadDemoRequests(){
+    const {data,error}=await sb.rpc('admin_list_demo_access_requests');
+    if(error)throw error;
+
+    const pending=(data||[]).filter(x=>x.status==='pending');
+    q('#demoRequestCounter').textContent=`${pending.length} IN ATTESA`;
+    const list=q('#demoRequestAdminList');
+
+    list.innerHTML=(data||[]).map(r=>{
+      const scope=r.requested_scope_type==='all'?'TUTTE':r.requested_scope_type==='bundle'?'BUNDLE':'SINGOLA';
+      const mode=r.requested_access_mode==='preview_30'?'30S':'INTERA';
+      const who=r.fan_name||r.requester_name||'Ospite';
+      const songs=r.song_titles?.length?` · ${r.song_titles.join(' / ')}`:'';
+      const status=r.status==='pending'?'IN ATTESA':r.status==='direct_granted'?'APPROVATO DIRETTO':r.status==='code_ready'?'CODICE GENERATO':'RIFIUTATO';
+      return `<article class="demo-request-admin-row" data-request-id="${esc(r.id)}">
+        <strong>${esc(who)} · ${status}</strong>
+        <span>${scope} · ${mode} · ${r.requested_validity_days}gg${songs}${r.requester_contact?` · ${esc(r.requester_contact)}`:''}${r.note?` · “${esc(r.note)}”`:''}</span>
+        ${r.status==='pending'?`<div class="demo-request-admin-actions">
+          ${r.fan_id?'<button class="small-btn primary" type="button" data-direct>APPROVA DIRETTO</button>':''}
+          <button class="small-btn" type="button" data-issue>GENERA CODICE</button>
+          <button class="small-btn danger" type="button" data-reject>RIFIUTA</button>
+        </div>`:''}
+      </article>`;
+    }).join('')||'<div class="empty">Nessuna richiesta demo.</div>';
+
+    qa('[data-request-id]',list).forEach(row=>{
+      const req=(data||[]).find(x=>String(x.id)===String(row.dataset.requestId));
+      row.querySelector('[data-direct]')?.addEventListener('click',()=>approveRequestDirect(req));
+      row.querySelector('[data-issue]')?.addEventListener('click',()=>issueRequestCode(req));
+      row.querySelector('[data-reject]')?.addEventListener('click',()=>rejectDemoRequest(req));
+    });
+  }
+
+  async function approveRequestDirect(req){
+    if(!req?.fan_id)return;
+    const ids=(req.song_ids||[]).map(String);
+    const {error}=await sb.rpc('admin_grant_demo_request',{
+      p_request_id:req.id,
+      p_scope_type:req.requested_scope_type,
+      p_access_mode:req.requested_access_mode,
+      p_validity_days:req.requested_validity_days,
+      p_song_ids:ids
+    });
+    if(error)return alert(error.message);
+    await loadDemoRequests();
+  }
+
+  async function issueRequestCode(req){
+    const code=randomCode();
+    const {error}=await sb.rpc('admin_create_demo_unlock_code_v2',{
+      p_code:code,
+      p_label:`Richiesta ${req.fan_name||req.requester_name||'ospite'}`,
+      p_scope_type:req.requested_scope_type,
+      p_access_mode:req.requested_access_mode,
+      p_validity_days:req.requested_validity_days,
+      p_song_ids:(req.song_ids||[]).map(String),
+      p_max_uses:1,
+      p_expires_at:null,
+      p_request_id:req.id
+    });
+    if(error)return alert(error.message);
+    alert(`Codice generato: ${code}\n\nL’ospite lo vedrà automaticamente sul dispositivo con cui ha inviato la richiesta.`);
+    await Promise.all([loadDemoRequests(),loadCodes()]);
+  }
+
+  async function rejectDemoRequest(req){
+    const note=prompt('Motivo / nota facoltativa:','');
+    if(note===null)return;
+    const {error}=await sb.rpc('admin_reject_demo_access_request',{
+      p_request_id:req.id,
+      p_note:note
+    });
+    if(error)return alert(error.message);
+    await loadDemoRequests();
+  }
+
   async function openCodesPage(){
     if(!isAdmin())return;
     q('#memberNav')?.querySelectorAll('.nav-button').forEach(b=>b.classList.remove('active'));
@@ -680,28 +923,43 @@
     qa('#memberApp main .page').forEach(p=>p.classList.remove('active'));
     q('#demoCodesPage')?.classList.add('active');
     try{window.setMemberCategory?.('management',{activate:false})}catch{}
-    try{await loadCodes()}catch(err){alert(err.message||String(err))}
+    try{await Promise.all([loadCodes(),loadDemoRequests()])}catch(err){alert(err.message||String(err))}
   }
 
   async function createCode(e){
     e.preventDefault();
+    const root=e.currentTarget;
     const code=q('#demoCodeValue').value.trim();
     const label=q('#demoCodeLabel').value.trim();
+    const scope=q('#demoCodeScope').value;
+    const ids=scopeSongIds(document,'demoCode');
+    const validation=validateScope(scope,ids);
+    if(validation)return alert(validation);
+
     const maxRaw=q('#demoCodeMaxUses').value;
     const expRaw=q('#demoCodeExpires').value;
 
-    const {error}=await sb.rpc('admin_create_demo_unlock_code',{
+    const {error}=await sb.rpc('admin_create_demo_unlock_code_v2',{
       p_code:code,
       p_label:label,
+      p_scope_type:scope,
+      p_access_mode:q('#demoCodeMode').value,
+      p_validity_days:Number(q('#demoCodeDays').value),
+      p_song_ids:ids,
       p_max_uses:maxRaw?Number(maxRaw):null,
-      p_expires_at:expRaw?new Date(expRaw).toISOString():null
+      p_expires_at:expRaw?new Date(expRaw).toISOString():null,
+      p_request_id:null
     });
 
     if(error)return alert(error.message);
 
-    q('#demoCodeCreated').innerHTML=`<div class="demo-code-created">${esc(code.toUpperCase())}</div><div class="section-note" style="margin-top:5px">Copialo ora: per sicurezza il codice completo non viene più mostrato in elenco.</div>`;
-    e.currentTarget.reset();
+    q('#demoCodeCreated').innerHTML=`<div class="demo-code-created">${esc(code.toUpperCase())}</div><div class="section-note" style="margin-top:5px">Copialo ora: il codice completo non viene mostrato nell’elenco.</div>`;
+    root.reset();
     q('#demoCodeValue').value=randomCode();
+    q('#demoCodeScope').value='all';
+    q('#demoCodeMode').value='preview_30';
+    q('#demoCodeDays').value='15';
+    renderCodeSongPicker(document,'demoCode','all',[]);
     await loadCodes();
   }
 
