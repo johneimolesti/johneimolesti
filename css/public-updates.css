@@ -33,7 +33,7 @@
 .contact-actions{display:flex;gap:12px;flex-wrap:wrap}
 @media(max-width:760px){.hero-copy{padding:4px 0 22px}.hero h1{font-size:36px}.hero-lead{font-size:16px}.highlights-heading{align-items:flex-start}.highlights-heading h2{max-width:180px}.highlight-slide{padding:20px;gap:16px;align-items:flex-start;flex-direction:column}.highlight-poster{flex:0 0 auto;width:100%}.highlight-poster img{height:160px}.highlight-copy h3{font-size:28px}.highlight-copy p{font-size:16px}.highlight-copy .section-kicker{font-size:13px}.home-media-copy h2{font-size:32px}.poster-open{align-self:center}}
 
-/* V1.5 — classifiche più compatte, uniformi e leggibili */
+/* Classifiche compatte, uniformi e leggibili */
 .ranking-stack{grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;gap:12px;overflow:visible;padding-bottom:8px}
 .ranking-panel{min-width:0;overflow:hidden}
 .ranking-panel .panel-heading{padding:15px 12px;gap:8px;align-items:center}
@@ -128,7 +128,7 @@
 @media(max-width:760px){.concert-detail-top{flex-direction:column}.concert-poster-carousel{width:min(100%,320px);flex-basis:auto;align-self:center}.member-photo-grid{grid-template-columns:1fr 1fr}.home-member-carousel{grid-template-columns:38px minmax(0,1fr) 38px;padding:10px;gap:8px}.member-carousel-nav{width:38px;height:44px}.member-carousel-stage{min-height:390px}.member-carousel-caption{font-size:24px}}
 
 
-/* V1.5 — repertorio / media pubblici / viewer locandine compatto */
+/* Repertorio / media pubblici / viewer locandine compatto */
 #posterViewer{
   width:auto!important;
   max-width:88vw!important;
@@ -325,3 +325,47 @@
   .repertoire-copy p{font-size:12px}
   .public-photo-grid{grid-template-columns:1fr 1fr;gap:7px}
 }
+
+
+/* Contatti / booking / gestione video dal sito pubblico */
+.contacts-hero{background:#efe328}
+.contacts-layout{display:grid;grid-template-columns:minmax(260px,.65fr) minmax(0,1.35fr);gap:22px;margin-top:28px}
+.contacts-channel-card,.booking-card{padding:26px;min-width:0}
+.contacts-channel-card h3,.booking-card h3{margin:7px 0 12px;font:900 31px/1.05 Impact,Arial,sans-serif}
+.contacts-channel-card p{font-size:15px;line-height:1.55;max-width:520px}
+.contacts-social-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}
+.booking-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:14px}
+.booking-help{font:700 10px/1.4 monospace;color:var(--muted);text-align:right}
+.booking-calendar{border:2px solid #171717;background:#e8e4d8;padding:12px;color:#171717}
+.booking-calendar-head{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:8px;margin-bottom:10px}
+.booking-calendar-head strong{text-align:center;font:900 17px/1.1 Arial,sans-serif;letter-spacing:.04em}
+.booking-calendar-head button{height:38px;border:2px solid #171717;background:#fffdf4;font-weight:900;font-size:18px}
+.booking-weekdays,.booking-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.booking-weekdays{margin-bottom:5px}.booking-weekdays span{text-align:center;font:800 9px monospace;color:#706e67}
+.booking-day-blank{min-height:40px}
+.booking-day{position:relative;min-height:42px;padding:0;border:1px solid #9a978d;background:#fffdf4;color:#171717;font:900 14px Arial;cursor:pointer}
+.booking-day:hover:not(:disabled){border-color:#171717;transform:translateY(-1px)}
+.booking-day.selected{background:var(--gold);border:2px solid #171717}
+.booking-day.busy{background:#c9c5ba;color:#7c7970;text-decoration:line-through;cursor:not-allowed}
+.booking-day.past{opacity:.35;cursor:not-allowed}
+.booking-legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:10px;font:700 9px monospace;color:#65635d}
+.booking-legend span{display:flex;align-items:center;gap:5px}.booking-legend i{width:11px;height:11px;border:1px solid #777;display:inline-block}.booking-legend i.free{background:#fffdf4}.booking-legend i.selected{background:var(--gold)}.booking-legend i.busy{background:#c9c5ba}
+.booking-selected-wrap{margin:14px 0}.booking-selected-wrap>strong{display:block;margin-bottom:7px;font:800 9px monospace;color:var(--muted)}
+.booking-selected-dates{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}.booking-selected-dates>span{font-size:12px;color:var(--muted)}
+.booking-selected-dates button{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:5px 9px;border:1px solid #777568;background:#272725;color:var(--text);font-size:11px;font-weight:800}.booking-selected-dates button span{color:var(--gold);font-size:15px}
+.booking-form{border-top:2px solid #171717;padding-top:16px}.booking-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.booking-form label{display:grid;gap:5px;font-size:11px;font-weight:800}.booking-form label>span{font:800 9px monospace;color:var(--muted)}
+.booking-form input,.booking-form select,.booking-form textarea{width:100%;min-height:40px;border:2px solid #777568;background:#fffdf4;color:#171717;padding:8px 9px;border-radius:0;font:14px Arial,sans-serif}
+.booking-form textarea{min-height:105px;resize:vertical}.booking-wide{grid-column:1/-1}
+.booking-submit-row{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:14px}.booking-submit-row #bookingStatus{font-size:12px;line-height:1.35;color:var(--muted)}
+.public-media-heading-actions{display:flex;align-items:center;gap:12px}.public-admin-only.hidden{display:none!important}
+.public-video-admin-tools{display:flex;gap:6px;margin-top:7px}.public-video-admin-tools button{min-height:28px;padding:5px 8px;border:1px solid #67645b;background:#242422;color:#fff;font-size:9px;font-weight:850}.public-video-admin-tools button:last-child{color:#ffb7b7}
+.public-video-editor-card{width:min(560px,100%)}.public-video-editor-form{display:grid;gap:12px}.public-video-editor-form label{display:grid;gap:5px;font-size:11px;font-weight:800}.public-video-editor-form input,.public-video-editor-form textarea{width:100%;min-height:42px;border:2px solid #777568;background:#fffdf4;color:#171717;padding:8px}.public-video-editor-form textarea{min-height:90px}.public-video-editor-actions{display:flex;align-items:center;justify-content:space-between;gap:12px}.public-video-editor-actions span{font-size:11px;color:var(--muted)}
+
+/* Viewer locandine/foto: grande abbastanza da leggere, ma mai full-screen. */
+#posterViewer{width:auto!important;max-width:min(86vw,780px)!important;height:auto!important;max-height:88svh!important;margin:auto!important}
+#posterViewer .poster-scroll{display:grid!important;place-items:center!important;overflow:auto!important;max-height:calc(88svh - 72px)!important;padding:12px!important}
+#posterViewer #posterImage{display:block!important;width:auto!important;max-width:min(78vw,700px)!important;max-height:calc(88svh - 105px)!important;object-fit:contain!important;margin:auto!important}
+
+@media(max-width:900px){.contacts-layout{grid-template-columns:1fr}.contacts-channel-card,.booking-card{padding:19px}.booking-form-grid{grid-template-columns:1fr}.booking-wide{grid-column:auto}}
+@media(max-width:560px){.booking-card{padding:13px}.booking-calendar{padding:8px}.booking-weekdays,.booking-days{gap:3px}.booking-day{min-height:38px;font-size:13px}.booking-day-blank{min-height:38px}.booking-submit-row{align-items:stretch;flex-direction:column}.booking-submit-row .btn{width:100%}#posterViewer{max-width:90vw!important;max-height:84svh!important}#posterViewer .poster-scroll{max-height:calc(84svh - 68px)!important;padding:7px!important}#posterViewer #posterImage{max-width:84vw!important;max-height:calc(84svh - 100px)!important}}
