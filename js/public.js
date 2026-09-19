@@ -4,10 +4,9 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
-  const PUBLIC_VERSION = 'public v1.5';
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
-  const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more']);
+  const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more', 'contacts']);
   const $ = id => document.getElementById(id);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -25,6 +24,8 @@
   let expandedRankings = new Set();
   let siteNews = [], contacts = [];
   let publicSongs = [], publicMedia = [];
+  let bookingUnavailable = new Set(), bookingUnavailableSources = new Map(), bookingSelectedDates = new Set();
+  let bookingCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let memberMedia = [];
   let memberCarouselIndex = 0;
   let fanOnboardingStatus = null;
@@ -108,6 +109,14 @@
       const before = nav.querySelector('[data-route="rankings"]');
       nav.insertBefore(btn,before || null);
     }
+    if (nav && !nav.querySelector('[data-route="contacts"]')) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-item';
+      btn.dataset.route = 'contacts';
+      btn.type = 'button';
+      btn.innerHTML = '<span>CONTATTI</span>';
+      nav.appendChild(btn);
+    }
     const moreNav = nav?.querySelector('[data-route="more"] span');
     if (moreNav) {
       delete moreNav.dataset.copy;
@@ -155,7 +164,7 @@
       if (moreGrid && !$('videosBlock')) {
         moreGrid.insertAdjacentHTML('afterbegin',`
           <article class="gallery-card glass-card public-video-section" id="videosBlock">
-            <div class="gallery-heading"><div><span class="section-kicker">GUARDA</span><h3>Video</h3></div><span id="videoCount"></span></div>
+            <div class="gallery-heading public-video-heading"><div><span class="section-kicker">GUARDA</span><h3>Video</h3></div><div class="public-media-heading-actions"><span id="videoCount"></span><button class="text-button public-admin-only hidden" id="publicAddVideo" type="button">+ VIDEO</button></div></div>
             <div class="public-video-grid" id="publicVideoGrid"><div class="empty-state">Caricamento video…</div></div>
           </article>
           <article class="gallery-card glass-card public-photo-section" id="photosBlock">
@@ -170,6 +179,55 @@
         if (k) { delete k.dataset.copy; k.textContent='ARCHIVIO GRAFICO'; }
         if (h) { h.removeAttribute('data-copy'); h.innerHTML='Locandine'; }
       }
+    }
+
+    const oldContacts = $('contactsBlock');
+    if (oldContacts) oldContacts.remove();
+
+    if (!$('contactsPage')) {
+      const page = document.createElement('section');
+      page.className = 'page';
+      page.id = 'contactsPage';
+      page.dataset.page = 'contacts';
+      page.innerHTML = `
+        <header class="page-hero compact-hero glass-card contacts-hero">
+          <div><span class="section-kicker">BOOKING / CONTATTI</span><h2>SUONIAMO DA TE?</h2><p>Proponici una o più date e raccontaci il tuo evento. Le giornate già impegnate non sono selezionabili.</p></div>
+          <div class="page-hero-ornament">CIAO</div>
+        </header>
+        <section class="contacts-layout">
+          <article class="glass-card contacts-channel-card" id="contactChannelsBlock">
+            <span class="section-kicker">CONTATTI</span>
+            <h3>Parliamone.</h3>
+            <p>Per eventi, locali, feste, festival e idee discutibili puoi usare il modulo booking oppure contattarci sui nostri canali.</p>
+            <div class="contact-actions contacts-social-actions" id="contactsSocialActions"><span class="muted-inline">Canali in aggiornamento.</span></div>
+          </article>
+          <article class="glass-card booking-card" id="bookingBlock">
+            <div class="booking-heading"><div><span class="section-kicker">RICHIESTA LIVE</span><h3>Scegli le date</h3></div><span class="booking-help">Puoi selezionare più giorni.</span></div>
+            <div class="booking-calendar" aria-label="Calendario disponibilità">
+              <div class="booking-calendar-head"><button id="bookingPrevMonth" type="button" aria-label="Mese precedente">←</button><strong id="bookingMonthLabel"></strong><button id="bookingNextMonth" type="button" aria-label="Mese successivo">→</button></div>
+              <div class="booking-weekdays" aria-hidden="true"><span>LUN</span><span>MAR</span><span>MER</span><span>GIO</span><span>VEN</span><span>SAB</span><span>DOM</span></div>
+              <div class="booking-days" id="bookingDays"></div>
+              <div class="booking-legend"><span><i class="free"></i> disponibile</span><span><i class="selected"></i> selezionata</span><span><i class="busy"></i> occupata</span></div>
+            </div>
+            <div class="booking-selected-wrap"><strong>DATE SELEZIONATE</strong><div id="bookingSelectedDates" class="booking-selected-dates"><span>Nessuna data selezionata.</span></div></div>
+            <form id="bookingForm" class="booking-form">
+              <div class="booking-form-grid">
+                <label><span>Nome / referente *</span><input id="bookingName" maxlength="120" required autocomplete="name"></label>
+                <label><span>Email *</span><input id="bookingEmail" type="email" maxlength="240" required autocomplete="email"></label>
+                <label><span>Telefono</span><input id="bookingPhone" maxlength="80" autocomplete="tel"></label>
+                <label><span>Organizzazione / locale</span><input id="bookingOrganization" maxlength="160"></label>
+                <label><span>Nome evento *</span><input id="bookingEventName" maxlength="180" required></label>
+                <label><span>Tipo evento</span><select id="bookingEventType"><option value="">—</option><option>Locale / live club</option><option>Festa / sagra</option><option>Festival</option><option>Evento privato</option><option>Evento aziendale</option><option>Altro</option></select></label>
+                <label><span>Venue / spazio</span><input id="bookingVenue" maxlength="180"></label>
+                <label><span>Città</span><input id="bookingCity" maxlength="140"></label>
+                <label class="booking-wide"><span>Dettagli dell'evento</span><textarea id="bookingDetails" maxlength="3000" placeholder="Orari indicativi, palco, pubblico, formula della serata, eventuali vincoli…"></textarea></label>
+              </div>
+              <div class="booking-submit-row"><span id="bookingStatus" role="status"></span><button class="btn btn-primary" type="submit">INVIA RICHIESTA</button></div>
+            </form>
+          </article>
+        </section>`;
+      const more = $('morePage');
+      more?.parentNode?.insertBefore(page, more.nextSibling);
     }
   }
   function videoEmbedInfo(url) {
@@ -206,6 +264,138 @@
       return {provider:host,embed:'',href};
     } catch { return null; }
   }
+
+  function isPublicAdmin() {
+    return !!(currentMember && MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase()));
+  }
+  function syncPublicAdminControls() {
+    $$('.public-admin-only').forEach(el=>el.classList.toggle('hidden',!isPublicAdmin()));
+  }
+  function ensurePublicVideoEditor() {
+    let modal=$('publicVideoEditorModal');
+    if(modal)return modal;
+    modal=document.createElement('div');
+    modal.className='modal';
+    modal.id='publicVideoEditorModal';
+    modal.hidden=true;
+    modal.innerHTML=`<div class="modal-backdrop"></div><section class="modal-card public-video-editor-card" role="dialog" aria-modal="true" aria-labelledby="publicVideoEditorTitle"><header class="modal-head"><div><span class="section-kicker">VIDEO PUBBLICO</span><h2 id="publicVideoEditorTitle">Aggiungi video</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></header><form class="modal-body public-video-editor-form" id="publicVideoEditorForm"><input id="publicVideoId" type="hidden"><label><span>Titolo *</span><input id="publicVideoTitle" maxlength="160" required></label><label><span>Link YouTube / social *</span><input id="publicVideoUrl" type="url" placeholder="https://..." required></label><label><span>Didascalia</span><textarea id="publicVideoCaption" maxlength="1000"></textarea></label><label><span>Ordine</span><input id="publicVideoOrder" type="number" value="0" step="1"></label><div class="public-video-editor-actions"><span id="publicVideoEditorStatus"></span><button class="btn btn-primary" type="submit">SALVA VIDEO</button></div></form></section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.modal-close').onclick=()=>closeModal(modal.id);
+    modal.querySelector('.modal-backdrop').onclick=()=>closeModal(modal.id);
+    modal.querySelector('form').onsubmit=savePublicVideoFromSite;
+    return modal;
+  }
+  function openPublicVideoEditor(item=null) {
+    if(!isPublicAdmin())return;
+    ensurePublicVideoEditor();
+    $('publicVideoId').value=item?.id||'';
+    $('publicVideoTitle').value=item?.title||'';
+    $('publicVideoUrl').value=item?.source_url||'';
+    $('publicVideoCaption').value=item?.caption||'';
+    $('publicVideoOrder').value=Number(item?.sort_order||0);
+    $('publicVideoEditorTitle').textContent=item?'Modifica video':'Aggiungi video';
+    $('publicVideoEditorStatus').textContent='';
+    openModal('publicVideoEditorModal');
+  }
+  async function savePublicVideoFromSite(e) {
+    e.preventDefault();
+    if(!isPublicAdmin())return;
+    const id=$('publicVideoId').value;
+    const title=$('publicVideoTitle').value.trim();
+    const source_url=safeHttps($('publicVideoUrl').value.trim());
+    const caption=$('publicVideoCaption').value.trim();
+    const sort_order=Number($('publicVideoOrder').value)||0;
+    const status=$('publicVideoEditorStatus');
+    if(!title||!source_url){status.textContent='Titolo e URL https sono obbligatori.';return}
+    status.textContent='Salvataggio…';
+    const payload={kind:'video',title,caption,source_url,storage_path:null,published:true,sort_order,updated_at:new Date().toISOString()};
+    let result;
+    if(id) result=await sb.from('public_media').update(payload).eq('id',id);
+    else result=await sb.from('public_media').insert({...payload,created_by:currentMember?.id||null});
+    if(result.error){status.textContent=result.error.message;return}
+    closeModal('publicVideoEditorModal');
+    await loadPublicContentExtensions(true);
+    renderPublicMedia();
+    syncPublicAdminControls();
+    toast('Video pubblicato ✓','ok');
+  }
+  async function deletePublicVideoFromSite(item) {
+    if(!isPublicAdmin()||!item||!confirm(`Eliminare "${item.title||'Video'}"?`))return;
+    const {error}=await sb.from('public_media').delete().eq('id',item.id);
+    if(error){toast(error.message,'error');return}
+    await loadPublicContentExtensions(true);renderPublicMedia();syncPublicAdminControls();
+  }
+
+  function dateIsoLocal(value) {
+    const d=value instanceof Date?value:new Date(value);
+    const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function prettyBookingDate(iso) {
+    const [y,m,d]=String(iso).split('-').map(Number);
+    if(!y||!m||!d)return iso;
+    return new Intl.DateTimeFormat('it-IT',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(new Date(y,m-1,d));
+  }
+  async function loadBookingAvailability() {
+    if(!sb)return;
+    const from=new Date();from.setHours(0,0,0,0);
+    const to=new Date(from.getFullYear(),from.getMonth()+18,0);
+    const {data,error}=await sb.rpc('get_public_unavailable_dates',{p_from:dateIsoLocal(from),p_to:dateIsoLocal(to)});
+    if(error){console.warn('Calendario booking non disponibile',error);bookingUnavailable=new Set();bookingUnavailableSources=new Map();return}
+    bookingUnavailable=new Set((data||[]).map(r=>String(r.day)));
+    bookingUnavailableSources=new Map((data||[]).map(r=>[String(r.day),String(r.source||'busy')]));
+    [...bookingSelectedDates].forEach(day=>{if(bookingUnavailable.has(day))bookingSelectedDates.delete(day)});
+    renderBookingCalendar();
+  }
+  function renderBookingSelectedDates() {
+    const box=$('bookingSelectedDates');if(!box)return;
+    const days=[...bookingSelectedDates].sort();
+    box.innerHTML=days.length?days.map(day=>`<button type="button" data-remove-booking-date="${esc(day)}" title="Rimuovi">${esc(prettyBookingDate(day))}<span>×</span></button>`).join(''):'<span>Nessuna data selezionata.</span>';
+    $$('[data-remove-booking-date]',box).forEach(btn=>btn.onclick=()=>{bookingSelectedDates.delete(btn.dataset.removeBookingDate);renderBookingCalendar();});
+  }
+  function renderBookingCalendar() {
+    const box=$('bookingDays'),label=$('bookingMonthLabel');if(!box||!label)return;
+    const month=bookingCalendarMonth;
+    label.textContent=new Intl.DateTimeFormat('it-IT',{month:'long',year:'numeric'}).format(month).toUpperCase();
+    const first=new Date(month.getFullYear(),month.getMonth(),1);
+    const last=new Date(month.getFullYear(),month.getMonth()+1,0);
+    const mondayOffset=(first.getDay()+6)%7;
+    const today=new Date();today.setHours(0,0,0,0);
+    let html='';
+    for(let i=0;i<mondayOffset;i++)html+='<span class="booking-day-blank"></span>';
+    for(let n=1;n<=last.getDate();n++){
+      const d=new Date(month.getFullYear(),month.getMonth(),n);const iso=dateIsoLocal(d);
+      const past=d<today,busy=bookingUnavailable.has(iso),selected=bookingSelectedDates.has(iso),disabled=past||busy;
+      const cls=['booking-day',busy?'busy':'',selected?'selected':'',past?'past':''].filter(Boolean).join(' ');
+      const title=busy?'Data non disponibile':past?'Data trascorsa':selected?'Data selezionata':'Data disponibile';
+      html+=`<button type="button" class="${cls}" data-booking-day="${iso}" ${disabled?'disabled':''} title="${title}"><span>${n}</span></button>`;
+    }
+    box.innerHTML=html;
+    $$('[data-booking-day]',box).forEach(btn=>btn.onclick=()=>{
+      const day=btn.dataset.bookingDay;
+      if(bookingSelectedDates.has(day))bookingSelectedDates.delete(day);else bookingSelectedDates.add(day);
+      renderBookingCalendar();
+    });
+    renderBookingSelectedDates();
+  }
+  async function submitBookingRequest(e) {
+    e.preventDefault();
+    const status=$('bookingStatus');const submit=e.currentTarget.querySelector('button[type="submit"]');
+    const dates=[...bookingSelectedDates].sort();
+    if(!dates.length){status.textContent='Seleziona almeno una data.';return}
+    submit.disabled=true;status.textContent='Invio richiesta…';
+    const args={
+      p_requester_name:$('bookingName').value.trim(),p_requester_email:$('bookingEmail').value.trim(),p_requester_phone:$('bookingPhone').value.trim(),
+      p_organization:$('bookingOrganization').value.trim(),p_event_name:$('bookingEventName').value.trim(),p_event_type:$('bookingEventType').value,
+      p_venue_name:$('bookingVenue').value.trim(),p_city:$('bookingCity').value.trim(),p_details:$('bookingDetails').value.trim(),p_dates:dates
+    };
+    const {error}=await sb.rpc('submit_booking_request',args);
+    submit.disabled=false;
+    if(error){status.textContent=error.message;await loadBookingAvailability();return}
+    e.currentTarget.reset();bookingSelectedDates.clear();status.textContent='Richiesta inviata. Vi ricontatteremo ai recapiti indicati.';
+    await loadBookingAvailability();renderBookingCalendar();
+  }
+
   async function loadMemberMedia() {
     try {
       const {data,error} = await sb.from('public_site_content').select('content_key,content_type,value').like('content_key','band.member.%');
@@ -352,6 +542,7 @@
     if (route === 'repertoire') renderRepertoire();
     if (route === 'rankings') renderRankings();
     if (route === 'more') renderPublicMedia();
+    if (route === 'contacts') { contactRender(); renderBookingCalendar(); }
     window.scrollTo({top:0, behavior:'instant'});
   }
 
@@ -363,7 +554,8 @@
       repertoire:[['Tutte le canzoni','repertoireBlock']],
       rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],['Locandine','postersRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
-      more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock'],[window.JMCopy.text('ui.1067809f644e'),'contactsBlock']]
+      more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock']],
+      contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']]
     };
     links.innerHTML = '';
     (configs[route] || []).forEach(([label,id]) => {
@@ -399,6 +591,8 @@
     }
     const managePhotos = $('manageMemberPhotos');
     if (managePhotos) managePhotos.classList.toggle('hidden',!(currentMember && MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase())));
+    syncPublicAdminControls();
+    renderPublicMedia();
   }
 
   function showLoginMode(mode) {
@@ -621,6 +815,7 @@
   function renderPublicMedia() {
     const videos=publicMedia.filter(x=>x.kind==='video');
     const photos=publicMedia.filter(x=>x.kind==='photo');
+    const admin=isPublicAdmin();
     if($('videoCount'))$('videoCount').textContent=videos.length?`${videos.length} VIDEO`:'';
     if($('photoCount'))$('photoCount').textContent=photos.length?`${photos.length} FOTO`:'';
     const videoGrid=$('publicVideoGrid');
@@ -630,7 +825,8 @@
       const player=info.embed
         ? `<div class="public-video-frame"><iframe src="${esc(info.embed)}" title="${esc(item.title||'Video')}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`
         : `<a class="public-video-fallback" href="${esc(info.href)}" target="_blank" rel="noopener noreferrer">APRI IL VIDEO</a>`;
-      return `<article class="public-video-card">${player}<div class="public-media-copy"><strong>${esc(item.title||'Video')}</strong>${item.caption?`<span>${esc(item.caption)}</span>`:''}<small>${esc(info.provider)}</small></div></article>`;
+      const adminTools=admin?`<div class="public-video-admin-tools"><button type="button" data-public-video-edit="${esc(item.id)}">MODIFICA</button><button type="button" data-public-video-delete="${esc(item.id)}">ELIMINA</button></div>`:'';
+      return `<article class="public-video-card">${player}<div class="public-media-copy"><strong>${esc(item.title||'Video')}</strong>${item.caption?`<span>${esc(item.caption)}</span>`:''}<small>${esc(info.provider)}</small>${adminTools}</div></article>`;
     }).join('') || '<div class="empty-state">Nessun video pubblicato.</div>';
     const photoGrid=$('publicPhotoGrid');
     if(photoGrid)photoGrid.innerHTML=photos.map((item,i)=>{
@@ -641,6 +837,9 @@
       const item=photos[Number(btn.dataset.publicPhoto)],src=publicMediaAssetUrl(item?.storage_path);
       if(src)openPoster(src,item?.title||'John & i Molesti');
     });
+    $$('[data-public-video-edit]',videoGrid||document).forEach(btn=>btn.onclick=()=>openPublicVideoEditor(videos.find(v=>String(v.id)===btn.dataset.publicVideoEdit)));
+    $$('[data-public-video-delete]',videoGrid||document).forEach(btn=>btn.onclick=()=>deletePublicVideoFromSite(videos.find(v=>String(v.id)===btn.dataset.publicVideoDelete)));
+    syncPublicAdminControls();
   }
 
   function upcomingConcerts() {
@@ -850,9 +1049,11 @@
   }
 
   function contactRender() {
-    const box = $('contactActions');
-    if (!contacts.length) { box.textContent='Canali in aggiornamento.'; return; }
-    box.innerHTML = contacts.map(c => `<a class="btn btn-ghost" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">${esc({facebook:'Facebook',instagram:'Instagram',youtube:'YouTube'}[c.platform])}</a>`).join('');
+    const boxes=[$('contactActions'),$('contactsSocialActions')].filter(Boolean);
+    const html=contacts.length
+      ? contacts.map(c => `<a class="btn btn-ghost" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">${esc({facebook:'Facebook',instagram:'Instagram',youtube:'YouTube'}[c.platform]||c.platform)}</a>`).join('')
+      : '<span class="muted-inline">Canali in aggiornamento.</span>';
+    boxes.forEach(box=>box.innerHTML=html);
   }
 
   function safeHttps(value) {
@@ -1115,7 +1316,7 @@
     document.addEventListener('dragstart',e=>{if(protectedImage(e))e.preventDefault();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('posterViewer')?.open)e.stopImmediatePropagation();},true);
     window.addEventListener('hashchange', applyRoute);
-    document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderContextRail(currentRoute()); });
+    document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); contactRender(); renderContextRail(currentRoute()); });
     $$('.nav-item').forEach(b => b.onclick = () => go(b.dataset.route));
     $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     $('userEntry').onclick = () => { renderUserModal(); openModal('userModal'); };
@@ -1138,6 +1339,10 @@
     });
     $('fanCatalogSearch').addEventListener('input', renderFanCatalog);
     $('repertoireSearch')?.addEventListener('input', renderRepertoire);
+    $('publicAddVideo')?.addEventListener('click',()=>openPublicVideoEditor());
+    $('bookingPrevMonth')?.addEventListener('click',()=>{bookingCalendarMonth=new Date(bookingCalendarMonth.getFullYear(),bookingCalendarMonth.getMonth()-1,1);renderBookingCalendar();});
+    $('bookingNextMonth')?.addEventListener('click',()=>{bookingCalendarMonth=new Date(bookingCalendarMonth.getFullYear(),bookingCalendarMonth.getMonth()+1,1);renderBookingCalendar();});
+    $('bookingForm')?.addEventListener('submit',submitBookingRequest);
     $$('[data-expand-ranking]').forEach(btn => btn.onclick = () => {
       const key = btn.dataset.expandRanking;
       if (expandedRankings.has(key)) expandedRankings.delete(key); else expandedRankings.add(key);
@@ -1146,7 +1351,6 @@
   }
 
   async function init() {
-    $('siteVersion').textContent = PUBLIC_VERSION;
     if (!window.supabase?.createClient) {
       toast(window.JMCopy.text('ui.supabaseUnavailable'),'error');
       return;
@@ -1169,8 +1373,8 @@
       }
     }
     updateUserUI();
-    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia(),loadPublicContentExtensions()]);
-    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderRailNextShow();
+    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia(),loadPublicContentExtensions(),loadBookingAvailability()]);
+    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); contactRender(); renderBookingCalendar(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
     startRealtime();
