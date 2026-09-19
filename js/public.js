@@ -4,7 +4,7 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
-  const PUBLIC_VERSION = 'public v1.3';
+  const PUBLIC_VERSION = 'public v1.4';
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
   const ROUTES = new Set(['home', 'tour', 'rankings', 'band', 'more']);
@@ -497,7 +497,7 @@
   }
   function downloadCalendar(c) {
     const clean = value => String(value || '').replace(/[\\,;]/g, m => `\\${m}`).replace(/\n/g,'\\n');
-    const body = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//John & i Molesti//Live//IT','BEGIN:VEVENT',`UID:${clean(c.id)}@johnimolesti`,`DTSTART:${calendarStamp(c)}`,`DTEND:${calendarStamp(c,true)}`,`SUMMARY:${clean(c.name)} — John & i Molesti`,`LOCATION:${clean(prettyPlace(c))}`,'END:VEVENT','END:VCALENDAS'].join('\r\n');
+    const body = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//John & i Molesti//Live//IT','BEGIN:VEVENT',`UID:${clean(c.id)}@johnimolesti`,`DTSTART:${calendarStamp(c)}`,`DTEND:${calendarStamp(c,true)}`,`SUMMARY:${clean(c.name)} — John & i Molesti`,`LOCATION:${clean(prettyPlace(c))}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([body],{type:'text/calendar;charset=utf-8'}));
     a.download = `john-i-molesti-${c.concert_date || 'live'}.ics`;
