@@ -4,10 +4,10 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
-  const PUBLIC_VERSION = 'public v1.4';
+  const PUBLIC_VERSION = 'public v1.5';
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
-  const ROUTES = new Set(['home', 'tour', 'rankings', 'band', 'more']);
+  const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more']);
   const $ = id => document.getElementById(id);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -24,6 +24,7 @@
   let activeConcertId = null;
   let expandedRankings = new Set();
   let siteNews = [], contacts = [];
+  let publicSongs = [], publicMedia = [];
   let memberMedia = [];
   let memberCarouselIndex = 0;
   let fanOnboardingStatus = null;
@@ -90,6 +91,120 @@
   function publicSiteAssetUrl(path) {
     if (!path || !sb) return null;
     try { return sb.storage.from('public-site').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
+  }
+
+  function publicMediaAssetUrl(path) {
+    if (!path || !sb) return null;
+    try { return sb.storage.from('public-media').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
+  }
+  function ensurePublicSections() {
+    const nav = $('mainNav');
+    if (nav && !nav.querySelector('[data-route="repertoire"]')) {
+      const btn = document.createElement('button');
+      btn.className = 'nav-item';
+      btn.dataset.route = 'repertoire';
+      btn.type = 'button';
+      btn.innerHTML = '<span>REPERTORIO</span>';
+      const before = nav.querySelector('[data-route="rankings"]');
+      nav.insertBefore(btn,before || null);
+    }
+    const moreNav = nav?.querySelector('[data-route="more"] span');
+    if (moreNav) {
+      delete moreNav.dataset.copy;
+      moreNav.textContent = 'MEDIA';
+    }
+
+    if (!$('repertoirePage')) {
+      const page = document.createElement('section');
+      page.className = 'page';
+      page.id = 'repertoirePage';
+      page.dataset.page = 'repertoire';
+      page.innerHTML = `
+        <header class="page-hero compact-hero glass-card repertoire-hero">
+          <div><span class="section-kicker">TUTTO QUELLO CHE SUONIAMO</span><h2>REPERTORIO</h2><p>Tutti i brani dei John & i Molesti, con cover art, dettagli e ascolto quando disponibile.</p></div>
+          <div class="page-hero-ornament">PLAY</div>
+        </header>
+        <section class="content-section" id="repertoireBlock">
+          <div class="section-heading repertoire-heading">
+            <div><span class="section-kicker">CATALOGO</span><h3>Tutte le canzoni</h3></div>
+            <span class="section-count" id="repertoireCount"></span>
+          </div>
+          <div class="repertoire-toolbar">
+            <input id="repertoireSearch" type="search" placeholder="Cerca titolo, base o testo…" autocomplete="off">
+          </div>
+          <div class="repertoire-grid" id="repertoireGrid"><div class="empty-state">Caricamento repertorio…</div></div>
+        </section>`;
+      const rankings = $('rankingsPage');
+      rankings?.parentNode?.insertBefore(page, rankings);
+    }
+
+    const morePage = $('morePage');
+    if (morePage) {
+      const hero = morePage.querySelector('.page-hero');
+      if (hero) {
+        const kicker = hero.querySelector('.section-kicker');
+        const title = hero.querySelector('h2');
+        const lead = hero.querySelector('p');
+        const ornament = hero.querySelector('.page-hero-ornament');
+        if (kicker) { delete kicker.dataset.copy; kicker.textContent='VIDEO, FOTO, LOCANDINE'; }
+        if (title) { delete title.dataset.copy; title.textContent='MEDIA'; }
+        if (lead) { delete lead.dataset.copy; lead.textContent='Video dal vivo, foto selezionate e locandine della band.'; }
+        if (ornament) { delete ornament.dataset.copy; ornament.textContent='MEDIA'; }
+      }
+      const moreGrid = morePage.querySelector('.more-grid');
+      if (moreGrid && !$('videosBlock')) {
+        moreGrid.insertAdjacentHTML('afterbegin',`
+          <article class="gallery-card glass-card public-video-section" id="videosBlock">
+            <div class="gallery-heading"><div><span class="section-kicker">GUARDA</span><h3>Video</h3></div><span id="videoCount"></span></div>
+            <div class="public-video-grid" id="publicVideoGrid"><div class="empty-state">Caricamento video…</div></div>
+          </article>
+          <article class="gallery-card glass-card public-photo-section" id="photosBlock">
+            <div class="gallery-heading"><div><span class="section-kicker">DAL PALCO</span><h3>Le foto più belle</h3></div><span id="photoCount"></span></div>
+            <div class="public-photo-grid" id="publicPhotoGrid"><div class="empty-state">Caricamento foto…</div></div>
+          </article>`);
+      }
+      const gallery = $('galleryBlock');
+      if (gallery) {
+        const k = gallery.querySelector('.section-kicker');
+        const h = gallery.querySelector('h3');
+        if (k) { delete k.dataset.copy; k.textContent='ARCHIVIO GRAFICO'; }
+        if (h) { h.removeAttribute('data-copy'); h.innerHTML='Locandine'; }
+      }
+    }
+  }
+  function videoEmbedInfo(url) {
+    const href = safeHttps(url);
+    if (!href) return null;
+    try {
+      const u = new URL(href);
+      const host = u.hostname.replace(/^www\./,'').toLowerCase();
+      let id = '';
+      if (host === 'youtu.be') id = u.pathname.split('/').filter(Boolean)[0] || '';
+      if (host.endsWith('youtube.com')) {
+        if (u.pathname === '/watch') id = u.searchParams.get('v') || '';
+        else {
+          const m = u.pathname.match(/^\/(?:shorts|embed)\/([^/?#]+)/);
+          if (m) id = m[1];
+        }
+      }
+      if (id) return {provider:'YouTube',embed:`https://www.youtube.com/embed/${encodeURIComponent(id)}`,href};
+      if (host.endsWith('vimeo.com')) {
+        const m = u.pathname.match(/\/(\d+)/);
+        if (m) return {provider:'Vimeo',embed:`https://player.vimeo.com/video/${m[1]}`,href};
+      }
+      if (host.endsWith('instagram.com')) {
+        const m = u.pathname.match(/^\/(p|reel|tv)\/([^/?#]+)/);
+        if (m) return {provider:'Instagram',embed:`https://www.instagram.com/${m[1]}/${m[2]}/embed`,href};
+      }
+      if (host.endsWith('tiktok.com')) {
+        const m = u.pathname.match(/\/video\/(\d+)/);
+        if (m) return {provider:'TikTok',embed:`https://www.tiktok.com/player/v1/${m[1]}`,href};
+      }
+      if (host.endsWith('facebook.com') || host.endsWith('fb.watch')) {
+        return {provider:'Facebook',embed:`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(href)}&show_text=false`,href};
+      }
+      return {provider:host,embed:'',href};
+    } catch { return null; }
   }
   async function loadMemberMedia() {
     try {
@@ -234,7 +349,9 @@
     $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.route === route));
     renderContextRail(route);
     if (route === 'tour') renderTour();
+    if (route === 'repertoire') renderRepertoire();
     if (route === 'rankings') renderRankings();
+    if (route === 'more') renderPublicMedia();
     window.scrollTo({top:0, behavior:'instant'});
   }
 
@@ -243,9 +360,10 @@
     const configs = {
       home:[[window.JMCopy.text('ui.f9d0a39219d7'),'homeNextShow'],[window.JMCopy.text('ui.5b0d2517b8b5'),'homeRankingPreview']],
       tour:[[window.JMCopy.text('ui.0449f09cec41'),'upcomingBlock'],[window.JMCopy.text('ui.801a122f224b'),'archiveBlock']],
+      repertoire:[['Tutte le canzoni','repertoireBlock']],
       rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],['Locandine','postersRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
-      more:[[window.JMCopy.text('ui.1362ca19ad39'),'galleryBlock'],[window.JMCopy.text('ui.90e63b56a4dc'),'merchBlock'],[window.JMCopy.text('ui.1067809f644e'),'contactsBlock'],[window.JMCopy.text('ui.c349676fc048'),'managementBlock']]
+      more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock'],[window.JMCopy.text('ui.1067809f644e'),'contactsBlock']]
     };
     links.innerHTML = '';
     (configs[route] || []).forEach(([label,id]) => {
@@ -435,6 +553,94 @@
     } catch (err) {
       console.error(err); rankingData = {fans:[],songs:[],concerts:[],posters:[],error:err.message}; return rankingData;
     }
+  }
+
+
+  async function loadPublicContentExtensions(force = false) {
+    if ((publicSongs.length || publicMedia.length) && !force) return {songs:publicSongs,media:publicMedia};
+    const [songsResult, mediaResult] = await Promise.allSettled([
+      sb.rpc('get_public_repertoire'),
+      sb.from('public_media').select('id,kind,title,caption,source_url,storage_path,sort_order,created_at').eq('published',true).order('sort_order',{ascending:true}).order('created_at',{ascending:false})
+    ]);
+    if (songsResult.status === 'fulfilled' && !songsResult.value.error) publicSongs = songsResult.value.data || [];
+    else {
+      console.warn('Repertorio pubblico non disponibile',songsResult.status === 'fulfilled' ? songsResult.value.error : songsResult.reason);
+      publicSongs = [];
+    }
+    if (mediaResult.status === 'fulfilled' && !mediaResult.value.error) publicMedia = mediaResult.value.data || [];
+    else {
+      console.warn('Media pubblici non disponibili',mediaResult.status === 'fulfilled' ? mediaResult.value.error : mediaResult.reason);
+      publicMedia = [];
+    }
+    return {songs:publicSongs,media:publicMedia};
+  }
+  function songArtistLine(song) {
+    const parts=[];
+    if (song.base_artist) parts.push(`Base: ${song.base_artist}`);
+    if (song.lyrics_artist) parts.push(`Testo: ${song.lyrics_artist}`);
+    return parts.join(' · ');
+  }
+  function songTechLine(song) {
+    const parts=[];
+    if (song.bpm) parts.push(`${Number(song.bpm).toFixed(Number(song.bpm)%1?1:0)} BPM`);
+    if (song.key_note) parts.push(`${song.key_note}${song.key_mode==='minor'?'m':''}`);
+    if (song.duration_seconds) {
+      const m=Math.floor(Number(song.duration_seconds)/60), s=String(Number(song.duration_seconds)%60).padStart(2,'0');
+      parts.push(`${m}:${s}`);
+    }
+    return parts.join(' · ');
+  }
+  function renderRepertoire() {
+    const grid=$('repertoireGrid'); if(!grid)return;
+    const q=String($('repertoireSearch')?.value||'').trim().toLowerCase();
+    const rows=publicSongs.filter(song=>!q || [song.title,song.base_artist,song.lyrics_artist,song.base_title,song.lyrics_title].some(v=>String(v||'').toLowerCase().includes(q)));
+    if($('repertoireCount')) $('repertoireCount').textContent=`${rows.length} BRANI`;
+    grid.innerHTML=rows.map(song=>{
+      const cover=posterUrl(song.cover_path);
+      const audio=publicMediaAssetUrl(song.audio_path);
+      const spotify=safeHttps(song.spotify_url);
+      const player=spotify
+        ? `<a class="btn btn-primary repertoire-stream-link" href="${esc(spotify)}" target="_blank" rel="noopener noreferrer">ASCOLTA SU SPOTIFY</a>`
+        : audio
+          ? `<audio class="repertoire-audio" controls preload="none" controlsList="nodownload" src="${esc(audio)}"></audio>`
+          : `<span class="repertoire-audio-missing">Audio in arrivo</span>`;
+      return `<article class="repertoire-card glass-card" data-repertoire-song="${esc(song.id)}">
+        <div class="repertoire-cover">${cover?`<img src="${esc(cover)}" alt="Cover di ${esc(song.title)}" loading="lazy">`:'<span>JM</span>'}</div>
+        <div class="repertoire-copy"><h3>${esc(song.title)}</h3><p>${esc(songArtistLine(song)||'John & i Molesti')}</p><span>${esc(songTechLine(song))}</span></div>
+        <div class="repertoire-player">${player}</div>
+      </article>`;
+    }).join('') || '<div class="empty-state">Nessun brano trovato.</div>';
+    $$('[data-repertoire-song]',grid).forEach(card=>{
+      card.addEventListener('click',e=>{
+        if(e.target.closest('audio,a,button,input'))return;
+        const song=publicSongs.find(s=>String(s.id)===card.dataset.repertoireSong);
+        if(song)openSongRankingDetail(song,publicSongs.indexOf(song)+1);
+      });
+    });
+  }
+  function renderPublicMedia() {
+    const videos=publicMedia.filter(x=>x.kind==='video');
+    const photos=publicMedia.filter(x=>x.kind==='photo');
+    if($('videoCount'))$('videoCount').textContent=videos.length?`${videos.length} VIDEO`:'';
+    if($('photoCount'))$('photoCount').textContent=photos.length?`${photos.length} FOTO`:'';
+    const videoGrid=$('publicVideoGrid');
+    if(videoGrid)videoGrid.innerHTML=videos.map(item=>{
+      const info=videoEmbedInfo(item.source_url);
+      if(!info)return '';
+      const player=info.embed
+        ? `<div class="public-video-frame"><iframe src="${esc(info.embed)}" title="${esc(item.title||'Video')}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`
+        : `<a class="public-video-fallback" href="${esc(info.href)}" target="_blank" rel="noopener noreferrer">APRI IL VIDEO</a>`;
+      return `<article class="public-video-card">${player}<div class="public-media-copy"><strong>${esc(item.title||'Video')}</strong>${item.caption?`<span>${esc(item.caption)}</span>`:''}<small>${esc(info.provider)}</small></div></article>`;
+    }).join('') || '<div class="empty-state">Nessun video pubblicato.</div>';
+    const photoGrid=$('publicPhotoGrid');
+    if(photoGrid)photoGrid.innerHTML=photos.map((item,i)=>{
+      const src=publicMediaAssetUrl(item.storage_path);
+      return src?`<button class="public-photo-card" type="button" data-public-photo="${i}"><img src="${esc(src)}" alt="${esc(item.title||'Foto John & i Molesti')}" loading="lazy"><span><strong>${esc(item.title||'John & i Molesti')}</strong>${item.caption?`<small>${esc(item.caption)}</small>`:''}</span></button>`:'';
+    }).join('') || '<div class="empty-state">Nessuna foto pubblicata.</div>';
+    $$('[data-public-photo]',photoGrid||document).forEach(btn=>btn.onclick=()=>{
+      const item=photos[Number(btn.dataset.publicPhoto)],src=publicMediaAssetUrl(item?.storage_path);
+      if(src)openPoster(src,item?.title||'John & i Molesti');
+    });
   }
 
   function upcomingConcerts() {
@@ -687,17 +893,22 @@
     if(!safeHttps(src))return;
     let dialog=$('posterViewer');
     if(!dialog){
-      dialog=document.createElement('dialog');dialog.id='posterViewer';dialog.setAttribute('aria-label','Locandina ingrandita');
-      dialog.innerHTML='<header><strong id="posterTitle"></strong><div><button type="button" id="posterZoomOut" aria-label="Riduci">−</button><button type="button" id="posterZoomIn" aria-label="Ingrandisci">+</button><button type="button" id="posterClose" aria-label="Chiudi locandina">×</button></div></header><div class="poster-scroll"><img id="posterImage" alt="" draggable="false"></div>';
+      dialog=document.createElement('dialog');dialog.id='posterViewer';dialog.setAttribute('aria-label','Immagine ingrandita');
+      dialog.innerHTML='<header><strong id="posterTitle"></strong><div><button type="button" id="posterZoomOut" aria-label="Riduci">−</button><button type="button" id="posterZoomIn" aria-label="Ingrandisci">+</button><button type="button" id="posterClose" aria-label="Chiudi">×</button></div></header><div class="poster-scroll"><img id="posterImage" alt="" draggable="false"></div>';
       document.body.append(dialog);let zoom=1;
-      const resize=()=>{$('posterImage').style.width=(zoom*100)+'%';};
+      const resize=()=>{
+        const img=$('posterImage');if(!img)return;
+        if(zoom===1){img.style.width='auto';img.style.maxWidth='min(78vw,720px)';img.style.maxHeight='calc(100svh - 190px)';}
+        else{img.style.width=(zoom*100)+'%';img.style.maxWidth='none';img.style.maxHeight='none';}
+      };
       $('posterZoomIn').onclick=()=>{zoom=Math.min(zoom+.5,3);resize();};
       $('posterZoomOut').onclick=()=>{zoom=Math.max(zoom-.5,1);resize();};
       $('posterClose').onclick=()=>dialog.close();
       dialog.addEventListener('close',()=>{zoom=1;resize();if(!$$('.modal:not([hidden])').length)document.documentElement.style.removeProperty('overflow');});
       dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
+      resize();
     }
-    $('posterTitle').textContent=title;$('posterImage').src=src;$('posterImage').alt='Locandina '+title;
+    $('posterTitle').textContent=title;$('posterImage').src=src;$('posterImage').alt=title||'Immagine';
     document.documentElement.style.overflow='hidden';dialog.showModal();
   }
 
@@ -904,7 +1115,7 @@
     document.addEventListener('dragstart',e=>{if(protectedImage(e))e.preventDefault();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('posterViewer')?.open)e.stopImmediatePropagation();},true);
     window.addEventListener('hashchange', applyRoute);
-    document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRankings(); renderContextRail(currentRoute()); });
+    document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderContextRail(currentRoute()); });
     $$('.nav-item').forEach(b => b.onclick = () => go(b.dataset.route));
     $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     $('userEntry').onclick = () => { renderUserModal(); openModal('userModal'); };
@@ -926,6 +1137,7 @@
       catch (err) { msg.textContent = err.message; }
     });
     $('fanCatalogSearch').addEventListener('input', renderFanCatalog);
+    $('repertoireSearch')?.addEventListener('input', renderRepertoire);
     $$('[data-expand-ranking]').forEach(btn => btn.onclick = () => {
       const key = btn.dataset.expandRanking;
       if (expandedRankings.has(key)) expandedRankings.delete(key); else expandedRankings.add(key);
@@ -940,6 +1152,7 @@
       return;
     }
     sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    ensurePublicSections();
     bindStaticEvents();
     await window.JMCopy.init(sb);
     contactRender();
@@ -956,8 +1169,8 @@
       }
     }
     updateUserUI();
-    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia()]);
-    renderHome(); renderTour(); renderRankings(); renderRailNextShow();
+    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia(),loadPublicContentExtensions()]);
+    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
     startRealtime();
