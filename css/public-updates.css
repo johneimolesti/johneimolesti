@@ -161,7 +161,9 @@
 .main-nav .nav-item{padding-inline:12px;white-space:nowrap}
 
 /* Repertorio */
-.repertoire-hero{background:#efe328}
+.repertoire-hero{background:var(--panel)!important;color:var(--text)!important;border-color:var(--gold)!important}
+.repertoire-hero .section-kicker{color:var(--gold)!important}
+.repertoire-hero .page-hero-ornament{-webkit-text-stroke-color:#777239!important}
 .repertoire-heading{margin-bottom:10px}
 .repertoire-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .repertoire-toolbar input{
@@ -328,7 +330,9 @@
 
 
 /* Contatti / booking / gestione video dal sito pubblico */
-.contacts-hero{background:#efe328}
+.contacts-hero{background:var(--panel)!important;color:var(--text)!important;border-color:var(--gold)!important}
+.contacts-hero .section-kicker{color:var(--gold)!important}
+.contacts-hero .page-hero-ornament{-webkit-text-stroke-color:#777239!important}
 .contacts-layout{display:grid;grid-template-columns:minmax(260px,.65fr) minmax(0,1.35fr);gap:22px;margin-top:28px}
 .contacts-channel-card,.booking-card{padding:26px;min-width:0}
 .contacts-channel-card h3,.booking-card h3{margin:7px 0 12px;font:900 31px/1.05 Impact,Arial,sans-serif}
