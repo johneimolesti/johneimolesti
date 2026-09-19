@@ -82,6 +82,30 @@
 
   async function loadStatus(){
     try{
+      // Membri e admin: nessun codice. Verifica prima la sessione Supabase
+      // locale, così l'interfaccia non mostra mai "SBLOCCA DEMO" a chi fa
+      // parte della band mentre l'Edge Function sta ancora rispondendo.
+      const {data:{session}}=await sb.auth.getSession();
+      if(session?.user?.id){
+        const {data:profile,error:profileError}=await sb
+          .from('profiles')
+          .select('id,username,display_name')
+          .eq('id',session.user.id)
+          .maybeSingle();
+
+        if(!profileError&&profile){
+          access={
+            allowed:true,
+            reason:'member',
+            member:{
+              id:profile.id,
+              name:profile.display_name||profile.username||'Membro'
+            }
+          };
+          return;
+        }
+      }
+
       access=await call('status');
     }catch(err){
       console.warn('Demo status',err);
