@@ -126,3 +126,202 @@
 
 @media(max-width:1180px){.member-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.concert-detail-top{flex-direction:column}.concert-poster-carousel{width:min(100%,320px);flex-basis:auto;align-self:center}.member-photo-grid{grid-template-columns:1fr 1fr}.home-member-carousel{grid-template-columns:38px minmax(0,1fr) 38px;padding:10px;gap:8px}.member-carousel-nav{width:38px;height:44px}.member-carousel-stage{min-height:390px}.member-carousel-caption{font-size:24px}}
+
+
+/* V1.5 — repertorio / media pubblici / viewer locandine compatto */
+#posterViewer{
+  width:auto!important;
+  max-width:88vw!important;
+  height:auto!important;
+  max-height:calc(100svh - 64px)!important;
+  margin:auto!important;
+}
+#posterViewer[open]{display:flex!important}
+#posterViewer header{flex:0 0 auto}
+#posterViewer .poster-scroll{
+  display:grid;
+  place-items:center;
+  flex:0 1 auto;
+  min-height:0;
+  max-height:calc(100svh - 130px);
+  padding:12px;
+  overflow:auto;
+}
+#posterImage{
+  display:block;
+  width:auto;
+  max-width:min(78vw,720px);
+  max-height:calc(100svh - 190px);
+  object-fit:contain;
+  margin:auto;
+}
+
+/* Header con voce Repertorio in più, senza comprimere l'area utente. */
+.main-nav{gap:8px}
+.main-nav .nav-item{padding-inline:12px;white-space:nowrap}
+
+/* Repertorio */
+.repertoire-hero{background:#efe328}
+.repertoire-heading{margin-bottom:10px}
+.repertoire-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.repertoire-toolbar input{
+  width:min(520px,100%);
+  min-height:42px;
+  border:2px solid #171717;
+  background:#fffdf4;
+  color:#171717;
+  padding:9px 12px;
+  font-size:14px;
+}
+.repertoire-grid{display:grid;gap:12px}
+.repertoire-card{
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr) minmax(230px,320px);
+  gap:14px;
+  align-items:center;
+  padding:12px 14px;
+  min-width:0;
+  cursor:pointer;
+}
+.repertoire-card:hover{background:color-mix(in srgb,var(--gold) 13%,var(--panel))}
+.repertoire-cover{
+  width:76px;height:76px;
+  border:2px solid #171717;
+  background:#171717;
+  display:grid;place-items:center;
+  overflow:hidden;
+  font:900 20px/1 Impact,Arial,sans-serif;
+  color:var(--gold);
+}
+.repertoire-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.repertoire-copy{min-width:0}
+.repertoire-copy h3{
+  margin:0;
+  font-size:18px;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.repertoire-copy p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.repertoire-copy>span{
+  display:block;
+  margin-top:5px;
+  font:700 11px/1.3 monospace;
+  color:var(--muted);
+}
+.repertoire-player{min-width:0}
+.repertoire-audio{display:block;width:100%;height:38px}
+.repertoire-stream-link{width:100%;justify-content:center}
+.repertoire-audio-missing{
+  display:flex;
+  min-height:38px;
+  align-items:center;
+  justify-content:center;
+  border:1px dashed #777568;
+  color:var(--muted);
+  font:700 11px monospace;
+}
+
+/* Video */
+.public-video-section,.public-photo-section{grid-column:1/-1}
+.public-video-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.public-video-card{
+  min-width:0;
+  border:2px solid #171717;
+  background:#151515;
+  color:#fff;
+}
+.public-video-frame{position:relative;aspect-ratio:16/9;background:#050505;overflow:hidden}
+.public-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.public-video-fallback{
+  display:grid;
+  place-items:center;
+  aspect-ratio:16/9;
+  padding:20px;
+  color:var(--gold);
+  font-weight:900;
+}
+.public-media-copy{display:grid;gap:4px;padding:12px}
+.public-media-copy strong{font-size:15px;line-height:1.2}
+.public-media-copy span{font-size:12px;line-height:1.35;color:#c5c5c5}
+.public-media-copy small{font:700 10px monospace;color:var(--gold)}
+
+/* Foto */
+.public-photo-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.public-photo-card{
+  position:relative;
+  display:block;
+  aspect-ratio:4/3;
+  min-width:0;
+  padding:0;
+  overflow:hidden;
+  border:2px solid #171717;
+  background:#111;
+  color:#fff;
+  text-align:left;
+}
+.public-photo-card img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .2s ease}
+.public-photo-card:hover img{transform:scale(1.025)}
+.public-photo-card>span{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  display:grid;
+  gap:2px;
+  padding:26px 10px 9px;
+  background:linear-gradient(transparent,rgba(0,0,0,.9));
+}
+.public-photo-card strong{
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.public-photo-card small{
+  font-size:10px;
+  color:#d5d5d5;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+@media(max-width:1250px){
+  .main-nav{gap:3px}
+  .main-nav .nav-item{padding-inline:8px;font-size:12px}
+  .repertoire-card{grid-template-columns:64px minmax(0,1fr) minmax(210px,280px);gap:11px}
+  .repertoire-cover{width:64px;height:64px}
+  .public-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:860px){
+  #posterViewer{max-width:92vw!important}
+  #posterImage{max-width:84vw}
+  .repertoire-card{grid-template-columns:58px minmax(0,1fr);gap:10px}
+  .repertoire-cover{width:58px;height:58px}
+  .repertoire-player{grid-column:1/-1}
+  .public-video-grid{grid-template-columns:1fr}
+  .public-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  #posterViewer{max-width:94vw!important;max-height:calc(100svh - 34px)!important}
+  #posterViewer .poster-scroll{max-height:calc(100svh - 105px);padding:8px}
+  #posterImage{max-width:88vw;max-height:calc(100svh - 155px)}
+  .repertoire-card{padding:10px}
+  .repertoire-copy h3{font-size:16px}
+  .repertoire-copy p{font-size:12px}
+  .public-photo-grid{grid-template-columns:1fr 1fr;gap:7px}
+}
