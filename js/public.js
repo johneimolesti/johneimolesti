@@ -4,7 +4,7 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
-  const PUBLIC_VERSION = 'public v1.2';
+  const PUBLIC_VERSION = 'public v1.3';
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
   const ROUTES = new Set(['home', 'tour', 'rankings', 'band', 'more']);
@@ -526,22 +526,91 @@
   function rankingSongRow(r, i) {
     const artists = [r.base_artist, r.lyrics_artist].filter(Boolean).join(' / ');
     const cover = posterUrl(r.cover_path);
-    return `<div class="ranking-row${cover?' has-cover':''}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || '')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
+    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
-    return `<div class="ranking-row${self ? ' self' : ''}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title">${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
+    return `<div class="ranking-row ranking-row-clickable${self ? ' self' : ''}" data-ranking-fan-index="${i}" title="${esc(String(r.fan_name || '').toUpperCase())}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title">${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
   }
   function rankingConcertRow(r, i) {
     const name = r.concert_name || r.name || window.JMCopy.text('ui.fallbackLive',{date:formatDate(r.concert_date)});
     const score = r.score ?? r.rating ?? r.avg_score ?? r.average_score ?? '—';
-    return `<div class="ranking-row" data-ranking-concert="${esc(r.concert_id || r.id || '')}"><div class="ranking-pos">${i+1}</div><div class="ranking-main"><div class="ranking-title">${esc(name)}</div><div class="ranking-meta">${esc(formatDate(r.concert_date))}${r.attendance_count != null ? ` · ${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count)}))}` : ''}</div></div><div class="ranking-score">${esc(score)}<small data-copy="ui.6990f01ad9d2">LIVE</small></div></div>`;
+    return `<div class="ranking-row ranking-row-clickable" data-ranking-concert="${esc(r.concert_id || r.id || '')}" title="${esc(name)}"><div class="ranking-pos">${i+1}</div><div class="ranking-main"><div class="ranking-title">${esc(name)}</div><div class="ranking-meta">${esc(formatDate(r.concert_date))}${r.attendance_count != null ? ` · ${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count)}))}` : ''}</div></div><div class="ranking-score">${esc(score)}<small data-copy="ui.6990f01ad9d2">LIVE</small></div></div>`;
   }
   function rankingPosterRow(r, i) {
     const src = posterUrl(r.storage_path || r.poster_path);
     const raw = Number(r.ranking_score);
     const score = Number.isFinite(raw) ? (raw/10).toFixed(1) : '—';
-    return `<div class="ranking-row${src?' has-cover':''}" data-ranking-poster="${esc(r.poster_id||'')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-poster-thumb" src="${esc(src)}" alt="Locandina ${esc(r.concert_name||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.concert_name||'Concerto')}</div><div class="ranking-meta">${esc(r.caption||formatDate(r.concert_date))}</div></div><div class="ranking-score">${esc(score)}<small>POSTER</small></div></div>`;
+    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-poster-index="${i}" title="${esc(r.concert_name||'Locandina')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-poster-thumb" src="${esc(src)}" alt="Locandina ${esc(r.concert_name||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.concert_name||'Concerto')}</div><div class="ranking-meta">${esc(r.caption||formatDate(r.concert_date))}</div></div><div class="ranking-score">${esc(score)}<small>POSTER</small></div></div>`;
+  }
+  function ensureRankingDetailModal() {
+    let modal = $('rankingDetailModal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'rankingDetailModal';
+    modal.className = 'modal';
+    modal.hidden = true;
+    modal.innerHTML = `<div class="modal-backdrop"></div><section class="modal-card ranking-detail-modal-card" role="dialog" aria-modal="true" aria-labelledby="rankingDetailTitle"><header class="modal-head"><div><span class="section-kicker" id="rankingDetailKicker">DETTAGLIO</span><h2 id="rankingDetailTitle">Dettaglio</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></header><div class="modal-body" id="rankingDetailBody"></div></section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.modal-backdrop').onclick = () => closeModal('rankingDetailModal');
+    modal.querySelector('.modal-close').onclick = () => closeModal('rankingDetailModal');
+    return modal;
+  }
+  function detailRow(label, value) {
+    if (value === undefined || value === null || value === '') return '';
+    return `<div class="ranking-detail-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
+  }
+  function openRankingDetail({kind='DETTAGLIO',title='Dettaglio',image='',imageAlt='',score='',scoreLabel='',rows=[],actions=[]}) {
+    const modal = ensureRankingDetailModal();
+    $('rankingDetailKicker').textContent = kind;
+    $('rankingDetailTitle').textContent = title;
+    const imageHtml = image ? `<button class="ranking-detail-media" type="button" aria-label="Ingrandisci immagine"><img src="${esc(image)}" alt="${esc(imageAlt || title)}"></button>` : '';
+    const scoreHtml = score !== '' && score !== null && score !== undefined ? `<div class="ranking-detail-score"><strong>${esc(score)}</strong><span>${esc(scoreLabel)}</span></div>` : '';
+    $('rankingDetailBody').innerHTML = `<div class="ranking-detail-top${image?' has-media':''}">${imageHtml}<div class="ranking-detail-summary">${scoreHtml}<div class="ranking-detail-data">${rows.map(([label,value])=>detailRow(label,value)).join('')}</div></div></div>${actions.length?`<div class="ranking-detail-actions">${actions.map((a,i)=>`<button class="btn ${a.primary?'btn-primary':'btn-ghost'}" type="button" data-ranking-detail-action="${i}">${esc(a.label)}</button>`).join('')}</div>`:''}`;
+    $('rankingDetailBody').querySelector('.ranking-detail-media')?.addEventListener('click',()=>openPoster(image,title));
+    $$('[data-ranking-detail-action]',$('rankingDetailBody')).forEach(button=>{
+      const action=actions[Number(button.dataset.rankingDetailAction)];
+      if(action?.run)button.onclick=action.run;
+    });
+    openModal('rankingDetailModal');
+  }
+  function openSongRankingDetail(r, position) {
+    if (!r) return;
+    const cover = posterUrl(r.cover_path);
+    const actions = [];
+    if (currentFan) actions.push({label:'VOTA QUESTO BRANO',primary:true,run:()=>{
+      closeModal('rankingDetailModal');
+      openFanCatalog().then(()=>{
+        const search=$('fanCatalogSearch');
+        if(search){search.value=r.title||'';renderFanCatalog();}
+      });
+    }});
+    openRankingDetail({kind:'BRANO',title:r.title||'Brano',image:cover,imageAlt:`Cover di ${r.title||'brano'}`,score:r.ranking_score??'—',scoreLabel:'SCORE',rows:[['Posizione',`#${position}`],['Base',r.base_artist||'—'],['Testo',r.lyrics_artist||'—'],['BPM',r.bpm],['Tonalità',r.key||r.tonality]],actions});
+  }
+  function openFanRankingDetail(r, position) {
+    if (!r) return;
+    const isMe = currentFan?.id && currentFan.id === r.fan_id;
+    const actions = isMe ? [{label:'APRI IL MIO PROFILO',primary:true,run:()=>{closeModal('rankingDetailModal');renderUserModal();openModal('userModal');}}] : [];
+    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
+  }
+  function openPosterRankingDetail(r, position) {
+    if (!r) return;
+    const src = posterUrl(r.storage_path || r.poster_path);
+    const raw = Number(r.ranking_score);
+    const score = Number.isFinite(raw) ? (raw/10).toFixed(1) : '—';
+    const concertId = r.concert_id || r.event_id || '';
+    const actions = [];
+    if (concertId) actions.push({label:'APRI IL LIVE',primary:true,run:()=>{closeModal('rankingDetailModal');openConcert(concertId);}});
+    openRankingDetail({kind:'LOCANDINA',title:r.concert_name||'Locandina',image:src,imageAlt:`Locandina ${r.concert_name||''}`,score,scoreLabel:'POSTER',rows:[['Posizione',`#${position}`],['Data',formatDate(r.concert_date)],['Titolo',r.caption]],actions});
+  }
+  function bindRankingRow(row, handler) {
+    if (!row || !handler) return;
+    row.setAttribute('role','button');
+    row.tabIndex = 0;
+    row.onclick = handler;
+    row.onkeydown = e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); }
+    };
   }
   function renderRankings() {
     const data = rankingData || {};
@@ -554,12 +623,18 @@
       return;
     }
     const limit = key => expandedRankings.has(key) ? Infinity : 8;
-    $('songsRanking').innerHTML = (data.songs || []).slice(0,limit('songs')).map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
-    $('fansRanking').innerHTML = (data.fans || []).slice(0,limit('fans')).map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
-    $('concertsRanking').innerHTML = (data.concerts || []).slice(0,limit('concerts')).map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
-    $('postersRanking').innerHTML = (data.posters || []).slice(0,limit('posters')).map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
-    $$('[data-ranking-concert]', $('concertsRanking')).forEach(row => { if (row.dataset.rankingConcert) row.onclick = () => openConcert(row.dataset.rankingConcert); });
-    $$('[data-ranking-poster]', $('postersRanking')).forEach((row,i) => { const poster=(data.posters||[])[i]; const src=posterUrl(poster?.storage_path||poster?.poster_path); if(src)row.onclick=()=>openPoster(src,poster?.concert_name||'Locandina'); });
+    const visibleSongs=(data.songs||[]).slice(0,limit('songs'));
+    const visibleFans=(data.fans||[]).slice(0,limit('fans'));
+    const visibleConcerts=(data.concerts||[]).slice(0,limit('concerts'));
+    const visiblePosters=(data.posters||[]).slice(0,limit('posters'));
+    $('songsRanking').innerHTML = visibleSongs.map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
+    $('fansRanking').innerHTML = visibleFans.map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
+    $('concertsRanking').innerHTML = visibleConcerts.map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
+    $('postersRanking').innerHTML = visiblePosters.map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
+    $$('[data-ranking-song-index]',$('songsRanking')).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1));});
+    $$('[data-ranking-fan-index]',$('fansRanking')).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1));});
+    $$('[data-ranking-concert]', $('concertsRanking')).forEach(row => { if (row.dataset.rankingConcert) bindRankingRow(row,() => openConcert(row.dataset.rankingConcert)); });
+    $$('[data-ranking-poster-index]',$('postersRanking')).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1));});
     $$('[data-expand-ranking]').forEach(btn => {
       const key = btn.dataset.expandRanking;
       const expanded = expandedRankings.has(key);
