@@ -98,10 +98,10 @@
       .contact-admin-bar span{color:var(--muted);font:700 9px monospace}.contact-admin-bar button{min-height:31px;padding:6px 10px;border:1px solid var(--gold);background:#111;color:var(--gold);font-size:9px;font-weight:900}
       .contacts-editor-panel{display:none;margin-top:10px;border:1px solid #777568;background:#171717}.contacts-editor-panel.open{display:block}
       .contacts-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-bottom:1px solid #555248}.contacts-editor-head strong{font-size:10px}.contacts-editor-head span{color:var(--muted);font-size:8px}
-      .contacts-editor-new{display:grid;grid-template-columns:150px minmax(120px,.8fr) minmax(190px,1.4fr) 72px 82px;gap:6px;padding:9px;border-bottom:1px solid #555248}
+      .contacts-editor-new{display:grid;grid-template-columns:150px minmax(220px,1.5fr) 72px 82px;gap:6px;padding:9px;border-bottom:1px solid #555248}
       .contacts-editor-panel input,.contacts-editor-panel select{min-width:0;width:100%;height:34px;padding:5px 7px;border:1px solid #59564e;background:#232321;color:#fff;font-size:9px}
       .contacts-editor-panel button{min-height:32px;padding:5px 8px;border:1px solid #5c594f;background:#2a2a27;color:#ddd;font-size:8px;font-weight:900}.contacts-editor-panel button.primary{border-color:var(--gold);background:var(--gold);color:#111}.contacts-editor-panel button.danger{color:#f0a4a4}
-      .contacts-editor-list{display:grid}.contact-edit-row{display:grid;grid-template-columns:145px minmax(120px,.75fr) minmax(180px,1.4fr) 58px 58px auto;gap:6px;align-items:center;padding:7px 9px;border-bottom:1px solid #45433c}.contact-edit-row:last-child{border-bottom:0}
+      .contacts-editor-list{display:grid}.contact-edit-row{display:grid;grid-template-columns:145px minmax(220px,1.5fr) 58px 58px auto;gap:6px;align-items:center;padding:7px 9px;border-bottom:1px solid #45433c}.contact-edit-row:last-child{border-bottom:0}
       .contact-enabled{display:flex;align-items:center;justify-content:center;gap:4px;color:#aaa;font-size:7px}.contact-enabled input{width:14px;height:14px;min-height:0}
       .contact-edit-actions{display:flex;gap:4px}.contact-edit-status{min-height:16px;padding:6px 9px;color:var(--muted);font-size:8px}
       @media(max-width:900px){.contacts-editor-new,.contact-edit-row{grid-template-columns:1fr 1fr}.contacts-editor-new [data-new-value],.contact-edit-row .contact-value{grid-column:1/-1}.contact-edit-actions{grid-column:1/-1}.contacts-social-actions{grid-template-columns:1fr!important}}
@@ -139,7 +139,10 @@
       .order('created_at',{ascending:true});
 
     if(!result.error){
-      rows=result.data||[];
+      rows=(result.data||[]).map(item=>({
+        ...item,
+        label:TYPES[item.contact_type]?.label||'Contatto'
+      }));
       return;
     }
 
@@ -175,7 +178,7 @@
           return `<a class="contact-tile" href="${esc(href)}" ${external?'target="_blank" rel="noopener noreferrer"':''}>
             <span class="contact-tile-icon">${icon(type)}</span>
             <span class="contact-tile-copy">
-              <strong>${esc(item.label||meta.label)}</strong>
+              <strong>${esc(meta.label)}</strong>
               <span>${esc(valuePreview(type,item.value))}</span>
             </span>
             <span class="contact-tile-arrow">${external?'↗':'→'}</span>
@@ -219,11 +222,10 @@
     panel.innerHTML=`
       <div class="contacts-editor-head">
         <strong>MODIFICA CONTATTI</strong>
-        <span>Tipo, etichetta e riferimento pubblico</span>
+        <span>Tipo di canale e riferimento pubblico</span>
       </div>
       <div class="contacts-editor-new">
         <select data-new-type>${typeOptions('instagram')}</select>
-        <input data-new-label maxlength="160" placeholder="Etichetta">
         <input data-new-value maxlength="2000" placeholder="${esc(TYPES.instagram.placeholder)}">
         <input data-new-order type="number" min="-9999" max="9999" value="10" title="Ordine">
         <button class="primary" type="button" data-add-contact>+ AGGIUNGI</button>
@@ -248,7 +250,6 @@
       ? editable.map(item=>`
         <div class="contact-edit-row" data-contact-id="${esc(item.id)}">
           <select class="contact-type">${typeOptions(item.contact_type)}</select>
-          <input class="contact-label" maxlength="160" value="${esc(item.label||'')}" placeholder="Etichetta">
           <input class="contact-value" maxlength="2000" value="${esc(item.value||'')}" placeholder="${esc(TYPES[item.contact_type]?.placeholder||'https://...')}">
           <input class="contact-order" type="number" min="-9999" max="9999" value="${Number(item.sort_order||0)}" title="Ordine">
           <label class="contact-enabled"><input type="checkbox" ${item.enabled!==false?'checked':''}> ON</label>
@@ -279,7 +280,6 @@
     if(!admin)return;
     const panel=buildEditor();
     const type=q('[data-new-type]',panel).value;
-    const label=q('[data-new-label]',panel).value.trim();
     const value=q('[data-new-value]',panel).value.trim();
     const sort_order=Number(q('[data-new-order]',panel).value)||0;
 
@@ -289,14 +289,13 @@
     setStatus('Salvataggio…');
     const {error}=await client.from('site_contacts').insert({
       contact_type:type,
-      label:label||TYPES[type]?.label||'Contatto',
+      label:TYPES[type]?.label||'Contatto',
       value,
       enabled:true,
       sort_order
     });
     if(error)return setStatus(error.message,true);
 
-    q('[data-new-label]',panel).value='';
     q('[data-new-value]',panel).value='';
     await reload();
     renderEditor();
@@ -307,7 +306,6 @@
     if(!admin)return;
     const id=row.dataset.contactId;
     const type=q('.contact-type',row).value;
-    const label=q('.contact-label',row).value.trim();
     const value=q('.contact-value',row).value.trim();
     const sort_order=Number(q('.contact-order',row).value)||0;
     const enabled=q('.contact-enabled input',row).checked;
@@ -318,7 +316,7 @@
     setStatus('Salvataggio…');
     const {error}=await client.from('site_contacts').update({
       contact_type:type,
-      label:label||TYPES[type]?.label||'Contatto',
+      label:TYPES[type]?.label||'Contatto',
       value,
       enabled,
       sort_order
@@ -333,7 +331,7 @@
   async function deleteContact(row){
     if(!admin)return;
     const item=rows.find(x=>String(x.id)===String(row.dataset.contactId));
-    if(!confirm(`Eliminare "${item?.label||'questo contatto'}"?`))return;
+    if(!confirm(`Eliminare il contatto ${TYPES[item?.contact_type]?.label||'selezionato'}?`))return;
 
     const {error}=await client.from('site_contacts').delete().eq('id',row.dataset.contactId);
     if(error)return setStatus(error.message,true);
