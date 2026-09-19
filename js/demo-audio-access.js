@@ -96,11 +96,14 @@
         if(!profileError&&profile){
           access={
             allowed:true,
+            global_access:'full',
             reason:'member',
+            grants:[],
             member:{
               id:profile.id,
               name:profile.display_name||profile.username||'Membro'
-            }
+            },
+            fan:null
           };
           return;
         }
@@ -114,10 +117,83 @@
   }
 
   function accessLabel(){
-    if(access.reason==='member')return 'Accesso demo: membro band';
-    if(access.reason==='certified_attendance')return 'Accesso demo sbloccato dalla presenza certificata';
-    if(access.reason==='code')return 'Accesso demo sbloccato con codice';
+    if(access.reason==='member')return 'Accesso completo: membro band';
+    if(access.reason==='certified_attendance')return 'Accesso completo: presenza certificata';
+    if(access.global_access==='full')return 'Accesso completo';
+    const active=(access.grants||[]).filter(g=>!g.expires_at||Date.parse(g.expires_at)>Date.now());
+    if(active.length)return `${active.length} sblocco${active.length===1?'':'i'} attivo${active.length===1?'':'i'}`;
     return 'Demo riservate';
+  }
+
+  function songAccess(songId){
+    if(access.global_access==='full')return 'full';
+    let preview=false;
+    const now=Date.now();
+    for(const grant of access.grants||[]){
+      if(grant.expires_at&&Date.parse(grant.expires_at)<=now)continue;
+      const applies=grant.scope_type==='all'||(grant.song_ids||[]).map(String).includes(String(songId));
+      if(!applies)continue;
+      if(grant.access_mode==='full')return 'full';
+      if(grant.access_mode==='preview_30')preview=true;
+    }
+    return preview?'preview_30':null;
+  }
+
+  function storedRequestIds(){
+    try{
+      const parsed=JSON.parse(localStorage.getItem('jm_demo_access_requests')||'[]');
+      return Array.isArray(parsed)?[...new Set(parsed.map(String).filter(Boolean))]:[];
+    }catch{return[]}
+  }
+
+  function saveRequestIds(ids){
+    localStorage.setItem('jm_demo_access_requests',JSON.stringify([...new Set(ids.map(String).filter(Boolean))]));
+  }
+
+  function addRequestId(id){
+    if(!id)return;
+    const ids=storedRequestIds();
+    ids.push(String(id));
+    saveRequestIds(ids);
+  }
+
+  function removeRequestId(id){
+    saveRequestIds(storedRequestIds().filter(x=>x!==String(id)));
+  }
+
+  async function checkPendingRequests(){
+    const ids=storedRequestIds();
+    let changed=false;
+    let readyCode='';
+    let rejected='';
+
+    for(const id of ids){
+      try{
+        const state=await call('request_status',{request_id:id});
+        if(state.status==='direct_granted'){
+          removeRequestId(id);
+          changed=true;
+        }else if(state.status==='code_ready'&&state.code){
+          readyCode=state.code;
+          localStorage.setItem('jm_demo_ready_code',state.code);
+        }else if(state.status==='rejected'){
+          removeRequestId(id);
+          rejected=state.admin_note||'Richiesta non approvata.';
+          changed=true;
+        }
+      }catch(err){
+        if(err.status===404)removeRequestId(id);
+      }
+    }
+
+    if(changed){
+      await loadStatus();
+      decorate();
+    }
+    if(rejected){
+      localStorage.setItem('jm_demo_request_notice',rejected);
+    }
+    return readyCode;
   }
 
   function ensureUnlockBox(){
@@ -139,16 +215,21 @@
       toolbar.insertAdjacentElement('afterend',box);
     }
 
-    if(access.allowed){
+    const readyCode=localStorage.getItem('jm_demo_ready_code')||'';
+    const notice=localStorage.getItem('jm_demo_request_notice')||'';
+    if(notice)localStorage.removeItem('jm_demo_request_notice');
+
+    if(access.global_access==='full'){
       box.innerHTML=`<span class="demo-access-ok">✓ ${esc(accessLabel())}</span>`;
     }else{
+      const grants=(access.grants||[]).filter(g=>!g.expires_at||Date.parse(g.expires_at)>Date.now());
       box.innerHTML=`
         <div>
           <strong>DEMO AUDIO</strong>
-          <span>Disponibili a membri della band, fan con almeno una presenza certificata o tramite codice di sblocco.</span>
+          <span>${grants.length?esc(accessLabel()):'Puoi usare un codice oppure richiedere uno sblocco.'}${notice?` · ${esc(notice)}`:''}</span>
         </div>
-        <button class="btn btn-ghost" id="openDemoUnlock" type="button">HO UN CODICE</button>`;
-      document.getElementById('openDemoUnlock')?.addEventListener('click',openUnlockModal);
+        <button class="btn ${readyCode?'btn-primary':'btn-ghost'}" id="openDemoUnlock" type="button">${readyCode?'CODICE PRONTO':'CODICE / RICHIEDI'}</button>`;
+      document.getElementById('openDemoUnlock')?.addEventListener('click',()=>openUnlockModal());
     }
     return box;
   }
@@ -168,6 +249,14 @@
       .demo-unlock-form{display:grid;gap:12px}.demo-unlock-form label{display:grid;gap:5px;font-size:12px;font-weight:800}
       .demo-unlock-form input{width:100%;padding:11px;border:2px solid #777568;background:#171717;color:#fff;font:800 15px/1 monospace;text-transform:uppercase;letter-spacing:.08em}
       .demo-unlock-status{min-height:18px;color:var(--muted);font-size:11px}
+      .demo-unlock-sections{display:grid;gap:10px}.demo-unlock-section{display:grid;gap:8px;padding:10px;border:1px solid #57544c;background:#1d1d1b}
+      .demo-unlock-section h3{margin:0;font:900 13px/1 Arial,sans-serif}.demo-unlock-section p{margin:0;color:var(--muted);font-size:10px;line-height:1.35}
+      .demo-request-form{display:grid;gap:9px}.demo-request-form label{display:grid;gap:4px;font-size:10px;font-weight:800}
+      .demo-request-form input,.demo-request-form select,.demo-request-form textarea{width:100%;padding:8px;border:1px solid #666258;background:#111;color:#fff;font:700 11px/1.2 Arial,sans-serif}
+      .demo-request-form textarea{min-height:58px;resize:vertical}.demo-request-songs{display:grid;gap:4px;max-height:170px;overflow:auto;padding:6px;border:1px solid #4f4c45;background:#111}
+      .demo-request-song{display:grid!important;grid-template-columns:18px minmax(0,1fr);align-items:center;gap:6px!important;font-size:10px!important;font-weight:700!important}
+      .demo-request-song input{width:14px!important;height:14px;padding:0!important}
+      .demo-request-result{padding:8px;border:1px solid #655f2b;background:#27230e;color:#f3d234;font:800 11px/1.35 monospace;word-break:break-word}
 
       .jukebox-launch{margin-left:auto;min-width:170px}
       .jukebox-overlay{position:fixed;inset:0;z-index:100000;display:none;grid-template-rows:auto minmax(0,1fr);background:
@@ -212,59 +301,180 @@
     document.head.appendChild(style);
   }
 
-  function openUnlockModal(){
-    let modal=document.getElementById('demoUnlockModal');
-    if(!modal){
-      modal=document.createElement('div');
-      modal.id='demoUnlockModal';
-      modal.className='modal';
-      modal.hidden=true;
-      modal.innerHTML=`
-        <div class="modal-backdrop"></div>
-        <section class="modal-card demo-unlock-modal-card" role="dialog" aria-modal="true" aria-labelledby="demoUnlockTitle">
-          <header class="modal-head">
-            <div><span class="section-kicker">DEMO AUDIO</span><h2 id="demoUnlockTitle">Inserisci il codice</h2></div>
-            <button class="modal-close" type="button" aria-label="Chiudi">×</button>
-          </header>
-          <form class="modal-body demo-unlock-form">
-            <label>CODICE DI SBLOCCO
-              <input id="demoUnlockCode" maxlength="64" autocomplete="off" spellcheck="false" placeholder="MOLESTI-XXXX">
-            </label>
-            <span class="demo-unlock-status" id="demoUnlockStatus"></span>
-            <button class="btn btn-primary" type="submit">SBLOCCA LE DEMO</button>
-          </form>
-        </section>`;
-      document.body.appendChild(modal);
-      const close=()=>{
-        modal.hidden=true;
-        if(!document.querySelector('.modal:not([hidden])'))document.documentElement.style.removeProperty('overflow');
-      };
-      modal.querySelector('.modal-close').onclick=close;
-      modal.querySelector('.modal-backdrop').onclick=close;
-      modal.querySelector('form').onsubmit=async e=>{
-        e.preventDefault();
-        const input=document.getElementById('demoUnlockCode');
-        const status=document.getElementById('demoUnlockStatus');
-        const btn=e.currentTarget.querySelector('button[type="submit"]');
-        const code=input.value.trim();
-        if(!code){status.textContent='Inserisci il codice.';return}
-        btn.disabled=true;status.textContent='Verifica…';
-        try{
-          await call('redeem',{code});
-          await loadStatus();
-          status.textContent='Demo sbloccate.';
-          setTimeout(close,450);
-          decorate();
-        }catch(err){
-          status.textContent=err.message||'Codice non valido.';
-        }finally{
-          btn.disabled=false;
-        }
-      };
-    }
-    modal.hidden=false;
+  function openUnlockModal(seedSongId=''){
+    document.getElementById('demoUnlockModal')?.remove();
+
+    const modal=document.createElement('div');
+    modal.id='demoUnlockModal';
+    modal.className='modal';
+    modal.innerHTML=`
+      <div class="modal-backdrop"></div>
+      <section class="modal-card demo-unlock-modal-card" role="dialog" aria-modal="true" aria-labelledby="demoUnlockTitle">
+        <header class="modal-head">
+          <div><span class="section-kicker">DEMO AUDIO</span><h2 id="demoUnlockTitle">Accesso alle demo</h2></div>
+          <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+        </header>
+        <div class="modal-body demo-unlock-sections">
+          <section class="demo-unlock-section">
+            <h3>HAI GIÀ UN CODICE?</h3>
+            <form class="demo-unlock-form" id="demoRedeemForm">
+              <label>CODICE DI SBLOCCO
+                <input id="demoUnlockCode" maxlength="64" autocomplete="off" spellcheck="false" placeholder="MOLESTI-XXXX">
+              </label>
+              <span class="demo-unlock-status" id="demoUnlockStatus"></span>
+              <button class="btn btn-primary" type="submit">USA CODICE</button>
+            </form>
+          </section>
+
+          <section class="demo-unlock-section">
+            <h3>RICHIEDI UNO SBLOCCO</h3>
+            <p>Puoi chiedere una canzone, un bundle di 3–5 brani oppure tutto il repertorio disponibile. L’admin deciderà se approvare direttamente il profilo registrato o generare un codice.</p>
+            <form class="demo-request-form" id="demoRequestForm">
+              <label>TIPO
+                <select id="demoRequestScope">
+                  <option value="single">Una canzone</option>
+                  <option value="bundle">Bundle 3–5 canzoni</option>
+                  <option value="all">Tutte le demo disponibili</option>
+                </select>
+              </label>
+              <div id="demoRequestSongsWrap">
+                <label>CANZONI</label>
+                <div class="demo-request-songs" id="demoRequestSongs"></div>
+              </div>
+              <label>ACCESSO RICHIESTO
+                <select id="demoRequestMode">
+                  <option value="preview_30">Anteprima 30 secondi</option>
+                  <option value="full">Brano intero</option>
+                </select>
+              </label>
+              <label>DURATA
+                <select id="demoRequestDays">
+                  <option value="15">15 giorni</option>
+                  <option value="30">30 giorni</option>
+                </select>
+              </label>
+              <label>NOME
+                <input id="demoRequestName" maxlength="160" value="${esc(access.fan?.name||'')}" placeholder="Nome o nickname">
+              </label>
+              <label>CONTATTO (FACOLTATIVO)
+                <input id="demoRequestContact" maxlength="320" placeholder="E-mail / telefono / social">
+              </label>
+              <label>NOTA (FACOLTATIVA)
+                <textarea id="demoRequestNote" maxlength="1000" placeholder="Messaggio per gli admin"></textarea>
+              </label>
+              <span class="demo-unlock-status" id="demoRequestStatus"></span>
+              <button class="btn btn-primary" type="submit">INVIA RICHIESTA</button>
+            </form>
+          </section>
+        </div>
+      </section>`;
+
+    document.body.appendChild(modal);
     document.documentElement.style.overflow='hidden';
-    setTimeout(()=>document.getElementById('demoUnlockCode')?.focus(),0);
+
+    const close=()=>{
+      modal.remove();
+      if(!document.querySelector('.modal'))document.documentElement.style.removeProperty('overflow');
+    };
+    modal.querySelector('.modal-close').onclick=close;
+    modal.querySelector('.modal-backdrop').onclick=close;
+
+    const codeInput=modal.querySelector('#demoUnlockCode');
+    const readyCode=localStorage.getItem('jm_demo_ready_code')||'';
+    if(readyCode){
+      codeInput.value=readyCode;
+      modal.querySelector('#demoUnlockStatus').innerHTML=`<span class="demo-request-result">Codice generato dall’admin: ${esc(readyCode)}</span>`;
+    }
+
+    const songs=[...repertoire.values()]
+      .filter(song=>song.has_demo)
+      .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it',{sensitivity:'base'}));
+
+    const songBox=modal.querySelector('#demoRequestSongs');
+    songBox.innerHTML=songs.map(song=>`
+      <label class="demo-request-song">
+        <input type="checkbox" value="${esc(song.id)}" ${String(song.id)===String(seedSongId)?'checked':''}>
+        <span>${esc(song.title)}</span>
+      </label>`).join('')||'<span class="muted-inline">Nessuna demo disponibile.</span>';
+
+    const scope=modal.querySelector('#demoRequestScope');
+    const songsWrap=modal.querySelector('#demoRequestSongsWrap');
+    if(seedSongId)scope.value='single';
+
+    const syncScope=()=>{
+      songsWrap.hidden=scope.value==='all';
+      const checks=[...songBox.querySelectorAll('input[type="checkbox"]')];
+      if(scope.value==='single'){
+        let first=checks.find(x=>x.checked);
+        checks.forEach(x=>{if(first&&x!==first)x.checked=false});
+      }
+    };
+    scope.onchange=syncScope;
+    songBox.addEventListener('change',e=>{
+      if(scope.value==='single'&&e.target.matches('input[type="checkbox"]')&&e.target.checked){
+        songBox.querySelectorAll('input[type="checkbox"]').forEach(x=>{if(x!==e.target)x.checked=false});
+      }
+    });
+    syncScope();
+
+    modal.querySelector('#demoRedeemForm').onsubmit=async e=>{
+      e.preventDefault();
+      const status=modal.querySelector('#demoUnlockStatus');
+      const btn=e.currentTarget.querySelector('button[type="submit"]');
+      const code=codeInput.value.trim();
+      if(!code){status.textContent='Inserisci il codice.';return}
+      btn.disabled=true;status.textContent='Verifica…';
+      try{
+        await call('redeem',{code});
+        localStorage.removeItem('jm_demo_ready_code');
+        await loadStatus();
+        status.textContent='Sblocco attivato.';
+        decorate();
+        setTimeout(close,500);
+      }catch(err){
+        status.textContent=err.message||'Codice non valido.';
+      }finally{
+        btn.disabled=false;
+      }
+    };
+
+    modal.querySelector('#demoRequestForm').onsubmit=async e=>{
+      e.preventDefault();
+      const status=modal.querySelector('#demoRequestStatus');
+      const btn=e.currentTarget.querySelector('button[type="submit"]');
+      const scopeType=scope.value;
+      const selected=[...songBox.querySelectorAll('input:checked')].map(x=>x.value);
+
+      if(scopeType==='single'&&selected.length!==1){
+        status.textContent='Seleziona una sola canzone.';return;
+      }
+      if(scopeType==='bundle'&&(selected.length<3||selected.length>5)){
+        status.textContent='Per il bundle seleziona da 3 a 5 canzoni.';return;
+      }
+
+      btn.disabled=true;status.textContent='Invio…';
+      try{
+        const result=await call('request_access',{
+          scope_type:scopeType,
+          song_ids:scopeType==='all'?[]:selected,
+          access_mode:modal.querySelector('#demoRequestMode').value,
+          validity_days:Number(modal.querySelector('#demoRequestDays').value),
+          requester_name:modal.querySelector('#demoRequestName').value.trim(),
+          requester_contact:modal.querySelector('#demoRequestContact').value.trim(),
+          note:modal.querySelector('#demoRequestNote').value.trim()
+        });
+        addRequestId(result.request_id);
+        status.innerHTML=result.registered_fan
+          ? '<span class="demo-request-result">Richiesta inviata. Se l’admin la approva direttamente, lo sblocco comparirà automaticamente su questo profilo.</span>'
+          : '<span class="demo-request-result">Richiesta inviata. Quando l’admin genera il codice, lo ritroverai qui su questo dispositivo.</span>';
+      }catch(err){
+        status.textContent=err.message||'Invio non riuscito.';
+      }finally{
+        btn.disabled=false;
+      }
+    };
+
+    setTimeout(()=>codeInput.focus(),0);
   }
 
   async function playDemo(songId,button){
@@ -280,7 +490,14 @@
       audio.preload='none';
       audio.controlsList='nodownload';
       audio.src=data.url;
-      host.replaceChildren(audio);
+      const wrap=document.createElement('div');
+      wrap.style.display='grid';
+      wrap.style.gap='5px';
+      const meta=document.createElement('span');
+      meta.className='demo-lock-note';
+      meta.textContent=data.access_mode==='preview_30'?'ANTEPRIMA 30 SECONDI':'BRANO INTERO';
+      wrap.append(audio,meta);
+      host.replaceChildren(wrap);
       try{await audio.play()}catch{}
     }catch(err){
       if(err.status===403){
@@ -336,13 +553,14 @@
     grid.innerHTML=songs.map((song,index)=>{
       const id=String(song.id);
       const label=publicMediaUrl(song.jukebox_label_path);
-      const canPlay=!!song.has_demo;
+      const hasAudio=!!song.has_demo;
+      const mode=songAccess(id);
       const number=String(index+1).padStart(2,'0');
       const active=id===jukeboxSongId&&jukeboxAudio&&!jukeboxAudio.paused;
-      return `<article class="jukebox-slot${active?' is-playing':''}${canPlay?'':' is-unavailable'}" data-jukebox-song="${esc(id)}">
+      return `<article class="jukebox-slot${active?' is-playing':''}${hasAudio?'':' is-unavailable'}" data-jukebox-song="${esc(id)}">
         <div class="jukebox-number">${number}</div>
         <div class="jukebox-push-wrap">
-          <button class="jukebox-push${active?' is-playing':''}" type="button" data-jukebox-push="${esc(id)}" ${canPlay?'':'disabled'} aria-label="${canPlay?`Riproduci ${esc(song.title)}`:`Audio non disponibile per ${esc(song.title)}`}">
+          <button class="jukebox-push${active?' is-playing':''}" type="button" data-jukebox-push="${esc(id)}" ${hasAudio?'':'disabled'} aria-label="${hasAudio?`${mode?'Riproduci':'Sblocca'} ${esc(song.title)}`:`Audio non disponibile per ${esc(song.title)}`}">
             <span class="jukebox-lamp${active?' on':''}"></span>
           </button>
         </div>
@@ -401,8 +619,8 @@
       return;
     }
 
-    if(!access.allowed){
-      openUnlockModal();
+    if(!songAccess(songId)){
+      openUnlockModal(songId);
       return;
     }
 
@@ -540,19 +758,20 @@
         return;
       }
 
-      if(access.allowed){
-        host.innerHTML=`<button class="btn btn-primary demo-player-button" type="button">▶ ASCOLTA DEMO</button>`;
+      const mode=songAccess(id);
+      if(mode){
+        host.innerHTML=`<button class="btn btn-primary demo-player-button" type="button">${mode==='preview_30'?'▶ ANTEPRIMA 30S':'▶ ASCOLTA DEMO'}</button>`;
         host.querySelector('button').onclick=e=>{
           e.stopPropagation();
           playDemo(id,e.currentTarget);
         };
       }else{
         host.innerHTML=`
-          <button class="btn btn-ghost demo-player-button" type="button">SBLOCCA DEMO</button>
-          <span class="demo-lock-note">Presenza certificata oppure codice richiesto.</span>`;
+          <button class="btn btn-ghost demo-player-button" type="button">RICHIEDI / CODICE</button>
+          <span class="demo-lock-note">Sblocco singolo, bundle o completo.</span>`;
         host.querySelector('button').onclick=e=>{
           e.stopPropagation();
-          openUnlockModal();
+          openUnlockModal(id);
         };
       }
     });
@@ -566,6 +785,7 @@
     clearTimeout(refreshTimer);
     refreshTimer=setTimeout(async()=>{
       await Promise.all([loadRepertoire(),loadStatus()]);
+      await checkPendingRequests();
       decorate();
     },30);
   }
@@ -588,6 +808,7 @@
     }
 
     sb.auth.onAuthStateChange(()=>refresh());
+    setInterval(()=>checkPendingRequests(),30000);
     window.addEventListener('hashchange',()=>{
       if(location.hash.startsWith('#/repertoire'))refresh();
     });
