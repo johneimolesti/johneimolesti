@@ -4,7 +4,7 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
-  const PUBLIC_VERSION = 'public v1.1';
+  const PUBLIC_VERSION = 'public v1.2';
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
   const ROUTES = new Set(['home', 'tour', 'rankings', 'band', 'more']);
@@ -70,6 +70,22 @@
   function posterUrl(path) {
     if (!path || !sb) return null;
     try { return sb.storage.from('concert-posters').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
+  }
+  function posterPaths(value) {
+    if (Array.isArray(value)) return [...new Set(value.filter(Boolean).map(String))];
+    const raw = String(value || '').trim();
+    if (!raw) return [];
+    if (raw.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return [...new Set(parsed.filter(Boolean).map(String))];
+      } catch {}
+    }
+    return [raw];
+  }
+  function primaryPosterUrl(value) {
+    const first = posterPaths(value)[0];
+    return first ? posterUrl(first) : null;
   }
   function publicSiteAssetUrl(path) {
     if (!path || !sb) return null;
@@ -456,15 +472,18 @@
   }
 
   function renderMedia() {
-    const items = concerts.filter(c => c.poster_path).slice(0,8).map(c => ({src:posterUrl(c.poster_path),label:c.name,id:c.id}));
+    const items = concerts.flatMap(c => {
+      const paths = posterPaths(c.poster_path);
+      return paths.map((path,index) => ({src:posterUrl(path),path,label:c.name,id:c.id,index,total:paths.length}));
+    }).filter(item => item.src).slice(0,8);
     const wall = $('homeMediaWall');
-    if (wall) wall.innerHTML = items.slice(0,3).map((item,i) => `<button class="media-tile media-tile-${i+1}" type="button" data-media-concert="${esc(item.id)}"><img src="${esc(item.src)}" alt="${esc(window.JMCopy.text('ui.poster',{name:item.label}))}" loading="lazy"></button>`).join('') || '<div class="media-placeholder"><img src="IMG_6259.PNG" alt="Logo John & i Molesti"><span data-copy="ui.8944f844ccd1">ARCHIVIO IN ARRIVO</span></div>';
+    if (wall) wall.innerHTML = items.slice(0,3).map((item,i) => `<button class="media-tile media-tile-${i+1}" type="button" data-media-concert="${esc(item.id)}" data-media-poster-path="${esc(item.path)}"><img src="${esc(item.src)}" alt="${esc(window.JMCopy.text('ui.poster',{name:item.label}))}" loading="lazy"></button>`).join('') || '<div class="media-placeholder"><img src="IMG_6259.PNG" alt="Logo John & i Molesti"><span data-copy="ui.8944f844ccd1">ARCHIVIO IN ARRIVO</span></div>';
     const gallery = $('mediaGallery');
     if (!gallery) return;
     window.JMCopy.write($('galleryCount'),'ui.beb6820dd49f',{count:items.length});
-    gallery.innerHTML = items.map(item => `<button class="gallery-item" type="button" data-media-concert="${esc(item.id)}"><img src="${esc(item.src)}" alt="${esc(window.JMCopy.text('ui.poster',{name:item.label}))}" loading="lazy"><span>${esc(item.label)}</span></button>`).join('') || '<div class="empty-state" data-copy="ui.e910eb8811ae">Le prime foto e locandine arriveranno con i prossimi live.</div>';
+    gallery.innerHTML = items.map(item => `<button class="gallery-item" type="button" data-media-concert="${esc(item.id)}" data-media-poster-path="${esc(item.path)}"><img src="${esc(item.src)}" alt="${esc(window.JMCopy.text('ui.poster',{name:item.label}))}" loading="lazy"><span>${esc(item.label)}${item.total>1 ? ` · ${item.index+1}/${item.total}` : ''}</span></button>`).join('') || '<div class="empty-state" data-copy="ui.e910eb8811ae">Le prime foto e locandine arriveranno con i prossimi live.</div>';
     $$('[data-media-concert]').forEach(node => {
-      node.onclick = () => { const c = concerts.find(c => c.id === node.dataset.mediaConcert); if(c) openPoster(posterUrl(c.poster_path), c.name); };
+      node.onclick = () => { const c = concerts.find(c => c.id === node.dataset.mediaConcert); const src = posterUrl(node.dataset.mediaPosterPath); if(c && src) openPoster(src, c.name); };
     });
   }
 
@@ -478,7 +497,7 @@
   }
   function downloadCalendar(c) {
     const clean = value => String(value || '').replace(/[\\,;]/g, m => `\\${m}`).replace(/\n/g,'\\n');
-    const body = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//John & i Molesti//Live//IT','BEGIN:VEVENT',`UID:${clean(c.id)}@johnimolesti`,`DTSTART:${calendarStamp(c)}`,`DTEND:${calendarStamp(c,true)}`,`SUMMARY:${clean(c.name)} — John & i Molesti`,`LOCATION:${clean(prettyPlace(c))}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+    const body = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//John & i Molesti//Live//IT','BEGIN:VEVENT',`UID:${clean(c.id)}@johnimolesti`,`DTSTART:${calendarStamp(c)}`,`DTEND:${calendarStamp(c,true)}`,`SUMMARY:${clean(c.name)} — John & i Molesti`,`LOCATION:${clean(prettyPlace(c))}`,'END:VEVENT','END:VCALENDAS'].join('\r\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([body],{type:'text/calendar;charset=utf-8'}));
     a.download = `john-i-molesti-${c.concert_date || 'live'}.ics`;
@@ -574,13 +593,13 @@
     const track=$('highlightTrack');if(!track)return;
     const upcoming=upcomingConcerts().filter(c=>c.status!=='draft').slice(0,6);
     const slides=[
-      ...upcoming.map(c=>({id:'live-'+c.id,title:c.name,body:prettyPlace(c),meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),kind:'Prossimo live',concert:c.id,poster:posterUrl(c.poster_path)})),
+      ...upcoming.map(c=>({id:'live-'+c.id,title:c.name,body:prettyPlace(c),meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),kind:'Prossimo live',concert:c.id,poster:primaryPosterUrl(c.poster_path)})),
       ...siteNews.map(n=>({id:n.id,title:n.title,body:n.body,meta:formatDate(n.published_at),kind:{song:'Nuova canzone',event:'Evento',news:'Novità'}[n.kind],href:safeHttps(n.link_url)}))
     ];
     const signature=JSON.stringify(slides);if(signature===highlightSignature)return;highlightSignature=signature;
     track.innerHTML=slides.map(s=>`<article class="highlight-slide" aria-label="${esc(s.kind+': '+s.title)}">${s.poster?`<button class="highlight-poster" type="button" data-highlight-poster="${esc(s.concert)}" aria-label="Ingrandisci locandina"><img src="${esc(s.poster)}" alt="Locandina ${esc(s.title)}" draggable="false"></button>`:''}<div class="highlight-copy"><span class="section-kicker">${esc(s.kind)} · ${esc(s.meta)}</span><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p>${s.concert?`<button type="button" class="btn btn-primary" data-highlight-concert="${esc(s.concert)}">Dettagli del live</button>`:s.href?`<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="${esc(s.href)}">${s.kind==='Nuova canzone'?'Ascolta':'Scopri di più'}</a>`:''}</div></article>`).join('')||'<div class="highlight-slide"><div class="highlight-copy"><h3>Le prossime date arrivano qui</h3><p>Intanto puoi scoprire i brani e le serate passate.</p><button class="btn btn-primary" id="highlightArchive" type="button">Esplora i live</button></div></div>';
     $$('[data-highlight-concert]',track).forEach(b=>b.onclick=()=>openConcert(b.dataset.highlightConcert));
-    $$('[data-highlight-poster]',track).forEach(b=>b.onclick=()=>{const c=concerts.find(c=>c.id===b.dataset.highlightPoster);if(c)openPoster(posterUrl(c.poster_path),c.name);});
+    $$('[data-highlight-poster]',track).forEach(b=>b.onclick=()=>{const c=concerts.find(c=>c.id===b.dataset.highlightPoster);const src=primaryPosterUrl(c?.poster_path);if(c&&src)openPoster(src,c.name);});
     $('highlightArchive')?.addEventListener('click',()=>go('tour'));
     const count=Math.max(slides.length,1);
     const update=()=>{const at=Math.min(count-1,Math.max(0,Math.round(track.scrollLeft/(track.clientWidth+16))));$('highlightCount').textContent=(at+1)+' / '+count;$('highlightPrev').disabled=at===0;$('highlightNext').disabled=at>=count-1;};
@@ -637,14 +656,15 @@
       const c = data.concert || concerts.find(x => x.id === id) || {};
       if(c.name){delete $('concertModalTitle').dataset.copy;$('concertModalTitle').textContent=c.name;}else window.JMCopy.write($('concertModalTitle'),'live.002');
       const [status, cls] = statusInfo(c);
-      const poster = posterUrl(c.poster_path);
+      const posters = posterPaths(c.poster_path).map(path => posterUrl(path)).filter(Boolean);
       const role = currentFan ? 'fan' : 'guest';
       const canSeeSetlist = can(role,'concert_setlist_view');
       const started = isLiveNow(c) || c.status === 'completed';
       const canAttend = !!currentFan && started;
       const canVote = !!currentFan && !!data.voting_open && !!data.attended;
       const mapQuery = encodeURIComponent([c.venue,c.city].filter(Boolean).join(', '));
-      let html = `<div class="concert-detail-top"><div class="concert-detail-meta"><span class="status-pill status-${cls}">${esc(status)}</span><p><strong>${esc(formatDate(c.concert_date))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</strong><br>${esc(prettyPlace(c))}${c.event_mode ? ` · ${esc(String(c.event_mode).toUpperCase())}` : ''}</p><div class="concert-public-actions">${mapQuery ? `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener" data-copy="ui.d2f10e06593c">INDICAZIONI</a>` : ''}<button class="btn btn-ghost" id="addConcertCalendar" type="button" data-copy="ui.84253b1ec4ee">+ CALENDARIO</button></div></div>${poster ? `<img class="concert-poster" src="${esc(poster)}" alt="${esc(window.JMCopy.text('ui.poster',{name:c.name}))}">` : ''}</div>`;
+      const posterCarousel = posters.length ? `<div class="concert-poster-carousel" data-concert-poster-carousel><div class="concert-poster-stage"><button class="poster-open concert-poster-frame" type="button" aria-label="Ingrandisci locandina"><img class="concert-poster" src="${esc(posters[0])}" alt="${esc(window.JMCopy.text('ui.poster',{name:c.name}))}" draggable="false"></button>${posters.length>1?`<button class="concert-poster-nav concert-poster-prev" type="button" aria-label="Locandina precedente">‹</button><button class="concert-poster-nav concert-poster-next" type="button" aria-label="Locandina successiva">›</button>`:''}</div>${posters.length>1?`<div class="concert-poster-footer"><div class="concert-poster-dots">${posters.map((_,i)=>`<button type="button" class="concert-poster-dot${i===0?' active':''}" data-poster-index="${i}" aria-label="Locandina ${i+1}"></button>`).join('')}</div><span class="concert-poster-count">1 / ${posters.length}</span></div>`:''}</div>` : '';
+      let html = `<div class="concert-detail-top"><div class="concert-detail-meta"><span class="status-pill status-${cls}">${esc(status)}</span><p><strong>${esc(formatDate(c.concert_date))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</strong><br>${esc(prettyPlace(c))}${c.event_mode ? ` · ${esc(String(c.event_mode).toUpperCase())}` : ''}</p><div class="concert-public-actions">${mapQuery ? `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener" data-copy="ui.d2f10e06593c">INDICAZIONI</a>` : ''}<button class="btn btn-ghost" id="addConcertCalendar" type="button" data-copy="ui.84253b1ec4ee">+ CALENDARIO</button></div></div>${posterCarousel}</div>`;
       if (canAttend) {
         html += `<div class="fan-live-tools"><div class="attendance-toggle"><label><input id="fanAttendanceToggle" type="checkbox" ${data.attended?'checked':''}> <span data-copy="ui.attendance">IO C’ERO</span></label><span class="save-indicator">${esc(data.attended ? window.JMCopy.text('ui.706fd3934ba2') : window.JMCopy.text('ui.57d90e8ecbe0'))}</span></div>${data.attended && data.voting_open ? `<div class="general-score"><span data-copy="ui.5ba790e94203">Voto generale al live</span><select id="concertGeneralScore" class="score-select"><option value="">—</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(data.my_concert_rating)===n+1?'selected':''}>${n+1}</option>`).join('')}</select></div>` : ''}</div>`;
       }
@@ -665,8 +685,19 @@
         if (canVote) html += '<div class="live-feedback-actions"><button id="saveLiveFeedback" class="btn btn-primary" type="button" data-copy="ui.eae473c83baa">SALVA VOTI LIVE</button></div>';
       }
       $('concertModalBody').innerHTML = html;
-      const posterImage=$('concertModalBody').querySelector('.concert-poster');
-      if(posterImage){const button=document.createElement('button');button.type='button';button.className='poster-open';button.setAttribute('aria-label','Ingrandisci locandina');posterImage.replaceWith(button);posterImage.draggable=false;button.append(posterImage);button.onclick=()=>openPoster(poster,c.name);}
+      const carousel=$('concertModalBody').querySelector('[data-concert-poster-carousel]');
+      if(carousel&&posters.length){
+        let posterIndex=0;
+        const image=carousel.querySelector('.concert-poster');
+        const frame=carousel.querySelector('.concert-poster-frame');
+        const count=carousel.querySelector('.concert-poster-count');
+        const dots=[...carousel.querySelectorAll('.concert-poster-dot')];
+        const paintPoster=()=>{image.src=posters[posterIndex];if(count)count.textContent=(posterIndex+1)+' / '+posters.length;dots.forEach((dot,i)=>dot.classList.toggle('active',i===posterIndex));};
+        carousel.querySelector('.concert-poster-prev')?.addEventListener('click',()=>{posterIndex=(posterIndex-1+posters.length)%posters.length;paintPoster();});
+        carousel.querySelector('.concert-poster-next')?.addEventListener('click',()=>{posterIndex=(posterIndex+1)%posters.length;paintPoster();});
+        dots.forEach((dot,i)=>dot.addEventListener('click',()=>{posterIndex=i;paintPoster();}));
+        frame?.addEventListener('click',()=>openPoster(posters[posterIndex],posters.length>1?`${c.name} · ${posterIndex+1}/${posters.length}`:c.name));
+      }
       $('addConcertCalendar')?.addEventListener('click', () => downloadCalendar(c));
       $('fanAttendanceToggle')?.addEventListener('change', async e => {
         const checked = e.target.checked;
