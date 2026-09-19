@@ -373,3 +373,62 @@
 
 @media(max-width:900px){.contacts-layout{grid-template-columns:1fr}.contacts-channel-card,.booking-card{padding:19px}.booking-form-grid{grid-template-columns:1fr}.booking-wide{grid-column:auto}}
 @media(max-width:560px){.booking-card{padding:13px}.booking-calendar{padding:8px}.booking-weekdays,.booking-days{gap:3px}.booking-day{min-height:38px;font-size:13px}.booking-day-blank{min-height:38px}.booking-submit-row{align-items:stretch;flex-direction:column}.booking-submit-row .btn{width:100%}#posterViewer{max-width:90vw!important;max-height:84svh!important}#posterViewer .poster-scroll{max-height:calc(84svh - 68px)!important;padding:7px!important}#posterViewer #posterImage{max-width:84vw!important;max-height:calc(84svh - 100px)!important}}
+
+
+/* PRIVATE SHOWS */
+.private-show-chip{
+  display:inline-flex;align-items:center;width:max-content;margin-top:6px;padding:3px 7px;
+  border:1px solid rgba(243,210,52,.55);background:#171717;color:var(--gold);
+  font:900 8px/1 monospace;letter-spacing:.08em
+}
+.private-show-switch{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin-top:14px;padding:15px 16px;border:1px solid #777568;background:#20201d
+}
+.private-show-switch>div{display:grid;gap:4px}
+.private-show-switch strong{font:900 13px/1.05 Arial,sans-serif;color:var(--text)}
+.private-show-switch span{color:var(--muted);font-size:10px;line-height:1.35}
+.private-show-switch .text-button{flex:none}
+
+/* BAND MEMBERS / HISTORY */
+.member-role{margin-bottom:3px!important}
+.member-description{margin-top:5px!important;color:var(--muted)!important;font-size:10px!important;line-height:1.35!important}
+.member-period{display:block;margin-top:8px;color:var(--gold);font:800 8px/1 monospace;letter-spacing:.08em}
+.former-members-block{border-top:1px solid rgba(255,255,255,.08);padding-top:20px}
+.former-member-card{opacity:.88}
+.former-member-card .member-avatar{filter:grayscale(.45)}
+.band-member-editor-card{width:min(1040px,calc(100vw - 24px));max-height:min(90vh,920px);overflow:hidden}
+.band-member-editor-card .modal-body{overflow:auto}
+.band-editor-note{margin-bottom:10px;color:var(--muted);font-size:10px}
+.band-editor-list{display:grid;gap:8px;margin-bottom:10px}
+.band-editor-row{
+  display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:10px;align-items:start;
+  padding:10px;border:1px solid #555248;background:#191918
+}
+.band-editor-photo{display:grid;gap:5px;justify-items:center}
+.band-editor-photo img,.band-editor-photo>span{width:78px;height:78px;object-fit:cover;display:grid;place-items:center;background:#0d0d0d;border:1px solid #555;color:var(--gold);font-size:28px;font-weight:900}
+.band-editor-photo-button{position:relative;display:inline-flex;padding:5px 8px;border:1px solid #666;background:#242421;color:#ddd;font-size:8px;font-weight:900;cursor:pointer}
+.band-editor-photo-button input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.band-editor-photo small{min-height:12px;color:var(--muted);font-size:7px;text-align:center}
+.band-editor-fields{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.band-editor-fields label{display:grid;gap:4px;color:#98958c;font-size:8px;font-weight:900}
+.band-editor-fields label.full{grid-column:1/-1}
+.band-editor-fields input,.band-editor-fields textarea{width:100%;min-width:0;padding:7px;border:1px solid #59564e;background:#111;color:#fff;font-size:10px}
+.band-editor-fields textarea{resize:vertical}
+.band-editor-check{display:flex!important;grid-template-columns:16px 1fr!important;align-items:center!important}
+.band-editor-check input{width:14px!important;height:14px!important;padding:0!important}
+.band-editor-actions{display:grid;grid-template-columns:36px 36px;gap:5px}
+.band-editor-actions button{min-height:31px;border:1px solid #5d5a52;background:#242421;color:#ddd;font-size:8px;font-weight:900}
+.band-editor-actions button.primary{grid-column:1/-1;border-color:var(--gold);background:var(--gold);color:#111}
+.band-editor-actions button.danger{grid-column:1/-1;color:#f0a4a4}
+#copyBandMembers{display:block;width:100%;margin:8px 0;padding:9px 10px;border:1px solid var(--gold);background:#1b1b18;color:var(--gold);text-align:center;font-weight:900;cursor:pointer}
+
+@media(max-width:720px){
+  .private-show-switch{align-items:flex-start;flex-direction:column}
+  .private-show-switch .text-button{width:100%;text-align:left}
+  .band-editor-row{grid-template-columns:76px minmax(0,1fr)}
+  .band-editor-actions{grid-column:1/-1;grid-template-columns:1fr 1fr 1fr 1fr}
+  .band-editor-actions button.primary,.band-editor-actions button.danger{grid-column:auto}
+  .band-editor-fields{grid-template-columns:1fr}
+  .band-editor-fields label.full{grid-column:auto}
+}
