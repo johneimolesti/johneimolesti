@@ -4877,9 +4877,8 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       statistiche:"analyticsPage",
       cassa:"cashPage",
       disponibilita:"bandAvailabilityPage",
-      "richieste-demo":"demoCodesPage",
+      richieste:"requestsPage",
       "media-pubblici":"publicMediaAdminPage",
-      prenotazioni:"bookingAdminPage",
       setup:"setupPage"
     },
     fan:{catalogo:"fanCatalogPage",locandine:"fanPostersPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
@@ -6429,61 +6428,8 @@ setMemberRankingTab('songs');
 
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
+  <script src="js/requests-admin.js"></script>
 
-<script id="member-nav-v413-runtime">
-(()=>{
-  const nav=document.getElementById("memberNav");
-  if(!nav)return;
-
-  function configureDynamicNavigation(){
-    const presence=nav.querySelector('[data-page="demoCertificationPage"]');
-    if(presence){
-      presence.dataset.category="fan";
-      presence.textContent="PRESENZE";
-      const users=nav.querySelector('[data-page="fansAdminPage"]');
-      if(users&&presence.nextElementSibling!==users)nav.insertBefore(presence,users);
-    }
-
-    const requests=nav.querySelector('[data-page="demoCodesPage"]');
-    if(requests){
-      requests.dataset.category="management";
-      requests.textContent="RICHIESTE DEMO";
-      const availability=nav.querySelector('[data-page="bandAvailabilityPage"]');
-      if(availability&&availability.nextElementSibling!==requests)availability.after(requests);
-    }
-
-    /* MEDIA PUBBLICI e PRENOTAZIONI restano disponibili agli admin:
-       non vengono nascosti né rimossi. */
-    window.setMemberCategory?.(
-      nav.querySelector('.nav-button.active[data-category]')?.dataset.category || "setlists",
-      {activate:false}
-    );
-  }
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",configureDynamicNavigation,{once:true});
-  }else{
-    configureDynamicNavigation();
-  }
-
-  /* Gli handler originali delle pagine dinamiche possono impostare una vecchia categoria.
-     Questo riallinea SOLO il tab principale dopo il click, senza cambiare pagina o active state. */
-  nav.addEventListener("click",e=>{
-    const btn=e.target.closest('.nav-button[data-page]');
-    if(!btn)return;
-    const page=btn.dataset.page;
-    const forced={
-      demoCertificationPage:"fan",
-      fansAdminPage:"fan",
-      bandAvailabilityPage:"management",
-      demoCodesPage:"management",
-      publicMediaAdminPage:"management",
-      bookingAdminPage:"management"
-    }[page];
-    if(forced)window.setMemberCategory?.(forced,{activate:false});
-  });
-})();
-</script>
 
 
 <script id="cash-ledger-v2-runtime">
