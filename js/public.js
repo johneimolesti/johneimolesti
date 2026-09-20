@@ -1328,7 +1328,6 @@
   }
 
   function updateUserUI() {
-    window.JMCopy?.setMember(currentMember);
     const entry = $('userEntry');
     entry.classList.remove('is-fan','is-member');
     if (currentMember) {
@@ -1352,6 +1351,7 @@
     const managePhotos = $('manageMemberPhotos');
     if (managePhotos) managePhotos.classList.toggle('hidden',!(currentMember && MEMBER_ADMINS.has(String(currentMember.username||'').toLowerCase())));
     syncPublicAdminControls();
+    syncHomeFallbackCropButton();
     renderPublicMedia();
   }
 
@@ -1374,7 +1374,7 @@
     }
     if (currentMember) {
       const admin = MEMBER_ADMINS.has(String(currentMember.username || '').toLowerCase());
-      session.innerHTML = `<div class="session-hero"><strong>${esc(currentMember.display_name || currentMember.username)}</strong><span>${esc(admin ? window.JMCopy.text('ui.0a017110ec02') : window.JMCopy.text('ui.12d4910d17a6'))} · ${esc(window.JMCopy.text('ui.sessionShared'))}</span></div><div class="session-actions">${admin ? '<button class="btn btn-primary wide" id="openSiteEditor" type="button">MODIFICA SITO</button>' : ''}<a class="btn btn-primary wide" href="manage.html" data-copy="ui.205eaf85b30c">APRI GESTIONALE</a><button class="btn btn-ghost wide" type="button" data-session-logout="member" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
+      session.innerHTML = `<div class="session-hero"><strong>${esc(currentMember.display_name || currentMember.username)}</strong><span>${esc(admin ? window.JMCopy.text('ui.0a017110ec02') : window.JMCopy.text('ui.12d4910d17a6'))} · ${esc(window.JMCopy.text('ui.sessionShared'))}</span></div><div class="session-actions"><a class="btn btn-primary wide" href="manage.html" data-copy="ui.205eaf85b30c">APRI GESTIONALE</a><button class="btn btn-ghost wide" type="button" data-session-logout="member" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
     } else {
       const attended = concerts.filter(c => c.attended);
       const me = (rankingData?.fans || []).find(r => currentFan?.id && r.fan_id === currentFan.id);
@@ -1386,7 +1386,6 @@
       $('openMyShows')?.addEventListener('click', () => { closeModal('userModal'); go('tour'); setTimeout(() => $('archiveBlock')?.scrollIntoView({behavior:'smooth'}), 50); });
       $('fanRecovery')?.addEventListener('click', setFanRecovery);
     }
-    $('openSiteEditor')?.addEventListener('click', () => { closeModal('userModal'); window.JMCopy.open(); });
     $$('[data-session-logout]', session).forEach(b => b.onclick = () => logout(b.dataset.sessionLogout));
   }
   async function setFanRecovery() {
@@ -2181,13 +2180,195 @@
     },8000);
   }
 
+  function syncHomeFallbackCropButton(){
+    const hero=document.querySelector('#homePage .home-hero-news');
+    if(!hero)return;
+
+    let button=$('homeFallbackCropButton');
+    const show=isPublicAdmin() && !(siteNews||[]).length && !!nextConcert();
+
+    if(!show){
+      button?.remove();
+      return;
+    }
+
+    if(!button){
+      button=document.createElement('button');
+      button.id='homeFallbackCropButton';
+      button.className='home-fallback-crop-button';
+      button.type='button';
+      button.innerHTML='✎ RITAGLIO';
+      button.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openHomeFallbackCropModal();
+      };
+      hero.appendChild(button);
+    }
+  }
+
+  function openHomeFallbackCropModal(){
+    if(!isPublicAdmin())return;
+    const concert=nextConcert();
+    if(!concert)return;
+
+    document.getElementById('homeFallbackCropModal')?.remove();
+
+    let state={
+      x:Number(homeSettings.fallback_image_position_x??50),
+      y:Number(homeSettings.fallback_image_position_y??50),
+      zoom:Number(homeSettings.fallback_image_zoom??100)
+    };
+
+    const src=primaryPosterUrl(concert.poster_path)||'';
+    const modal=document.createElement('div');
+    modal.id='homeFallbackCropModal';
+    modal.className='modal';
+    modal.innerHTML=`
+      <div class="modal-backdrop"></div>
+      <section class="modal-card home-inline-crop-card" role="dialog" aria-modal="true" aria-labelledby="homeInlineCropTitle">
+        <header class="modal-head">
+          <div><span class="section-kicker">HOME · PROSSIMO LIVE</span><h2 id="homeInlineCropTitle">Ritaglio locandina</h2></div>
+          <button class="modal-close" type="button" aria-label="Chiudi">×</button>
+        </header>
+        <div class="modal-body">
+          <p class="home-inline-crop-help">Trascina direttamente l'immagine per scegliere la parte visibile. Usa lo zoom solo se serve.</p>
+          <div class="home-inline-crop-preview" id="homeInlineCropPreview">
+            ${src?`<img id="homeInlineCropImage" src="${esc(src)}" alt="" draggable="false">`:'<div class="empty-state">Locandina non disponibile.</div>'}
+            <div class="home-inline-crop-fade"></div>
+            <div class="home-inline-crop-copy">
+              <span class="section-kicker">PROSSIMO LIVE</span>
+              <strong>${esc(concert.name||'Live')}</strong>
+              <small>${esc(formatDate(concert.concert_date))}${concert.start_time?` · ${esc(formatTime(concert.start_time))}`:''}</small>
+            </div>
+          </div>
+
+          <div class="home-inline-crop-controls">
+            <label>ZOOM <output id="homeInlineZoomOut">${state.zoom}%</output>
+              <input id="homeInlineZoom" type="range" min="100" max="240" step="5" value="${state.zoom}">
+            </label>
+            <div class="home-inline-crop-position">
+              <span>X <b id="homeInlineXOut">${Math.round(state.x)}%</b></span>
+              <span>Y <b id="homeInlineYOut">${Math.round(state.y)}%</b></span>
+            </div>
+          </div>
+
+          <div class="home-inline-crop-actions">
+            <button class="btn btn-ghost" id="homeInlineCropReset" type="button">CENTRA</button>
+            <button class="btn btn-primary" id="homeInlineCropSave" type="button">SALVA RITAGLIO</button>
+          </div>
+          <span class="home-inline-crop-status" id="homeInlineCropStatus"></span>
+        </div>
+      </section>`;
+
+    document.body.appendChild(modal);
+    document.documentElement.style.overflow='hidden';
+
+    const image=modal.querySelector('#homeInlineCropImage');
+    const preview=modal.querySelector('#homeInlineCropPreview');
+    const zoomInput=modal.querySelector('#homeInlineZoom');
+
+    const paint=()=>{
+      if(image){
+        image.style.objectPosition=`${state.x}% ${state.y}%`;
+        image.style.transform=`scale(${state.zoom/100})`;
+        image.style.transformOrigin=`${state.x}% ${state.y}%`;
+      }
+      modal.querySelector('#homeInlineZoomOut').textContent=Math.round(state.zoom)+'%';
+      modal.querySelector('#homeInlineXOut').textContent=Math.round(state.x)+'%';
+      modal.querySelector('#homeInlineYOut').textContent=Math.round(state.y)+'%';
+      zoomInput.value=state.zoom;
+    };
+
+    let dragging=false,startX=0,startY=0,baseX=0,baseY=0;
+    preview?.addEventListener('pointerdown',e=>{
+      if(!image)return;
+      dragging=true;
+      startX=e.clientX;
+      startY=e.clientY;
+      baseX=state.x;
+      baseY=state.y;
+      preview.setPointerCapture?.(e.pointerId);
+      preview.classList.add('is-dragging');
+      e.preventDefault();
+    });
+    preview?.addEventListener('pointermove',e=>{
+      if(!dragging||!image)return;
+      const rect=preview.getBoundingClientRect();
+      const dx=(e.clientX-startX)/Math.max(1,rect.width)*100;
+      const dy=(e.clientY-startY)/Math.max(1,rect.height)*100;
+      state.x=Math.max(0,Math.min(100,baseX-dx));
+      state.y=Math.max(0,Math.min(100,baseY-dy));
+      paint();
+    });
+    const stopDrag=()=>{
+      dragging=false;
+      preview?.classList.remove('is-dragging');
+    };
+    preview?.addEventListener('pointerup',stopDrag);
+    preview?.addEventListener('pointercancel',stopDrag);
+
+    zoomInput.oninput=()=>{
+      state.zoom=Number(zoomInput.value);
+      paint();
+    };
+
+    modal.querySelector('#homeInlineCropReset').onclick=()=>{
+      state={x:50,y:50,zoom:100};
+      paint();
+    };
+
+    const close=()=>{
+      modal.remove();
+      if(!document.querySelector('.modal:not([hidden])'))document.documentElement.style.removeProperty('overflow');
+    };
+    modal.querySelector('.modal-close').onclick=close;
+    modal.querySelector('.modal-backdrop').onclick=close;
+
+    modal.querySelector('#homeInlineCropSave').onclick=async()=>{
+      const button=modal.querySelector('#homeInlineCropSave');
+      const status=modal.querySelector('#homeInlineCropStatus');
+      button.disabled=true;
+      status.textContent='Salvataggio…';
+
+      try{
+        const {data,error}=await sb.from('site_home_settings').update({
+          fallback_image_position_x:state.x,
+          fallback_image_position_y:state.y,
+          fallback_image_zoom:state.zoom
+        }).eq('id','home')
+          .select('fallback_image_position_x,fallback_image_position_y,fallback_image_zoom')
+          .single();
+
+        if(error)throw error;
+
+        homeSettings={...homeSettings,...data};
+        highlightSignature='';
+        renderHighlights();
+        syncHomeFallbackAdmin();
+        toast('Ritaglio Home salvato ✓','ok');
+        close();
+      }catch(err){
+        status.textContent=err.message||String(err);
+      }finally{
+        button.disabled=false;
+      }
+    };
+
+    paint();
+  }
+
   function renderHighlights() {
     const track=$('highlightTrack');if(!track)return;
     ensureHomeHeroNewsLayout();
     const slides=(siteNews||[]).map(newsSourceSlide);
     if(!slides.length)slides.push(fallbackNewsSlide());
     const signature=JSON.stringify(slides.map(x=>({id:x.id,title:x.title,body:x.body,meta:x.meta,kicker:x.kicker,image:x.image,image_position_x:x.image_position_x,image_position_y:x.image_position_y,image_zoom:x.image_zoom,action:x.action})));
-    if(signature===highlightSignature){startHighlightAuto(slides,track);return}
+    if(signature===highlightSignature){
+      syncHomeFallbackCropButton();
+      startHighlightAuto(slides,track);
+      return;
+    }
     highlightSignature=signature;
 
     track.innerHTML=slides.map((item,index)=>{
@@ -2229,7 +2410,9 @@
     track.onmouseleave=()=>startHighlightAuto(slides,track);
     track.onfocusin=stopHighlightAuto;
     track.onfocusout=()=>startHighlightAuto(slides,track);
-    update();startHighlightAuto(slides,track);
+    update();
+    syncHomeFallbackCropButton();
+    startHighlightAuto(slides,track);
   }
 
   function openPoster(src,title) {
