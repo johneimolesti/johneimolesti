@@ -30,7 +30,7 @@
   let memberCarouselIndex = 0;
   let tourPrivateMode = false;
   let fanOnboardingStatus = null;
-  let highlightSignature = '', concertRequest = 0, lastConcertData = null;
+  let highlightSignature = '', highlightTimer = null, concertRequest = 0, lastConcertData = null;
   let refreshBusy = false, concertDirty = false;
 
   function esc(value) {
@@ -99,6 +99,18 @@
     if (!path || !sb) return null;
     try { return sb.storage.from('public-media').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
   }
+  function ensureHomeHeroNewsLayout() {
+    const home=$('homePage');
+    const hero=home?.querySelector('.hero');
+    const highlights=home?.querySelector('.highlights');
+    if(!hero||!highlights)return;
+    hero.classList.add('home-hero-news');
+    if(highlights.parentElement!==hero)hero.appendChild(highlights);
+    const heading=highlights.querySelector('.highlights-heading h2');
+    if(heading)heading.textContent='NOVITÀ';
+    highlights.setAttribute('aria-label','Novità John & i Molesti');
+  }
+
   function ensurePublicSections() {
     const nav = $('mainNav');
     if (nav && !nav.querySelector('[data-route="repertoire"]')) {
@@ -326,6 +338,182 @@
     if(error){toast(error.message,'error');return}
     await loadPublicContentExtensions(true);renderPublicMedia();syncPublicAdminControls();
   }
+
+  function newsSourceOptions(type,selected='') {
+    let rows=[];
+    if(type==='concert')rows=publicConcertPool().filter(c=>c.status!=='cancelled').map(c=>({id:c.id,label:`${formatDate(c.concert_date)} · ${c.name}`}));
+    else if(type==='song')rows=publicSongs.map(song=>({id:song.id,label:song.title||'Brano'}));
+    else if(type==='media')rows=publicMedia.filter(x=>x.kind==='photo').map(item=>({id:item.id,label:item.title||item.caption||'Foto'}));
+    return `<option value="">— seleziona —</option>${rows.map(row=>`<option value="${esc(row.id)}" ${String(row.id)===String(selected)?'selected':''}>${esc(row.label)}</option>`).join('')}`;
+  }
+
+  function sourceDefaults(type,id){
+    if(type==='concert'){
+      const c=concerts.find(x=>String(x.id)===String(id));
+      if(!c)return null;
+      return {kind:'event',title:c.name||'',body:[prettyPlace(c),formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):'')].filter(Boolean).join(' · '),action_label:'DETTAGLI DEL LIVE'};
+    }
+    if(type==='song'){
+      const song=publicSongs.find(x=>String(x.id)===String(id));
+      if(!song)return null;
+      return {kind:'song',title:song.title||'',body:songArtistLine(song)||'John & i Molesti',action_label:'SCOPRI IL BRANO'};
+    }
+    if(type==='media'){
+      const media=publicMedia.find(x=>String(x.id)===String(id));
+      if(!media)return null;
+      return {kind:'news',title:media.title||'Dal palco',body:media.caption||'',action_label:'GUARDA'};
+    }
+    return {kind:'news',title:'',body:'',action_label:'SCOPRI DI PIÙ'};
+  }
+
+  function localDateTimeInput(value){
+    if(!value)return '';
+    const d=new Date(value);if(Number.isNaN(d.getTime()))return '';
+    const pad=n=>String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function ensureHomeNewsEditor(){
+    let modal=$('homeNewsEditorModal');if(modal)return modal;
+    modal=document.createElement('div');modal.className='modal';modal.id='homeNewsEditorModal';modal.hidden=true;
+    modal.innerHTML=`<div class="modal-backdrop"></div><section class="modal-card home-news-editor-card" role="dialog" aria-modal="true" aria-labelledby="homeNewsEditorTitle"><header class="modal-head"><div><span class="section-kicker">HOME</span><h2 id="homeNewsEditorTitle">Gestisci novità</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></header><div class="modal-body home-news-admin-layout"><form id="homeNewsForm" class="home-news-form"><input id="homeNewsId" type="hidden"><input id="homeNewsOldImage" type="hidden"><div class="home-news-form-head"><strong id="homeNewsFormTitle">NUOVA NOVITÀ</strong><button id="homeNewsReset" type="button">NUOVA</button></div><label>ORIGINE<select id="homeNewsSourceType"><option value="concert">Concerto</option><option value="song">Brano</option><option value="media">Foto / media</option><option value="custom">Ex novo</option></select></label><label id="homeNewsSourceWrap">CONTENUTO<select id="homeNewsSourceId"></select></label><label>TITOLO<input id="homeNewsTitle" maxlength="160" required></label><label>TESTO<textarea id="homeNewsBody" maxlength="1200" rows="4"></textarea></label><div class="home-news-form-two"><label>TESTO BOTTONE<input id="homeNewsActionLabel" maxlength="80" placeholder="SCOPRI DI PIÙ"></label><label>ORDINE<input id="homeNewsOrder" type="number" step="1" value="100"></label></div><label id="homeNewsLinkWrap">LINK ESTERNO (FACOLTATIVO)<input id="homeNewsLink" placeholder="https://..."></label><label>IMMAGINE PERSONALIZZATA (FACOLTATIVA)<input id="homeNewsImage" type="file" accept="image/*"><span class="home-news-help">Se non la carichi, concerto/brano/foto usano automaticamente locandina, cover o immagine originale.</span></label><div class="home-news-form-two"><label>PUBBLICAZIONE<input id="homeNewsPublishedAt" type="datetime-local"></label><label>SCADENZA (FACOLTATIVA)<input id="homeNewsExpiresAt" type="datetime-local"></label></div><label class="home-news-check"><input id="homeNewsPublished" type="checkbox" checked> VISIBILE IN HOME</label><div class="home-news-save-row"><span id="homeNewsStatus"></span><button class="btn btn-primary" type="submit">SALVA NOVITÀ</button></div></form><section class="home-news-list-panel"><div class="home-news-list-head"><strong>NOVITÀ CONFIGURATE</strong><span id="homeNewsCounter"></span></div><div id="homeNewsAdminList" class="home-news-admin-list"></div></section></div></section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.modal-close').onclick=()=>closeModal(modal.id);
+    modal.querySelector('.modal-backdrop').onclick=()=>closeModal(modal.id);
+    $('homeNewsSourceType').onchange=()=>syncHomeNewsSourceUi(true);
+    $('homeNewsSourceId').onchange=()=>applyHomeNewsSourceDefaults();
+    $('homeNewsReset').onclick=()=>resetHomeNewsForm();
+    $('homeNewsForm').onsubmit=saveHomeNews;
+    return modal;
+  }
+
+  function syncHomeNewsSourceUi(applyDefaults=false){
+    const type=$('homeNewsSourceType').value;
+    const sourceWrap=$('homeNewsSourceWrap');
+    sourceWrap.hidden=type==='custom';
+    $('homeNewsSourceId').innerHTML=newsSourceOptions(type,$('homeNewsSourceId').value);
+    $('homeNewsLinkWrap').hidden=type!=='custom';
+    if(applyDefaults){$('homeNewsSourceId').value='';const d=sourceDefaults('custom','');$('homeNewsTitle').value=d.title;$('homeNewsBody').value=d.body;$('homeNewsActionLabel').value=d.action_label}
+  }
+
+  function applyHomeNewsSourceDefaults(){
+    const type=$('homeNewsSourceType').value,id=$('homeNewsSourceId').value;
+    const d=sourceDefaults(type,id);if(!d)return;
+    $('homeNewsTitle').value=d.title;
+    $('homeNewsBody').value=d.body;
+    $('homeNewsActionLabel').value=d.action_label;
+  }
+
+  function resetHomeNewsForm(){
+    const form=$('homeNewsForm');form.reset();
+    $('homeNewsId').value='';$('homeNewsOldImage').value='';
+    $('homeNewsSourceType').value='concert';
+    $('homeNewsOrder').value='100';$('homeNewsPublished').checked=true;
+    $('homeNewsPublishedAt').value=localDateTimeInput(new Date());
+    $('homeNewsExpiresAt').value='';$('homeNewsStatus').textContent='';$('homeNewsFormTitle').textContent='NUOVA NOVITÀ';
+    syncHomeNewsSourceUi(false);
+  }
+
+  async function loadHomeNewsAdminList(){
+    if(!isPublicAdmin())return [];
+    const {data,error}=await sb.from('site_news').select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,action_label,sort_order,updated_at').order('sort_order',{ascending:true}).order('published_at',{ascending:false});
+    if(error)throw error;
+    const rows=data||[],list=$('homeNewsAdminList');
+    $('homeNewsCounter').textContent=`${rows.length} VOCI`;
+    list.innerHTML=rows.map(row=>{
+      const expired=row.expires_at&&Date.parse(row.expires_at)<=Date.now();
+      const status=!row.published?'OFF':expired?'SCADUTA':'ON';
+      const source={concert:'LIVE',song:'BRANO',media:'MEDIA',custom:'EX NOVO'}[row.source_type]||'EX NOVO';
+      return `<article class="home-news-admin-row" data-home-news-id="${esc(row.id)}"><div><strong>${esc(row.title)}</strong><span>${esc(source)} · ${status} · ordine ${Number(row.sort_order||0)}${row.expires_at?` · fino al ${esc(formatDate(row.expires_at))}`:''}</span></div><div><button type="button" data-news-edit>MODIFICA</button><button type="button" class="danger" data-news-delete>ELIMINA</button></div></article>`;
+    }).join('')||'<div class="empty-state">Nessuna novità configurata.</div>';
+    $$('[data-home-news-id]',list).forEach(node=>{
+      const row=rows.find(x=>String(x.id)===node.dataset.homeNewsId);
+      node.querySelector('[data-news-edit]').onclick=()=>editHomeNews(row);
+      node.querySelector('[data-news-delete]').onclick=()=>deleteHomeNews(row);
+    });
+    return rows;
+  }
+
+  function editHomeNews(row){
+    if(!row)return;
+    $('homeNewsId').value=row.id;
+    $('homeNewsOldImage').value=row.image_path||'';
+    $('homeNewsSourceType').value=row.source_type||'custom';
+    syncHomeNewsSourceUi(false);
+    $('homeNewsSourceId').value=row.source_id||'';
+    $('homeNewsTitle').value=row.title||'';
+    $('homeNewsBody').value=row.body||'';
+    $('homeNewsActionLabel').value=row.action_label||'';
+    $('homeNewsLink').value=row.link_url||'';
+    $('homeNewsOrder').value=Number(row.sort_order||0);
+    $('homeNewsPublished').checked=row.published!==false;
+    $('homeNewsPublishedAt').value=localDateTimeInput(row.published_at);
+    $('homeNewsExpiresAt').value=localDateTimeInput(row.expires_at);
+    $('homeNewsFormTitle').textContent='MODIFICA NOVITÀ';
+    $('homeNewsStatus').textContent=row.image_path?'Immagine personalizzata presente.':'';
+  }
+
+  async function saveHomeNews(e){
+    e.preventDefault();if(!isPublicAdmin())return;
+    const btn=e.currentTarget.querySelector('button[type="submit"]'),status=$('homeNewsStatus');
+    const id=$('homeNewsId').value||crypto.randomUUID();
+    const isNew=!$('homeNewsId').value;
+    const source_type=$('homeNewsSourceType').value;
+    const source_id=source_type==='custom'?null:($('homeNewsSourceId').value||null);
+    if(source_type!=='custom'&&!source_id){status.textContent='Seleziona il contenuto da mettere in evidenza.';return}
+    const title=$('homeNewsTitle').value.trim();if(!title){status.textContent='Inserisci il titolo.';return}
+    const body=$('homeNewsBody').value.trim();
+    const linkRaw=$('homeNewsLink').value.trim();
+    const link_url=linkRaw?safeHttps(linkRaw):'';
+    if(linkRaw&&!link_url){status.textContent='Il link deve essere https.';return}
+    const defaults=sourceDefaults(source_type,source_id)||{kind:'news'};
+    const oldImage=$('homeNewsOldImage').value||null;
+    let image_path=oldImage;
+    let uploadedPath=null;
+    const file=$('homeNewsImage').files?.[0]||null;
+    btn.disabled=true;status.textContent='Salvataggio…';
+    try{
+      if(file){
+        if(!String(file.type||'').startsWith('image/'))throw new Error('Il file deve essere un’immagine.');
+        const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+        uploadedPath=`news/${id}/${Date.now()}.${ext}`;
+        const {error:up}=await sb.storage.from('public-site').upload(uploadedPath,file,{contentType:file.type||undefined,upsert:false});if(up)throw up;
+        image_path=uploadedPath;
+      }
+      const payload={
+        id,kind:defaults.kind||'news',title,body,link_url,
+        published:$('homeNewsPublished').checked,
+        published_at:$('homeNewsPublishedAt').value?new Date($('homeNewsPublishedAt').value).toISOString():new Date().toISOString(),
+        expires_at:$('homeNewsExpiresAt').value?new Date($('homeNewsExpiresAt').value).toISOString():null,
+        source_type,source_id,image_path,
+        action_label:$('homeNewsActionLabel').value.trim(),
+        sort_order:Number($('homeNewsOrder').value)||0
+      };
+      const result=isNew?await sb.from('site_news').insert(payload):await sb.from('site_news').update(payload).eq('id',id);
+      if(result.error)throw result.error;
+      if(uploadedPath&&oldImage&&oldImage!==uploadedPath)await sb.storage.from('public-site').remove([oldImage]);
+      await loadPublicUpdates();renderHome();await loadHomeNewsAdminList();resetHomeNewsForm();
+      status.textContent='Novità salvata ✓';toast('Novità home aggiornata ✓','ok');
+    }catch(err){
+      if(uploadedPath)await sb.storage.from('public-site').remove([uploadedPath]);
+      status.textContent=err.message||String(err)
+    }finally{btn.disabled=false}
+  }
+
+  async function deleteHomeNews(row){
+    if(!isPublicAdmin()||!row||!confirm(`Eliminare “${row.title}”?`))return;
+    const {error}=await sb.from('site_news').delete().eq('id',row.id);if(error)return toast(error.message,'error');
+    if(row.image_path)await sb.storage.from('public-site').remove([row.image_path]);
+    await loadPublicUpdates();renderHome();await loadHomeNewsAdminList();resetHomeNewsForm();
+  }
+
+  async function openHomeNewsEditor(){
+    if(!isPublicAdmin())return;
+    ensureHomeNewsEditor();resetHomeNewsForm();
+    openModal('homeNewsEditorModal');
+    try{await loadHomeNewsAdminList()}catch(err){$('homeNewsAdminList').innerHTML=`<div class="empty-state">${esc(err.message||String(err))}</div>`}
+  }
+  window.JMNewsEditor={open:openHomeNewsEditor,refresh:loadPublicUpdates};
 
   function dateIsoLocal(value) {
     const d=value instanceof Date?value:new Date(value);
@@ -683,7 +871,7 @@
     if (route === 'repertoire') renderRepertoire();
     if (route === 'rankings') renderRankings();
     if (route === 'more') renderPublicMedia();
-    if (route === 'contacts') { contactRender(); renderBookingCalendar(); }
+    if (route === 'contacts') { renderBookingCalendar(); }
     window.scrollTo({top:0, behavior:'instant'});
   }
 
@@ -1232,48 +1420,181 @@
     });
   }
 
+  // I contatti pubblici sono gestiti da contact-editor.js tramite site_contacts.
+  // Qui manteniamo solo l'eventuale vecchio box Backstage, se presente, senza
+  // toccare #contactsSocialActions: in questo modo il renderer nuovo non viene
+  // sovrascritto a fine inizializzazione.
   function contactRender() {
-    const boxes=[$('contactActions'),$('contactsSocialActions')].filter(Boolean);
-    const html=contacts.length
-      ? contacts.map(c => `<a class="btn btn-ghost" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">${esc({facebook:'Facebook',instagram:'Instagram',youtube:'YouTube'}[c.platform]||c.platform)}</a>`).join('')
-      : '<span class="muted-inline">Canali in aggiornamento.</span>';
-    boxes.forEach(box=>box.innerHTML=html);
+    const box=$('contactActions');
+    if(!box)return;
+    box.innerHTML='<span class="muted-inline">Vai alla sezione Contatti.</span>';
   }
 
   function safeHttps(value) {
     try { const u=new URL(value); return u.protocol==='https:'&&!u.username&&!u.password ? u.href : ''; } catch { return ''; }
   }
+
   async function loadPublicUpdates() {
     const now=new Date().toISOString();
-    const results=await Promise.allSettled([
-      sb.from('site_social_links').select('platform,url').eq('enabled',true),
-      sb.from('site_news').select('id,kind,title,body,link_url,published_at,expires_at').eq('published',true).lte('published_at',now).or('expires_at.is.null,expires_at.gt.'+now).order('published_at',{ascending:false}).limit(12)
-    ]);
-    const socials=results[0].status==='fulfilled'?results[0].value:null;
-    const news=results[1].status==='fulfilled'?results[1].value:null;
-    if(socials&&!socials.error) contacts=(socials.data||[]).filter(c=>safeHttps(c.url));
-    if(news&&!news.error) siteNews=news.data||[];
-    contactRender();renderHighlights();
+    const {data,error}=await sb.from('site_news')
+      .select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,action_label,sort_order,updated_at')
+      .eq('published',true)
+      .lte('published_at',now)
+      .or('expires_at.is.null,expires_at.gt.'+now)
+      .order('sort_order',{ascending:true})
+      .order('published_at',{ascending:false})
+      .limit(20);
+    if(error)console.warn('Novità home non disponibili',error);
+    else siteNews=data||[];
+    renderHighlights();
   }
+
+  function newsSourceSlide(row) {
+    const source=String(row?.source_type||'custom');
+    let image=row?.image_path?publicSiteAssetUrl(row.image_path):'';
+    let title=String(row?.title||'').trim();
+    let body=String(row?.body||'').trim();
+    let meta=formatDate(row?.published_at);
+    let kicker={song:'Nuova canzone',event:'Live',news:'Novità'}[row?.kind]||'Novità';
+    let action=null;
+
+    if(source==='concert'){
+      const c=concerts.find(x=>String(x.id)===String(row.source_id));
+      if(c){
+        if(!title)title=c.name||'Live';
+        if(!body)body=prettyPlace(c);
+        meta=formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):'');
+        kicker='Live';
+        if(!image)image=primaryPosterUrl(c.poster_path)||'';
+        action={type:'concert',id:c.id,label:row.action_label||'DETTAGLI DEL LIVE'};
+      }
+    }else if(source==='song'){
+      const song=publicSongs.find(x=>String(x.id)===String(row.source_id));
+      if(song){
+        if(!title)title=song.title||'Brano';
+        if(!body)body=songArtistLine(song)||'John & i Molesti';
+        kicker='Nuova canzone';
+        if(!image)image=posterUrl(song.cover_path)||'';
+        action={type:'song',id:song.id,label:row.action_label||'SCOPRI IL BRANO'};
+      }
+    }else if(source==='media'){
+      const media=publicMedia.find(x=>String(x.id)===String(row.source_id));
+      if(media){
+        if(!title)title=media.title||'Dal palco';
+        if(!body)body=media.caption||'';
+        kicker=media.kind==='photo'?'Foto':'Media';
+        if(!image&&media.kind==='photo')image=publicMediaAssetUrl(media.storage_path)||'';
+        action={type:'media',id:media.id,label:row.action_label||'GUARDA'};
+      }
+    }
+
+    const href=safeHttps(row?.link_url||'');
+    if(!action&&href)action={type:'link',href,label:row.action_label||'SCOPRI DI PIÙ'};
+    return {id:row.id,title:title||'Novità',body,meta,kicker,image,action};
+  }
+
+  function fallbackNewsSlide() {
+    const c=nextConcert();
+    if(c)return {
+      id:'fallback-live-'+c.id,
+      title:c.name,
+      body:prettyPlace(c),
+      meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),
+      kicker:'Prossimo live',
+      image:primaryPosterUrl(c.poster_path)||'',
+      action:{type:'concert',id:c.id,label:'DETTAGLI DEL LIVE'}
+    };
+    return {
+      id:'fallback-empty',title:'Le prossime novità arrivano qui',
+      body:'Nel frattempo puoi esplorare repertorio, live e media della band.',
+      meta:'',kicker:'John & i Molesti',image:'',
+      action:{type:'route',route:'repertoire',label:'SCOPRI I BRANI'}
+    };
+  }
+
+  function runHighlightAction(slide) {
+    const action=slide?.action;if(!action)return;
+    if(action.type==='concert'){openConcert(action.id);return}
+    if(action.type==='song'){
+      const song=publicSongs.find(x=>String(x.id)===String(action.id));
+      go('repertoire');
+      setTimeout(()=>{
+        if(song){
+          const search=$('repertoireSearch');
+          if(search){search.value=song.title||'';renderRepertoire()}
+          openSongRankingDetail(song,Math.max(1,publicSongs.findIndex(x=>String(x.id)===String(song.id))+1));
+        }
+      },70);
+      return;
+    }
+    if(action.type==='media'){
+      go('more');
+      setTimeout(()=>$('photosBlock')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+      return;
+    }
+    if(action.type==='route'){go(action.route||'home');return}
+    if(action.type==='link'&&action.href)window.open(action.href,'_blank','noopener,noreferrer');
+  }
+
+  function stopHighlightAuto(){
+    if(highlightTimer){clearInterval(highlightTimer);highlightTimer=null}
+  }
+  function startHighlightAuto(slides,track){
+    stopHighlightAuto();
+    if(slides.length<=1||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    highlightTimer=setInterval(()=>{
+      if(document.hidden||currentRoute()!=='home')return;
+      const width=Math.max(1,track.clientWidth);
+      const current=Math.max(0,Math.min(slides.length-1,Math.round(track.scrollLeft/width)));
+      const next=(current+1)%slides.length;
+      track.scrollTo({left:next*width,behavior:'smooth'});
+    },8000);
+  }
+
   function renderHighlights() {
     const track=$('highlightTrack');if(!track)return;
-    const upcoming=upcomingConcerts().filter(c=>c.status!=='draft').slice(0,6);
-    const slides=[
-      ...upcoming.map(c=>({id:'live-'+c.id,title:c.name,body:prettyPlace(c),meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),kind:'Prossimo live',concert:c.id,poster:primaryPosterUrl(c.poster_path)})),
-      ...siteNews.map(n=>({id:n.id,title:n.title,body:n.body,meta:formatDate(n.published_at),kind:{song:'Nuova canzone',event:'Evento',news:'Novità'}[n.kind],href:safeHttps(n.link_url)}))
-    ];
-    const signature=JSON.stringify(slides);if(signature===highlightSignature)return;highlightSignature=signature;
-    track.innerHTML=slides.map(s=>`<article class="highlight-slide" aria-label="${esc(s.kind+': '+s.title)}">${s.poster?`<button class="highlight-poster" type="button" data-highlight-poster="${esc(s.concert)}" aria-label="Ingrandisci locandina"><img src="${esc(s.poster)}" alt="Locandina ${esc(s.title)}" draggable="false"></button>`:''}<div class="highlight-copy"><span class="section-kicker">${esc(s.kind)} · ${esc(s.meta)}</span><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p>${s.concert?`<button type="button" class="btn btn-primary" data-highlight-concert="${esc(s.concert)}">Dettagli del live</button>`:s.href?`<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="${esc(s.href)}">${s.kind==='Nuova canzone'?'Ascolta':'Scopri di più'}</a>`:''}</div></article>`).join('')||'<div class="highlight-slide"><div class="highlight-copy"><h3>Le prossime date arrivano qui</h3><p>Intanto puoi scoprire i brani e le serate passate.</p><button class="btn btn-primary" id="highlightArchive" type="button">Esplora i live</button></div></div>';
-    $$('[data-highlight-concert]',track).forEach(b=>b.onclick=()=>openConcert(b.dataset.highlightConcert));
-    $$('[data-highlight-poster]',track).forEach(b=>b.onclick=()=>{const c=concerts.find(c=>c.id===b.dataset.highlightPoster);const src=primaryPosterUrl(c?.poster_path);if(c&&src)openPoster(src,c.name);});
-    $('highlightArchive')?.addEventListener('click',()=>go('tour'));
-    const count=Math.max(slides.length,1);
-    const update=()=>{const at=Math.min(count-1,Math.max(0,Math.round(track.scrollLeft/(track.clientWidth+16))));$('highlightCount').textContent=(at+1)+' / '+count;$('highlightPrev').disabled=at===0;$('highlightNext').disabled=at>=count-1;};
-    const move=dir=>track.scrollBy({left:dir*(track.clientWidth+16),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-    $('highlightPrev').onclick=()=>move(-1);$('highlightNext').onclick=()=>move(1);track.onscroll=update;
-    track.onkeydown=e=>{if(e.target!==track)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();move(e.key==='ArrowRight'?1:-1);}};
-    update();
+    ensureHomeHeroNewsLayout();
+    const slides=(siteNews||[]).map(newsSourceSlide);
+    if(!slides.length)slides.push(fallbackNewsSlide());
+    const signature=JSON.stringify(slides.map(x=>({id:x.id,title:x.title,body:x.body,meta:x.meta,kicker:x.kicker,image:x.image,action:x.action})));
+    if(signature===highlightSignature){startHighlightAuto(slides,track);return}
+    highlightSignature=signature;
+
+    track.innerHTML=slides.map((item,index)=>`<article class="highlight-slide" data-highlight-index="${index}" aria-label="${esc(item.kicker+': '+item.title)}"><div class="highlight-copy"><span class="section-kicker">${esc(item.kicker)}${item.meta?` · ${esc(item.meta)}`:''}</span><h3>${esc(item.title)}</h3>${item.body?`<p>${esc(item.body)}</p>`:''}${item.action?`<button type="button" class="btn btn-primary highlight-action" data-highlight-action="${index}">${esc(item.action.label||'SCOPRI')}</button>`:''}</div></article>`).join('');
+
+    $$('.highlight-slide',track).forEach((node,index)=>{
+      const image=slides[index]?.image;
+      if(image)node.style.setProperty('--highlight-bg',`url("${String(image).replace(/["\\]/g,'\\$&')}")`);
+      else node.style.setProperty('--highlight-bg','none');
+    });
+    $$('[data-highlight-action]',track).forEach(button=>button.onclick=()=>{runHighlightAction(slides[Number(button.dataset.highlightAction)]);startHighlightAuto(slides,track)});
+
+    const count=slides.length;
+    const update=()=>{
+      const width=Math.max(1,track.clientWidth);
+      const at=Math.max(0,Math.min(count-1,Math.round(track.scrollLeft/width)));
+      if($('highlightCount'))$('highlightCount').textContent=(at+1)+' / '+count;
+      if($('highlightPrev'))$('highlightPrev').disabled=count<=1;
+      if($('highlightNext'))$('highlightNext').disabled=count<=1;
+    };
+    const move=dir=>{
+      const width=Math.max(1,track.clientWidth);
+      const current=Math.max(0,Math.min(count-1,Math.round(track.scrollLeft/width)));
+      const next=(current+dir+count)%count;
+      track.scrollTo({left:next*width,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      startHighlightAuto(slides,track);
+    };
+    if($('highlightPrev'))$('highlightPrev').onclick=()=>move(-1);
+    if($('highlightNext'))$('highlightNext').onclick=()=>move(1);
+    track.onscroll=update;
+    track.onkeydown=e=>{if(e.target!==track)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();move(e.key==='ArrowRight'?1:-1)}};
+    track.onmouseenter=stopHighlightAuto;
+    track.onmouseleave=()=>startHighlightAuto(slides,track);
+    track.onfocusin=stopHighlightAuto;
+    track.onfocusout=()=>startHighlightAuto(slides,track);
+    update();startHighlightAuto(slides,track);
   }
+
   function openPoster(src,title) {
     if(!safeHttps(src))return;
     let dialog=$('posterViewer');
@@ -1541,9 +1862,9 @@
     }
     sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     ensurePublicSections();
+    ensureHomeHeroNewsLayout();
     bindStaticEvents();
     await window.JMCopy.init(sb);
-    contactRender();
     await loadPermissions();
     try {
       const {data:{session}} = await sb.auth.getSession();
@@ -1558,7 +1879,7 @@
     }
     updateUserUI();
     await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia(),loadPublicContentExtensions(),loadBookingAvailability()]);
-    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); contactRender(); renderBookingCalendar(); renderRailNextShow();
+    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderBookingCalendar(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
     startRealtime();
