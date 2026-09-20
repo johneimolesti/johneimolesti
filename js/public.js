@@ -1552,12 +1552,11 @@
     if($('repertoireCount')) $('repertoireCount').textContent=`${rows.length} BRANI`;
     grid.innerHTML=rows.map(song=>{
       const cover=posterUrl(song.cover_path);
-      const audio=publicMediaAssetUrl(song.audio_path);
       const spotify=safeHttps(song.spotify_url);
       const player=spotify
         ? `<a class="btn btn-primary repertoire-stream-link" href="${esc(spotify)}" target="_blank" rel="noopener noreferrer">ASCOLTA SU SPOTIFY</a>`
-        : audio
-          ? `<audio class="repertoire-audio" controls preload="none" controlsList="nodownload" src="${esc(audio)}"></audio>`
+        : song.has_demo
+          ? `<button class="btn btn-primary demo-player-button demo-player-placeholder" type="button" disabled>CARICAMENTO DEMO…</button>`
           : `<span class="repertoire-audio-missing">Audio in arrivo</span>`;
       return `<article class="repertoire-card glass-card" data-repertoire-song="${esc(song.id)}">
         <div class="repertoire-cover">${cover?`<img src="${esc(cover)}" alt="Cover di ${esc(song.title)}" loading="lazy">`:'<span>JM</span>'}</div>
@@ -1572,6 +1571,10 @@
         if(song)openSongRankingDetail(song,publicSongs.indexOf(song)+1);
       });
     });
+
+    // demo-audio-access.js usa questo evento per applicare play / sblocco
+    // anche quando il catalogo viene creato dopo il caricamento iniziale.
+    window.dispatchEvent(new CustomEvent('jm:repertoire-rendered'));
   }
   function renderPublicMedia() {
     const videos=publicMedia.filter(x=>x.kind==='video');
