@@ -4862,23 +4862,24 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
 
 
 <script id="v2-hash-router">
-/* Router stabile: i click aggiornano l'hash con history.replaceState, senza generare
-   un secondo hashchange/click. Hashchange resta solo per back/forward o URL aperti direttamente. */
+/* V2 hash routing: mantiene l'app a file singolo, ma rende ogni sezione navigabile con #route. */
 (()=>{
   const ROUTES={
     member:{
       scaletta:"mySetlistPage",
       proposte:"proposalsPage",
-      "scalette-membri":"membersPage",
       catalogo:"catalogPage",
+      "scalette-membri":"membersPage",
       concerti:"concertsPage",
-      presenze:"demoCertificationPage",
+      "classifica-brani":"songRankingPage",
       fan:"fansAdminPage",
+      presenze:"demoCertificationPage",
+      statistiche:"analyticsPage",
       cassa:"cashPage",
       disponibilita:"bandAvailabilityPage",
       "richieste-demo":"demoCodesPage",
-      classifiche:"songRankingPage",
-      statistiche:"analyticsPage",
+      "media-pubblici":"publicMediaAdminPage",
+      prenotazioni:"bookingAdminPage",
       setup:"setupPage"
     },
     fan:{catalogo:"fanCatalogPage",locandine:"fanPostersPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
@@ -4897,47 +4898,84 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   }
   function slug(){return decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase())}
   function routeForPage(role,page){return Object.keys(ROUTES[role]||{}).find(k=>ROUTES[role][k]===page)||null}
-  function buttonForPage(role,page){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.dataset[DATAKEY[role]]===page&&!b.hidden&&!b.classList.contains("hidden"))||null}
   function currentButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&!b.hidden&&!b.classList.contains("hidden"))||null}
   function replaceHash(value){history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
-  function syncUrlToActive(role){
+  function syncActiveRoute(role,replace=false){
     const btn=currentButton(role);if(!btn)return;
-    const r=routeForPage(role,btn.dataset[DATAKEY[role]]);if(r&&slug()!==r)replaceHash(r);
+    const page=btn.dataset[DATAKEY[role]],r=routeForPage(role,page);if(!r)return;
+    if(slug()===r)return;
+    if(replace)replaceHash(r);else location.hash=r;
   }
   function applyRoute(){
     if(applying)return;
     const role=visibleRole();if(!role)return;
-    const page=ROUTES[role]?.[slug()];
-    if(!page){syncUrlToActive(role);return}
-    const btn=buttonForPage(role,page);
-    if(!btn){syncUrlToActive(role);return}
+    const wanted=slug(),page=ROUTES[role]?.[wanted];
+    if(!page){syncActiveRoute(role,true);return}
+    const btn=[...document.querySelectorAll(SELECTORS[role])].find(b=>b.dataset[DATAKEY[role]]===page&&!b.hidden&&!b.classList.contains("hidden"));
+    if(!btn){syncActiveRoute(role,true);return}
     if(btn.classList.contains("active"))return;
     applying=true;
     try{btn.click()}finally{setTimeout(()=>{applying=false},0)}
   }
 
-  /* Click utente: l'handler specifico della pagina fa il lavoro; qui aggiorniamo solo l'URL.
-     replaceState evita il feedback loop click -> hashchange -> secondo click. */
   document.addEventListener("click",e=>{
     const btn=e.target.closest("[data-page],[data-fan-page],[data-guest-page]");if(!btn)return;
     let role,page;
     if(btn.dataset.page){role="member";page=btn.dataset.page}
     else if(btn.dataset.fanPage){role="fan";page=btn.dataset.fanPage}
     else if(btn.dataset.guestPage){role="guest";page=btn.dataset.guestPage}
-    const r=routeForPage(role,page);if(r&&slug()!==r)replaceHash(r);
+    const r=routeForPage(role,page);if(!r||slug()===r)return;
+    location.hash=r;
   });
 
   window.addEventListener("hashchange",applyRoute);
+
   ["memberLogout","fanLogout","guestLogout"].forEach(id=>{
     document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40));
   });
 
-  if(!location.hash)replaceHash("home");
-  setTimeout(()=>{const role=visibleRole();if(role){const page=ROUTES[role]?.[slug()];if(page)applyRoute();else syncUrlToActive(role)}},160);
-  setTimeout(applyRoute,650);
-})();
-</script>
+  /* v4.7.4h — niente MutationObserver sul cambio hidden delle app.
+     Un controllo ritardato dopo i click copre login e navigazione senza osservare attributi. */
+  document.addEventListener("click",()=>setTimeout(()=>{
+    const role=visibleRole();if(!role)return;
+    const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true);
+  },60),true);
 
+  // Se l'utente apre direttamente index.html#concerti, la route verrà applicata appena entra nell'area corretta.
+  if(!location.hash)replaceHash("home");
+  setTimeout(()=>{const role=visibleRole();if(role){if(ROUTES[role]?.[slug()])applyRoute();else syncActiveRoute(role,true)}},120);
+  setTimeout(applyRoute,500);
+})();
+
+
+/* ==========================================================
+   V4.7.4n — CLASSIFICHE UNIFICATE MEMBRI / ADMIN
+========================================================== */
+let memberConcertRankingRows=[];
+function renderMemberFanRankingCompact(){
+  const box=$("memberFanRankingList");if(!box)return;
+  const rows=[...(fanRanking||[])].sort((a,b)=>Number(b.points||0)-Number(a.points||0)||String(a.fan_name||"").localeCompare(String(b.fan_name||""),"it"));
+  $("memberFanRankingCounter").textContent=`${rows.length} fan`;
+  box.innerHTML=rows.length?rows.map((r,i)=>`<div class="ranking-row"><div class="rank">${i+1}</div><div class="ranking-title-cell"><div class="ranking-title-line"><span class="list-title detail-link" data-member-fan-rank-id="${esc(r.fan_id)}">${esc(String(r.fan_name||"").toUpperCase())}</span></div><div class="small-info">${Number(r.attendance_count||0)} live · ${Number(r.rated_song_count||0)} brani votati</div></div><div>${Number(r.points||0)}</div></div>`).join(""):'<div class="empty">Nessun fan in classifica.</div>';
+  box.querySelectorAll('[data-member-fan-rank-id]').forEach(el=>el.onclick=()=>{const r=rows.find(x=>x.fan_id===el.dataset.memberFanRankId);if(r)memberFanDetail(r)})
+}
+function renderMemberConcertRankingCompact(){
+  const box=$("memberConcertRankingList");if(!box)return;const rows=memberConcertRankingRows||[];
+  $("memberConcertRankingCounter").textContent=`${rows.length} live`;
+  box.innerHTML=rows.length?rows.map((r,i)=>{const name=r.concert_name||r.name||"Live",date=r.concert_date?formatDate(r.concert_date):"—",score=Number(r.score??r.rating_score??r.average_score??0);return `<div class="ranking-row"><div class="rank">${i+1}</div><div class="ranking-title-cell"><div class="ranking-title-line"><span class="list-title">${esc(name)}</span></div><div class="small-info">${esc(date)} · ${Number(r.attendance_count||0)} presenze</div></div><div>${Number.isFinite(score)?score.toFixed(1):"—"}</div></div>`}).join(""):'<div class="empty">Nessun concerto in classifica.</div>'
+}
+async function loadUnifiedMemberRankings(){
+  const jobs=[loadSongScores(),loadConcertHistoryItems(),loadFanArea(),sb.rpc("get_concert_ranking")];
+  const results=await Promise.all(jobs);const cr=results[3];if(cr?.error)throw cr.error;memberConcertRankingRows=cr?.data||[];
+  renderSongRanking();renderMemberFanRankingCompact();renderMemberConcertRankingCompact();
+}
+function setMemberRankingTab(key){
+  document.querySelectorAll('#memberRankingsTabs [data-member-ranking-tab]').forEach(b=>b.classList.toggle('active',b.dataset.memberRankingTab===key));
+  document.querySelectorAll('#songRankingPage [data-member-ranking-panel]').forEach(p=>p.classList.toggle('active',p.dataset.memberRankingPanel===key));
+}
+document.querySelectorAll('#memberRankingsTabs [data-member-ranking-tab]').forEach(btn=>btn.onclick=()=>setMemberRankingTab(btn.dataset.memberRankingTab));
+setMemberRankingTab('songs');
+</script>
 
 <script id="v4-8-runtime">
 /* ==========================================================
@@ -4983,10 +5021,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   });
   memberNav()?.addEventListener("click",e=>{
     const btn=e.target.closest(".nav-button[data-category]");
-    if(!btn)return;
-    /* Alcune pagine dinamiche impostano ancora una vecchia categoria nel proprio handler.
-       Riallineiamo dopo il click senza attivare altre pagine. */
-    setTimeout(()=>setMemberCategory(btn.dataset.category,{activate:false}),0);
+    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
   },true);
 
   if(typeof applyMemberPermissionsUI==="function"){
@@ -4998,7 +5033,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       let category=active?.dataset.category||"music";
       try{category=localStorage.getItem(CATEGORY_KEY)||category}catch{}
       if(active&&!active.classList.contains("hidden"))category=active.dataset.category;
-      setMemberCategory(category,{activate:false});
+      setMemberCategory(category,{activate:true});
     };
   }
 
@@ -6395,70 +6430,57 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
 
-<script id="member-nav-v412-runtime">
+<script id="member-nav-v413-runtime">
 (()=>{
   const nav=document.getElementById("memberNav");
   if(!nav)return;
-  let syncing=false;
 
-  const CONFIG={
-    demoCertificationPage:{category:"fan",label:"PRESENZE"},
-    fansAdminPage:{category:"fan",label:"GESTIONE UTENTI"},
-    cashPage:{category:"management",label:null},
-    bandAvailabilityPage:{category:"management",label:"DISPONIBILITÀ"},
-    demoCodesPage:{category:"management",label:"RICHIESTE DEMO"}
-  };
-  const ORDER=[
-    "mySetlistPage","proposalsPage","membersPage",
-    "catalogPage","concertsPage",
-    "demoCertificationPage","fansAdminPage",
-    "cashPage","bandAvailabilityPage","demoCodesPage",
-    "songRankingPage","analyticsPage","setupPage"
-  ];
+  function configureDynamicNavigation(){
+    const presence=nav.querySelector('[data-page="demoCertificationPage"]');
+    if(presence){
+      presence.dataset.category="fan";
+      presence.textContent="PRESENZE";
+      const users=nav.querySelector('[data-page="fansAdminPage"]');
+      if(users&&presence.nextElementSibling!==users)nav.insertBefore(presence,users);
+    }
 
-  function removeObsoleteNav(){
-    /* Le pagine possono continuare ad esistere internamente, ma non devono essere raggiungibili dal menu. */
-    nav.querySelector('[data-page="publicMediaAdminPage"]')?.remove();
-    nav.querySelector('[data-page="bookingAdminPage"]')?.remove();
-  }
-  function configureButtons(){
-    Object.entries(CONFIG).forEach(([page,cfg])=>{
-      const btn=nav.querySelector('[data-page="'+page+'"]');if(!btn)return;
-      btn.dataset.category=cfg.category;
-      if(cfg.label){
-        const badge=btn.querySelector(".badge");
-        btn.childNodes.forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.remove()});
-        btn.insertBefore(document.createTextNode(cfg.label+(badge?" ":"")),badge||null);
-      }
-    });
-  }
-  function reorder(){
-    ORDER.forEach(page=>{const btn=nav.querySelector('[data-page="'+page+'"]');if(btn)nav.appendChild(btn)});
-  }
-  function sync(){
-    if(syncing)return;syncing=true;
-    try{
-      removeObsoleteNav();
-      configureButtons();
-      reorder();
-      const active=nav.querySelector('.nav-button.active[data-category]:not(.hidden)');
-      if(active)window.setMemberCategory?.(active.dataset.category,{activate:false});
-    }finally{syncing=false}
+    const requests=nav.querySelector('[data-page="demoCodesPage"]');
+    if(requests){
+      requests.dataset.category="management";
+      requests.textContent="RICHIESTE DEMO";
+      const availability=nav.querySelector('[data-page="bandAvailabilityPage"]');
+      if(availability&&availability.nextElementSibling!==requests)availability.after(requests);
+    }
+
+    /* MEDIA PUBBLICI e PRENOTAZIONI restano disponibili agli admin:
+       non vengono nascosti né rimossi. */
+    window.setMemberCategory?.(
+      nav.querySelector('.nav-button.active[data-category]')?.dataset.category || "setlists",
+      {activate:false}
+    );
   }
 
-  sync();
-  /* Osserviamo solo aggiunte/rimozioni: non le classi active, così il sincronizzatore non compete con i click. */
-  new MutationObserver(()=>sync()).observe(nav,{childList:true,subtree:false});
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",configureDynamicNavigation,{once:true});
+  }else{
+    configureDynamicNavigation();
+  }
 
-  /* Ultima parola sullo stato visivo: pagina, sottotab e tab principale devono riferirsi allo stesso click. */
+  /* Gli handler originali delle pagine dinamiche possono impostare una vecchia categoria.
+     Questo riallinea SOLO il tab principale dopo il click, senza cambiare pagina o active state. */
   nav.addEventListener("click",e=>{
-    const btn=e.target.closest('.nav-button[data-page]');if(!btn||btn.classList.contains("hidden")||btn.hidden)return;
-    const pageId=btn.dataset.page;
-    setTimeout(()=>{
-      [...nav.querySelectorAll('.nav-button')].forEach(b=>b.classList.toggle('active',b===btn));
-      document.querySelectorAll('#memberApp main .page').forEach(p=>p.classList.toggle('active',p.id===pageId));
-      window.setMemberCategory?.(btn.dataset.category,{activate:false});
-    },0);
+    const btn=e.target.closest('.nav-button[data-page]');
+    if(!btn)return;
+    const page=btn.dataset.page;
+    const forced={
+      demoCertificationPage:"fan",
+      fansAdminPage:"fan",
+      bandAvailabilityPage:"management",
+      demoCodesPage:"management",
+      publicMediaAdminPage:"management",
+      bookingAdminPage:"management"
+    }[page];
+    if(forced)window.setMemberCategory?.(forced,{activate:false});
   });
 })();
 </script>
