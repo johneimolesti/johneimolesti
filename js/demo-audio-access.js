@@ -243,7 +243,13 @@
       .demo-unlock-box>div{display:grid;gap:3px}.demo-unlock-box strong{font-size:12px}.demo-unlock-box span{font-size:12px;color:var(--muted);line-height:1.35}
       .demo-access-ok{color:#96d69f!important;font-weight:800}
       .demo-player-button{width:100%;min-height:35px}
-      .demo-audio-player{width:100%;height:34px}
+      .demo-site-player{display:grid;gap:6px}
+      .demo-site-player-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+      .demo-site-player .btn{min-height:35px;white-space:nowrap}
+      .demo-site-progress{position:relative;height:5px;border:1px solid #5d5a52;background:#111;overflow:hidden}
+      .demo-site-progress>span{display:block;width:0;height:100%;background:var(--gold);transition:width .15s linear}
+      .demo-site-player-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font:800 8px/1.2 monospace}
+      .demo-site-player-meta strong{color:var(--gold);font:inherit}
       .demo-lock-note{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.3}
       .demo-unlock-modal-card{width:min(430px,calc(100vw - 24px))}
       .demo-unlock-form{display:grid;gap:12px}.demo-unlock-form label{display:grid;gap:5px;font-size:12px;font-weight:800}
@@ -477,33 +483,114 @@
     setTimeout(()=>codeInput.focus(),0);
   }
 
+  let repertoireAudio=null;
+  let repertoireAudioSongId='';
+  let repertoireAudioHost=null;
+
+  function formatDemoTime(seconds){
+    if(!Number.isFinite(seconds)||seconds<0)return '0:00';
+    const total=Math.floor(seconds);
+    const m=Math.floor(total/60);
+    const s=String(total%60).padStart(2,'0');
+    return `${m}:${s}`;
+  }
+
+  function stopRepertoireAudio({restore=true}={}){
+    const host=repertoireAudioHost;
+    if(repertoireAudio){
+      try{
+        repertoireAudio.pause();
+        repertoireAudio.currentTime=0;
+        repertoireAudio.removeAttribute('src');
+        repertoireAudio.load();
+      }catch{}
+    }
+    repertoireAudio=null;
+    repertoireAudioSongId='';
+    repertoireAudioHost=null;
+    if(restore&&host&&document.contains(host))setTimeout(decorate,0);
+  }
+
   async function playDemo(songId,button){
     const host=button.closest('.repertoire-player')||button.parentElement;
     button.disabled=true;
     const old=button.textContent;
     button.textContent='CARICAMENTO…';
+
     try{
       const data=await call('audio',{song_id:songId});
-      const audio=document.createElement('audio');
-      audio.className='demo-audio-player';
-      audio.controls=true;
-      audio.preload='none';
-      audio.controlsList='nodownload';
-      audio.src=data.url;
+
+      // Una sola demo alla volta nel repertorio.
+      stopRepertoireAudio({restore:true});
+
+      const audioEl=new Audio(data.url);
+      audioEl.preload='metadata';
+      repertoireAudio=audioEl;
+      repertoireAudioSongId=String(songId);
+      repertoireAudioHost=host;
+
       const wrap=document.createElement('div');
-      wrap.style.display='grid';
-      wrap.style.gap='5px';
-      const meta=document.createElement('span');
-      meta.className='demo-lock-note';
-      meta.textContent=data.access_mode==='preview_30'?'ANTEPRIMA 30 SECONDI':'BRANO INTERO';
-      wrap.append(audio,meta);
+      wrap.className='demo-site-player';
+      wrap.innerHTML=`
+        <div class="demo-site-player-actions">
+          <button class="btn btn-primary" type="button" data-demo-toggle>❚❚ PAUSA</button>
+          <button class="btn btn-ghost" type="button" data-demo-stop>■ STOP</button>
+        </div>
+        <div class="demo-site-progress" aria-hidden="true"><span></span></div>
+        <div class="demo-site-player-meta">
+          <strong>${data.access_mode==='preview_30'?'ANTEPRIMA 30S':'BRANO INTERO'}</strong>
+          <span data-demo-time>0:00 / --:--</span>
+        </div>`;
       host.replaceChildren(wrap);
-      try{await audio.play()}catch{}
+
+      const toggle=wrap.querySelector('[data-demo-toggle]');
+      const stop=wrap.querySelector('[data-demo-stop]');
+      const progress=wrap.querySelector('.demo-site-progress>span');
+      const time=wrap.querySelector('[data-demo-time]');
+
+      const sync=()=>{
+        if(repertoireAudio!==audioEl)return;
+        const duration=Number.isFinite(audioEl.duration)?audioEl.duration:0;
+        const current=Number.isFinite(audioEl.currentTime)?audioEl.currentTime:0;
+        const percent=duration>0?Math.max(0,Math.min(100,current/duration*100)):0;
+        progress.style.width=percent+'%';
+        time.textContent=`${formatDemoTime(current)} / ${duration?formatDemoTime(duration):'--:--'}`;
+        toggle.textContent=audioEl.paused?'▶ RIPRENDI':'❚❚ PAUSA';
+      };
+
+      toggle.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        if(audioEl.paused)audioEl.play().catch(()=>{});
+        else audioEl.pause();
+        sync();
+      };
+
+      stop.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        stopRepertoireAudio({restore:true});
+      };
+
+      audioEl.addEventListener('loadedmetadata',sync);
+      audioEl.addEventListener('timeupdate',sync);
+      audioEl.addEventListener('play',sync);
+      audioEl.addEventListener('pause',sync);
+      audioEl.addEventListener('ended',()=>stopRepertoireAudio({restore:true}),{once:true});
+      audioEl.addEventListener('error',()=>{
+        if(repertoireAudio===audioEl){
+          stopRepertoireAudio({restore:true});
+          alert('Riproduzione demo non riuscita.');
+        }
+      },{once:true});
+
+      await audioEl.play();
+      sync();
     }catch(err){
       if(err.status===403){
         access={allowed:false,reason:'locked'};
         decorate();
-        openUnlockModal();
+        openUnlockModal(songId);
       }else{
         button.disabled=false;
         button.textContent=old;
@@ -689,7 +776,11 @@
           <div class="jukebox-brand"><strong>JOHN & I MOLESTI · JUKEBOX</strong><span>PREMI IL PULSANTE DEL BRANO · RIPREMI PER FERMARE</span></div>
           <div class="jukebox-now" id="jukeboxNowPlaying">SELEZIONA UN BRANO</div>
           <button class="jukebox-close" id="closeJukeboxMode" type="button" aria-label="Chiudi Jukebox">×</button>
-        </header>;
+        </header>
+        <div class="jukebox-shell">
+          <div class="jukebox-grid" id="jukeboxGrid"></div>
+          <div class="jukebox-hint">LE ETICHETTE SONO CARICATE DAL CATALOGO</div>
+        </div>`;
       document.body.appendChild(overlay);
       document.getElementById('closeJukeboxMode').onclick=closeJukebox;
     }
