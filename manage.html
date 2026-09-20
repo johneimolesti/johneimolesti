@@ -2258,6 +2258,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
     <button class="nav-button" data-category="fan" data-page="fansAdminPage">GESTIONE UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
+    <button id="requestsNav" class="nav-button hidden" data-category="management" data-page="requestsPage">RICHIESTE <span class="rq-badge" id="rqNavBadge"></span></button>
     <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
     <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
     <button id="setupNavButton" class="nav-button hidden" data-category="setup" data-page="setupPage">SETUP</button>
@@ -4862,7 +4863,7 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
 
 
 <script id="v2-hash-router">
-/* V2 hash routing: mantiene l'app a file singolo, ma rende ogni sezione navigabile con #route. */
+/* V2 hash routing: URL sincronizzato senza generare click/redirect di ritorno. */
 (()=>{
   const ROUTES={
     member:{
@@ -4887,7 +4888,6 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   const SELECTORS={member:"#memberNav [data-page]",fan:"#fanApp [data-fan-page]",guest:"#guestApp [data-guest-page]"};
   const DATAKEY={member:"page",fan:"fanPage",guest:"guestPage"};
   let applying=false;
-
   function visibleRole(){
     const member=document.getElementById("memberApp"),fan=document.getElementById("fanApp"),guest=document.getElementById("guestApp");
     if(member&&!member.hidden)return "member";
@@ -4897,53 +4897,35 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
   }
   function slug(){return decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase())}
   function routeForPage(role,page){return Object.keys(ROUTES[role]||{}).find(k=>ROUTES[role][k]===page)||null}
-  function currentButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&!b.hidden&&!b.classList.contains("hidden"))||null}
-  function replaceHash(value){history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
-  function syncActiveRoute(role,replace=false){
-    const btn=currentButton(role);if(!btn)return;
-    const page=btn.dataset[DATAKEY[role]],r=routeForPage(role,page);if(!r)return;
-    if(slug()===r)return;
-    if(replace)replaceHash(r);else location.hash=r;
-  }
+  function usable(btn){return !!btn&&!btn.hidden&&!btn.classList.contains("hidden")}
+  function replaceHash(value){if(!value)return;history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
+  function buttonForPage(role,page){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.dataset[DATAKEY[role]]===page&&usable(b))||null}
+  function activeButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&usable(b))||null}
+  function syncUrl(role){const b=activeButton(role);if(!b)return;const r=routeForPage(role,b.dataset[DATAKEY[role]]);if(r&&slug()!==r)replaceHash(r)}
   function applyRoute(){
     if(applying)return;
     const role=visibleRole();if(!role)return;
-    const wanted=slug(),page=ROUTES[role]?.[wanted];
-    if(!page){syncActiveRoute(role,true);return}
-    const btn=[...document.querySelectorAll(SELECTORS[role])].find(b=>b.dataset[DATAKEY[role]]===page&&!b.hidden&&!b.classList.contains("hidden"));
-    if(!btn){syncActiveRoute(role,true);return}
-    if(btn.classList.contains("active"))return;
+    const page=ROUTES[role]?.[slug()];
+    if(!page){syncUrl(role);return}
+    const btn=buttonForPage(role,page);
+    if(!btn){syncUrl(role);return}
+    if(btn.classList.contains("active")){window.JM_MEMBER_NAV_SYNC?.(page);return}
     applying=true;
-    try{btn.click()}finally{setTimeout(()=>{applying=false},0)}
+    try{btn.click()}finally{setTimeout(()=>{applying=false;window.JM_MEMBER_NAV_SYNC?.(page)},0)}
   }
-
   document.addEventListener("click",e=>{
-    const btn=e.target.closest("[data-page],[data-fan-page],[data-guest-page]");if(!btn)return;
+    const btn=e.target.closest("[data-page],[data-fan-page],[data-guest-page]");if(!btn||!usable(btn))return;
     let role,page;
     if(btn.dataset.page){role="member";page=btn.dataset.page}
     else if(btn.dataset.fanPage){role="fan";page=btn.dataset.fanPage}
     else if(btn.dataset.guestPage){role="guest";page=btn.dataset.guestPage}
-    const r=routeForPage(role,page);if(!r||slug()===r)return;
-    location.hash=r;
+    const r=routeForPage(role,page);if(r&&slug()!==r)replaceHash(r);
   });
-
   window.addEventListener("hashchange",applyRoute);
-
-  ["memberLogout","fanLogout","guestLogout"].forEach(id=>{
-    document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40));
-  });
-
-  /* v4.7.4h — niente MutationObserver sul cambio hidden delle app.
-     Un controllo ritardato dopo i click copre login e navigazione senza osservare attributi. */
-  document.addEventListener("click",()=>setTimeout(()=>{
-    const role=visibleRole();if(!role)return;
-    const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true);
-  },60),true);
-
-  // Se l'utente apre direttamente index.html#concerti, la route verrà applicata appena entra nell'area corretta.
+  ["memberLogout","fanLogout","guestLogout"].forEach(id=>document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40)));
   if(!location.hash)replaceHash("home");
-  setTimeout(()=>{const role=visibleRole();if(role){if(ROUTES[role]?.[slug()])applyRoute();else syncActiveRoute(role,true)}},120);
-  setTimeout(applyRoute,500);
+  setTimeout(applyRoute,150);
+  setTimeout(applyRoute,600);
 })();
 
 
@@ -5014,14 +4996,6 @@ setMemberRankingTab('songs');
     }
   }
   window.setMemberCategory=setMemberCategory;
-
-  categoryNav()?.querySelectorAll("[data-member-category]").forEach(btn=>{
-    btn.addEventListener("click",()=>setMemberCategory(btn.dataset.memberCategory,{activate:true}));
-  });
-  memberNav()?.addEventListener("click",e=>{
-    const btn=e.target.closest(".nav-button[data-category]");
-    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
-  },true);
 
   if(typeof applyMemberPermissionsUI==="function"){
     const originalApplyMemberPermissionsUI=applyMemberPermissionsUI;
@@ -5197,25 +5171,6 @@ setMemberRankingTab('songs');
     });
   };
 
-  /* Click su route/submenu: categoria superiore sincronizzata. */
-  document.addEventListener("click",e=>{
-    const btn=e.target.closest("#memberNav .nav-button[data-category]");
-    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
-  },true);
-
-  /* Le route hash possono arrivare direttamente a una pagina di un'altra categoria. */
-  window.addEventListener("hashchange",()=>{
-    const slug=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
-    const map={
-      scaletta:"setlists",proposte:"setlists","scalette-membri":"setlists",
-      catalogo:"music",concerti:"music",
-      presenze:"fan",fan:"fan",
-      cassa:"management",disponibilita:"management",richieste:"management",
-      "classifica-brani":"rankings",statistiche:"rankings",
-      "media-pubblici":"setup",setup:"setup"
-    };
-    if(map[slug])setMemberCategory(map[slug],{activate:false});
-  },true);
 })();
 </script>
 
@@ -6736,25 +6691,8 @@ setMemberRankingTab('songs');
     qa('[data-code-toggle]',root).forEach(b=>b.onclick=async()=>{const{error}=await sb.rpc('admin_set_demo_unlock_code_active',{p_id:b.dataset.codeToggle,p_active:b.dataset.active!=='1'});if(error)return alert(error.message);await loadAll(true);state.filter='demo';state.demoView='codes';render()});
   }
 
-  function bindNavCorrections(){
-    const nav=q('#memberNav');if(!nav)return;
-    nav.addEventListener('click',e=>{
-      const btn=e.target.closest('.nav-button[data-page]');if(!btn)return;
-      const forced={
-        mySetlistPage:'setlists',proposalsPage:'setlists',membersPage:'setlists',
-        catalogPage:'music',concertsPage:'music',
-        demoCertificationPage:'fan',fansAdminPage:'fan',
-        cashPage:'management',bandAvailabilityPage:'management',requestsPage:'management',
-        songRankingPage:'rankings',analyticsPage:'rankings',
-        publicMediaAdminPage:'setup',setupPage:'setup'
-      }[btn.dataset.page];
-      if(forced)try{window.setMemberCategory?.(forced,{activate:false})}catch{}
-    });
-  }
-
   function boot(){
-    if(typeof sb==='undefined')return;
-    injectStyles();makeNav();makePage();normalizeNav();bindNavCorrections();syncVisibility();
+    injectStyles();makeNav();makePage();normalizeNav();syncVisibility();
     const memberApp=q('#memberApp');if(memberApp)new MutationObserver(()=>queueMicrotask(syncVisibility)).observe(memberApp,{attributes:true,attributeFilter:['hidden']});
   }
 
@@ -6763,178 +6701,141 @@ setMemberRankingTab('songs');
 
   </script>
 
-<script id="member-navigation-authority-v415">
+<script id="member-navigation-controller-v416">
 (()=>{
   const PAGE_CATEGORY={
-    mySetlistPage:"setlists",
-    proposalsPage:"setlists",
-    membersPage:"setlists",
-    catalogPage:"music",
-    concertsPage:"music",
-    demoCertificationPage:"fan",
-    fansAdminPage:"fan",
-    cashPage:"management",
-    bandAvailabilityPage:"management",
-    requestsPage:"management",
-    demoCodesPage:"management",
-    bookingAdminPage:"management",
-    songRankingPage:"rankings",
-    analyticsPage:"rankings",
-    publicMediaAdminPage:"setup",
-    setupPage:"setup"
+    mySetlistPage:"setlists",proposalsPage:"setlists",membersPage:"setlists",
+    catalogPage:"music",concertsPage:"music",
+    demoCertificationPage:"fan",fansAdminPage:"fan",
+    cashPage:"management",bandAvailabilityPage:"management",requestsPage:"management",
+    demoCodesPage:"management",bookingAdminPage:"management",
+    songRankingPage:"rankings",analyticsPage:"rankings",
+    publicMediaAdminPage:"setup",setupPage:"setup"
   };
-  const HASH_PAGE={
-    scaletta:"mySetlistPage",
-    proposte:"proposalsPage",
-    "scalette-membri":"membersPage",
-    catalogo:"catalogPage",
-    concerti:"concertsPage",
-    presenze:"demoCertificationPage",
-    fan:"fansAdminPage",
-    cassa:"cashPage",
-    disponibilita:"bandAvailabilityPage",
-    richieste:"requestsPage",
-    "classifica-brani":"songRankingPage",
-    statistiche:"analyticsPage",
-    "media-pubblici":"publicMediaAdminPage",
-    setup:"setupPage"
+  const PAGE_ROUTE={
+    mySetlistPage:"scaletta",proposalsPage:"proposte",membersPage:"scalette-membri",
+    catalogPage:"catalogo",concertsPage:"concerti",demoCertificationPage:"presenze",fansAdminPage:"fan",
+    cashPage:"cassa",bandAvailabilityPage:"disponibilita",requestsPage:"richieste",
+    songRankingPage:"classifica-brani",analyticsPage:"statistiche",publicMediaAdminPage:"media-pubblici",setupPage:"setup"
   };
-
+  const ROUTE_PAGE=Object.fromEntries(Object.entries(PAGE_ROUTE).map(([p,r])=>[r,p]));
   const nav=()=>document.getElementById("memberNav");
   const top=()=>document.getElementById("memberCategoryNav");
+  const usable=b=>!!b&&!b.hidden&&!b.classList.contains("hidden");
+  let syncing=false,scheduled=false;
 
-  function usable(btn){
-    return !!btn&&!btn.hidden&&!btn.classList.contains("hidden");
-  }
-
-  function normalizeDynamicButtons(){
+  function normalize(){
     const n=nav();if(!n)return;
-
     const rules={
       demoCertificationPage:{category:"fan",label:"PRESENZE"},
       fansAdminPage:{category:"fan"},
       cashPage:{category:"management"},
       bandAvailabilityPage:{category:"management",label:"DISPONIBILITÀ"},
-      requestsPage:{category:"management"},
+      requestsPage:{category:"management",label:"RICHIESTE"},
       demoCodesPage:{category:"management",hidden:true},
       bookingAdminPage:{category:"management",hidden:true},
-      songRankingPage:{category:"rankings"},
-      analyticsPage:{category:"rankings"},
-      publicMediaAdminPage:{category:"setup",label:"MEDIA PUBBLICI"},
-      setupPage:{category:"setup"}
+      songRankingPage:{category:"rankings"},analyticsPage:{category:"rankings"},
+      publicMediaAdminPage:{category:"setup",label:"MEDIA PUBBLICI"},setupPage:{category:"setup"}
     };
-
     Object.entries(rules).forEach(([page,cfg])=>{
-      const btn=n.querySelector(`[data-page="${page}"]`);
-      if(!btn)return;
-      if(cfg.category)btn.dataset.category=cfg.category;
+      const b=n.querySelector(`[data-page="${page}"]`);if(!b)return;
+      if(cfg.category)b.dataset.category=cfg.category;
       if(cfg.label){
-        const badge=btn.querySelector(".badge,.rq-badge");
-        [...btn.childNodes].filter(x=>x.nodeType===Node.TEXT_NODE).forEach(x=>x.remove());
-        btn.insertBefore(document.createTextNode(cfg.label+(badge?" ":"")),badge||null);
+        const badge=b.querySelector(".badge,.rq-badge");
+        [...b.childNodes].filter(x=>x.nodeType===Node.TEXT_NODE).forEach(x=>x.remove());
+        b.insertBefore(document.createTextNode(cfg.label+(badge?" ":"")),badge||null);
       }
-      if(cfg.hidden){
-        btn.classList.add("hidden");
-        btn.hidden=true;
-        btn.tabIndex=-1;
-      }
+      if(cfg.hidden){b.classList.add("hidden");b.hidden=true;b.tabIndex=-1}
     });
-
-    const presence=n.querySelector('[data-page="demoCertificationPage"]');
-    const users=n.querySelector('[data-page="fansAdminPage"]');
+    const presence=n.querySelector('[data-page="demoCertificationPage"]'),users=n.querySelector('[data-page="fansAdminPage"]');
     if(presence&&users&&presence.nextElementSibling!==users)n.insertBefore(presence,users);
-
-    const cash=n.querySelector('[data-page="cashPage"]');
-    const availability=n.querySelector('[data-page="bandAvailabilityPage"]');
-    const requests=n.querySelector('[data-page="requestsPage"]');
+    const cash=n.querySelector('[data-page="cashPage"]'),availability=n.querySelector('[data-page="bandAvailabilityPage"]'),requests=n.querySelector('[data-page="requestsPage"]');
     if(cash&&availability&&cash.nextElementSibling!==availability)cash.after(availability);
     if(availability&&requests&&availability.nextElementSibling!==requests)availability.after(requests);
     else if(cash&&requests&&!availability&&cash.nextElementSibling!==requests)cash.after(requests);
-
-    const media=n.querySelector('[data-page="publicMediaAdminPage"]');
-    const setup=n.querySelector('[data-page="setupPage"]');
+    const media=n.querySelector('[data-page="publicMediaAdminPage"]'),setup=n.querySelector('[data-page="setupPage"]');
     if(media&&setup&&media.nextElementSibling!==setup)n.insertBefore(media,setup);
   }
 
   function activePageId(){
-    const n=nav();
-    const activeButton=n?.querySelector(".nav-button.active[data-page]");
-    if(usable(activeButton))return activeButton.dataset.page;
-    const activePage=[...document.querySelectorAll("#memberApp main .page.active")]
-      .find(p=>PAGE_CATEGORY[p.id]);
-    return activePage?.id||null;
+    const pages=[...document.querySelectorAll("#memberApp main .page.active")].filter(p=>PAGE_CATEGORY[p.id]);
+    if(pages.length)return pages[pages.length-1].id;
+    const b=nav()?.querySelector(".nav-button.active[data-page]");
+    return usable(b)&&PAGE_CATEGORY[b.dataset.page]?b.dataset.page:null;
   }
-
+  function applyCategory(category){
+    const n=nav(),t=top();if(!n||!t||!category)return;
+    n.querySelectorAll(".nav-button[data-category]").forEach(b=>b.classList.toggle("category-off",b.dataset.category!==category));
+    t.querySelectorAll("[data-member-category]").forEach(b=>b.classList.toggle("active",b.dataset.memberCategory===category));
+  }
   function sync(pageId){
-    normalizeDynamicButtons();
-    const n=nav(),t=top();if(!n||!t)return;
-
-    if(!pageId)pageId=activePageId();
-    const category=PAGE_CATEGORY[pageId];
-    if(!category)return;
-
-    const selected=n.querySelector(`[data-page="${pageId}"]`);
-    if(usable(selected)){
-      n.querySelectorAll(".nav-button[data-page]").forEach(btn=>{
-        btn.classList.toggle("active",btn===selected);
-      });
-    }
-
-    n.querySelectorAll(".nav-button[data-category]").forEach(btn=>{
-      btn.classList.toggle("category-off",btn.dataset.category!==category);
-    });
-    t.querySelectorAll("[data-member-category]").forEach(btn=>{
-      btn.classList.toggle("active",btn.dataset.memberCategory===category);
-    });
-
-    try{localStorage.setItem("jm_member_category_v48",category)}catch{}
+    if(syncing)return;syncing=true;
+    try{
+      normalize();
+      const n=nav();if(!n)return;
+      pageId=PAGE_CATEGORY[pageId]?pageId:activePageId();
+      if(!pageId)return;
+      const selected=n.querySelector(`[data-page="${pageId}"]`);
+      if(usable(selected))n.querySelectorAll(".nav-button[data-page]").forEach(b=>b.classList.toggle("active",b===selected));
+      applyCategory(PAGE_CATEGORY[pageId]);
+    }finally{syncing=false}
   }
-
-  function firstPageForCategory(category){
+  function schedule(pageId){
+    if(scheduled)return;scheduled=true;
+    requestAnimationFrame(()=>{scheduled=false;sync(pageId||activePageId())});
+  }
+  function firstForCategory(category){
+    normalize();
     const n=nav();if(!n)return null;
-    const current=n.querySelector(`.nav-button.active[data-category="${category}"]`);
-    if(usable(current))return current;
+    const active=n.querySelector(`.nav-button.active[data-category="${category}"]`);
+    if(usable(active))return active;
     return [...n.querySelectorAll(`.nav-button[data-category="${category}"]`)].find(usable)||null;
   }
 
+  /* Unico gestore dei tab principali: blocca i vecchi listener prima che possano intervenire. */
   top()?.addEventListener("click",e=>{
-    const catBtn=e.target.closest("[data-member-category]");
-    if(!catBtn)return;
-    const category=catBtn.dataset.memberCategory;
-    setTimeout(()=>{
-      const target=firstPageForCategory(category);
-      if(target&&!target.classList.contains("active"))target.click();
-      setTimeout(()=>sync(target?.dataset.page||activePageId()),0);
-    },0);
-  });
+    const cat=e.target.closest("[data-member-category]");if(!cat)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const category=cat.dataset.memberCategory,target=firstForCategory(category);
+    applyCategory(category);
+    if(target){
+      if(!target.classList.contains("active"))target.click();
+      else sync(target.dataset.page);
+      setTimeout(()=>sync(activePageId()||target.dataset.page),0);
+      setTimeout(()=>sync(activePageId()||target.dataset.page),80);
+    }
+  },true);
 
+  /* I sottotab continuano a usare i loro loader storici; qui si sincronizza solo lo stato visivo. */
   nav()?.addEventListener("click",e=>{
-    const btn=e.target.closest(".nav-button[data-page]");
-    if(!btn||!usable(btn))return;
-    const pageId=btn.dataset.page;
-    setTimeout(()=>sync(pageId),0);
+    const b=e.target.closest(".nav-button[data-page]");if(!b||!usable(b))return;
+    const page=b.dataset.page;
+    queueMicrotask(()=>sync(activePageId()||page));
+    setTimeout(()=>sync(activePageId()||page),0);
+    setTimeout(()=>sync(activePageId()||page),80);
   });
 
   window.addEventListener("hashchange",()=>{
-    setTimeout(()=>{
-      const slug=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
-      sync(HASH_PAGE[slug]||activePageId());
-    },0);
+    const slug=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+    const page=ROUTE_PAGE[slug];if(!page)return;
+    normalize();const b=nav()?.querySelector(`[data-page="${page}"]`);
+    if(usable(b)&&!b.classList.contains("active"))b.click();
+    setTimeout(()=>sync(activePageId()||page),0);
   });
 
-  const n=nav();
-  if(n)new MutationObserver(()=>{
-    normalizeDynamicButtons();
-    setTimeout(()=>sync(activePageId()),0);
-  }).observe(n,{childList:true,subtree:false});
+  /* Compatibilità con le pagine dinamiche: la pagina realmente attiva vince sempre sulla categoria richiesta. */
+  window.setMemberCategory=(category)=>{
+    const page=activePageId();
+    applyCategory(PAGE_CATEGORY[page]||category);
+  };
+  window.JM_MEMBER_NAV_SYNC=page=>sync(page||activePageId());
 
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>sync(activePageId()||"mySetlistPage"),0),{once:true});
-  }else{
-    setTimeout(()=>sync(activePageId()||"mySetlistPage"),0);
-  }
+  const n=nav(),m=document.querySelector("#memberApp main");
+  if(n)new MutationObserver(()=>schedule()).observe(n,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","data-category"]});
+  if(m)new MutationObserver(()=>schedule()).observe(m,{childList:true,subtree:true,attributes:true,attributeFilter:["class"]});
 
-  window.JM_MEMBER_NAV_SYNC=sync;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>sync(activePageId()||"mySetlistPage"),0),{once:true});
+  else setTimeout(()=>sync(activePageId()||"mySetlistPage"),0);
 })();
 </script>
 
