@@ -743,3 +743,87 @@
   #homePage .home-dash-media .media-tile{height:150px!important}
   #homePage>.home-hero-news>.hero-copy{padding:28px 20px!important}
 }
+
+
+/* HOME HERO NEWS — immagine estesa e sfumata fino a sinistra */
+#homePage>.home-hero-news{position:relative!important;display:block!important;min-height:410px!important;isolation:isolate!important;overflow:hidden!important}
+#homePage>.home-hero-news>.hero-copy{position:relative!important;z-index:6!important;width:43%!important;min-height:410px!important;padding:42px 32px 42px 36px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;background:transparent!important;text-shadow:0 2px 14px rgba(0,0,0,.88)!important}
+#homePage>.home-hero-news>.home-hero-highlights{position:absolute!important;z-index:1!important;inset:0!important;width:100%!important;min-height:410px!important;margin:0!important;overflow:hidden!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-track{width:100%!important;height:410px!important;min-height:410px!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-slide{position:relative!important;isolation:isolate!important;min-height:410px!important;width:100%!important;padding:0!important;display:block!important;overflow:hidden!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-bg-image{position:absolute!important;z-index:-4!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;transition:transform .2s ease,object-position .2s ease}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-slide::before{content:''!important;position:absolute!important;z-index:-3!important;inset:0!important;background:linear-gradient(90deg,#101010 0%,rgba(16,16,16,.985) 18%,rgba(16,16,16,.92) 31%,rgba(16,16,16,.72) 44%,rgba(16,16,16,.46) 57%,rgba(16,16,16,.24) 70%,rgba(16,16,16,.10) 84%,rgba(16,16,16,.05) 100%)!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-slide::after{content:''!important;position:absolute!important;z-index:-2!important;inset:0!important;background:linear-gradient(0deg,rgba(0,0,0,.58),rgba(0,0,0,.03) 66%)!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-copy{position:absolute!important;z-index:3!important;right:34px!important;bottom:86px!important;width:min(650px,48%)!important;margin:0!important;padding:0!important;text-align:right!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;color:#fff!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-copy .section-kicker,#homePage>.home-hero-news>.home-hero-highlights .highlight-copy h3,#homePage>.home-hero-news>.home-hero-highlights .highlight-copy p{max-width:100%!important;text-align:right!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-copy h3{font-size:clamp(32px,4vw,58px)!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-copy p{margin-left:auto!important;max-width:560px!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlight-action{align-self:flex-end!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlights-heading{left:auto!important;right:30px!important;width:min(650px,48%)!important;display:flex!important;justify-content:space-between!important}
+#homePage>.home-hero-news>.home-hero-highlights .highlights-heading h2{text-align:right!important}
+
+/* HOME DASHBOARD — 5 card compatte */
+.home-dashboard-shell{margin:0 0 26px!important}
+.home-dashboard-heading{margin:0 0 8px!important;align-items:center!important}
+.home-dashboard-heading h2{margin:1px 0 0!important;font-size:28px!important}
+.home-dashboard-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:9px!important}
+.home-dash-card.home-dash-compact,.home-dash-card{grid-column:auto!important;min-height:205px!important;padding:14px!important}
+.home-dash-card h3{margin:4px 0 8px!important;font-size:clamp(22px,1.8vw,30px)!important}
+.home-dash-card p{margin:0 0 12px!important;font-size:10px!important;line-height:1.4!important}
+.home-dash-arrow{display:block;margin-top:auto;color:var(--gold);font:900 9px/1 monospace;letter-spacing:.04em}
+.home-dash-live{min-height:205px!important;background-image:linear-gradient(0deg,rgba(0,0,0,.86),rgba(0,0,0,.26)),var(--dash-bg)!important}
+.home-dash-live-copy{min-height:177px!important;width:100%!important;padding:0!important;justify-content:flex-end!important}
+.home-dash-live-copy h3{font-size:clamp(27px,2.2vw,36px)!important;margin:5px 0!important}
+.home-dash-live-copy p{margin:0 0 9px!important;color:#e8e6df!important}
+.home-dash-live-copy .text-button{padding:0!important}
+#homePage .mini-rank-row{grid-template-columns:24px minmax(0,1fr) 38px!important;padding:7px 0!important}
+#homePage .mini-rank-row b{font-size:10px!important}
+#homePage .mini-rank-row strong{font-size:11px!important}
+.home-news-preview-list{display:grid;gap:0}
+.home-news-mini-row{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;width:100%;padding:7px 0;border:0;border-top:1px solid #444139;background:transparent;color:var(--text);text-align:left;cursor:pointer}
+.home-news-mini-row:first-child{border-top:0}
+.home-news-mini-row:hover strong{color:var(--gold)}
+.home-news-mini-row span{color:var(--gold);font:800 7px/1 monospace;text-transform:uppercase}
+.home-news-mini-row strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.home-news-mini-row small{color:var(--muted);font-size:8px}
+.home-dash-merch{display:flex;flex-direction:column;background:radial-gradient(circle at 86% 15%,rgba(243,210,52,.13),transparent 34%),#191816!important}
+.home-dash-contacts{display:flex;flex-direction:column;justify-content:flex-start!important;background:linear-gradient(145deg,#191916,#26230d)!important}
+.home-legacy-hidden{display:none!important}
+
+/* TAB ADMIN NOVITÀ */
+.admin-news-nav{border-color:rgba(243,210,52,.7)!important}
+.admin-news-nav span::before{content:'ADMIN · ';font-size:.65em}
+.news-admin-page{padding-bottom:30px}
+.news-admin-layout{display:grid!important;grid-template-columns:minmax(330px,.78fr) minmax(390px,1.22fr)!important;gap:12px!important}
+.news-admin-layout>.glass-card{margin:0!important}
+.home-news-crop-panel{display:grid;gap:9px;padding:10px;border:1px solid #555248;background:#0e0e0e}
+.home-news-crop-preview{position:relative;aspect-ratio:16/6;overflow:hidden;border:1px solid #59564e;background:#050505}
+.home-news-crop-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.home-news-crop-preview>span{position:absolute;inset:0;display:grid;place-items:center;color:#77736b;font-size:9px}
+.home-news-crop-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.home-news-crop-controls label{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;color:#9e9a90;font:800 7px/1.2 monospace}
+.home-news-crop-controls input{grid-column:1/-1;padding:0!important}
+.home-news-crop-controls output{color:var(--gold)}
+
+@media(max-width:1180px){
+  .home-dashboard-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .home-dash-card{min-height:190px!important}
+}
+@media(max-width:900px){
+  #homePage>.home-hero-news>.hero-copy{width:52%!important}
+  #homePage>.home-hero-news>.home-hero-highlights .highlight-copy,#homePage>.home-hero-news>.home-hero-highlights .highlights-heading{width:44%!important}
+  .news-admin-layout{grid-template-columns:1fr!important}
+}
+@media(max-width:700px){
+  #homePage>.home-hero-news{min-height:640px!important}
+  #homePage>.home-hero-news>.hero-copy{width:100%!important;min-height:300px!important;padding:28px 20px!important;background:linear-gradient(180deg,rgba(16,16,16,.94),rgba(16,16,16,.78),rgba(16,16,16,.18))!important}
+  #homePage>.home-hero-news>.home-hero-highlights{top:260px!important;min-height:380px!important}
+  #homePage>.home-hero-news>.home-hero-highlights .highlight-track,#homePage>.home-hero-news>.home-hero-highlights .highlight-slide{height:380px!important;min-height:380px!important}
+  #homePage>.home-hero-news>.home-hero-highlights .highlight-slide::before{background:linear-gradient(180deg,rgba(16,16,16,.82),rgba(16,16,16,.25) 40%,rgba(16,16,16,.58) 100%)!important}
+  #homePage>.home-hero-news>.home-hero-highlights .highlight-copy{right:20px!important;bottom:28px!important;width:calc(100% - 40px)!important}
+  #homePage>.home-hero-news>.home-hero-highlights .highlights-heading{right:20px!important;left:20px!important;width:auto!important}
+  .home-dashboard-grid{grid-template-columns:1fr 1fr!important}
+  .home-dash-card{min-height:180px!important}
+  .home-news-crop-controls{grid-template-columns:1fr}
+}
+@media(max-width:480px){.home-dashboard-grid{grid-template-columns:1fr!important}}
