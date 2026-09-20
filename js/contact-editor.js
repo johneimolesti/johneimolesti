@@ -1,4 +1,4 @@
-() => {
+(() => {
   'use strict';
 
   const SUPABASE_URL='https://etzwybamvfpeitkttwrc.supabase.co';
