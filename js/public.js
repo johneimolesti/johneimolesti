@@ -6,7 +6,7 @@
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
-  const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more', 'contacts']);
+  const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more', 'contacts', 'news-admin']);
   const $ = id => document.getElementById(id);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -109,9 +109,6 @@
     if(hero&&highlights){
       hero.classList.add('home-hero-news');
       highlights.classList.add('home-hero-highlights');
-
-      // La struttura non dipende più dall'HTML originale:
-      // le novità diventano davvero la metà destra dello stesso hero.
       if(highlights.parentElement!==hero)hero.appendChild(highlights);
 
       const heading=highlights.querySelector('.highlights-heading h2');
@@ -126,8 +123,7 @@
       shell.className='home-dashboard-shell';
       shell.innerHTML=`
         <div class="home-dashboard-heading">
-          <div><span class="section-kicker">DENTRO I MOLESTI</span><h2>Esplora</h2></div>
-          <p>Anteprime dal sito. Seleziona un riquadro per entrare nella sezione completa.</p>
+          <div><span class="section-kicker">IN BREVE</span><h2>Dal sito</h2></div>
         </div>
         <div class="home-dashboard-grid" id="homeDashboardGrid"></div>`;
       if(hero)hero.insertAdjacentElement('afterend',shell);
@@ -136,12 +132,11 @@
 
     const grid=$('homeDashboardGrid');
     if(!grid)return;
-
     const oldGrid=home.querySelector('.home-grid');
 
     const next=$('homeNextShow');
     if(next){
-      next.classList.add('home-dash-card','home-dash-live');
+      next.classList.add('home-dash-card','home-dash-live','home-dash-compact');
       next.dataset.dashboardRoute='tour';
       next.tabIndex=0;
       next.setAttribute('role','link');
@@ -149,27 +144,9 @@
       grid.appendChild(next);
     }
 
-    let repertoire=$('homeRepertoirePreview');
-    if(!repertoire){
-      repertoire=document.createElement('article');
-      repertoire.id='homeRepertoirePreview';
-      repertoire.className='home-dash-card home-dash-repertoire glass-card';
-      repertoire.dataset.dashboardRoute='repertoire';
-      repertoire.tabIndex=0;
-      repertoire.setAttribute('role','link');
-      repertoire.setAttribute('aria-label','Vai al repertorio');
-      repertoire.innerHTML=`
-        <div class="home-dash-head">
-          <div><span class="section-kicker">SONGS</span><h3>Repertorio</h3></div>
-          <button class="text-button" type="button" data-home-route="repertoire">TUTTI I BRANI →</button>
-        </div>
-        <div class="home-repertoire-preview"><div class="card-loading">Caricamento brani…</div></div>`;
-      grid.appendChild(repertoire);
-    }
-
     const ranking=$('homeRankingPreview');
     if(ranking){
-      ranking.classList.add('home-dash-card','home-dash-ranking');
+      ranking.classList.add('home-dash-card','home-dash-ranking','home-dash-compact');
       ranking.dataset.dashboardRoute='rankings';
       ranking.tabIndex=0;
       ranking.setAttribute('role','link');
@@ -177,84 +154,62 @@
       grid.appendChild(ranking);
     }
 
-    let band=$('homeBandPreview');
-    if(!band){
-      band=document.createElement('article');
-      band.id='homeBandPreview';
-      band.className='home-dash-card home-dash-band glass-card';
-      band.dataset.dashboardRoute='band';
-      band.tabIndex=0;
-      band.setAttribute('role','link');
-      band.setAttribute('aria-label','Vai alla band');
-      band.innerHTML=`
+    let news=$('homeNewsPreview');
+    if(!news){
+      news=document.createElement('article');
+      news.id='homeNewsPreview';
+      news.className='home-dash-card home-dash-news home-dash-compact glass-card';
+      news.tabIndex=0;
+      news.setAttribute('role','region');
+      news.setAttribute('aria-label','Ultime novità');
+      news.innerHTML=`
         <div class="home-dash-head">
-          <div><span class="section-kicker">LINE-UP</span><h3>La band</h3></div>
-          <button class="text-button" type="button" data-home-route="band">CONOSCICI →</button>
+          <div><span class="section-kicker">NEWS</span><h3>Novità</h3></div>
         </div>
-        <div class="home-band-preview-body" id="homeBandPreviewBody"></div>
-        <div class="home-band-fallback" id="homeBandFallback"></div>`;
-      grid.appendChild(band);
+        <div class="home-news-preview-list"><div class="card-loading">Caricamento novità…</div></div>`;
+      grid.appendChild(news);
     }
 
-    const carousel=$('homeMemberCarousel');
-    const bandBody=$('homeBandPreviewBody');
-    if(carousel&&bandBody&&carousel.parentElement!==bandBody){
-      carousel.classList.add('home-band-carousel');
-      bandBody.appendChild(carousel);
-    }
-
-    const media=$('homeMedia');
-    if(media){
-      media.classList.add('home-dash-card','home-dash-media');
-      media.dataset.dashboardRoute='more';
-      media.tabIndex=0;
-      media.setAttribute('role','link');
-      media.setAttribute('aria-label','Vai ai media');
-
-      const copy=media.querySelector('.home-media-copy');
-      if(copy){
-        const h=copy.querySelector('h2');
-        const p=copy.querySelector('p');
-        const b=copy.querySelector('button');
-        if(h){h.removeAttribute('data-copy');h.textContent='Media'}
-        if(p){p.removeAttribute('data-copy');p.textContent='Foto, locandine e momenti dal palco.'}
-        if(b){b.removeAttribute('data-copy');b.textContent='APRI MEDIA →'}
-      }
-      grid.appendChild(media);
+    let merch=$('homeMerchPreview');
+    if(!merch){
+      merch=document.createElement('article');
+      merch.id='homeMerchPreview';
+      merch.className='home-dash-card home-dash-merch home-dash-compact glass-card';
+      merch.dataset.dashboardRoute='more';
+      merch.tabIndex=0;
+      merch.setAttribute('role','link');
+      merch.setAttribute('aria-label','Vai al merch');
+      merch.innerHTML=`
+        <span class="section-kicker">MERCH</span>
+        <h3>Merch in saldo</h3>
+        <p>Offerte, pezzi rimasti e cattive idee da recuperare al banchetto.</p>
+        <span class="home-dash-arrow">VEDI MERCH →</span>`;
+      grid.appendChild(merch);
     }
 
     let contacts=$('homeContactsPreview');
     if(!contacts){
       contacts=document.createElement('article');
       contacts.id='homeContactsPreview';
-      contacts.className='home-dash-card home-dash-contacts glass-card';
+      contacts.className='home-dash-card home-dash-contacts home-dash-compact glass-card';
       contacts.dataset.dashboardRoute='contacts';
       contacts.tabIndex=0;
       contacts.setAttribute('role','link');
       contacts.setAttribute('aria-label','Vai ai contatti');
       contacts.innerHTML=`
-        <span class="section-kicker">BOOKING / CONTATTI</span>
-        <h3>Ci vuoi sul tuo palco?</h3>
-        <p>Contatti, social e calendario per proporci una o più date.</p>
-        <button class="btn btn-primary" type="button" data-home-route="contacts">CONTATTACI</button>`;
+        <span class="section-kicker">BOOKING</span>
+        <h3>Contatti</h3>
+        <p>Vuoi portarci sul tuo palco? Contatti e calendario disponibilità.</p>
+        <span class="home-dash-arrow">CONTATTACI →</span>`;
       grid.appendChild(contacts);
     }
 
     if(oldGrid&&!oldGrid.children.length)oldGrid.remove();
 
-    // L'eventuale carosello membri era dopo i media nella vecchia Home:
-    // una volta spostato nel riquadro Band non deve restare spazio vuoto.
-    home.querySelectorAll(':scope > .home-member-carousel').forEach(node=>{
-      if(node!==carousel)node.remove();
-    });
-
-    $$('[data-home-route]',shell).forEach(button=>{
-      button.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        go(button.dataset.homeRoute);
-      };
-    });
+    $('homeMedia')?.classList.add('home-legacy-hidden');
+    $('homeMemberCarousel')?.classList.add('home-legacy-hidden');
+    $('homeRepertoirePreview')?.remove();
+    $('homeBandPreview')?.remove();
   }
 
   function ensurePublicSections() {
@@ -429,6 +384,32 @@
   }
   function syncPublicAdminControls() {
     $$('.public-admin-only').forEach(el=>el.classList.toggle('hidden',!isPublicAdmin()));
+    syncAdminNewsNavigation();
+  }
+
+  function syncAdminNewsNavigation(){
+    const nav=$('mainNav');
+    const admin=isPublicAdmin();
+    let button=$('adminNewsNav');
+
+    if(admin&&nav&&!button){
+      button=document.createElement('button');
+      button.id='adminNewsNav';
+      button.className='nav-item admin-news-nav';
+      button.dataset.route='news-admin';
+      button.type='button';
+      button.innerHTML='<span>NOVITÀ</span>';
+      button.onclick=()=>go('news-admin');
+      nav.appendChild(button);
+    }
+
+    if(button)button.hidden=!admin;
+
+    if(admin){
+      ensureHomeNewsEditor();
+    }else if(currentRoute()==='news-admin'){
+      go('home');
+    }
   }
   function ensurePublicVideoEditor() {
     let modal=$('publicVideoEditorModal');
@@ -519,18 +500,171 @@
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  let homeNewsPreviewObjectUrl='';
+
   function ensureHomeNewsEditor(){
-    let modal=$('homeNewsEditorModal');if(modal)return modal;
-    modal=document.createElement('div');modal.className='modal';modal.id='homeNewsEditorModal';modal.hidden=true;
-    modal.innerHTML=`<div class="modal-backdrop"></div><section class="modal-card home-news-editor-card" role="dialog" aria-modal="true" aria-labelledby="homeNewsEditorTitle"><header class="modal-head"><div><span class="section-kicker">HOME</span><h2 id="homeNewsEditorTitle">Gestisci novità</h2></div><button class="modal-close" type="button" aria-label="Chiudi">×</button></header><div class="modal-body home-news-admin-layout"><form id="homeNewsForm" class="home-news-form"><input id="homeNewsId" type="hidden"><input id="homeNewsOldImage" type="hidden"><div class="home-news-form-head"><strong id="homeNewsFormTitle">NUOVA NOVITÀ</strong><button id="homeNewsReset" type="button">NUOVA</button></div><label>ORIGINE<select id="homeNewsSourceType"><option value="concert">Concerto</option><option value="song">Brano</option><option value="media">Foto / media</option><option value="custom">Ex novo</option></select></label><label id="homeNewsSourceWrap">CONTENUTO<select id="homeNewsSourceId"></select></label><label>TITOLO<input id="homeNewsTitle" maxlength="160" required></label><label>TESTO<textarea id="homeNewsBody" maxlength="1200" rows="4"></textarea></label><div class="home-news-form-two"><label>TESTO BOTTONE<input id="homeNewsActionLabel" maxlength="80" placeholder="SCOPRI DI PIÙ"></label><label>ORDINE<input id="homeNewsOrder" type="number" step="1" value="100"></label></div><label id="homeNewsLinkWrap">LINK ESTERNO (FACOLTATIVO)<input id="homeNewsLink" placeholder="https://..."></label><label>IMMAGINE PERSONALIZZATA (FACOLTATIVA)<input id="homeNewsImage" type="file" accept="image/*"><span class="home-news-help">Se non la carichi, concerto/brano/foto usano automaticamente locandina, cover o immagine originale.</span></label><div class="home-news-form-two"><label>PUBBLICAZIONE<input id="homeNewsPublishedAt" type="datetime-local"></label><label>SCADENZA (FACOLTATIVA)<input id="homeNewsExpiresAt" type="datetime-local"></label></div><label class="home-news-check"><input id="homeNewsPublished" type="checkbox" checked> VISIBILE IN HOME</label><div class="home-news-save-row"><span id="homeNewsStatus"></span><button class="btn btn-primary" type="submit">SALVA NOVITÀ</button></div></form><section class="home-news-list-panel"><div class="home-news-list-head"><strong>NOVITÀ CONFIGURATE</strong><span id="homeNewsCounter"></span></div><div id="homeNewsAdminList" class="home-news-admin-list"></div></section></div></section>`;
-    document.body.appendChild(modal);
-    modal.querySelector('.modal-close').onclick=()=>closeModal(modal.id);
-    modal.querySelector('.modal-backdrop').onclick=()=>closeModal(modal.id);
-    $('homeNewsSourceType').onchange=()=>syncHomeNewsSourceUi(true);
-    $('homeNewsSourceId').onchange=()=>applyHomeNewsSourceDefaults();
+    let page=$('newsAdminPage');
+    if(page)return page;
+
+    page=document.createElement('section');
+    page.className='page news-admin-page';
+    page.id='newsAdminPage';
+    page.dataset.page='news-admin';
+    page.innerHTML=`
+      <header class="page-hero compact-hero glass-card news-admin-hero">
+        <div>
+          <span class="section-kicker">SOLO ADMIN</span>
+          <h2>NOVITÀ HOME</h2>
+          <p>Seleziona cosa mettere in evidenza, scrivi contenuti ex novo e regola il ritaglio delle immagini.</p>
+        </div>
+        <div class="page-hero-ornament">NEWS</div>
+      </header>
+
+      <section class="home-news-admin-layout news-admin-layout">
+        <form id="homeNewsForm" class="home-news-form glass-card">
+          <input id="homeNewsId" type="hidden">
+          <input id="homeNewsOldImage" type="hidden">
+
+          <div class="home-news-form-head">
+            <strong id="homeNewsFormTitle">NUOVA NOVITÀ</strong>
+            <button id="homeNewsReset" type="button">NUOVA</button>
+          </div>
+
+          <label>ORIGINE
+            <select id="homeNewsSourceType">
+              <option value="concert">Concerto</option>
+              <option value="song">Brano</option>
+              <option value="media">Foto / media</option>
+              <option value="custom">Ex novo</option>
+            </select>
+          </label>
+
+          <label id="homeNewsSourceWrap">CONTENUTO
+            <select id="homeNewsSourceId"></select>
+          </label>
+
+          <label>TITOLO<input id="homeNewsTitle" maxlength="160" required></label>
+          <label>TESTO<textarea id="homeNewsBody" maxlength="1200" rows="4"></textarea></label>
+
+          <div class="home-news-form-two">
+            <label>TESTO BOTTONE<input id="homeNewsActionLabel" maxlength="80" placeholder="SCOPRI DI PIÙ"></label>
+            <label>ORDINE<input id="homeNewsOrder" type="number" step="1" value="100"></label>
+          </div>
+
+          <label id="homeNewsLinkWrap">LINK ESTERNO (FACOLTATIVO)<input id="homeNewsLink" placeholder="https://..."></label>
+
+          <label>IMMAGINE PERSONALIZZATA (FACOLTATIVA)
+            <input id="homeNewsImage" type="file" accept="image/*">
+            <span class="home-news-help">Se non carichi nulla, live/brano/media usano automaticamente locandina, cover o foto originale.</span>
+          </label>
+
+          <section class="home-news-crop-panel">
+            <div class="home-news-crop-preview" id="homeNewsCropPreview">
+              <img id="homeNewsCropPreviewImage" alt="" hidden>
+              <span id="homeNewsCropEmpty">Seleziona una sorgente o un'immagine.</span>
+            </div>
+            <div class="home-news-crop-controls">
+              <label>POSIZIONE ORIZZONTALE <output id="homeNewsPosXOut">50%</output>
+                <input id="homeNewsPosX" type="range" min="0" max="100" step="1" value="50">
+              </label>
+              <label>POSIZIONE VERTICALE <output id="homeNewsPosYOut">50%</output>
+                <input id="homeNewsPosY" type="range" min="0" max="100" step="1" value="50">
+              </label>
+              <label>ZOOM / RITAGLIO <output id="homeNewsZoomOut">100%</output>
+                <input id="homeNewsZoom" type="range" min="100" max="240" step="5" value="100">
+              </label>
+            </div>
+          </section>
+
+          <div class="home-news-form-two">
+            <label>PUBBLICAZIONE<input id="homeNewsPublishedAt" type="datetime-local"></label>
+            <label>SCADENZA (FACOLTATIVA)<input id="homeNewsExpiresAt" type="datetime-local"></label>
+          </div>
+
+          <label class="home-news-check"><input id="homeNewsPublished" type="checkbox" checked> VISIBILE IN HOME</label>
+
+          <div class="home-news-save-row">
+            <span id="homeNewsStatus"></span>
+            <button class="btn btn-primary" type="submit">SALVA NOVITÀ</button>
+          </div>
+        </form>
+
+        <section class="home-news-list-panel glass-card">
+          <div class="home-news-list-head"><strong>NOVITÀ CONFIGURATE</strong><span id="homeNewsCounter"></span></div>
+          <div id="homeNewsAdminList" class="home-news-admin-list"></div>
+        </section>
+      </section>`;
+
+    $('contentStage')?.appendChild(page);
+
+    $('homeNewsSourceType').onchange=()=>{syncHomeNewsSourceUi(true);syncHomeNewsCropPreview();};
+    $('homeNewsSourceId').onchange=()=>{applyHomeNewsSourceDefaults();syncHomeNewsCropPreview();};
     $('homeNewsReset').onclick=()=>resetHomeNewsForm();
     $('homeNewsForm').onsubmit=saveHomeNews;
-    return modal;
+    $('homeNewsImage').onchange=()=>syncHomeNewsCropPreview(true);
+    ['homeNewsPosX','homeNewsPosY','homeNewsZoom'].forEach(id=>{$(id).oninput=syncHomeNewsCropPreview;});
+
+    return page;
+  }
+
+  function homeNewsSourceImage(type,id){
+    if(type==='concert'){
+      const c=concerts.find(x=>String(x.id)===String(id));
+      return c?primaryPosterUrl(c.poster_path)||'':'';
+    }
+    if(type==='song'){
+      const song=publicSongs.find(x=>String(x.id)===String(id));
+      return song?posterUrl(song.cover_path)||'':'';
+    }
+    if(type==='media'){
+      const media=publicMedia.find(x=>String(x.id)===String(id));
+      return media&&media.kind==='photo'?publicMediaAssetUrl(media.storage_path)||'':'';
+    }
+    return '';
+  }
+
+  function syncHomeNewsCropPreview(fileChanged=false){
+    const img=$('homeNewsCropPreviewImage');
+    const empty=$('homeNewsCropEmpty');
+    if(!img||!empty)return;
+
+    const x=Number($('homeNewsPosX')?.value||50);
+    const y=Number($('homeNewsPosY')?.value||50);
+    const zoom=Number($('homeNewsZoom')?.value||100);
+
+    if($('homeNewsPosXOut'))$('homeNewsPosXOut').textContent=x+'%';
+    if($('homeNewsPosYOut'))$('homeNewsPosYOut').textContent=y+'%';
+    if($('homeNewsZoomOut'))$('homeNewsZoomOut').textContent=zoom+'%';
+
+    if(fileChanged&&homeNewsPreviewObjectUrl){
+      URL.revokeObjectURL(homeNewsPreviewObjectUrl);
+      homeNewsPreviewObjectUrl='';
+    }
+
+    const file=$('homeNewsImage')?.files?.[0]||null;
+    let src='';
+
+    if(file){
+      if(!homeNewsPreviewObjectUrl)homeNewsPreviewObjectUrl=URL.createObjectURL(file);
+      src=homeNewsPreviewObjectUrl;
+    }else{
+      const old=$('homeNewsOldImage')?.value||'';
+      if(old)src=publicSiteAssetUrl(old)||'';
+      if(!src)src=homeNewsSourceImage($('homeNewsSourceType')?.value||'custom',$('homeNewsSourceId')?.value||'');
+    }
+
+    img.hidden=!src;
+    empty.hidden=!!src;
+
+    if(src){
+      img.src=src;
+      img.style.objectPosition=`${x}% ${y}%`;
+      img.style.transform=`scale(${zoom/100})`;
+      img.style.transformOrigin=`${x}% ${y}%`;
+    }else{
+      img.removeAttribute('src');
+      img.style.removeProperty('transform');
+    }
   }
 
   function syncHomeNewsSourceUi(applyDefaults=false){
@@ -540,6 +674,7 @@
     $('homeNewsSourceId').innerHTML=newsSourceOptions(type,$('homeNewsSourceId').value);
     $('homeNewsLinkWrap').hidden=type!=='custom';
     if(applyDefaults){$('homeNewsSourceId').value='';const d=sourceDefaults('custom','');$('homeNewsTitle').value=d.title;$('homeNewsBody').value=d.body;$('homeNewsActionLabel').value=d.action_label}
+    syncHomeNewsCropPreview();
   }
 
   function applyHomeNewsSourceDefaults(){
@@ -548,6 +683,7 @@
     $('homeNewsTitle').value=d.title;
     $('homeNewsBody').value=d.body;
     $('homeNewsActionLabel').value=d.action_label;
+    syncHomeNewsCropPreview();
   }
 
   function resetHomeNewsForm(){
@@ -557,12 +693,15 @@
     $('homeNewsOrder').value='100';$('homeNewsPublished').checked=true;
     $('homeNewsPublishedAt').value=localDateTimeInput(new Date());
     $('homeNewsExpiresAt').value='';$('homeNewsStatus').textContent='';$('homeNewsFormTitle').textContent='NUOVA NOVITÀ';
+    $('homeNewsPosX').value='50';$('homeNewsPosY').value='50';$('homeNewsZoom').value='100';
+    if(homeNewsPreviewObjectUrl){URL.revokeObjectURL(homeNewsPreviewObjectUrl);homeNewsPreviewObjectUrl=''}
     syncHomeNewsSourceUi(false);
+    syncHomeNewsCropPreview();
   }
 
   async function loadHomeNewsAdminList(){
     if(!isPublicAdmin())return [];
-    const {data,error}=await sb.from('site_news').select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,action_label,sort_order,updated_at').order('sort_order',{ascending:true}).order('published_at',{ascending:false});
+    const {data,error}=await sb.from('site_news').select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,image_position_x,image_position_y,image_zoom,action_label,sort_order,updated_at').order('sort_order',{ascending:true}).order('published_at',{ascending:false});
     if(error)throw error;
     const rows=data||[],list=$('homeNewsAdminList');
     $('homeNewsCounter').textContent=`${rows.length} VOCI`;
@@ -595,8 +734,12 @@
     $('homeNewsPublished').checked=row.published!==false;
     $('homeNewsPublishedAt').value=localDateTimeInput(row.published_at);
     $('homeNewsExpiresAt').value=localDateTimeInput(row.expires_at);
+    $('homeNewsPosX').value=Number(row.image_position_x??50);
+    $('homeNewsPosY').value=Number(row.image_position_y??50);
+    $('homeNewsZoom').value=Number(row.image_zoom??100);
     $('homeNewsFormTitle').textContent='MODIFICA NOVITÀ';
     $('homeNewsStatus').textContent=row.image_path?'Immagine personalizzata presente.':'';
+    syncHomeNewsCropPreview();
   }
 
   async function saveHomeNews(e){
@@ -632,6 +775,9 @@
         published_at:$('homeNewsPublishedAt').value?new Date($('homeNewsPublishedAt').value).toISOString():new Date().toISOString(),
         expires_at:$('homeNewsExpiresAt').value?new Date($('homeNewsExpiresAt').value).toISOString():null,
         source_type,source_id,image_path,
+        image_position_x:Number($('homeNewsPosX').value)||50,
+        image_position_y:Number($('homeNewsPosY').value)||50,
+        image_zoom:Number($('homeNewsZoom').value)||100,
         action_label:$('homeNewsActionLabel').value.trim(),
         sort_order:Number($('homeNewsOrder').value)||0
       };
@@ -655,9 +801,14 @@
 
   async function openHomeNewsEditor(){
     if(!isPublicAdmin())return;
-    ensureHomeNewsEditor();resetHomeNewsForm();
-    openModal('homeNewsEditorModal');
-    try{await loadHomeNewsAdminList()}catch(err){$('homeNewsAdminList').innerHTML=`<div class="empty-state">${esc(err.message||String(err))}</div>`}
+    ensureHomeNewsEditor();
+    resetHomeNewsForm();
+    go('news-admin');
+    try{
+      await loadHomeNewsAdminList();
+    }catch(err){
+      if($('homeNewsAdminList'))$('homeNewsAdminList').innerHTML=`<div class="empty-state">${esc(err.message||String(err))}</div>`;
+    }
   }
   window.JMNewsEditor={open:openHomeNewsEditor,refresh:loadPublicUpdates};
 
@@ -1011,6 +1162,12 @@
   function go(route) { location.hash = `#/${ROUTES.has(route) ? route : 'home'}`; }
   function applyRoute() {
     const route = currentRoute();
+    if(route==='news-admin'&&!isPublicAdmin()){
+      go('home');
+      return;
+    }
+    if(route==='news-admin')ensureHomeNewsEditor();
+
     $$('.page').forEach(p => p.classList.toggle('active', p.dataset.page === route));
     $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.route === route));
     renderContextRail(route);
@@ -1019,6 +1176,7 @@
     if (route === 'rankings') renderRankings();
     if (route === 'more') renderPublicMedia();
     if (route === 'contacts') { renderBookingCalendar(); }
+    if (route === 'news-admin') { loadHomeNewsAdminList().catch(err=>console.warn('Novità admin',err)); }
     window.scrollTo({top:0, behavior:'instant'});
   }
 
@@ -1031,7 +1189,8 @@
       rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],['Locandine','postersRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
       more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock']],
-      contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']]
+      contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']],
+      'news-admin':[['Nuova / modifica','homeNewsForm'],['Elenco novità','homeNewsAdminList']]
     };
     links.innerHTML = '';
     (configs[route] || []).forEach(([label,id]) => {
@@ -1418,6 +1577,48 @@
     box.hidden=!!(carousel&&!carousel.classList.contains('hidden'));
   }
 
+  function bindHomeDashboardRoutes(){
+    $$('.home-dash-card[data-dashboard-route]').forEach(card=>{
+      const open=()=>{
+        const route=card.dataset.dashboardRoute;
+        if(route)go(route);
+      };
+      card.onclick=e=>{
+        if(e.target.closest('button,a,input,select,textarea,audio,iframe,[data-home-news-preview]'))return;
+        open();
+      };
+      card.onkeydown=e=>{
+        if((e.key==='Enter'||e.key===' ')&&!e.target.closest('button,a,input,select,textarea,audio,iframe')){
+          e.preventDefault();
+          open();
+        }
+      };
+    });
+  }
+
+  function renderHomeNewsPreview(){
+    const box=$('homeNewsPreview')?.querySelector('.home-news-preview-list');
+    if(!box)return;
+
+    const slides=(siteNews||[]).slice(0,3).map(newsSourceSlide);
+    if(!slides.length)slides.push(fallbackNewsSlide());
+
+    box.innerHTML=slides.map((item,index)=>`
+      <button class="home-news-mini-row" type="button" data-home-news-preview="${index}">
+        <span>${esc(item.kicker||'Novità')}</span>
+        <strong>${esc(item.title||'Novità')}</strong>
+        <small>${esc(item.meta||'')}</small>
+      </button>`).join('');
+
+    $$('[data-home-news-preview]',box).forEach(button=>{
+      button.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        runHighlightAction(slides[Number(button.dataset.homeNewsPreview)]);
+      };
+    });
+  }
+
   function renderHome() {
     ensureHomeHeroNewsLayout();
     renderHighlights();
@@ -1429,12 +1630,10 @@
       if(!c){
         nextBox.style.removeProperty('--dash-bg');
         nextBox.innerHTML=`
-          <div class="home-dash-live-copy">
-            <div class="section-kicker">PROSSIMO CONCERTO</div>
-            <h3>Nuove date in arrivo</h3>
-            <p>Nel frattempo trovi tutte le serate passate nell'archivio live.</p>
-            <button class="text-button" type="button" data-home-route="tour">ARCHIVIO LIVE →</button>
-          </div>`;
+          <div class="section-kicker">PROSSIMO LIVE</div>
+          <h3>Nuove date in arrivo</h3>
+          <p>Apri l'archivio dei live.</p>
+          <span class="home-dash-arrow">LIVE →</span>`;
       }else{
         const d=dateParts(c.concert_date);
         const poster=primaryPosterUrl(c.poster_path);
@@ -1444,12 +1643,11 @@
         nextBox.innerHTML=`
           <div class="home-dash-live-shade"></div>
           <div class="home-dash-live-copy">
-            <div class="section-kicker">PROSSIMO LIVE · ${d.day} ${d.month} ${d.year}${c.start_time?` · ${esc(formatTime(c.start_time))}`:''}</div>
+            <div class="section-kicker">${d.day} ${d.month} ${d.year}${c.start_time?` · ${esc(formatTime(c.start_time))}`:''}</div>
             <h3>${esc(c.name)}</h3>
             <p>${esc(prettyPlace(c)||'Dettagli in arrivo')}</p>
-            <button class="btn btn-primary" type="button" data-home-live-detail>DETTAGLI DEL LIVE</button>
+            <button class="text-button" type="button" data-home-live-detail>DETTAGLI →</button>
           </div>`;
-
         nextBox.querySelector('[data-home-live-detail]').onclick=e=>{
           e.preventDefault();
           e.stopPropagation();
@@ -1458,37 +1656,45 @@
       }
     }
 
-    renderHomeRepertoirePreview();
-
     const preview=$('homeRankingPreview');
     const songs=rankingData?.songs||[];
     if(preview){
       preview.innerHTML=`
         <div class="home-dash-head">
-          <div><span class="section-kicker">HOT RIGHT NOW</span><h3>Classifiche</h3></div>
-          <button class="text-button" type="button" data-home-route="rankings">VEDI TUTTE →</button>
+          <div><span class="section-kicker">TOP SONGS</span><h3>Migliori canzoni</h3></div>
         </div>
         <div class="mini-ranking">
-          ${songs.slice(0,4).map((r,i)=>`
+          ${songs.slice(0,3).map((r,i)=>`
             <div class="mini-rank-row">
               <span>#${i+1}</span>
               <b>${esc(r.title)}</b>
               <strong>${esc(r.ranking_score??'—')}</strong>
             </div>`).join('')||'<div class="empty-state">Classifica non disponibile.</div>'}
-        </div>`;
+        </div>
+        <span class="home-dash-arrow">CLASSIFICHE →</span>`;
+    }
+
+    renderHomeNewsPreview();
+
+    const merch=$('homeMerchPreview');
+    if(merch){
+      merch.innerHTML=`
+        <span class="section-kicker">MERCH</span>
+        <h3>Merch in saldo</h3>
+        <p>Offerte, pezzi rimasti e cattive idee da recuperare al banchetto.</p>
+        <span class="home-dash-arrow">VEDI MERCH →</span>`;
+    }
+
+    const contacts=$('homeContactsPreview');
+    if(contacts){
+      contacts.innerHTML=`
+        <span class="section-kicker">BOOKING</span>
+        <h3>Contatti</h3>
+        <p>Contatti, social e calendario per proporci una data.</p>
+        <span class="home-dash-arrow">CONTATTACI →</span>`;
     }
 
     renderMedia();
-    renderHomeBandFallback();
-
-    $$('[data-home-route]',$('homePage')).forEach(button=>{
-      button.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        go(button.dataset.homeRoute);
-      };
-    });
-
     bindHomeDashboardRoutes();
     renderRailNextShow();
   }
@@ -1711,7 +1917,7 @@
   async function loadPublicUpdates() {
     const now=new Date().toISOString();
     const {data,error}=await sb.from('site_news')
-      .select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,action_label,sort_order,updated_at')
+      .select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,image_position_x,image_position_y,image_zoom,action_label,sort_order,updated_at')
       .eq('published',true)
       .lte('published_at',now)
       .or('expires_at.is.null,expires_at.gt.'+now)
@@ -1764,7 +1970,12 @@
 
     const href=safeHttps(row?.link_url||'');
     if(!action&&href)action={type:'link',href,label:row.action_label||'SCOPRI DI PIÙ'};
-    return {id:row.id,title:title||'Novità',body,meta,kicker,image,action};
+    return {
+      id:row.id,title:title||'Novità',body,meta,kicker,image,action,
+      image_position_x:Number(row?.image_position_x??50),
+      image_position_y:Number(row?.image_position_y??50),
+      image_zoom:Number(row?.image_zoom??100)
+    };
   }
 
   function fallbackNewsSlide() {
@@ -1776,12 +1987,14 @@
       meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),
       kicker:'Prossimo live',
       image:primaryPosterUrl(c.poster_path)||'',
+      image_position_x:50,image_position_y:50,image_zoom:100,
       action:{type:'concert',id:c.id,label:'DETTAGLI DEL LIVE'}
     };
     return {
       id:'fallback-empty',title:'Le prossime novità arrivano qui',
       body:'Nel frattempo puoi esplorare repertorio, live e media della band.',
       meta:'',kicker:'John & i Molesti',image:'',
+      image_position_x:50,image_position_y:50,image_zoom:100,
       action:{type:'route',route:'repertoire',label:'SCOPRI I BRANI'}
     };
   }
@@ -1830,17 +2043,24 @@
     ensureHomeHeroNewsLayout();
     const slides=(siteNews||[]).map(newsSourceSlide);
     if(!slides.length)slides.push(fallbackNewsSlide());
-    const signature=JSON.stringify(slides.map(x=>({id:x.id,title:x.title,body:x.body,meta:x.meta,kicker:x.kicker,image:x.image,action:x.action})));
+    const signature=JSON.stringify(slides.map(x=>({id:x.id,title:x.title,body:x.body,meta:x.meta,kicker:x.kicker,image:x.image,image_position_x:x.image_position_x,image_position_y:x.image_position_y,image_zoom:x.image_zoom,action:x.action})));
     if(signature===highlightSignature){startHighlightAuto(slides,track);return}
     highlightSignature=signature;
 
-    track.innerHTML=slides.map((item,index)=>`<article class="highlight-slide" data-highlight-index="${index}" aria-label="${esc(item.kicker+': '+item.title)}"><div class="highlight-copy"><span class="section-kicker">${esc(item.kicker)}${item.meta?` · ${esc(item.meta)}`:''}</span><h3>${esc(item.title)}</h3>${item.body?`<p>${esc(item.body)}</p>`:''}${item.action?`<button type="button" class="btn btn-primary highlight-action" data-highlight-action="${index}">${esc(item.action.label||'SCOPRI')}</button>`:''}</div></article>`).join('');
-
-    $$('.highlight-slide',track).forEach((node,index)=>{
-      const image=slides[index]?.image;
-      if(image)node.style.setProperty('--highlight-bg',`url("${String(image).replace(/["\\]/g,'\\$&')}")`);
-      else node.style.setProperty('--highlight-bg','none');
-    });
+    track.innerHTML=slides.map((item,index)=>{
+      const x=Math.max(0,Math.min(100,Number(item.image_position_x??50)));
+      const y=Math.max(0,Math.min(100,Number(item.image_position_y??50)));
+      const zoom=Math.max(100,Math.min(240,Number(item.image_zoom??100)));
+      return `<article class="highlight-slide" data-highlight-index="${index}" aria-label="${esc(item.kicker+': '+item.title)}">
+        ${item.image?`<img class="highlight-bg-image" src="${esc(item.image)}" alt="" aria-hidden="true" style="object-position:${x}% ${y}%;transform:scale(${zoom/100});transform-origin:${x}% ${y}%">`:''}
+        <div class="highlight-copy">
+          <span class="section-kicker">${esc(item.kicker)}${item.meta?` · ${esc(item.meta)}`:''}</span>
+          <h3>${esc(item.title)}</h3>
+          ${item.body?`<p>${esc(item.body)}</p>`:''}
+          ${item.action?`<button type="button" class="btn btn-primary highlight-action" data-highlight-action="${index}">${esc(item.action.label||'SCOPRI')}</button>`:''}
+        </div>
+      </article>`;
+    }).join('');
     $$('[data-highlight-action]',track).forEach(button=>button.onclick=()=>{runHighlightAction(slides[Number(button.dataset.highlightAction)]);startHighlightAuto(slides,track)});
 
     const count=slides.length;
