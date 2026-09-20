@@ -3,6 +3,7 @@
 
   const SUPABASE_URL='https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY='sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
+  const MEMBER_ADMINS=new Set(['ema','kekko']);
 
   const client=window.supabase?.createClient
     ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
@@ -131,7 +132,7 @@
       .contacts-editor-new{display:grid;grid-template-columns:150px minmax(220px,1.5fr) 72px 82px;gap:6px;padding:9px;border-bottom:1px solid #555248}
       .contacts-editor-panel input,.contacts-editor-panel select{min-width:0;width:100%;height:34px;padding:5px 7px;border:1px solid #59564e;background:#232321;color:#fff;font-size:9px}
       .contacts-editor-panel button{min-height:32px;padding:5px 8px;border:1px solid #5c594f;background:#2a2a27;color:#ddd;font-size:8px;font-weight:900}.contacts-editor-panel button.primary{border-color:var(--gold);background:var(--gold);color:#111}.contacts-editor-panel button.danger{color:#f0a4a4}
-      .contacts-editor-list{display:grid}.contact-edit-row{display:grid;grid-template-columns:145px minmax(220px,1.5fr) 58px 58px auto;gap:6px;align-items:center;padding:7px 9px;border-bottom:1px solid #45433c}.contact-edit-row:last-child{border-bottom:0}
+      .contacts-editor-list{display:grid}.contact-edit-row{display:grid;grid-template-columns:145px minmax(220px,1.5fr) 58px 88px auto;gap:6px;align-items:center;padding:7px 9px;border-bottom:1px solid #45433c}.contact-edit-row:last-child{border-bottom:0}
       .contact-enabled{display:flex;align-items:center;justify-content:center;gap:4px;color:#aaa;font-size:7px}.contact-enabled input{width:14px;height:14px;min-height:0}
       .contact-edit-actions{display:flex;gap:4px}.contact-edit-status{min-height:16px;padding:6px 9px;color:var(--muted);font-size:8px}
       @media(max-width:900px){.contacts-editor-new,.contact-edit-row{grid-template-columns:1fr 1fr}.contacts-editor-new [data-new-value],.contact-edit-row .contact-value{grid-column:1/-1}.contact-edit-actions{grid-column:1/-1}.contacts-social-actions{grid-template-columns:1fr!important}}
@@ -151,20 +152,41 @@
     try{
       const {data:{session}}=await client.auth.getSession();
       if(!session?.user)return;
+
+      const profileResult=await client
+        .from('profiles')
+        .select('username')
+        .eq('id',session.user.id)
+        .maybeSingle();
+
+      const username=String(profileResult.data?.username||'').trim().toLowerCase();
+      if(MEMBER_ADMINS.has(username)){
+        admin=true;
+        return;
+      }
+
       const {data,error}=await client
         .from('site_content_editors')
         .select('user_id')
         .eq('user_id',session.user.id)
         .maybeSingle();
+
       admin=!error&&!!data;
-    }catch{}
+    }catch{
+      admin=false;
+    }
   }
 
   async function loadContacts(){
     if(!client)return;
-    const result=await client
+
+    let query=client
       .from('site_contacts')
-      .select('id,contact_type,label,value,enabled,sort_order,created_at')
+      .select('id,contact_type,label,value,enabled,sort_order,created_at');
+
+    if(!admin)query=query.eq('enabled',true);
+
+    const result=await query
       .order('sort_order',{ascending:true})
       .order('created_at',{ascending:true});
 
@@ -252,7 +274,7 @@
     panel.innerHTML=`
       <div class="contacts-editor-head">
         <strong>MODIFICA CONTATTI</strong>
-        <span>Tipo di canale e link / contatto pubblico</span>
+        <span>Solo i contatti confermati sono visibili pubblicamente</span>
       </div>
       <div class="contacts-editor-new">
         <select data-new-type>${typeOptions('instagram')}</select>
@@ -282,7 +304,7 @@
           <select class="contact-type">${typeOptions(item.contact_type)}</select>
           <input class="contact-value" maxlength="2000" value="${esc(item.value||'')}" placeholder="${esc(TYPES[item.contact_type]?.placeholder||'https://...')}">
           <input class="contact-order" type="number" min="-9999" max="9999" value="${Number(item.sort_order||0)}" title="Ordine">
-          <label class="contact-enabled"><input type="checkbox" ${item.enabled!==false?'checked':''}> ON</label>
+          <label class="contact-enabled"><input type="checkbox" ${item.enabled!==false?'checked':''}> CONFERMATO</label>
           <div class="contact-edit-actions">
             <button class="primary" type="button" data-save-contact>SALVA</button>
             <button class="danger" type="button" data-delete-contact>ELIMINA</button>
@@ -330,7 +352,7 @@
     q('[data-new-value]',panel).value='';
     await reload();
     renderEditor();
-    setStatus('Contatto aggiunto ✓');
+    setStatus('Contatto aggiunto e confermato ✓');
   }
 
   async function saveContact(row){
@@ -357,7 +379,7 @@
 
     await reload();
     renderEditor();
-    setStatus('Salvato ✓');
+    setStatus(enabled?'Salvato e pubblico ✓':'Salvato come non pubblico ✓');
   }
 
   async function deleteContact(row){
