@@ -427,29 +427,50 @@
   async function detectAdmin(){
     admin=false;
     if(!client)return;
+
     try{
       const {data:{session}}=await client.auth.getSession();
-      if(!session?.user)return;
+      const user=session?.user;
+      if(!user)return;
 
-      const profileResult=await client
-        .from('profiles')
-        .select('username')
-        .eq('id',session.user.id)
-        .maybeSingle();
+      const emailUsername=String(user.email||'')
+        .split('@')[0]
+        .trim()
+        .toLowerCase();
 
-      const username=String(profileResult.data?.username||'').trim().toLowerCase();
-      if(MEMBER_ADMINS.has(username)){
+      if(MEMBER_ADMINS.has(emailUsername)){
         admin=true;
         return;
       }
 
-      const {data,error}=await client
-        .from('site_content_editors')
-        .select('user_id')
-        .eq('user_id',session.user.id)
-        .maybeSingle();
+      try{
+        const profileResult=await client
+          .from('profiles')
+          .select('username')
+          .eq('id',user.id)
+          .maybeSingle();
 
-      admin=!error&&!!data;
+        const username=String(profileResult.data?.username||'')
+          .trim()
+          .toLowerCase();
+
+        if(MEMBER_ADMINS.has(username)){
+          admin=true;
+          return;
+        }
+      }catch{}
+
+      try{
+        const {data,error}=await client
+          .from('site_content_editors')
+          .select('user_id')
+          .eq('user_id',user.id)
+          .maybeSingle();
+
+        admin=!error&&!!data;
+      }catch{
+        admin=false;
+      }
     }catch{
       admin=false;
     }
@@ -699,21 +720,59 @@
     observer.observe(box,{childList:true,subtree:true});
   }
 
+  let syncBusy=false;
+  let pageObserver=null;
+
   async function sync(){
-    if(!client)return;
-    ensureStyles();
-    await detectAdmin();
-    await reload();
-    watchPublicBox();
+    if(!client||syncBusy)return;
+    syncBusy=true;
+    try{
+      ensureStyles();
+      await detectAdmin();
+      await reload();
+      watchPublicBox();
+    }finally{
+      syncBusy=false;
+    }
+  }
+
+  function watchForContactsPage(){
+    if(q('#contactsSocialActions')){
+      setTimeout(sync,0);
+      return;
+    }
+
+    if(pageObserver)return;
+
+    pageObserver=new MutationObserver(()=>{
+      if(!q('#contactsSocialActions'))return;
+      pageObserver.disconnect();
+      pageObserver=null;
+      setTimeout(sync,0);
+    });
+
+    pageObserver.observe(document.body,{childList:true,subtree:true});
   }
 
   function boot(){
     if(!client)return;
+
     sync();
-    client.auth.onAuthStateChange(()=>setTimeout(sync,0));
-    window.addEventListener('hashchange',()=>{
-      if(location.hash.startsWith('#/contacts'))setTimeout(sync,0);
+    watchForContactsPage();
+
+    client.auth.onAuthStateChange(()=>{
+      setTimeout(sync,0);
     });
+
+    window.addEventListener('hashchange',()=>{
+      if(location.hash.startsWith('#/contacts')){
+        watchForContactsPage();
+        setTimeout(sync,0);
+      }
+    });
+
+    setTimeout(sync,250);
+    setTimeout(sync,1000);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
