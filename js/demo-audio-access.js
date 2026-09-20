@@ -689,11 +689,7 @@
           <div class="jukebox-brand"><strong>JOHN & I MOLESTI · JUKEBOX</strong><span>PREMI IL PULSANTE DEL BRANO · RIPREMI PER FERMARE</span></div>
           <div class="jukebox-now" id="jukeboxNowPlaying">SELEZIONA UN BRANO</div>
           <button class="jukebox-close" id="closeJukeboxMode" type="button" aria-label="Chiudi Jukebox">×</button>
-        </header>
-        <div class="jukebox-shell">
-          <div class="jukebox-grid" id="jukeboxGrid"></div>
-          <div class="jukebox-hint">LE ETICHETTE SONO CARICATE DAL CATALOGO</div>
-        </div>`;
+        </header>;
       document.body.appendChild(overlay);
       document.getElementById('closeJukeboxMode').onclick=closeJukebox;
     }
