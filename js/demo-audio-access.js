@@ -264,7 +264,9 @@
       .demo-request-song input{width:14px!important;height:14px;padding:0!important}
       .demo-request-result{padding:8px;border:1px solid #655f2b;background:#27230e;color:#f3d234;font:800 11px/1.35 monospace;word-break:break-word}
 
-      .jukebox-launch{margin-left:auto;min-width:170px}
+      .repertoire-toolbar{flex-wrap:wrap}
+      .jukebox-launch{margin-left:auto;min-width:170px;flex:0 0 auto}
+      @media(max-width:700px){.jukebox-launch{width:100%;margin-left:0}}
       .jukebox-overlay{position:fixed;inset:0;z-index:100000;display:none;grid-template-rows:auto minmax(0,1fr);background:
         radial-gradient(circle at 50% -20%,#343434 0,#101010 42%,#050505 100%);color:#f1eadc;overflow:hidden}
       .jukebox-overlay.open{display:grid}
@@ -838,17 +840,39 @@
       if(!host)return;
 
       // Spotify resta pubblico e ha priorità.
-      if(song.spotify_url)return;
+      if(song.spotify_url){
+        host.dataset.demoState='spotify';
+        return;
+      }
 
       if(!song.has_demo){
-        host.innerHTML='<span class="repertoire-audio-missing">Audio in arrivo</span>';
+        if(host.dataset.demoState!=='missing'){
+          host.innerHTML='<span class="repertoire-audio-missing">Audio in arrivo</span>';
+          host.dataset.demoState='missing';
+        }
         return;
       }
 
       const mode=songAccess(id);
+      const desiredState=mode?`play:${mode}`:'locked';
+
+      // Se il player custom sta riproducendo proprio questo brano,
+      // non sostituirlo durante refresh/session update.
+      if(
+        repertoireAudio &&
+        repertoireAudioSongId===id &&
+        repertoireAudioHost===host
+      ){
+        host.dataset.demoState='playing';
+        return;
+      }
+
+      if(host.dataset.demoState===desiredState)return;
+
       if(mode){
         host.innerHTML=`<button class="btn btn-primary demo-player-button" type="button">${mode==='preview_30'?'▶ ANTEPRIMA 30S':'▶ ASCOLTA DEMO'}</button>`;
         host.querySelector('button').onclick=e=>{
+          e.preventDefault();
           e.stopPropagation();
           playDemo(id,e.currentTarget);
         };
@@ -857,10 +881,13 @@
           <button class="btn btn-ghost demo-player-button" type="button">RICHIEDI / CODICE</button>
           <span class="demo-lock-note">Sblocco singolo, bundle o completo.</span>`;
         host.querySelector('button').onclick=e=>{
+          e.preventDefault();
           e.stopPropagation();
           openUnlockModal(id);
         };
       }
+
+      host.dataset.demoState=desiredState;
     });
 
     if(document.getElementById('jukeboxOverlay')?.classList.contains('open')){
@@ -873,6 +900,7 @@
     refreshTimer=setTimeout(async()=>{
       await Promise.all([loadRepertoire(),loadStatus()]);
       await checkPendingRequests();
+      ensureJukeboxLauncher();
       decorate();
     },30);
   }
@@ -880,12 +908,40 @@
   function boot(){
     if(!sb)return;
     ensureStyles();
-    refresh();
 
-    const grid=document.getElementById('repertoireGrid');
-    if(grid){
-      new MutationObserver(()=>decorate()).observe(grid,{childList:true,subtree:true});
+    let lateUiObserver=null;
+
+    const bindWhenReady=()=>{
+      const toolbar=document.querySelector('.repertoire-toolbar');
+      const grid=document.getElementById('repertoireGrid');
+
+      if(!toolbar||!grid)return false;
+
+      ensureJukeboxLauncher();
+      refresh();
+
+      if(lateUiObserver){
+        lateUiObserver.disconnect();
+        lateUiObserver=null;
+      }
+      return true;
+    };
+
+    // public.js crea la sezione Repertorio dinamicamente.
+    // Se non esiste ancora, aspettiamo solo finché compare.
+    if(!bindWhenReady()){
+      lateUiObserver=new MutationObserver(()=>{
+        bindWhenReady();
+      });
+      lateUiObserver.observe(document.body,{childList:true,subtree:true});
     }
+
+    // Ogni ricerca/rerender del catalogo segnala esplicitamente che le card
+    // sono state ricostruite: riapplichiamo play/sblocco e manteniamo Jukebox.
+    window.addEventListener('jm:repertoire-rendered',()=>{
+      ensureJukeboxLauncher();
+      refresh();
+    });
 
     const user=document.getElementById('userEntry');
     if(user){
@@ -896,8 +952,11 @@
 
     sb.auth.onAuthStateChange(()=>refresh());
     setInterval(()=>checkPendingRequests(),30000);
+
     window.addEventListener('hashchange',()=>{
-      if(location.hash.startsWith('#/repertoire'))refresh();
+      if(location.hash.startsWith('#/repertoire')){
+        if(!bindWhenReady())refresh();
+      }
     });
   }
 
