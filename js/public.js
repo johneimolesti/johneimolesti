@@ -23,6 +23,11 @@
   let activeConcertId = null;
   let expandedRankings = new Set();
   let siteNews = [], contacts = [];
+  let homeSettings = {
+    fallback_image_position_x:50,
+    fallback_image_position_y:50,
+    fallback_image_zoom:100
+  };
   let publicSongs = [], publicMedia = [];
   let bookingUnavailable = new Set(), bookingUnavailableSources = new Map(), bookingSelectedDates = new Set();
   let bookingCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -520,6 +525,42 @@
         <div class="page-hero-ornament">NEWS</div>
       </header>
 
+      <section class="home-fallback-editor glass-card" id="homeFallbackEditor">
+        <div class="home-fallback-editor-head">
+          <div>
+            <span class="section-kicker">FALLBACK AUTOMATICO</span>
+            <h3>Prossimo live</h3>
+            <p>Questa è la novità mostrata automaticamente quando non ci sono news pubblicate. Puoi sistemare il ritaglio della locandina senza trasformarla in una news manuale.</p>
+          </div>
+          <button class="btn btn-primary" id="homeFallbackSave" type="button">SALVA RITAGLIO</button>
+        </div>
+
+        <div class="home-fallback-editor-body">
+          <div class="home-fallback-preview" id="homeFallbackPreview">
+            <img id="homeFallbackPreviewImage" alt="" hidden>
+            <div class="home-fallback-preview-copy">
+              <span class="section-kicker">PROSSIMO LIVE</span>
+              <strong id="homeFallbackPreviewTitle">Nessun live futuro</strong>
+              <small id="homeFallbackPreviewMeta"></small>
+            </div>
+          </div>
+
+          <div class="home-news-crop-controls home-fallback-controls">
+            <label>POSIZIONE ORIZZONTALE <output id="homeFallbackPosXOut">50%</output>
+              <input id="homeFallbackPosX" type="range" min="0" max="100" step="1" value="50">
+            </label>
+            <label>POSIZIONE VERTICALE <output id="homeFallbackPosYOut">50%</output>
+              <input id="homeFallbackPosY" type="range" min="0" max="100" step="1" value="50">
+            </label>
+            <label>ZOOM / RITAGLIO <output id="homeFallbackZoomOut">100%</output>
+              <input id="homeFallbackZoom" type="range" min="100" max="240" step="5" value="100">
+            </label>
+          </div>
+
+          <span class="home-fallback-status" id="homeFallbackStatus"></span>
+        </div>
+      </section>
+
       <section class="home-news-admin-layout news-admin-layout">
         <form id="homeNewsForm" class="home-news-form glass-card">
           <input id="homeNewsId" type="hidden">
@@ -604,7 +645,91 @@
     $('homeNewsImage').onchange=()=>syncHomeNewsCropPreview(true);
     ['homeNewsPosX','homeNewsPosY','homeNewsZoom'].forEach(id=>{$(id).oninput=syncHomeNewsCropPreview;});
 
+    ['homeFallbackPosX','homeFallbackPosY','homeFallbackZoom'].forEach(id=>{
+      $(id).oninput=syncHomeFallbackCropPreview;
+    });
+    $('homeFallbackSave').onclick=saveHomeFallbackCrop;
+    syncHomeFallbackAdmin();
+
     return page;
+  }
+
+  function syncHomeFallbackAdmin(){
+    const x=$('homeFallbackPosX'),y=$('homeFallbackPosY'),zoom=$('homeFallbackZoom');
+    if(!x||!y||!zoom)return;
+    x.value=Number(homeSettings.fallback_image_position_x??50);
+    y.value=Number(homeSettings.fallback_image_position_y??50);
+    zoom.value=Number(homeSettings.fallback_image_zoom??100);
+    syncHomeFallbackCropPreview();
+  }
+
+  function syncHomeFallbackCropPreview(){
+    const image=$('homeFallbackPreviewImage');
+    const title=$('homeFallbackPreviewTitle');
+    const meta=$('homeFallbackPreviewMeta');
+    if(!image||!title||!meta)return;
+
+    const c=nextConcert();
+    const x=Number($('homeFallbackPosX')?.value??homeSettings.fallback_image_position_x??50);
+    const y=Number($('homeFallbackPosY')?.value??homeSettings.fallback_image_position_y??50);
+    const zoom=Number($('homeFallbackZoom')?.value??homeSettings.fallback_image_zoom??100);
+
+    if($('homeFallbackPosXOut'))$('homeFallbackPosXOut').textContent=x+'%';
+    if($('homeFallbackPosYOut'))$('homeFallbackPosYOut').textContent=y+'%';
+    if($('homeFallbackZoomOut'))$('homeFallbackZoomOut').textContent=zoom+'%';
+
+    if(!c){
+      image.hidden=true;
+      image.removeAttribute('src');
+      title.textContent='Nessun live futuro';
+      meta.textContent='';
+      return;
+    }
+
+    const src=primaryPosterUrl(c.poster_path)||'';
+    title.textContent=c.name||'Prossimo live';
+    meta.textContent=formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):'');
+
+    image.hidden=!src;
+    if(src){
+      image.src=src;
+      image.style.objectPosition=`${x}% ${y}%`;
+      image.style.transform=`scale(${zoom/100})`;
+      image.style.transformOrigin=`${x}% ${y}%`;
+    }
+  }
+
+  async function saveHomeFallbackCrop(){
+    if(!isPublicAdmin())return;
+    const btn=$('homeFallbackSave');
+    const status=$('homeFallbackStatus');
+    btn.disabled=true;
+    if(status)status.textContent='Salvataggio…';
+
+    const payload={
+      fallback_image_position_x:Number($('homeFallbackPosX').value),
+      fallback_image_position_y:Number($('homeFallbackPosY').value),
+      fallback_image_zoom:Number($('homeFallbackZoom').value)
+    };
+
+    try{
+      const {data,error}=await sb.from('site_home_settings')
+        .update(payload)
+        .eq('id','home')
+        .select('fallback_image_position_x,fallback_image_position_y,fallback_image_zoom')
+        .single();
+      if(error)throw error;
+
+      homeSettings={...homeSettings,...data};
+      highlightSignature='';
+      renderHighlights();
+      if(status)status.textContent='Ritaglio salvato ✓';
+      toast('Ritaglio del prossimo live salvato ✓','ok');
+    }catch(err){
+      if(status)status.textContent=err.message||String(err);
+    }finally{
+      btn.disabled=false;
+    }
   }
 
   function homeNewsSourceImage(type,id){
@@ -1916,16 +2041,29 @@
 
   async function loadPublicUpdates() {
     const now=new Date().toISOString();
-    const {data,error}=await sb.from('site_news')
-      .select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,image_position_x,image_position_y,image_zoom,action_label,sort_order,updated_at')
-      .eq('published',true)
-      .lte('published_at',now)
-      .or('expires_at.is.null,expires_at.gt.'+now)
-      .order('sort_order',{ascending:true})
-      .order('published_at',{ascending:false})
-      .limit(20);
-    if(error)console.warn('Novità home non disponibili',error);
-    else siteNews=data||[];
+
+    const [newsResult,settingsResult]=await Promise.all([
+      sb.from('site_news')
+        .select('id,kind,title,body,link_url,published,published_at,expires_at,source_type,source_id,image_path,image_position_x,image_position_y,image_zoom,action_label,sort_order,updated_at')
+        .eq('published',true)
+        .lte('published_at',now)
+        .or('expires_at.is.null,expires_at.gt.'+now)
+        .order('sort_order',{ascending:true})
+        .order('published_at',{ascending:false})
+        .limit(20),
+      sb.from('site_home_settings')
+        .select('fallback_image_position_x,fallback_image_position_y,fallback_image_zoom')
+        .eq('id','home')
+        .maybeSingle()
+    ]);
+
+    if(newsResult.error)console.warn('Novità home non disponibili',newsResult.error);
+    else siteNews=newsResult.data||[];
+
+    if(settingsResult.error)console.warn('Impostazioni Home non disponibili',settingsResult.error);
+    else if(settingsResult.data)homeSettings={...homeSettings,...settingsResult.data};
+
+    syncHomeFallbackAdmin();
     renderHighlights();
   }
 
@@ -1987,7 +2125,9 @@
       meta:formatDate(c.concert_date)+(c.start_time?' · '+formatTime(c.start_time):''),
       kicker:'Prossimo live',
       image:primaryPosterUrl(c.poster_path)||'',
-      image_position_x:50,image_position_y:50,image_zoom:100,
+      image_position_x:Number(homeSettings.fallback_image_position_x??50),
+      image_position_y:Number(homeSettings.fallback_image_position_y??50),
+      image_zoom:Number(homeSettings.fallback_image_zoom??100),
       action:{type:'concert',id:c.id,label:'DETTAGLI DEL LIVE'}
     };
     return {
