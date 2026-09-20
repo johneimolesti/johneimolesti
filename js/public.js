@@ -101,14 +101,160 @@
   }
   function ensureHomeHeroNewsLayout() {
     const home=$('homePage');
-    const hero=home?.querySelector('.hero');
-    const highlights=home?.querySelector('.highlights');
-    if(!hero||!highlights)return;
-    hero.classList.add('home-hero-news');
-    if(highlights.parentElement!==hero)hero.appendChild(highlights);
-    const heading=highlights.querySelector('.highlights-heading h2');
-    if(heading)heading.textContent='NOVITÀ';
-    highlights.setAttribute('aria-label','Novità John & i Molesti');
+    if(!home)return;
+
+    const hero=home.querySelector('.hero');
+    const highlights=home.querySelector('.highlights');
+
+    if(hero&&highlights){
+      hero.classList.add('home-hero-news');
+      highlights.classList.add('home-hero-highlights');
+
+      // La struttura non dipende più dall'HTML originale:
+      // le novità diventano davvero la metà destra dello stesso hero.
+      if(highlights.parentElement!==hero)hero.appendChild(highlights);
+
+      const heading=highlights.querySelector('.highlights-heading h2');
+      if(heading)heading.textContent='NOVITÀ';
+      highlights.setAttribute('aria-label','Novità John & i Molesti');
+    }
+
+    let shell=$('homeDashboard');
+    if(!shell){
+      shell=document.createElement('section');
+      shell.id='homeDashboard';
+      shell.className='home-dashboard-shell';
+      shell.innerHTML=`
+        <div class="home-dashboard-heading">
+          <div><span class="section-kicker">DENTRO I MOLESTI</span><h2>Esplora</h2></div>
+          <p>Anteprime dal sito. Seleziona un riquadro per entrare nella sezione completa.</p>
+        </div>
+        <div class="home-dashboard-grid" id="homeDashboardGrid"></div>`;
+      if(hero)hero.insertAdjacentElement('afterend',shell);
+      else home.prepend(shell);
+    }
+
+    const grid=$('homeDashboardGrid');
+    if(!grid)return;
+
+    const oldGrid=home.querySelector('.home-grid');
+
+    const next=$('homeNextShow');
+    if(next){
+      next.classList.add('home-dash-card','home-dash-live');
+      next.dataset.dashboardRoute='tour';
+      next.tabIndex=0;
+      next.setAttribute('role','link');
+      next.setAttribute('aria-label','Vai ai live');
+      grid.appendChild(next);
+    }
+
+    let repertoire=$('homeRepertoirePreview');
+    if(!repertoire){
+      repertoire=document.createElement('article');
+      repertoire.id='homeRepertoirePreview';
+      repertoire.className='home-dash-card home-dash-repertoire glass-card';
+      repertoire.dataset.dashboardRoute='repertoire';
+      repertoire.tabIndex=0;
+      repertoire.setAttribute('role','link');
+      repertoire.setAttribute('aria-label','Vai al repertorio');
+      repertoire.innerHTML=`
+        <div class="home-dash-head">
+          <div><span class="section-kicker">SONGS</span><h3>Repertorio</h3></div>
+          <button class="text-button" type="button" data-home-route="repertoire">TUTTI I BRANI →</button>
+        </div>
+        <div class="home-repertoire-preview"><div class="card-loading">Caricamento brani…</div></div>`;
+      grid.appendChild(repertoire);
+    }
+
+    const ranking=$('homeRankingPreview');
+    if(ranking){
+      ranking.classList.add('home-dash-card','home-dash-ranking');
+      ranking.dataset.dashboardRoute='rankings';
+      ranking.tabIndex=0;
+      ranking.setAttribute('role','link');
+      ranking.setAttribute('aria-label','Vai alle classifiche');
+      grid.appendChild(ranking);
+    }
+
+    let band=$('homeBandPreview');
+    if(!band){
+      band=document.createElement('article');
+      band.id='homeBandPreview';
+      band.className='home-dash-card home-dash-band glass-card';
+      band.dataset.dashboardRoute='band';
+      band.tabIndex=0;
+      band.setAttribute('role','link');
+      band.setAttribute('aria-label','Vai alla band');
+      band.innerHTML=`
+        <div class="home-dash-head">
+          <div><span class="section-kicker">LINE-UP</span><h3>La band</h3></div>
+          <button class="text-button" type="button" data-home-route="band">CONOSCICI →</button>
+        </div>
+        <div class="home-band-preview-body" id="homeBandPreviewBody"></div>
+        <div class="home-band-fallback" id="homeBandFallback"></div>`;
+      grid.appendChild(band);
+    }
+
+    const carousel=$('homeMemberCarousel');
+    const bandBody=$('homeBandPreviewBody');
+    if(carousel&&bandBody&&carousel.parentElement!==bandBody){
+      carousel.classList.add('home-band-carousel');
+      bandBody.appendChild(carousel);
+    }
+
+    const media=$('homeMedia');
+    if(media){
+      media.classList.add('home-dash-card','home-dash-media');
+      media.dataset.dashboardRoute='more';
+      media.tabIndex=0;
+      media.setAttribute('role','link');
+      media.setAttribute('aria-label','Vai ai media');
+
+      const copy=media.querySelector('.home-media-copy');
+      if(copy){
+        const h=copy.querySelector('h2');
+        const p=copy.querySelector('p');
+        const b=copy.querySelector('button');
+        if(h){h.removeAttribute('data-copy');h.textContent='Media'}
+        if(p){p.removeAttribute('data-copy');p.textContent='Foto, locandine e momenti dal palco.'}
+        if(b){b.removeAttribute('data-copy');b.textContent='APRI MEDIA →'}
+      }
+      grid.appendChild(media);
+    }
+
+    let contacts=$('homeContactsPreview');
+    if(!contacts){
+      contacts=document.createElement('article');
+      contacts.id='homeContactsPreview';
+      contacts.className='home-dash-card home-dash-contacts glass-card';
+      contacts.dataset.dashboardRoute='contacts';
+      contacts.tabIndex=0;
+      contacts.setAttribute('role','link');
+      contacts.setAttribute('aria-label','Vai ai contatti');
+      contacts.innerHTML=`
+        <span class="section-kicker">BOOKING / CONTATTI</span>
+        <h3>Ci vuoi sul tuo palco?</h3>
+        <p>Contatti, social e calendario per proporci una o più date.</p>
+        <button class="btn btn-primary" type="button" data-home-route="contacts">CONTATTACI</button>`;
+      grid.appendChild(contacts);
+    }
+
+    if(oldGrid&&!oldGrid.children.length)oldGrid.remove();
+
+    // L'eventuale carosello membri era dopo i media nella vecchia Home:
+    // una volta spostato nel riquadro Band non deve restare spazio vuoto.
+    home.querySelectorAll(':scope > .home-member-carousel').forEach(node=>{
+      if(node!==carousel)node.remove();
+    });
+
+    $$('[data-home-route]',shell).forEach(button=>{
+      button.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        go(button.dataset.homeRoute);
+      };
+    });
   }
 
   function ensurePublicSections() {
@@ -665,6 +811,7 @@
 
     const manage = $('manageMemberPhotos');
     if (manage) manage.textContent = 'GESTISCI MEMBRI';
+    renderHomeBandFallback();
   }
 
   function moveMemberCarousel(delta) {
@@ -1202,20 +1349,147 @@
     box.innerHTML = `<span class="rail-kicker" data-copy="ui.bab62916c3bf">NEXT SHOW</span><div class="rail-next-date">${d.day} ${d.month}</div><div class="rail-next-name">${esc(c.name)}</div><div class="rail-next-place">${esc(prettyPlace(c))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</div><button class="rail-action text-button" type="button" data-open-concert="${esc(c.id)}" data-copy="ui.09add3f1fe3c">DETTAGLI →</button>`;
     box.querySelector('[data-open-concert]')?.addEventListener('click',() => openConcert(c.id));
   }
+  function bindHomeDashboardRoutes(){
+    $$('.home-dash-card[data-dashboard-route]').forEach(card=>{
+      const open=()=>{
+        const route=card.dataset.dashboardRoute;
+        if(route)go(route);
+      };
+
+      card.onclick=e=>{
+        if(e.target.closest('button,a,input,select,textarea,audio,iframe'))return;
+        open();
+      };
+
+      card.onkeydown=e=>{
+        if((e.key==='Enter'||e.key===' ')&&!e.target.closest('button,a,input,select,textarea,audio,iframe')){
+          e.preventDefault();
+          open();
+        }
+      };
+    });
+  }
+
+  function renderHomeRepertoirePreview(){
+    const box=$('homeRepertoirePreview')?.querySelector('.home-repertoire-preview');
+    if(!box)return;
+
+    const rows=[...publicSongs]
+      .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it',{sensitivity:'base'}))
+      .slice(0,4);
+
+    box.innerHTML=rows.length
+      ? rows.map(song=>{
+          const cover=posterUrl(song.cover_path);
+          return `<div class="home-song-preview-row">
+            ${cover
+              ? `<img src="${esc(cover)}" alt="" loading="lazy">`
+              : '<span class="home-song-preview-placeholder">JM</span>'}
+            <div>
+              <strong>${esc(song.title||'Brano')}</strong>
+              <span>${esc(songArtistLine(song)||'John & i Molesti')}</span>
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="empty-state">Repertorio in aggiornamento.</div>';
+  }
+
+  function renderHomeBandFallback(){
+    const box=$('homeBandFallback');
+    if(!box)return;
+
+    const carousel=$('homeMemberCarousel');
+    const rows=memberMedia
+      .filter(m=>m.published!==false&&m.is_current)
+      .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0))
+      .slice(0,5);
+
+    box.innerHTML=rows.map(member=>{
+      const src=publicSiteAssetUrl(member.image_path);
+      return `<span class="home-band-mini">
+        ${src
+          ? `<img src="${esc(src)}" alt="" loading="lazy">`
+          : `<i>${esc(String(member.name||'?').charAt(0))}</i>`}
+        <b>${esc(member.name||'')}</b>
+      </span>`;
+    }).join('');
+
+    // Se esistono foto vere usa il carosello; altrimenti mostra almeno i nomi.
+    box.hidden=!!(carousel&&!carousel.classList.contains('hidden'));
+  }
+
   function renderHome() {
+    ensureHomeHeroNewsLayout();
     renderHighlights();
-    const nextBox = $('homeNextShow');
-    const c = nextConcert();
-    if (!c) nextBox.innerHTML = '<div class="section-kicker" data-copy="ui.a27114e657cc">PROSSIMO CONCERTO</div><div class="empty-state" data-copy="ui.083de1b415bc">Nessuna data futura pubblicata.</div>';
-    else {
-      const d = dateParts(c.concert_date);
-      nextBox.innerHTML = `<div class="section-kicker" data-copy="ui.a27114e657cc">PROSSIMO CONCERTO</div><div class="next-show-main"><div class="next-show-date"><strong>${d.day}</strong><span>${d.month} ${d.year}</span></div><div class="next-show-copy"><h3>${esc(c.name)}</h3><p>${esc(prettyPlace(c))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</p></div><button class="btn btn-primary" type="button" data-copy="ui.c73ba2f8d622">DETTAGLI</button></div>`;
-      nextBox.querySelector('button').onclick = () => openConcert(c.id);
+
+    const nextBox=$('homeNextShow');
+    const c=nextConcert();
+
+    if(nextBox){
+      if(!c){
+        nextBox.style.removeProperty('--dash-bg');
+        nextBox.innerHTML=`
+          <div class="home-dash-live-copy">
+            <div class="section-kicker">PROSSIMO CONCERTO</div>
+            <h3>Nuove date in arrivo</h3>
+            <p>Nel frattempo trovi tutte le serate passate nell'archivio live.</p>
+            <button class="text-button" type="button" data-home-route="tour">ARCHIVIO LIVE →</button>
+          </div>`;
+      }else{
+        const d=dateParts(c.concert_date);
+        const poster=primaryPosterUrl(c.poster_path);
+        if(poster)nextBox.style.setProperty('--dash-bg',`url("${String(poster).replace(/["\\]/g,'\\$&')}")`);
+        else nextBox.style.removeProperty('--dash-bg');
+
+        nextBox.innerHTML=`
+          <div class="home-dash-live-shade"></div>
+          <div class="home-dash-live-copy">
+            <div class="section-kicker">PROSSIMO LIVE · ${d.day} ${d.month} ${d.year}${c.start_time?` · ${esc(formatTime(c.start_time))}`:''}</div>
+            <h3>${esc(c.name)}</h3>
+            <p>${esc(prettyPlace(c)||'Dettagli in arrivo')}</p>
+            <button class="btn btn-primary" type="button" data-home-live-detail>DETTAGLI DEL LIVE</button>
+          </div>`;
+
+        nextBox.querySelector('[data-home-live-detail]').onclick=e=>{
+          e.preventDefault();
+          e.stopPropagation();
+          openConcert(c.id);
+        };
+      }
     }
-    const preview = $('homeRankingPreview');
-    const songs = rankingData?.songs || [];
-    preview.innerHTML = `<div class="section-kicker" data-copy="ui.5b0d2517b8b5">HOT RIGHT NOW</div><div class="mini-ranking">${songs.slice(0,4).map((r,i)=>`<div class="mini-rank-row"><span>#${i+1}</span><b>${esc(r.title)}</b><strong>${esc(r.ranking_score ?? '—')}</strong></div>`).join('') || '<div class="empty-state" data-copy="ui.d0d31b3018b4">Classifica non disponibile.</div>'}</div>`;
+
+    renderHomeRepertoirePreview();
+
+    const preview=$('homeRankingPreview');
+    const songs=rankingData?.songs||[];
+    if(preview){
+      preview.innerHTML=`
+        <div class="home-dash-head">
+          <div><span class="section-kicker">HOT RIGHT NOW</span><h3>Classifiche</h3></div>
+          <button class="text-button" type="button" data-home-route="rankings">VEDI TUTTE →</button>
+        </div>
+        <div class="mini-ranking">
+          ${songs.slice(0,4).map((r,i)=>`
+            <div class="mini-rank-row">
+              <span>#${i+1}</span>
+              <b>${esc(r.title)}</b>
+              <strong>${esc(r.ranking_score??'—')}</strong>
+            </div>`).join('')||'<div class="empty-state">Classifica non disponibile.</div>'}
+        </div>`;
+    }
+
     renderMedia();
+    renderHomeBandFallback();
+
+    $$('[data-home-route]',$('homePage')).forEach(button=>{
+      button.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        go(button.dataset.homeRoute);
+      };
+    });
+
+    bindHomeDashboardRoutes();
     renderRailNextShow();
   }
 
