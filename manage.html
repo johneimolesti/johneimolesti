@@ -2241,7 +2241,9 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
   <header class="member-app-header">
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
     <nav id="memberCategoryNav" class="member-category-nav no-print" aria-label="Categorie area membri">
-      <button type="button" class="member-category-button active" data-member-category="music">MUSICA</button>
+      <button type="button" class="member-category-button active" data-member-category="setlists">SCALETTE</button>
+      <button type="button" class="member-category-button" data-member-category="music">MUSICA</button>
+      <button type="button" class="member-category-button" data-member-category="fan">FAN</button>
       <button type="button" class="member-category-button" data-member-category="management">GESTIONE</button>
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
@@ -2249,12 +2251,12 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.10.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
-    <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
-    <button class="nav-button" data-category="music" data-page="proposalsPage">3 PROPOSTE</button>
-    <button class="nav-button" data-category="music" data-page="membersPage">SCALETTE MEMBRI</button>
+    <button class="nav-button active" data-category="setlists" data-page="mySetlistPage">LA MIA SCALETTA</button>
+    <button class="nav-button" data-category="setlists" data-page="proposalsPage">3 PROPOSTE</button>
+    <button class="nav-button" data-category="setlists" data-page="membersPage">SCALETTE MEMBRI</button>
     <button class="nav-button" data-category="music" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
-    <button class="nav-button" data-category="management" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
+    <button class="nav-button" data-category="fan" data-page="fansAdminPage">GESTIONE UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
     <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
@@ -4871,8 +4873,11 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
       concerti:"concertsPage",
       "classifica-brani":"songRankingPage",
       fan:"fansAdminPage",
+      presenze:"demoCertificationPage",
       statistiche:"analyticsPage",
       cassa:"cashPage",
+      disponibilita:"bandAvailabilityPage",
+      "richieste-demo":"demoCodesPage",
       setup:"setupPage"
     },
     fan:{catalogo:"fanCatalogPage",locandine:"fanPostersPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
@@ -4995,7 +5000,7 @@ setMemberRankingTab('songs');
     const allowed=all.filter(x=>x.dataset.category===category&&!x.classList.contains("hidden"));
     if(!allowed.length){
       const firstAllowed=all.find(x=>!x.classList.contains("hidden"));
-      category=firstAllowed?.dataset.category||"music";
+      category=firstAllowed?.dataset.category||"setlists";
     }
     all.forEach(btn=>btn.classList.toggle("category-off",btn.dataset.category!==category));
     top.querySelectorAll("[data-member-category]").forEach(btn=>btn.classList.toggle("active",btn.dataset.memberCategory===category));
@@ -5032,8 +5037,8 @@ setMemberRankingTab('songs');
   }
 
   syncCategoryAvailability();
-  let initialCategory="music";
-  try{initialCategory=localStorage.getItem(CATEGORY_KEY)||"music"}catch{}
+  let initialCategory="setlists";
+  try{initialCategory=localStorage.getItem(CATEGORY_KEY)||"setlists"}catch{}
   setMemberCategory(initialCategory,{activate:false});
 
   /* ---------- locandine multiple ---------- */
@@ -6423,6 +6428,54 @@ setMemberRankingTab('songs');
 
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
+
+<script id="member-nav-v411-runtime">
+(()=>{
+  const nav=document.getElementById("memberNav");
+  if(!nav)return;
+
+  const RULES={
+    demoCertificationPage:{category:"fan",label:"PRESENZE"},
+    bandAvailabilityPage:{category:"management",label:"DISPONIBILITÀ"},
+    demoCodesPage:{category:"management",label:"RICHIESTE DEMO"},
+    publicMediaAdminPage:{hidden:true},
+    bookingAdminPage:{hidden:true}
+  };
+
+  let syncing=false;
+  function syncMemberNavigation(){
+    if(syncing)return;
+    syncing=true;
+    try{
+      Object.entries(RULES).forEach(([page,rule])=>{
+        const btn=nav.querySelector('[data-page="'+page+'"]');
+        if(!btn)return;
+        if(rule.category&&btn.dataset.category!==rule.category)btn.dataset.category=rule.category;
+        if(rule.label&&btn.textContent.trim()!==rule.label)btn.textContent=rule.label;
+        if(rule.hidden===true&&!btn.classList.contains("hidden"))btn.classList.add("hidden");
+      });
+
+      const presence=nav.querySelector('[data-page="demoCertificationPage"]');
+      const users=nav.querySelector('[data-page="fansAdminPage"]');
+      if(presence&&users&&presence.nextElementSibling!==users)nav.insertBefore(presence,users);
+
+      const active=nav.querySelector(".nav-button.active[data-category]");
+      const category=active?.dataset.category;
+      if(category)window.setMemberCategory?.(category,{activate:false});
+    }finally{
+      syncing=false;
+    }
+  }
+
+  syncMemberNavigation();
+  new MutationObserver(syncMemberNavigation).observe(nav,{
+    childList:true,
+    subtree:false,
+    attributes:true,
+    attributeFilter:["class","data-category"]
+  });
+})();
+</script>
 
 
 <script id="cash-ledger-v2-runtime">
