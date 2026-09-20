@@ -159,29 +159,8 @@
       bandButton.hidden=route!=='band';
     }
 
-    if(panel&&!document.getElementById('copyHomeNews')){
-      const button=document.createElement('button');
-      button.id='copyHomeNews';
-      button.type='button';
-      button.className='copy-manage';
-      button.textContent='Gestisci novità Home →';
-      button.dataset.editorUi='';
-      const band=document.getElementById('copyBandMembers');
-      if(band)band.before(button);
-      else{
-        const manageLink=panel.querySelector('.copy-manage');
-        if(manageLink)manageLink.before(button);else panel.appendChild(button);
-      }
-      button.onclick=()=>{
-        if(window.JMNewsEditor?.open)window.JMNewsEditor.open();
-        else alert('Gestione novità non disponibile.');
-      };
-    }
-    const newsButton=document.getElementById('copyHomeNews');
-    if(newsButton){
-      const route=location.hash.replace(/^#\/?/,'').split('/')[0]||'home';
-      newsButton.hidden=route!=='home';
-    }
+    // Le novità hanno una tab ADMIN dedicata: non fanno parte di "Modifica sito".
+    document.getElementById('copyHomeNews')?.remove();
 
     for(const [route,label] of Object.entries(ROUTE_LABELS)){
       if(routeSelect&&!routeSelect.querySelector(`option[value="${route}"]`)){
