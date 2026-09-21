@@ -2245,7 +2245,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.10.0</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><span class="app-version">v4.10.1-navfix</span><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="setlists" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -2253,12 +2253,15 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <button class="nav-button" data-category="setlists" data-page="membersPage">SCALETTE MEMBRI</button>
     <button class="nav-button" data-category="music" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
+    <button id="memberPresenceNav" class="nav-button" data-static-nav="1" data-category="fan" data-page="demoCertificationPage">PRESENZE</button>
     <button class="nav-button" data-category="fan" data-page="fansAdminPage">GESTIONE UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
+    <button id="memberAvailabilityNav" class="nav-button" data-static-nav="1" data-category="management" data-page="bandAvailabilityPage">DISPONIBILITÀ</button>
     <button id="requestsNav" class="nav-button" data-category="management" data-page="requestsPage">RICHIESTE <span class="rq-badge" id="rqNavBadge"></span></button>
     <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
     <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
-    <button id="setupNavButton" class="nav-button hidden" data-category="setup" data-page="setupPage">SETUP</button>
+    <button id="memberPublicMediaNav" class="nav-button" data-static-nav="1" data-category="setup" data-page="publicMediaAdminPage">MEDIA PUBBLICI</button>
+    <button id="setupNavButton" class="nav-button" data-category="setup" data-page="setupPage">SETUP</button>
   </nav>
   <main>
     <section id="mySetlistPage" class="page active">
@@ -2727,7 +2730,7 @@ function applyMemberPermissionsUI(){
   $("memberNav").querySelectorAll("[data-page]").forEach(btn=>{
     const page=btn.dataset.page;
     if(page==="setupPage"){btn.classList.toggle("hidden",!isEma()||!canUseDesktopSetup());return}
-    if(page==="requestsPage"){btn.classList.toggle("hidden",!isEma());return}
+    if(page==="requestsPage"||page==="publicMediaAdminPage"){btn.classList.toggle("hidden",!isEma());return}
     const key=map[page];
     if(key)btn.classList.toggle("hidden",!canMember(key));
   });
@@ -6676,6 +6679,12 @@ setMemberRankingTab('songs');
   const top=()=>document.getElementById("memberCategoryNav");
   const memberApp=()=>document.getElementById("memberApp");
   const usable=b=>!!b&&!b.hidden&&!b.classList.contains("hidden");
+  const buttonForPage=page=>{
+    const n=nav();if(!n)return null;
+    return [...n.querySelectorAll(`.nav-button[data-page="${page}"]`)].find(b=>b.dataset.staticNav==="1"&&usable(b))
+      ||[...n.querySelectorAll(`.nav-button[data-page="${page}"]`)].find(usable)
+      ||null;
+  };
   let normalizing=false;
 
   function setButtonLabel(btn,label){
@@ -6698,6 +6707,21 @@ setMemberRankingTab('songs');
         if(LABELS[page])setButtonLabel(btn,LABELS[page]);
       });
 
+      /* I tre punti dinamici hanno una voce menu statica. Il bottone creato dai vecchi JS
+         resta solo come loader dati: viene nascosto e richiamato dal pulsante statico. */
+      ["demoCertificationPage","bandAvailabilityPage","publicMediaAdminPage"].forEach(page=>{
+        const buttons=[...n.querySelectorAll(`.nav-button[data-page="${page}"]`)];
+        const menu=buttons.find(b=>b.dataset.staticNav==="1");
+        const loader=buttons.find(b=>b!==menu&&b.dataset.staticNav!=="1");
+        if(menu&&loader){
+          if(menu.dataset.loaderBound!=="1"){
+            menu.dataset.loaderBound="1";
+            menu.addEventListener("click",()=>{try{loader.click()}catch(err){console.error(err)}});
+          }
+          loader.classList.add("hidden","jm-loader-nav");loader.hidden=true;loader.tabIndex=-1;
+        }
+      });
+
       /* Queste funzioni sono assorbite da RICHIESTE e non sono più voci autonome. */
       ["demoCodesPage","bookingAdminPage"].forEach(page=>{
         const b=n.querySelector(`[data-page="${page}"]`);if(b){b.classList.add("hidden");b.hidden=true;b.tabIndex=-1}
@@ -6706,7 +6730,11 @@ setMemberRankingTab('songs');
       /* Ordine definitivo dei sottomenù, compresi quelli creati dagli script esterni. */
       const existing=[...n.querySelectorAll(".nav-button[data-page]")];
       const index=new Map(ORDER.map((p,i)=>[p,i]));
-      const wanted=[...existing].sort((a,b)=>(index.get(a.dataset.page)??999)-(index.get(b.dataset.page)??999));
+      const wanted=[...existing].sort((a,b)=>{
+        const aLoader=a.classList.contains("jm-loader-nav"),bLoader=b.classList.contains("jm-loader-nav");
+        if(aLoader!==bLoader)return aLoader?1:-1;
+        return (index.get(a.dataset.page)??999)-(index.get(b.dataset.page)??999);
+      });
       const current=existing.map(b=>b.dataset.page).join("|");
       const desired=wanted.map(b=>b.dataset.page).join("|");
       if(current!==desired)wanted.forEach(b=>n.appendChild(b));
@@ -6740,7 +6768,7 @@ setMemberRankingTab('songs');
   function setVisual(page){
     normalizeMenu();
     const n=nav(),app=memberApp();if(!n||!app||!PAGE_CATEGORY[page])return false;
-    const btn=n.querySelector(`[data-page="${page}"]`),section=document.getElementById(page);
+    const btn=buttonForPage(page),section=document.getElementById(page);
     if(!usable(btn)||!section)return false;
     n.querySelectorAll(".nav-button[data-page]").forEach(b=>b.classList.toggle("active",b===btn));
     app.querySelectorAll("main .page").forEach(p=>p.classList.toggle("active",p===section));
@@ -6776,7 +6804,7 @@ setMemberRankingTab('songs');
   function refresh(){
     normalizeMenu();
     let page=activePageId();
-    const activeBtn=page?nav()?.querySelector(`[data-page="${page}"]`):null;
+    const activeBtn=page?buttonForPage(page):null;
     if(!usable(activeBtn)){
       const first=[...nav().querySelectorAll(".nav-button[data-page]")].find(usable);
       page=first?.dataset.page||null;
@@ -6788,10 +6816,10 @@ setMemberRankingTab('songs');
   /* AUTORITÀ 1/1 — click categoria principale. */
   top()?.addEventListener("click",e=>{
     const cat=e.target.closest("[data-member-category]");if(!cat||cat.hidden)return;
-    e.preventDefault();
+    e.preventDefault();e.stopImmediatePropagation();
     const target=firstVisible(cat.dataset.memberCategory);
     if(target)target.click();
-  });
+  },true);
 
   /* AUTORITÀ 1/1 — click sottomenù. Gli eventuali handler della singola pagina
      possono caricare dati, ma questo listener decide SEMPRE lo stato finale di navigazione. */
@@ -6808,7 +6836,7 @@ setMemberRankingTab('songs');
     if(memberApp()?.hidden)return;
     const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
     const page=ROUTE_PAGE[route];if(!page)return;
-    const btn=nav()?.querySelector(`[data-page="${page}"]`);
+    const btn=buttonForPage(page);
     if(usable(btn))btn.click();
   });
 
@@ -6829,7 +6857,7 @@ setMemberRankingTab('songs');
     if(!app.hidden){
       const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
       const page=ROUTE_PAGE[route];
-      if(page){const b=nav()?.querySelector(`[data-page="${page}"]`);if(usable(b))b.click()}
+      if(page){const b=buttonForPage(page);if(usable(b))b.click()}
     }
   })).observe(app,{attributes:true,attributeFilter:["hidden"]});
 
@@ -6837,7 +6865,7 @@ setMemberRankingTab('songs');
     normalizeMenu();
     const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
     const requested=ROUTE_PAGE[route];
-    if(!memberApp()?.hidden&&requested){const b=nav()?.querySelector(`[data-page="${requested}"]`);if(usable(b)){b.click();return}}
+    if(!memberApp()?.hidden&&requested){const b=buttonForPage(requested);if(usable(b)){b.click();return}}
     refresh();
   };
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
