@@ -601,6 +601,7 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
 
 
 /* V4.4 — full immersion scrolling / concert workspace / version */
+.app-version{color:#6f7783;font-size:7px;font-weight:500;letter-spacing:.06em;white-space:nowrap;opacity:.88}
 
 /* Full immersion must preserve the same scrolling model as normal mode. */
 :fullscreen #memberApp>main,#memberApp:fullscreen>main,:-webkit-full-screen #memberApp>main,#memberApp:-webkit-full-screen>main,body.app-full-immersion #memberApp>main{overflow:auto!important}
@@ -1680,10 +1681,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 <style id="v4-8-2-fixes">
 /* V4.8.2 — fix ranking/mobile query, cover alignment, setup compattato */
 
-/* SETUP: la categoria è già selezionata nell'header, quindi la barra con il solo bottone SETUP è ridondante. */
-#memberApp:has(#memberCategoryNav [data-member-category="setup"].active) > .member-subnav{
-  display:none!important;
-}
+/* SETUP ora contiene più sottosezioni (MEDIA PUBBLICI + SETUP): la barra sottomenu deve restare visibile. */
 #setupPage>.setup-tabs{margin-top:0!important}
 .setup-labels-header{align-items:center!important}
 .setup-labels-header .panel-header-actions{min-width:0;flex-wrap:wrap;justify-content:flex-end}
@@ -2194,9 +2192,6 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 @media(max-width:1180px){.cash-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.cash-layout{grid-template-columns:1fr}.cash-wallet-list{grid-template-columns:repeat(2,minmax(0,1fr))}.cash-toolbar{grid-template-columns:1fr 1fr}.cash-toolbar input{grid-column:1/-1}}
 @media(max-width:820px){.cash-hero{align-items:flex-start;flex-direction:column}.cash-hero-actions{width:100%;justify-content:flex-start}.cash-wallet-list{grid-template-columns:1fr}.cash-ledger-head{display:none}.cash-ledger-row{grid-template-columns:72px minmax(0,1fr) 86px;grid-template-areas:"date status amount" "main main main" "sign party party" "actions actions actions";gap:4px 7px;padding:9px}.cash-ledger-date{grid-area:date}.cash-ledger-status-cell{grid-area:status}.cash-ledger-main{grid-area:main}.cash-ledger-signer{grid-area:sign}.cash-ledger-party-cell{grid-area:party}.cash-ledger-amount{grid-area:amount}.cash-ledger-actions{grid-area:actions;justify-content:flex-start;margin-top:3px}}
 @media(max-width:560px){.cash-kpis{grid-template-columns:1fr 1fr}.cash-kpi{padding:9px}.cash-kpi strong{font-size:15px}.cash-toolbar{grid-template-columns:1fr}.cash-toolbar input{grid-column:auto}.cash-form-grid{grid-template-columns:1fr}.cash-form-field.full{grid-column:auto}.cash-fee-grid{grid-template-columns:1fr}.cash-funder-row{grid-template-columns:20px minmax(0,1fr) 98px}}
-
-.cash-recurring-modal-card{width:min(980px,96vw)!important;max-width:980px!important}.cash-recurring-intro{margin:-2px 0 10px;padding:8px 10px;border:1px solid rgba(210,167,60,.15);border-radius:10px;background:rgba(210,167,60,.045);color:#9ba3ae;font-size:7.5px;line-height:1.45}.cash-recurring-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(360px,1.1fr);gap:10px;min-height:0}.cash-recurring-list-panel,.cash-recurring-form{min-width:0;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:rgba(255,255,255,.018)}.cash-recurring-list-panel{padding:8px}.cash-recurring-list-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:8px}.cash-recurring-rule-list{display:grid;gap:5px}.cash-recurring-rule-row{padding:8px 9px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:#11151c}.cash-recurring-rule-row.pending{border-color:rgba(243,210,52,.22)}.cash-recurring-rule-row.historic{opacity:.72}.cash-recurring-rule-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.cash-recurring-rule-name{font-size:8.5px;font-weight:950;line-height:1.25}.cash-recurring-rule-meta{margin-top:3px;color:#7f8895;font-size:6.8px;line-height:1.35}.cash-recurring-rule-actions{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.cash-recurring-rule-actions .small-btn{min-height:22px;padding:3px 6px;font-size:6px}.cash-recurring-history{margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:7px}.cash-recurring-history summary{cursor:pointer;color:#848d99;font-size:6.5px;font-weight:900;letter-spacing:.06em}.cash-recurring-history[open] summary{margin-bottom:6px}.cash-recurring-form{padding:10px}.cash-recurring-form-title{margin-bottom:8px;font-size:8px;font-weight:950;letter-spacing:.06em}.cash-recurring-frequency{display:grid;grid-template-columns:auto minmax(70px,1fr) auto;gap:6px;align-items:center}.cash-recurring-frequency span{color:#8b949f;font-size:7px}.cash-recurring-version-hint{margin-top:8px;padding:6px 8px;border-radius:8px;background:rgba(86,151,222,.06);color:#8fb8df;font-size:6.8px;line-height:1.4}.cash-recurring-source{display:inline-flex;margin-top:4px;padding:2px 5px;border-radius:5px;background:rgba(210,167,60,.07);color:#c8ab63;font-size:6.2px}.cash-recurring-empty{padding:12px 8px;color:#6f7884;text-align:center;font-size:7px}.cash-recurring-history .cash-recurring-rule-row{background:rgba(255,255,255,.012)}
-@media(max-width:820px){.cash-recurring-modal-card{width:min(96vw,720px)!important}.cash-recurring-layout{grid-template-columns:1fr}.cash-recurring-list-panel{max-height:42vh;overflow:auto}.cash-recurring-form{padding:8px}}
 </style>
 
 </head>
@@ -2243,7 +2238,9 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
   <header class="member-app-header">
     <div class="brand"><h1>John & i Molesti</h1><p>Area membri</p></div>
     <nav id="memberCategoryNav" class="member-category-nav no-print" aria-label="Categorie area membri">
-      <button type="button" class="member-category-button active" data-member-category="music">MUSICA</button>
+      <button type="button" class="member-category-button active" data-member-category="setlists">SCALETTE</button>
+      <button type="button" class="member-category-button" data-member-category="music">MUSICA</button>
+      <button type="button" class="member-category-button" data-member-category="fan">FAN</button>
       <button type="button" class="member-category-button" data-member-category="management">GESTIONE</button>
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
@@ -2251,16 +2248,20 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <div class="user-area"><strong id="currentMemberName"></strong><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
-    <button class="nav-button active" data-category="music" data-page="mySetlistPage">LA MIA SCALETTA</button>
-    <button class="nav-button" data-category="music" data-page="proposalsPage">3 PROPOSTE</button>
-    <button class="nav-button" data-category="music" data-page="membersPage">SCALETTE MEMBRI</button>
+    <button class="nav-button active" data-category="setlists" data-page="mySetlistPage">LA MIA SCALETTA</button>
+    <button class="nav-button" data-category="setlists" data-page="proposalsPage">3 PROPOSTE</button>
+    <button class="nav-button" data-category="setlists" data-page="membersPage">SCALETTE MEMBRI</button>
     <button class="nav-button" data-category="music" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
-    <button class="nav-button" data-category="management" data-page="fansAdminPage">FAN <span id="mergeBadge" class="badge hidden"></span></button>
+    <button id="memberPresenceNav" class="nav-button" data-static-nav="1" data-category="fan" data-page="demoCertificationPage">PRESENZE</button>
+    <button class="nav-button" data-category="fan" data-page="fansAdminPage">GESTIONE UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
     <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
+    <button id="memberAvailabilityNav" class="nav-button" data-static-nav="1" data-category="management" data-page="bandAvailabilityPage">DISPONIBILITÀ</button>
+    <button id="requestsNav" class="nav-button" data-category="management" data-page="requestsPage">RICHIESTE <span class="rq-badge" id="rqNavBadge"></span></button>
     <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
     <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
-    <button id="setupNavButton" class="nav-button hidden" data-category="setup" data-page="setupPage">SETUP</button>
+    <button id="memberPublicMediaNav" class="nav-button" data-static-nav="1" data-category="setup" data-page="publicMediaAdminPage">MEDIA PUBBLICI</button>
+    <button id="setupNavButton" class="nav-button" data-category="setup" data-page="setupPage">SETUP</button>
   </nav>
   <main>
     <section id="mySetlistPage" class="page active">
@@ -2346,12 +2347,11 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <div class="fan-hero cash-hero">
         <div>
           <h2>Cassa band</h2>
-          <div class="section-note">Registro economico condiviso. <strong>Approvazione</strong> e <strong>realizzazione</strong> sono separate: un movimento può essere approvato ma restare previsto o un obiettivo. Solo i movimenti approvati ed effettivi incidono sui saldi reali.</div>
+          <div class="section-note">Registro <strong>entrate</strong> e <strong>uscite</strong>.</div>
         </div>
         <div class="cash-hero-actions">
           <span id="cashApprovalHint" class="counter"></span>
           <button id="cashRefreshButton" class="small-btn secondary" type="button">AGGIORNA</button>
-          <button id="cashRecurringSetupButton" class="small-btn secondary" type="button">⚙ PERIODICHE</button>
           <button id="newCashTransactionButton" class="small-btn primary" type="button">+ MOVIMENTO</button>
         </div>
       </div>
@@ -2369,7 +2369,6 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <div class="cash-layout">
         <section class="panel cash-wallet-panel">
           <div class="panel-header"><h2>PORTAFOGLI</h2><span id="cashWalletCounter" class="counter"></span></div>
-          <div class="section-note cash-panel-note">Un saldo positivo indica che la band deve restituire denaro al membro; un saldo negativo indica una posizione a debito verso la cassa. Previsioni e obiettivi non modificano i portafogli.</div>
           <div id="cashWalletList" class="cash-wallet-list"></div>
         </section>
 
@@ -2384,7 +2383,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
               <option value="">TUTTI GLI STATI</option><option value="confirmed">EFFETTIVI</option><option value="forecast">PREVISTI</option><option value="goal">OBIETTIVI</option>
             </select>
             <select id="cashCategoryFilter" aria-label="Categoria movimenti">
-              <option value="">TUTTE LE VOCI</option><option value="room_fee">VERSAMENTO QUOTA SALETTA</option><option value="rehearsal_room_cost">COSTO SALETTA</option><option value="equipment_purchase">ACQUISTO STRUMENTAZIONE</option><option value="equipment_rental">NOLEGGIO STRUMENTAZIONE</option><option value="materials_purchase">MATERIALE VARIO</option><option value="live_income">INCASSO LIVE</option><option value="staff_reward">RICOMPENSA STAFF</option><option value="loan_repayment">RESTITUZIONE PRESTITI</option>
+              <option value="">TUTTE LE VOCI</option><option value="room_fee">QUOTA SALETTA</option><option value="equipment_purchase">ACQUISTO STRUMENTAZIONE</option><option value="equipment_rental">NOLEGGIO STRUMENTAZIONE</option><option value="materials_purchase">MATERIALE VARIO</option><option value="live_income">INCASSO LIVE</option><option value="staff_reward">RICOMPENSA STAFF</option><option value="loan_repayment">RESTITUZIONE PRESTITI</option>
             </select>
           </div>
           <div class="cash-ledger-head"><span>DATA</span><span>STATI</span><span>MOVIMENTO</span><span>FIRMATARIO</span><span>ORIGINE / DESTINAZIONE</span><span>IMPORTO</span><span></span></div>
@@ -2561,7 +2560,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <input id="cashEditId" type="hidden">
       <div class="cash-form-grid">
         <div class="cash-form-field"><label for="cashCategory">VOCE</label><select id="cashCategory" required>
-          <option value="room_fee">Versamento quota saletta da membro</option><option value="rehearsal_room_cost">Costo saletta</option><option value="equipment_purchase">Acquisto strumentazione</option><option value="equipment_rental">Noleggio strumentazione</option><option value="materials_purchase">Acquisto materiale vario</option><option value="live_income">Incasso live</option><option value="staff_reward">Ricompensa staff</option><option value="loan_repayment">Restituzione prestiti</option>
+          <option value="room_fee">Pagamento quota mensile saletta</option><option value="equipment_purchase">Acquisto strumentazione</option><option value="equipment_rental">Noleggio strumentazione</option><option value="materials_purchase">Acquisto materiale vario</option><option value="live_income">Incasso live</option><option value="staff_reward">Ricompensa staff</option><option value="loan_repayment">Restituzione prestiti</option>
         </select></div>
         <div class="cash-form-field"><label for="cashRealization">STATO ECONOMICO</label><select id="cashRealization" required>
           <option value="confirmed">Effettivo / già avvenuto</option><option value="forecast">Previsto / data nota</option><option value="goal">Obiettivo / data non certa</option>
@@ -2583,42 +2582,13 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 </div>
 
 
-<div id="cashRecurringModal" class="modal" hidden>
-  <div class="modal-card cash-recurring-modal-card">
-    <div class="modal-header"><h2>SPESE PERIODICHE</h2><button id="closeCashRecurringModal" type="button" class="modal-close">×</button></div>
-    <div class="cash-recurring-intro">Le ricorrenze approvate generano automaticamente movimenti <strong>PREVISTI</strong> nei 12 mesi successivi. Una modifica a importo o frequenza crea una nuova versione dalla nuova decorrenza, senza alterare lo storico precedente.</div>
-    <div class="cash-recurring-layout">
-      <section class="cash-recurring-list-panel">
-        <div class="cash-recurring-list-head"><strong>CONFIGURAZIONI</strong><button id="newCashRecurringRuleButton" type="button" class="small-btn primary">+ NUOVA</button></div>
-        <div id="cashRecurringRuleList" class="cash-recurring-rule-list"></div>
-        <details class="cash-recurring-history"><summary>STORICO VARIAZIONI</summary><div id="cashRecurringHistoryList" class="cash-recurring-rule-list historical"></div></details>
-      </section>
-      <form id="cashRecurringForm" class="cash-recurring-form">
-        <input id="cashRecurringEditId" type="hidden">
-        <div class="cash-recurring-form-title" id="cashRecurringFormTitle">NUOVA SPESA PERIODICA</div>
-        <div class="cash-form-grid">
-          <div class="cash-form-field full"><label for="cashRecurringName">NOME</label><input id="cashRecurringName" maxlength="120" required placeholder="Es. Quota saletta"></div>
-          <div class="cash-form-field"><label for="cashRecurringCategory">TIPO</label><select id="cashRecurringCategory" required><option value="rehearsal_room_cost">Costo saletta</option><option value="equipment_rental">Noleggio strumentazione</option><option value="materials_purchase">Materiale vario</option><option value="staff_reward">Ricompensa staff</option><option value="equipment_purchase">Acquisto strumentazione</option></select></div>
-          <div class="cash-form-field"><label for="cashRecurringAmount">IMPORTO ATTESO</label><input id="cashRecurringAmount" type="number" min="0.01" step="0.01" inputmode="decimal" required></div>
-          <div class="cash-form-field"><label for="cashRecurringFrequency">FREQUENZA</label><div class="cash-recurring-frequency"><span>Ogni</span><input id="cashRecurringFrequency" type="number" min="1" max="120" step="1" value="1" inputmode="numeric" required><span>mesi</span></div></div>
-          <div class="cash-form-field"><label for="cashRecurringFirstDue">PRIMA / NUOVA SCADENZA</label><input id="cashRecurringFirstDue" type="date" required></div>
-          <div class="cash-form-field"><label for="cashRecurringUntil">ULTIMA SCADENZA</label><input id="cashRecurringUntil" type="date"><div class="cash-date-hint">Opzionale. Lascia vuoto se non c’è una fine prevista.</div></div>
-          <div class="cash-form-field"><label for="cashRecurringSigner">INCARICATO</label><select id="cashRecurringSigner" required></select></div>
-          <div class="cash-form-field full"><label for="cashRecurringDescription">NOTE</label><textarea id="cashRecurringDescription" maxlength="500" placeholder="Es. affitto sala prove; revisione prevista a gennaio..."></textarea></div>
-        </div>
-        <div id="cashRecurringVersionHint" class="cash-recurring-version-hint">Le modifiche future vengono storicizzate come nuova versione.</div>
-        <div class="modal-actions"><span id="cashRecurringSaveStatus" class="autosave-status"></span><button id="resetCashRecurringForm" type="button" class="modal-cancel">ANNULLA MODIFICA</button><button id="saveCashRecurringRule" type="submit" class="modal-save">SALVA</button></div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <script>
 // Test frontend V2.3 — venue registry / configurable song labels / historical live vibes
 const SUPABASE_URL="https://etzwybamvfpeitkttwrc.supabase.co";
 const SUPABASE_KEY="sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx";
 const FAN_API=`${SUPABASE_URL}/functions/v1/fan-api`;
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const APP_VERSION="v4.11.0";
 
 /* V4.6 — semantic action icons on mobile */
 function classifyMobileActionButton(btn){
@@ -2755,7 +2725,20 @@ async function loadMemberPermissions(){try{const {data,error}=await sb.rpc("get_
 async function loadPublicPermissions(role){try{const data=await fanApi("permissions",role==="guest"?{guest:true}:{});const map=data?.permissions||{};if(role==="fan")fanPermissions=map;else guestPermissions=map}catch(err){console.warn(`Permessi ${role}: uso default`,err);if(role==="fan")fanPermissions={...DEFAULT_UI_PERMISSIONS.fan};else guestPermissions={...DEFAULT_UI_PERMISSIONS.guest}}}
 function activateFirstVisibleNav(appId,buttonSelector,pageAttr){const app=$(appId),buttons=[...app.querySelectorAll(buttonSelector)].filter(b=>!b.hidden&&!b.classList.contains("hidden")),main=app.querySelector("main");let empty=app.querySelector(".permission-empty-state");if(!buttons.length){app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));if(!empty&&main){empty=document.createElement("div");empty.className="panel empty permission-empty-state";empty.textContent="Nessuna sezione abilitata per questo tipo di accesso.";main.prepend(empty)}return}if(empty)empty.remove();let active=buttons.find(b=>b.classList.contains("active"));if(!active){active=buttons[0];app.querySelectorAll(buttonSelector).forEach(b=>b.classList.remove("active"));active.classList.add("active")}app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));const pageId=active.dataset[pageAttr];if(pageId&&$(pageId))$(pageId).classList.add("active")}
 function canUseDesktopSetup(){return window.matchMedia("(min-width:900px) and (pointer:fine)").matches}
-function applyMemberPermissionsUI(){const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};$("memberNav").querySelectorAll("[data-page]").forEach(btn=>{if(btn.dataset.page==="setupPage"){btn.classList.toggle("hidden",!isEma()||!canUseDesktopSetup());return}const key=map[btn.dataset.page];btn.classList.toggle("hidden",key&&!canMember(key))});$("newSongForm").classList.toggle("hidden",!isEma()&&!canMember("song_propose"));$("concertAdminToolbar").classList.toggle("hidden",!isEma());$("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());activateFirstVisibleNav("memberApp","#memberNav .nav-button","page")}
+function applyMemberPermissionsUI(){
+  const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};
+  $("memberNav").querySelectorAll("[data-page]").forEach(btn=>{
+    const page=btn.dataset.page;
+    if(page==="setupPage"){btn.classList.toggle("hidden",!isEma()||!canUseDesktopSetup());return}
+    if(page==="requestsPage"||page==="publicMediaAdminPage"){btn.classList.toggle("hidden",!isEma());return}
+    const key=map[page];
+    if(key)btn.classList.toggle("hidden",!canMember(key));
+  });
+  $("newSongForm").classList.toggle("hidden",!isEma()&&!canMember("song_propose"));
+  $("concertAdminToolbar").classList.toggle("hidden",!isEma());
+  $("fanAdminCreate").classList.toggle("hidden",!isFanAdmin());
+  queueMicrotask(()=>window.JM_MEMBER_NAV_REFRESH?.());
+}
 function applyPublicPermissionsUI(role){const appId=role==="fan"?"fanApp":"guestApp",attr=role==="fan"?"fanPage":"guestPage",selector=role==="fan"?"[data-fan-page]":"[data-guest-page]",map=role==="fan"?{fanCatalogPage:"catalog_view",fanPostersPage:"catalog_view",fanConcertsPage:"concerts_view",fanRankingsPage:"rankings_view"}:{guestConcertsPage:"concerts_view",guestRankingsPage:"rankings_view"};$(appId).querySelectorAll(selector).forEach(btn=>{const page=btn.dataset[attr],key=map[page];btn.hidden=!!key&&!hasPermission(role,key)});$(appId).querySelectorAll(`.concert-scope-tab[data-concert-owner="${role}"][data-concert-scope="private"]`).forEach(btn=>btn.hidden=!hasPermission(role,"private_shows_view"));activateFirstVisibleNav(appId,selector,attr)}
 function setConcertScope(owner,scope){
   if(scope==="private"&&!hasPermission(owner,"private_shows_view"))scope="public";
@@ -2808,8 +2791,22 @@ $("memberLogout").onclick=async()=>{await sb.auth.signOut();currentUser=currentP
 async function recordMemberAccess(event="access"){try{const {data:{session}}=await sb.auth.getSession();if(!session?.access_token)return;await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({action:"access_log",event})})}catch(err){console.warn("Member access log",err)}}
 async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;recordMemberAccess("access");await loadMemberPermissions();showOnly("memberApp");applyMemberPermissionsUI();await refreshAll();applyMemberPermissionsUI();}
 
-/* MEMBER NAV */
-$("memberNav").querySelectorAll(".nav-button").forEach(btn=>btn.onclick=async()=>{try{if(btn.classList.contains("hidden")||btn.hidden)return;$("memberNav").querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("memberApp").querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));$(btn.dataset.page).classList.add("active");if(btn.dataset.page==="proposalsPage"){await Promise.all([loadCommunityData(),loadSongs(),loadSongScores(),loadMemberSongPreferences()]);calculateAllProposals();renderProposalsPage()}if(btn.dataset.page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}if(btn.dataset.page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}if(btn.dataset.page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}if(btn.dataset.page==="songRankingPage"){await loadUnifiedMemberRankings()}if(btn.dataset.page==="fansAdminPage"){await loadFanArea();renderFanArea()}if(btn.dataset.page==="analyticsPage")await renderAnalyticsInto("memberAnalyticsContent");if(btn.dataset.page==="setupPage"&&isEma()){if(!canUseDesktopSetup()){alert("SETUP è disponibile solo da PC.");return}await loadSetupPage()}}catch(err){console.error(err);alert(err.message)}});
+/* MEMBER NAV — loader dati soltanto. Lo stato di navigazione è gestito esclusivamente da member-navigation-authority. */
+window.JM_MEMBER_LOAD_PAGE=async function(page){
+  try{
+    if(page==="proposalsPage"){await Promise.all([loadCommunityData(),loadSongs(),loadSongScores(),loadMemberSongPreferences()]);calculateAllProposals();renderProposalsPage()}
+    if(page==="catalogPage"){await loadProposals();await loadMemberVotes();renderCatalog();renderSongProposals()}
+    if(page==="membersPage"){await loadCommunityData();renderMemberTabs();renderSelectedMember()}
+    if(page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}
+    if(page==="songRankingPage"){await loadUnifiedMemberRankings()}
+    if(page==="fansAdminPage"){await loadFanArea();renderFanArea()}
+    if(page==="analyticsPage")await renderAnalyticsInto("memberAnalyticsContent");
+    if(page==="setupPage"&&isEma()){
+      if(!canUseDesktopSetup()){alert("SETUP è disponibile solo da PC.");return}
+      await loadSetupPage()
+    }
+  }catch(err){console.error(err);alert(err.message)}
+};
 
 async function loadPermissionMatrix(){if(!isEma())return;const status=$("permissionMatrixStatus");if(status)status.textContent="Caricamento...";const {data,error}=await sb.rpc("admin_get_permission_matrix");if(error){if(status)status.textContent=error.message;throw error}permissionMatrixRows=data||[];renderPermissionMatrix();if(status)status.textContent="Modifiche salvate automaticamente"}
 function renderPermissionMatrix(){
@@ -4893,84 +4890,45 @@ async function renderGuestRankings(){if(!canGuest("rankings_view"))return;try{co
 
 
 <script id="v2-hash-router">
-/* V2 hash routing: mantiene l'app a file singolo, ma rende ogni sezione navigabile con #route. */
+/* Router pubblico: gestisce SOLO fan e guest. L'area membri ha un controller unico dedicato. */
 (()=>{
   const ROUTES={
-    member:{
-      scaletta:"mySetlistPage",
-      proposte:"proposalsPage",
-      catalogo:"catalogPage",
-      "scalette-membri":"membersPage",
-      concerti:"concertsPage",
-      "classifica-brani":"songRankingPage",
-      fan:"fansAdminPage",
-      statistiche:"analyticsPage",
-      cassa:"cashPage",
-      setup:"setupPage"
-    },
     fan:{catalogo:"fanCatalogPage",locandine:"fanPostersPage",concerti:"fanConcertsPage",classifiche:"fanRankingsPage",statistiche:"fanAnalyticsPage",profilo:"fanProfilePage"},
     guest:{concerti:"guestConcertsPage",classifiche:"guestRankingsPage",statistiche:"guestAnalyticsPage"}
   };
-  const SELECTORS={member:"#memberNav [data-page]",fan:"#fanApp [data-fan-page]",guest:"#guestApp [data-guest-page]"};
-  const DATAKEY={member:"page",fan:"fanPage",guest:"guestPage"};
+  const SELECTORS={fan:"#fanApp [data-fan-page]",guest:"#guestApp [data-guest-page]"};
+  const DATAKEY={fan:"fanPage",guest:"guestPage"};
   let applying=false;
-
   function visibleRole(){
-    const member=document.getElementById("memberApp"),fan=document.getElementById("fanApp"),guest=document.getElementById("guestApp");
-    if(member&&!member.hidden)return "member";
+    const fan=document.getElementById("fanApp"),guest=document.getElementById("guestApp");
     if(fan&&!fan.hidden)return "fan";
     if(guest&&!guest.hidden)return "guest";
     return null;
   }
   function slug(){return decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase())}
   function routeForPage(role,page){return Object.keys(ROUTES[role]||{}).find(k=>ROUTES[role][k]===page)||null}
-  function currentButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&!b.hidden&&!b.classList.contains("hidden"))||null}
-  function replaceHash(value){history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
-  function syncActiveRoute(role,replace=false){
-    const btn=currentButton(role);if(!btn)return;
-    const page=btn.dataset[DATAKEY[role]],r=routeForPage(role,page);if(!r)return;
-    if(slug()===r)return;
-    if(replace)replaceHash(r);else location.hash=r;
-  }
+  function usable(btn){return !!btn&&!btn.hidden&&!btn.classList.contains("hidden")}
+  function replaceHash(value){if(value)history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(value)}`)}
+  function buttonForPage(role,page){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.dataset[DATAKEY[role]]===page&&usable(b))||null}
+  function activeButton(role){return [...document.querySelectorAll(SELECTORS[role]||"")].find(b=>b.classList.contains("active")&&usable(b))||null}
+  function syncUrl(role){const b=activeButton(role);if(!b)return;const r=routeForPage(role,b.dataset[DATAKEY[role]]);if(r&&slug()!==r)replaceHash(r)}
   function applyRoute(){
     if(applying)return;
     const role=visibleRole();if(!role)return;
-    const wanted=slug(),page=ROUTES[role]?.[wanted];
-    if(!page){syncActiveRoute(role,true);return}
-    const btn=[...document.querySelectorAll(SELECTORS[role])].find(b=>b.dataset[DATAKEY[role]]===page&&!b.hidden&&!b.classList.contains("hidden"));
-    if(!btn){syncActiveRoute(role,true);return}
+    const page=ROUTES[role]?.[slug()];
+    if(!page){syncUrl(role);return}
+    const btn=buttonForPage(role,page);if(!btn)return;
     if(btn.classList.contains("active"))return;
-    applying=true;
-    try{btn.click()}finally{setTimeout(()=>{applying=false},0)}
+    applying=true;try{btn.click()}finally{setTimeout(()=>{applying=false},0)}
   }
-
   document.addEventListener("click",e=>{
-    const btn=e.target.closest("[data-page],[data-fan-page],[data-guest-page]");if(!btn)return;
-    let role,page;
-    if(btn.dataset.page){role="member";page=btn.dataset.page}
-    else if(btn.dataset.fanPage){role="fan";page=btn.dataset.fanPage}
-    else if(btn.dataset.guestPage){role="guest";page=btn.dataset.guestPage}
-    const r=routeForPage(role,page);if(!r||slug()===r)return;
-    location.hash=r;
+    const btn=e.target.closest("[data-fan-page],[data-guest-page]");if(!btn||!usable(btn))return;
+    const role=btn.dataset.fanPage?"fan":"guest",page=btn.dataset[DATAKEY[role]],r=routeForPage(role,page);
+    if(r&&slug()!==r)replaceHash(r);
   });
-
   window.addEventListener("hashchange",applyRoute);
-
-  ["memberLogout","fanLogout","guestLogout"].forEach(id=>{
-    document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40));
-  });
-
-  /* v4.7.4h — niente MutationObserver sul cambio hidden delle app.
-     Un controllo ritardato dopo i click copre login e navigazione senza osservare attributi. */
-  document.addEventListener("click",()=>setTimeout(()=>{
-    const role=visibleRole();if(!role)return;
-    const wanted=slug();if(ROUTES[role]?.[wanted])applyRoute();else syncActiveRoute(role,true);
-  },60),true);
-
-  // Se l'utente apre direttamente index.html#concerti, la route verrà applicata appena entra nell'area corretta.
-  if(!location.hash)replaceHash("home");
-  setTimeout(()=>{const role=visibleRole();if(role){if(ROUTES[role]?.[slug()])applyRoute();else syncActiveRoute(role,true)}},120);
-  setTimeout(applyRoute,500);
+  ["fanLogout","guestLogout"].forEach(id=>document.getElementById(id)?.addEventListener("click",()=>setTimeout(()=>replaceHash("home"),40)));
+  setTimeout(applyRoute,150);setTimeout(applyRoute,600);
 })();
 
 
@@ -5003,71 +4961,12 @@ document.querySelectorAll('#memberRankingsTabs [data-member-ranking-tab]').forEa
 setMemberRankingTab('songs');
 </script>
 
-
 <script id="v4-8-runtime">
 /* ==========================================================
    V4.8.0 — categorie header / locandine multiple / Cassa draft
 ========================================================== */
 (()=>{
-  const CATEGORY_KEY="jm_member_category_v48";
-  const memberNav=()=>document.getElementById("memberNav");
-  const categoryNav=()=>document.getElementById("memberCategoryNav");
-
-  function syncCategoryAvailability(){
-    const nav=memberNav(),top=categoryNav();if(!nav||!top)return;
-    top.querySelectorAll("[data-member-category]").forEach(btn=>{
-      const cat=btn.dataset.memberCategory;
-      const candidates=[...nav.querySelectorAll('.nav-button[data-category="'+cat+'"]')];
-      btn.hidden=!candidates.some(x=>!x.classList.contains("hidden"));
-    });
-  }
-
-  function setMemberCategory(category,{activate=true}={}){
-    const nav=memberNav(),top=categoryNav();if(!nav||!top)return;
-    const all=[...nav.querySelectorAll(".nav-button[data-category]")];
-    const allowed=all.filter(x=>x.dataset.category===category&&!x.classList.contains("hidden"));
-    if(!allowed.length){
-      const firstAllowed=all.find(x=>!x.classList.contains("hidden"));
-      category=firstAllowed?.dataset.category||"music";
-    }
-    all.forEach(btn=>btn.classList.toggle("category-off",btn.dataset.category!==category));
-    top.querySelectorAll("[data-member-category]").forEach(btn=>btn.classList.toggle("active",btn.dataset.memberCategory===category));
-    try{localStorage.setItem(CATEGORY_KEY,category)}catch{}
-    if(activate){
-      const active=all.find(x=>x.classList.contains("active")&&x.dataset.category===category&&!x.classList.contains("hidden"));
-      if(!active){
-        const first=all.find(x=>x.dataset.category===category&&!x.classList.contains("hidden"));
-        first?.click();
-      }
-    }
-  }
-  window.setMemberCategory=setMemberCategory;
-
-  categoryNav()?.querySelectorAll("[data-member-category]").forEach(btn=>{
-    btn.addEventListener("click",()=>setMemberCategory(btn.dataset.memberCategory,{activate:true}));
-  });
-  memberNav()?.addEventListener("click",e=>{
-    const btn=e.target.closest(".nav-button[data-category]");
-    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
-  },true);
-
-  if(typeof applyMemberPermissionsUI==="function"){
-    const originalApplyMemberPermissionsUI=applyMemberPermissionsUI;
-    applyMemberPermissionsUI=function(){
-      originalApplyMemberPermissionsUI();
-      syncCategoryAvailability();
-      const active=memberNav()?.querySelector(".nav-button.active[data-category]");
-      let category=active?.dataset.category||"music";
-      try{category=localStorage.getItem(CATEGORY_KEY)||category}catch{}
-      if(active&&!active.classList.contains("hidden"))category=active.dataset.category;
-      setMemberCategory(category,{activate:true});
-    };
-  }
-
-  syncCategoryAvailability();
-  let initialCategory="music";
-  try{initialCategory=localStorage.getItem(CATEGORY_KEY)||"music"}catch{}
-  setMemberCategory(initialCategory,{activate:false});
+  /* Navigazione rimossa da V4.8: l'unica autorità è member-navigation-authority-v500. */
 
   /* ---------- locandine multiple ---------- */
   const basePosterUrl=posterUrl;
@@ -5228,21 +5127,6 @@ setMemberRankingTab('songs');
     });
   };
 
-  /* Click su route/submenu: categoria superiore sincronizzata. */
-  document.addEventListener("click",e=>{
-    const btn=e.target.closest("#memberNav .nav-button[data-category]");
-    if(btn)setMemberCategory(btn.dataset.category,{activate:false});
-  },true);
-
-  /* Le route hash possono arrivare direttamente a una pagina di un'altra categoria. */
-  window.addEventListener("hashchange",()=>{
-    const slug=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
-    const map={
-      scaletta:"music",proposte:"music","scalette-membri":"music",catalogo:"music",concerti:"music",
-      fan:"management",cassa:"management","classifica-brani":"rankings",statistiche:"rankings",setup:"setup"
-    };
-    if(map[slug])setMemberCategory(map[slug],{activate:false});
-  },true);
 })();
 </script>
 
@@ -6130,6 +6014,7 @@ setMemberRankingTab('songs');
     const list=$("songRankingList"),panel=list?.closest(".member-ranking-panel");
     const posterBox=$("memberPosterCatalogList");
     const data={
+      version:"v4.10.0",
       ranking:{
         diag:window.__JM_RANKING_DIAG||null,
         counter:$("songRankingCounter")?.textContent||"",
@@ -6455,28 +6340,555 @@ setMemberRankingTab('songs');
 
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
+  <script id="requests-admin-inline">
+(()=>{
+  'use strict';
+
+  const PAGE_ID='requestsPage';
+  const NAV_ID='requestsNav';
+  const state={
+    filter:'all',
+    demoView:'requests',
+    demo:[],booking:[],bookingDates:[],fan:[],catalog:[],cash:[],codes:[],songs:[],profiles:[],fans:[],errors:[],loaded:false,loading:false
+  };
+
+  const q=(sel,root=document)=>root.querySelector(sel);
+  const qa=(sel,root=document)=>[...root.querySelectorAll(sel)];
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const isAdmin=()=>{try{return typeof isEma==='function'&&isEma()}catch{return false}};
+  const fmtDate=v=>{if(!v)return'—';const d=new Date(String(v).length===10?v+'T12:00:00':v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('it-IT')};
+  const fmtDateTime=v=>{if(!v)return'';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})};
+  const euro=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(Number(v)||0);
+  const createdTime=r=>Date.parse(r?.created_at||r?.updated_at||r?.transaction_date||r?.concert_date||0)||0;
+
+  const cashLabels={
+    room_fee:'Quota saletta',equipment_purchase:'Acquisto strumentazione',equipment_rental:'Noleggio strumentazione',
+    materials_purchase:'Materiale vario',live_income:'Incasso live',staff_reward:'Ricompensa staff',loan_repayment:'Restituzione prestiti'
+  };
+
+  function injectStyles(){
+    if(document.getElementById('requestsAdminStyles'))return;
+    const style=document.createElement('style');
+    style.id='requestsAdminStyles';
+    style.textContent=`
+      #bookingAdminNav,#demoCodesNav{display:none!important}
+      #approvalNotifier,#openProposalPanelButton,#proposalBadge,#mergeBadge,#cashPendingBadge{display:none!important}
+      #${PAGE_ID}.active{height:100%;min-height:0;display:flex!important;flex-direction:column;overflow:hidden}
+      .rq-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0 8px;flex:0 0 auto}
+      .rq-title{display:flex;align-items:center;gap:8px;min-width:0}.rq-title h2{margin:0;font-size:18px}.rq-total{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#f3d234;color:#111;font-size:8px;font-weight:950}
+      .rq-tabs,.rq-demo-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:0 0 auto;padding:3px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.025)}
+      .rq-tabs::-webkit-scrollbar,.rq-demo-tabs::-webkit-scrollbar{display:none}.rq-tabs button,.rq-demo-tabs button{min-height:30px;padding:6px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:#8b939e;font-size:7px;font-weight:950;letter-spacing:.05em;white-space:nowrap}.rq-tabs button.active,.rq-demo-tabs button.active{border-color:rgba(243,210,52,.3);background:rgba(243,210,52,.1);color:#f3d234}
+      .rq-demo-tabs{margin-top:7px;width:max-content;max-width:100%}.rq-body{flex:1 1 0;min-height:0;overflow-y:auto;padding:8px 1px 18px;overscroll-behavior:contain}
+      .rq-list{display:grid;gap:7px}.rq-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
+      .rq-card-main{min-width:0}.rq-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.rq-kind{display:inline-flex;padding:3px 6px;border-radius:999px;border:1px solid rgba(243,210,52,.25);background:rgba(243,210,52,.07);color:#e9d25e;font-size:6px;font-weight:950;letter-spacing:.07em}.rq-card strong{font-size:9px}.rq-meta{margin-top:4px;color:#8b939f;font-size:7px;line-height:1.45;overflow-wrap:anywhere}.rq-time{margin-top:4px;color:#606975;font-size:6.5px}.rq-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap;max-width:330px}.rq-actions button,.rq-refresh,.rq-code-form button{min-height:28px;padding:5px 8px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#292f38;color:#e7eaf0;font-size:7px;font-weight:900}.rq-actions .primary,.rq-code-form .primary{background:#f3d234;color:#111;border-color:#f3d234}.rq-actions .success{border-color:rgba(93,180,119,.35);color:#9bd7ad;background:rgba(93,180,119,.08)}.rq-actions .danger{border-color:rgba(204,91,91,.35);color:#e39a9a;background:rgba(204,91,91,.08)}
+      .rq-booking-dates{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.rq-booking-date{min-height:25px;padding:4px 7px;border:1px solid #3b424d;border-radius:7px;background:#1c2229;color:#c4cad2;font-size:7px;font-weight:850}.rq-empty{padding:22px;text-align:center;color:#767f8a;font-size:8px;border:1px dashed rgba(255,255,255,.09);border-radius:12px}.rq-error{padding:7px 9px;margin-bottom:7px;border:1px solid rgba(204,91,91,.25);border-radius:9px;background:rgba(204,91,91,.06);color:#d99a9a;font-size:7px}
+      .rq-code-grid{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(0,1.25fr);gap:8px;margin-top:8px}.rq-code-panel{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.02);padding:9px}.rq-code-panel h3{margin:0 0 8px;font-size:10px}.rq-code-form{display:grid;gap:7px}.rq-code-form label{display:grid;gap:3px;color:#858d98;font-size:6.5px;font-weight:900}.rq-code-form input,.rq-code-form select{width:100%;min-width:0;padding:7px 8px;border:1px solid #3c424d;border-radius:8px;background:#171c23;color:#e8ebef;font-size:8px}.rq-code-inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}.rq-code-songs{display:grid;gap:3px;max-height:180px;overflow:auto;padding:5px;border:1px solid rgba(255,255,255,.07);border-radius:8px}.rq-code-songs label{display:flex;align-items:center;gap:6px;padding:4px;color:#b2b8c1;font-size:7px}.rq-code-created{padding:8px;border:1px solid rgba(243,210,52,.25);border-radius:9px;background:rgba(243,210,52,.06);color:#f3d234;font-size:10px;font-weight:950;letter-spacing:.08em;word-break:break-all}.rq-code-list{display:grid;gap:5px}.rq-code-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center;padding:8px;border-bottom:1px solid rgba(255,255,255,.06)}.rq-code-row:last-child{border-bottom:0}.rq-code-row strong{display:block;font-size:8px}.rq-code-row span{display:block;margin-top:3px;color:#818995;font-size:6.5px;line-height:1.4}.rq-code-row button{min-height:26px;padding:4px 7px;border:1px solid rgba(255,255,255,.12);border-radius:7px;background:#262c34;color:#ddd;font-size:6.5px;font-weight:900}
+      #${NAV_ID} .rq-badge{margin-left:4px}.rq-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#f3d234;color:#111;font-size:6px;font-weight:950}.rq-badge:empty{display:none}
+      @media(max-width:760px){.rq-head{align-items:flex-start}.rq-title h2{font-size:15px}.rq-card{grid-template-columns:1fr}.rq-actions{justify-content:flex-start;max-width:none}.rq-actions button{flex:1 1 auto}.rq-code-grid{grid-template-columns:1fr}.rq-tabs button{padding-inline:8px}.rq-body{padding-bottom:28px}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function makePage(){
+    const main=q('#memberApp main');if(!main||q('#'+PAGE_ID))return;
+    const page=document.createElement('section');
+    page.id=PAGE_ID;page.className='page';
+    page.innerHTML=`
+      <div class="rq-head">
+        <div class="rq-title"><h2>RICHIESTE</h2><span class="rq-total" id="rqTotal">0</span></div>
+        <button type="button" class="rq-refresh" id="rqRefresh">AGGIORNA</button>
+      </div>
+      <div class="rq-tabs" id="rqTabs"></div>
+      <div id="rqDemoTabs"></div>
+      <div class="rq-body" id="rqBody"><div class="rq-empty">Apri la sezione per caricare le richieste.</div></div>`;
+    main.appendChild(page);
+    q('#rqRefresh',page).onclick=()=>loadAll(true);
+  }
+
+  function makeNav(){
+    const nav=q('#memberNav');if(!nav)return;
+    let btn=q('#'+NAV_ID,nav);
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id=NAV_ID;btn.type='button';btn.className='nav-button hidden';btn.dataset.category='management';btn.dataset.page=PAGE_ID;
+      btn.innerHTML='RICHIESTE <span class="rq-badge" id="rqNavBadge"></span>';
+      const cash=nav.querySelector('[data-page="cashPage"]');
+      if(cash)cash.after(btn);else nav.appendChild(btn);
+    }
+    btn.onclick=openPage;
+  }
+
+  function normalizeNav(){
+    /* Nessuna gestione menu qui: categorie, ordine e selezione appartengono al controller unico. */
+  }
+
+  function syncVisibility(){
+    const admin=isAdmin();
+    const btn=q('#'+NAV_ID);if(btn)btn.classList.toggle('hidden',!admin);
+    normalizeNav();
+    const setupCat=q('#memberCategoryNav [data-member-category="setup"]');
+    if(setupCat&&admin)setupCat.hidden=false;
+    if(admin&&!state.loaded&&!state.loading)loadAll(false);
+  }
+
+  function openPage(){
+    if(!isAdmin())return;
+    loadAll(false);
+  }
+
+  async function attempt(label,fn,fallback=[]){
+    try{return await fn()}catch(err){state.errors.push(`${label}: ${err?.message||err}`);return fallback}
+  }
+
+  async function loadAll(force=false){
+    if(!isAdmin()||state.loading)return;
+    state.loading=true;
+    const body=q('#rqBody');if(body&&q('#'+PAGE_ID)?.classList.contains('active'))body.innerHTML='<div class="rq-empty">Caricamento richieste…</div>';
+    state.errors=[];
+    const [profiles,fans,demo,booking,bookingDates,fan,catalog,cash,codes,songs]=await Promise.all([
+      attempt('Profili',async()=>{const r=await sb.from('profiles').select('id,display_name,username');if(r.error)throw r.error;return r.data||[]}),
+      attempt('Fan',async()=>{const r=await sb.rpc('admin_list_fans');if(r.error)throw r.error;return r.data||[]}),
+      attempt('Demo',async()=>{const r=await sb.rpc('admin_list_demo_access_requests');if(r.error)throw r.error;return(r.data||[]).filter(x=>x.status==='pending')}),
+      attempt('Booking',async()=>{const r=await sb.from('booking_requests').select('*').eq('status','pending').order('created_at',{ascending:false});if(r.error)throw r.error;return r.data||[]}),
+      attempt('Date booking',async()=>{const r=await sb.from('booking_request_dates').select('*').order('day',{ascending:true});if(r.error)throw r.error;return r.data||[]}),
+      attempt('Fan merge',async()=>{const r=await sb.from('fan_merge_requests').select('*').eq('status','pending').order('created_at',{ascending:false});if(r.error)throw r.error;return r.data||[]}),
+      attempt('Catalogo',async()=>{const r=await sb.from('song_proposals').select('*').eq('status','pending').order('created_at',{ascending:false});if(r.error)throw r.error;return r.data||[]}),
+      attempt('Cassa',async()=>{const r=await sb.from('cash_transactions').select('*').eq('status','pending').order('created_at',{ascending:false});if(r.error)throw r.error;return r.data||[]}),
+      attempt('Codici demo',async()=>{const r=await sb.rpc('admin_list_demo_unlock_codes_v2');if(r.error)throw r.error;return r.data||[]}),
+      attempt('Brani demo',async()=>{const r=await sb.from('songs').select('id,title,audio_path,active,hidden_track').order('title');if(r.error)throw r.error;return(r.data||[]).filter(x=>x.active!==false&&!x.hidden_track&&x.audio_path)})
+    ]);
+    Object.assign(state,{profiles,fans,demo,booking,bookingDates,fan,catalog,cash,codes,songs});
+    state.loaded=true;state.loading=false;
+    updateCounts();render();
+  }
+
+  function counts(){return{demo:state.demo.length,booking:state.booking.length,fan:state.fan.length,catalog:state.catalog.length,cash:state.cash.length}}
+  function total(){return Object.values(counts()).reduce((a,b)=>a+b,0)}
+  function updateCounts(){
+    const n=total();
+    const badge=q('#rqNavBadge');if(badge)badge.textContent=n?String(n):'';
+    const totalEl=q('#rqTotal');if(totalEl)totalEl.textContent=String(n);
+  }
+
+  function profileName(id){const p=state.profiles.find(x=>String(x.id)===String(id));return p?.display_name||p?.username||'Membro'}
+  function fanName(id){const f=state.fans.find(x=>String(x.id)===String(id));return f?.nickname||f?.display_name||f?.name||'Fan'}
+  function bookingDatesFor(id){return state.bookingDates.filter(x=>String(x.request_id)===String(id))}
+
+  function filters(){const c=counts();return[
+    ['all','TUTTE',total()],['demo','DEMO',c.demo],['booking','BOOKING',c.booking],['fan','FAN',c.fan],['catalog','CATALOGO',c.catalog],['cash','CASSA',c.cash]
+  ]}
+  function renderTabs(){
+    const box=q('#rqTabs');if(!box)return;
+    box.innerHTML=filters().map(([key,label,n])=>`<button type="button" class="${state.filter===key?'active':''}" data-rq-filter="${key}">${label} (${n})</button>`).join('');
+    qa('[data-rq-filter]',box).forEach(b=>b.onclick=()=>{state.filter=b.dataset.rqFilter;state.demoView='requests';render()});
+  }
+  function renderDemoTabs(){
+    const host=q('#rqDemoTabs');if(!host)return;
+    if(state.filter!=='demo'){host.innerHTML='';return}
+    host.innerHTML=`<div class="rq-demo-tabs"><button type="button" data-rq-demo-view="requests" class="${state.demoView==='requests'?'active':''}">RICHIESTE DEMO (${state.demo.length})</button><button type="button" data-rq-demo-view="codes" class="${state.demoView==='codes'?'active':''}">CODICI (${state.codes.length})</button></div>`;
+    qa('[data-rq-demo-view]',host).forEach(b=>b.onclick=()=>{state.demoView=b.dataset.rqDemoView;render()});
+  }
+
+  function card(type,title,meta,time,actions='',extra=''){
+    return `<article class="rq-card"><div class="rq-card-main"><div class="rq-line"><span class="rq-kind">${esc(type)}</span><strong>${esc(title)}</strong></div>${meta?`<div class="rq-meta">${meta}</div>`:''}${extra}${time?`<div class="rq-time">${esc(time)}</div>`:''}</div><div class="rq-actions">${actions}</div></article>`;
+  }
+
+  function demoCards(){return state.demo.map(r=>{
+    const who=r.fan_name||r.requester_name||'Ospite';
+    const scope=r.requested_scope_type==='all'?'Tutte le demo':r.requested_scope_type==='bundle'?'Bundle':'Singola demo';
+    const mode=r.requested_access_mode==='preview_30'?'anteprima 30s':'demo intera';
+    const songs=(r.song_titles||[]).join(' / ');
+    const meta=`${esc(scope)} · ${esc(mode)} · ${Number(r.requested_validity_days)||0} giorni${songs?` · ${esc(songs)}`:''}${r.requester_contact?`<br>${esc(r.requester_contact)}`:''}${r.note?`<br>${esc(r.note)}`:''}`;
+    const actions=`${r.fan_id?`<button class="success" data-demo-direct="${esc(r.id)}">APPROVA</button>`:''}<button class="primary" data-demo-code="${esc(r.id)}">GENERA CODICE</button><button class="danger" data-demo-reject="${esc(r.id)}">RIFIUTA</button>`;
+    return card('DEMO',who,meta,fmtDateTime(r.created_at),actions);
+  }).join('')}
+
+  function bookingCards(){return state.booking.map(r=>{
+    const dates=bookingDatesFor(r.id).filter(d=>d.status==='requested'||d.status==='pending');
+    const extra=dates.length?`<div class="rq-booking-dates">${dates.map(d=>`<button type="button" class="rq-booking-date" data-booking-accept="${esc(r.id)}" data-booking-day="${esc(d.day)}">ACCETTA ${esc(fmtDate(d.day))}</button>`).join('')}</div>`:'';
+    const meta=[r.requester_name,r.organization,r.event_type,r.venue_name,r.city].filter(Boolean).map(esc).join(' · ')+(r.details?`<br>${esc(r.details)}`:'');
+    return card('BOOKING',r.event_name||'Richiesta booking',meta,fmtDateTime(r.created_at),`<button class="danger" data-booking-reject="${esc(r.id)}">RIFIUTA</button>`,extra);
+  }).join('')}
+
+  function fanCards(){return state.fan.map(r=>{
+    const src=fanName(r.requester_fan_id),dst=fanName(r.suggested_fan_id);
+    const meta=`Profilo nuovo: ${esc(src)}<br>Profilo proposto: ${esc(dst)}${r.requested_nickname?`<br>Nickname richiesto: ${esc(r.requested_nickname)}`:''}`;
+    return card('FAN','Unificazione profili',meta,fmtDateTime(r.created_at),`<button class="success" data-fan-approve="${esc(r.id)}">UNISCI</button><button class="danger" data-fan-reject="${esc(r.id)}">RIFIUTA</button>`);
+  }).join('')}
+
+  function catalogCards(){return state.catalog.map(r=>card('CATALOGO',r.title||'Nuovo brano',`Proposta da ${esc(profileName(r.proposed_by))}${r.review_note?`<br>${esc(r.review_note)}`:''}`,fmtDateTime(r.created_at),`<button class="success" data-catalog-approve="${esc(r.id)}">APPROVA</button><button class="danger" data-catalog-reject="${esc(r.id)}">RIFIUTA</button>`)).join('')}
+
+  function cashCards(){return state.cash.map(r=>{
+    const title=cashLabels[r.category]||String(r.category||'Movimento').replaceAll('_',' ');
+    const meta=`${euro(r.amount)} · firmatario ${esc(profileName(r.signer_member_id))}${r.transaction_date?` · ${esc(fmtDate(r.transaction_date))}`:''}${r.description?`<br>${esc(r.description)}`:''}`;
+    return card('CASSA',title,meta,fmtDateTime(r.created_at),`<button class="success" data-cash-approve="${esc(r.id)}">APPROVA</button><button class="danger" data-cash-reject="${esc(r.id)}">RIFIUTA</button>`);
+  }).join('')}
+
+  function allCards(){
+    const rows=[];
+    state.demo.forEach(r=>rows.push({t:createdTime(r),html:demoCardsForOne(r)}));
+    state.booking.forEach(r=>rows.push({t:createdTime(r),html:bookingCardsForOne(r)}));
+    state.fan.forEach(r=>rows.push({t:createdTime(r),html:fanCardsForOne(r)}));
+    state.catalog.forEach(r=>rows.push({t:createdTime(r),html:catalogCardsForOne(r)}));
+    state.cash.forEach(r=>rows.push({t:createdTime(r),html:cashCardsForOne(r)}));
+    return rows.sort((a,b)=>b.t-a.t).map(x=>x.html).join('');
+  }
+  function demoCardsForOne(r){const old=state.demo;state.demo=[r];const h=demoCards();state.demo=old;return h}
+  function bookingCardsForOne(r){const old=state.booking;state.booking=[r];const h=bookingCards();state.booking=old;return h}
+  function fanCardsForOne(r){const old=state.fan;state.fan=[r];const h=fanCards();state.fan=old;return h}
+  function catalogCardsForOne(r){const old=state.catalog;state.catalog=[r];const h=catalogCards();state.catalog=old;return h}
+  function cashCardsForOne(r){const old=state.cash;state.cash=[r];const h=cashCards();state.cash=old;return h}
+
+  function randomCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',part=()=>Array.from({length:4},()=>alphabet[Math.floor(Math.random()*alphabet.length)]).join('');return `MOLESTI-${part()}-${part()}`}
+  function renderSongPicker(){
+    const box=q('#rqCodeSongs');if(!box)return;
+    const scope=q('#rqCodeScope')?.value||'all';
+    const wrap=q('#rqCodeSongsWrap');if(wrap)wrap.hidden=scope==='all';
+    box.innerHTML=state.songs.map(s=>`<label><input type="checkbox" data-rq-code-song value="${esc(s.id)}"> ${esc(s.title)}</label>`).join('')||'<div class="rq-empty">Nessuna demo con audio disponibile.</div>';
+  }
+  function renderCodes(){
+    const codeRows=state.codes.map(x=>{
+      const expired=x.expires_at&&Date.parse(x.expires_at)<=Date.now();
+      const status=!x.active?'DISATTIVATO':expired?'SCADUTO':'ATTIVO';
+      const scope=x.scope_type==='all'?'TUTTE':x.scope_type==='bundle'?`BUNDLE ${x.song_titles?.length||0}`:'SINGOLA';
+      const mode=x.access_mode==='preview_30'?'30S':'INTERA';
+      return `<div class="rq-code-row"><div><strong>${esc(x.label||'Codice demo')} · ••••${esc(x.code_hint||'')}</strong><span>${status} · ${scope} · ${mode} · ${Number(x.validity_days)||0}gg · usi ${Number(x.uses||0)}${x.max_uses!=null?'/'+Number(x.max_uses):''}${x.song_titles?.length?` · ${esc(x.song_titles.join(' / '))}`:''}</span></div><button type="button" data-code-toggle="${esc(x.id)}" data-active="${x.active?'1':'0'}">${x.active?'DISATTIVA':'RIATTIVA'}</button></div>`;
+    }).join('')||'<div class="rq-empty">Nessun codice creato.</div>';
+    return `<div class="rq-code-grid"><section class="rq-code-panel"><h3>NUOVO CODICE</h3><form class="rq-code-form" id="rqCodeForm"><label>CODICE<div class="rq-code-inline"><input id="rqCodeValue" required maxlength="64" value="${esc(randomCode())}"><button type="button" id="rqGenerateCode">GENERA</button></div></label><label>NOTA<input id="rqCodeLabel" maxlength="160" placeholder="Es. backstage Vaccarino"></label><label>TIPO<select id="rqCodeScope"><option value="all">Tutte le demo</option><option value="single">Singola demo</option><option value="bundle">Bundle 3–5</option></select></label><div id="rqCodeSongsWrap" hidden><label>BRANI<div class="rq-code-songs" id="rqCodeSongs"></div></label></div><label>ACCESSO<select id="rqCodeMode"><option value="preview_30">Anteprima 30 secondi</option><option value="full">Demo intera</option></select></label><label>VALIDITÀ<select id="rqCodeDays"><option value="15">15 giorni</option><option value="30">30 giorni</option></select></label><label>USI MASSIMI<input id="rqCodeMaxUses" type="number" min="1" step="1" placeholder="Illimitati"></label><label>SCADENZA CODICE<input id="rqCodeExpires" type="datetime-local"></label><button class="primary" type="submit">CREA CODICE</button><div id="rqCodeCreated"></div></form></section><section class="rq-code-panel"><h3>CODICI GENERATI</h3><div class="rq-code-list">${codeRows}</div></section></div>`;
+  }
+
+  function render(){
+    renderTabs();renderDemoTabs();updateCounts();
+    const body=q('#rqBody');if(!body)return;
+    if(state.filter==='demo'&&state.demoView==='codes'){
+      body.innerHTML=(state.errors.length?state.errors.map(e=>`<div class="rq-error">${esc(e)}</div>`).join(''):'')+renderCodes();
+      bindCodeActions();return;
+    }
+    let html='';
+    if(state.filter==='all')html=allCards();
+    if(state.filter==='demo')html=demoCards();
+    if(state.filter==='booking')html=bookingCards();
+    if(state.filter==='fan')html=fanCards();
+    if(state.filter==='catalog')html=catalogCards();
+    if(state.filter==='cash')html=cashCards();
+    body.innerHTML=(state.errors.length?state.errors.map(e=>`<div class="rq-error">${esc(e)}</div>`).join(''):'')+`<div class="rq-list">${html||'<div class="rq-empty">Nessuna richiesta in attesa.</div>'}</div>`;
+    bindRequestActions();
+  }
+
+  function findBy(type,id){return state[type].find(x=>String(x.id)===String(id))}
+  async function reloadAfter(extra){try{if(extra)await extra}catch{}await loadAll(true)}
+
+  async function approveDemo(req){if(!req?.fan_id)return;const{error}=await sb.rpc('admin_grant_demo_request',{p_request_id:req.id,p_scope_type:req.requested_scope_type,p_access_mode:req.requested_access_mode,p_validity_days:req.requested_validity_days,p_song_ids:(req.song_ids||[]).map(String)});if(error)return alert(error.message);await loadAll(true)}
+  async function issueDemoCode(req){const code=randomCode();const{error}=await sb.rpc('admin_create_demo_unlock_code_v2',{p_code:code,p_label:`Richiesta ${req.fan_name||req.requester_name||'ospite'}`,p_scope_type:req.requested_scope_type,p_access_mode:req.requested_access_mode,p_validity_days:req.requested_validity_days,p_song_ids:(req.song_ids||[]).map(String),p_max_uses:1,p_expires_at:null,p_request_id:req.id});if(error)return alert(error.message);alert(`Codice generato: ${code}\n\nL'utente lo vedrà anche sul dispositivo con cui ha inviato la richiesta.`);await loadAll(true)}
+  async function rejectDemo(req){const note=prompt('Motivo / nota facoltativa:','');if(note===null)return;const{error}=await sb.rpc('admin_reject_demo_access_request',{p_request_id:req.id,p_note:note});if(error)return alert(error.message);await loadAll(true)}
+
+  async function acceptBooking(req,day){if(!req||!day)return;if(!confirm(`Accettare il booking per il ${fmtDate(day)}?`))return;const dates=bookingDatesFor(req.id);for(const d of dates){const status=d.day===day?'accepted':'declined';const r=await sb.from('booking_request_dates').update({status}).eq('request_id',req.id).eq('day',d.day);if(r.error)return alert(r.error.message)}const r=await sb.from('booking_requests').update({status:'accepted',updated_at:new Date().toISOString()}).eq('id',req.id);if(r.error)return alert(r.error.message);await loadAll(true)}
+  async function rejectBooking(req){if(!req||!confirm('Rifiutare questa richiesta di booking?'))return;let r=await sb.from('booking_requests').update({status:'declined',updated_at:new Date().toISOString()}).eq('id',req.id);if(r.error)return alert(r.error.message);r=await sb.from('booking_request_dates').update({status:'declined'}).eq('request_id',req.id);if(r.error)return alert(r.error.message);await loadAll(true)}
+
+  async function approveFan(req){try{if(typeof loadFanArea==='function')await loadFanArea();if(typeof mergeFanRequest==='function'){await mergeFanRequest(req);await loadAll(true);return}}catch(err){console.warn(err)}if(!req?.suggested_fan_id)return alert('Profilo di destinazione non disponibile.');if(!confirm('Confermare l’unificazione dei due profili fan?'))return;const{error}=await sb.rpc('merge_fans',{p_source_fan_id:req.requester_fan_id,p_target_fan_id:req.suggested_fan_id,p_final_nickname:req.requested_nickname||null,p_request_id:req.id});if(error)return alert(error.message);await loadAll(true)}
+  async function rejectFan(req){const note=prompt('Nota (facoltativa):','');if(note===null)return;const{error}=await sb.rpc('reject_fan_merge_request',{p_request_id:req.id,p_note:note});if(error)return alert(error.message);await loadAll(true)}
+
+  async function approveCatalog(req){const{error}=await sb.rpc('approve_song_proposal',{p_proposal_id:req.id});if(error)return alert(error.message);await reloadAfter(typeof refreshAll==='function'?refreshAll():null)}
+  async function rejectCatalog(req){const note=prompt('Motivo del rifiuto (facoltativo):','');if(note===null)return;const{error}=await sb.rpc('reject_song_proposal',{p_proposal_id:req.id,p_note:note});if(error)return alert(error.message);await reloadAfter(typeof refreshAll==='function'?refreshAll():null)}
+
+  async function reviewCash(req,approve){let note=null;if(approve){if(!confirm('Approvare questo movimento di cassa?'))return}else{note=prompt('Motivo del rifiuto (facoltativo):','');if(note===null)return}const{error}=await sb.rpc('cash_review_transaction',{p_transaction_id:req.id,p_approve:approve,p_note:note||null});if(error)return alert(error.message);await reloadAfter(window.jmCash?.reload?.())}
+
+  function bindRequestActions(){
+    const root=q('#'+PAGE_ID);if(!root)return;
+    qa('[data-demo-direct]',root).forEach(b=>b.onclick=()=>approveDemo(findBy('demo',b.dataset.demoDirect)));
+    qa('[data-demo-code]',root).forEach(b=>b.onclick=()=>issueDemoCode(findBy('demo',b.dataset.demoCode)));
+    qa('[data-demo-reject]',root).forEach(b=>b.onclick=()=>rejectDemo(findBy('demo',b.dataset.demoReject)));
+    qa('[data-booking-accept]',root).forEach(b=>b.onclick=()=>acceptBooking(findBy('booking',b.dataset.bookingAccept),b.dataset.bookingDay));
+    qa('[data-booking-reject]',root).forEach(b=>b.onclick=()=>rejectBooking(findBy('booking',b.dataset.bookingReject)));
+    qa('[data-fan-approve]',root).forEach(b=>b.onclick=()=>approveFan(findBy('fan',b.dataset.fanApprove)));
+    qa('[data-fan-reject]',root).forEach(b=>b.onclick=()=>rejectFan(findBy('fan',b.dataset.fanReject)));
+    qa('[data-catalog-approve]',root).forEach(b=>b.onclick=()=>approveCatalog(findBy('catalog',b.dataset.catalogApprove)));
+    qa('[data-catalog-reject]',root).forEach(b=>b.onclick=()=>rejectCatalog(findBy('catalog',b.dataset.catalogReject)));
+    qa('[data-cash-approve]',root).forEach(b=>b.onclick=()=>reviewCash(findBy('cash',b.dataset.cashApprove),true));
+    qa('[data-cash-reject]',root).forEach(b=>b.onclick=()=>reviewCash(findBy('cash',b.dataset.cashReject),false));
+  }
+
+  function selectedCodeSongs(){return qa('[data-rq-code-song]:checked',q('#'+PAGE_ID)||document).map(x=>x.value)}
+  function validateCodeScope(scope,ids){if(scope==='single'&&ids.length!==1)return'Seleziona esattamente una demo.';if(scope==='bundle'&&(ids.length<3||ids.length>5))return'Seleziona da 3 a 5 demo.';return''}
+  async function createManualCode(e){
+    e.preventDefault();const scope=q('#rqCodeScope').value,ids=scope==='all'?[]:selectedCodeSongs(),validation=validateCodeScope(scope,ids);if(validation)return alert(validation);
+    const code=q('#rqCodeValue').value.trim().toUpperCase();if(!code)return;
+    const max=q('#rqCodeMaxUses').value,exp=q('#rqCodeExpires').value;
+    const{error}=await sb.rpc('admin_create_demo_unlock_code_v2',{p_code:code,p_label:q('#rqCodeLabel').value.trim()||null,p_scope_type:scope,p_access_mode:q('#rqCodeMode').value,p_validity_days:Number(q('#rqCodeDays').value),p_song_ids:ids,p_max_uses:max?Number(max):null,p_expires_at:exp?new Date(exp).toISOString():null,p_request_id:null});
+    if(error)return alert(error.message);alert(`Codice creato: ${code}\n\nCopialo ora: nell'elenco resterà visibile solo la parte finale.`);await loadAll(true);state.filter='demo';state.demoView='codes';render();
+  }
+  function bindCodeActions(){
+    const root=q('#'+PAGE_ID);if(!root)return;
+    q('#rqGenerateCode',root)?.addEventListener('click',()=>{q('#rqCodeValue').value=randomCode()});
+    q('#rqCodeScope',root)?.addEventListener('change',renderSongPicker);
+    q('#rqCodeForm',root)?.addEventListener('submit',createManualCode);
+    renderSongPicker();
+    qa('[data-code-toggle]',root).forEach(b=>b.onclick=async()=>{const{error}=await sb.rpc('admin_set_demo_unlock_code_active',{p_id:b.dataset.codeToggle,p_active:b.dataset.active!=='1'});if(error)return alert(error.message);await loadAll(true);state.filter='demo';state.demoView='codes';render()});
+  }
+
+  function boot(){
+    injectStyles();makeNav();makePage();normalizeNav();syncVisibility();
+    const memberApp=q('#memberApp');if(memberApp)new MutationObserver(()=>queueMicrotask(syncVisibility)).observe(memberApp,{attributes:true,attributeFilter:['hidden']});
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+  </script>
+
+<script id="member-navigation-authority-v500">
+(()=>{
+  "use strict";
+
+  const PAGE_CATEGORY={
+    mySetlistPage:"setlists",proposalsPage:"setlists",membersPage:"setlists",
+    catalogPage:"music",concertsPage:"music",
+    demoCertificationPage:"fan",fansAdminPage:"fan",
+    cashPage:"management",bandAvailabilityPage:"management",requestsPage:"management",
+    demoCodesPage:"management",bookingAdminPage:"management",
+    songRankingPage:"rankings",analyticsPage:"rankings",
+    publicMediaAdminPage:"setup",setupPage:"setup"
+  };
+  const PAGE_ROUTE={
+    mySetlistPage:"scaletta",proposalsPage:"proposte",membersPage:"scalette-membri",
+    catalogPage:"catalogo",concertsPage:"concerti",
+    demoCertificationPage:"presenze",fansAdminPage:"fan",
+    cashPage:"cassa",bandAvailabilityPage:"disponibilita",requestsPage:"richieste",
+    songRankingPage:"classifiche",analyticsPage:"statistiche",
+    publicMediaAdminPage:"media-pubblici",setupPage:"setup"
+  };
+  const ROUTE_PAGE={
+    scaletta:"mySetlistPage",proposte:"proposalsPage","scalette-membri":"membersPage",
+    catalogo:"catalogPage",concerti:"concertsPage",
+    presenze:"demoCertificationPage",fan:"fansAdminPage",
+    cassa:"cashPage",disponibilita:"bandAvailabilityPage",richieste:"requestsPage",
+    classifiche:"songRankingPage","classifica-brani":"songRankingPage",statistiche:"analyticsPage",
+    "media-pubblici":"publicMediaAdminPage",setup:"setupPage"
+  };
+  const ORDER=[
+    "mySetlistPage","proposalsPage","membersPage",
+    "catalogPage","concertsPage",
+    "demoCertificationPage","fansAdminPage",
+    "cashPage","bandAvailabilityPage","requestsPage",
+    "songRankingPage","analyticsPage",
+    "publicMediaAdminPage","setupPage",
+    "demoCodesPage","bookingAdminPage"
+  ];
+  const LABELS={demoCertificationPage:"PRESENZE",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",publicMediaAdminPage:"MEDIA PUBBLICI"};
+  const nav=()=>document.getElementById("memberNav");
+  const top=()=>document.getElementById("memberCategoryNav");
+  const memberApp=()=>document.getElementById("memberApp");
+  const usable=b=>!!b&&!b.hidden&&!b.classList.contains("hidden");
+  const buttonForPage=page=>{
+    const n=nav();if(!n)return null;
+    return [...n.querySelectorAll(`.nav-button[data-page="${page}"]`)].find(b=>b.dataset.staticNav==="1"&&usable(b))
+      ||[...n.querySelectorAll(`.nav-button[data-page="${page}"]`)].find(usable)
+      ||null;
+  };
+  let normalizing=false;
+
+  function setButtonLabel(btn,label){
+    if(!btn||!label)return;
+    const badge=btn.querySelector(".badge,.rq-badge");
+    const current=[...btn.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join("").trim();
+    if(current===label)return;
+    [...btn.childNodes].filter(n=>n.nodeType===Node.TEXT_NODE).forEach(n=>n.remove());
+    btn.insertBefore(document.createTextNode(label+(badge?" ":"")),badge||null);
+  }
+
+  function normalizeMenu(){
+    if(normalizing)return;
+    const n=nav();if(!n)return;
+    normalizing=true;
+    try{
+      n.querySelectorAll(".nav-button[data-page]").forEach(btn=>{
+        const page=btn.dataset.page,category=PAGE_CATEGORY[page];
+        if(category)btn.dataset.category=category;
+        if(LABELS[page])setButtonLabel(btn,LABELS[page]);
+      });
+
+      /* I tre punti dinamici hanno una voce menu statica. Il bottone creato dai vecchi JS
+         resta solo come loader dati: viene nascosto e richiamato dal pulsante statico. */
+      ["demoCertificationPage","bandAvailabilityPage","publicMediaAdminPage"].forEach(page=>{
+        const buttons=[...n.querySelectorAll(`.nav-button[data-page="${page}"]`)];
+        const menu=buttons.find(b=>b.dataset.staticNav==="1");
+        const loader=buttons.find(b=>b!==menu&&b.dataset.staticNav!=="1");
+        if(menu&&loader){
+          if(menu.dataset.loaderBound!=="1"){
+            menu.dataset.loaderBound="1";
+            menu.addEventListener("click",()=>{try{loader.click()}catch(err){console.error(err)}});
+          }
+          loader.classList.add("hidden","jm-loader-nav");loader.hidden=true;loader.tabIndex=-1;
+        }
+      });
+
+      /* Queste funzioni sono assorbite da RICHIESTE e non sono più voci autonome. */
+      ["demoCodesPage","bookingAdminPage"].forEach(page=>{
+        const b=n.querySelector(`[data-page="${page}"]`);if(b){b.classList.add("hidden");b.hidden=true;b.tabIndex=-1}
+      });
+
+      /* Ordine definitivo dei sottomenù, compresi quelli creati dagli script esterni. */
+      const existing=[...n.querySelectorAll(".nav-button[data-page]")];
+      const index=new Map(ORDER.map((p,i)=>[p,i]));
+      const wanted=[...existing].sort((a,b)=>{
+        const aLoader=a.classList.contains("jm-loader-nav"),bLoader=b.classList.contains("jm-loader-nav");
+        if(aLoader!==bLoader)return aLoader?1:-1;
+        return (index.get(a.dataset.page)??999)-(index.get(b.dataset.page)??999);
+      });
+      const current=existing.map(b=>b.dataset.page).join("|");
+      const desired=wanted.map(b=>b.dataset.page).join("|");
+      if(current!==desired)wanted.forEach(b=>n.appendChild(b));
+
+      refreshCategoryVisibility();
+    }finally{normalizing=false}
+  }
+
+  function refreshCategoryVisibility(){
+    const n=nav(),t=top();if(!n||!t)return;
+    t.querySelectorAll("[data-member-category]").forEach(cat=>{
+      const category=cat.dataset.memberCategory;
+      const has=[...n.querySelectorAll(`.nav-button[data-category="${category}"]`)].some(usable);
+      cat.hidden=!has;
+    });
+  }
+
+  function activePageId(){
+    const pages=[...document.querySelectorAll("#memberApp main .page.active")].filter(p=>PAGE_CATEGORY[p.id]);
+    if(pages.length)return pages[pages.length-1].id;
+    const b=nav()?.querySelector(".nav-button.active[data-page]");
+    return usable(b)&&PAGE_CATEGORY[b.dataset.page]?b.dataset.page:null;
+  }
+
+  function applyCategory(category){
+    const n=nav(),t=top();if(!n||!t||!category)return;
+    n.querySelectorAll(".nav-button[data-category]").forEach(b=>b.classList.toggle("category-off",b.dataset.category!==category));
+    t.querySelectorAll("[data-member-category]").forEach(b=>b.classList.toggle("active",b.dataset.memberCategory===category));
+  }
+
+  function setVisual(page){
+    normalizeMenu();
+    const n=nav(),app=memberApp();if(!n||!app||!PAGE_CATEGORY[page])return false;
+    const btn=buttonForPage(page),section=document.getElementById(page);
+    if(!usable(btn)||!section)return false;
+    n.querySelectorAll(".nav-button[data-page]").forEach(b=>b.classList.toggle("active",b===btn));
+    app.querySelectorAll("main .page").forEach(p=>p.classList.toggle("active",p===section));
+    applyCategory(PAGE_CATEGORY[page]);
+    return true;
+  }
+
+  function setHash(page){
+    const route=PAGE_ROUTE[page];if(!route)return;
+    const now=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+    if(now!==route)history.replaceState(history.state,"",`${location.pathname}${location.search}#${encodeURIComponent(route)}`);
+  }
+
+  function loadStaticPage(page){
+    Promise.resolve(window.JM_MEMBER_LOAD_PAGE?.(page)).catch(err=>{console.error(err);alert(err?.message||String(err))});
+  }
+
+  function openPage(page,{updateHash=true,load=true}={}){
+    if(!setVisual(page))return false;
+    if(updateHash)setHash(page);
+    if(load)loadStaticPage(page);
+    return true;
+  }
+
+  function firstVisible(category){
+    normalizeMenu();
+    const n=nav();if(!n)return null;
+    const current=n.querySelector(`.nav-button.active[data-category="${category}"]`);
+    if(usable(current))return current;
+    return [...n.querySelectorAll(`.nav-button[data-category="${category}"]`)].find(usable)||null;
+  }
+
+  function refresh(){
+    normalizeMenu();
+    let page=activePageId();
+    const activeBtn=page?buttonForPage(page):null;
+    if(!usable(activeBtn)){
+      const first=[...nav().querySelectorAll(".nav-button[data-page]")].find(usable);
+      page=first?.dataset.page||null;
+    }
+    if(page)setVisual(page);
+    refreshCategoryVisibility();
+  }
+
+  /* AUTORITÀ 1/1 — click categoria principale. */
+  top()?.addEventListener("click",e=>{
+    const cat=e.target.closest("[data-member-category]");if(!cat||cat.hidden)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const target=firstVisible(cat.dataset.memberCategory);
+    if(target)target.click();
+  },true);
+
+  /* AUTORITÀ 1/1 — click sottomenù. Gli eventuali handler della singola pagina
+     possono caricare dati, ma questo listener decide SEMPRE lo stato finale di navigazione. */
+  nav()?.addEventListener("click",e=>{
+    const btn=e.target.closest(".nav-button[data-page]");if(!usable(btn))return;
+    const page=btn.dataset.page;if(!PAGE_CATEGORY[page])return;
+    setVisual(page);
+    setHash(page);
+    loadStaticPage(page);
+  });
+
+  /* AUTORITÀ 1/1 — hash area membri. */
+  window.addEventListener("hashchange",()=>{
+    if(memberApp()?.hidden)return;
+    const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+    const page=ROUTE_PAGE[route];if(!page)return;
+    const btn=buttonForPage(page);
+    if(usable(btn))btn.click();
+  });
+
+  /* Compatibilità con loader dinamici storici: non decide una seconda navigazione,
+     applica solo la categoria della pagina che è DAVVERO attiva. */
+  window.setMemberCategory=category=>{
+    const page=activePageId();
+    applyCategory(PAGE_CATEGORY[page]||category);
+  };
+  window.JM_MEMBER_NAV_REFRESH=refresh;
+  window.JM_MEMBER_OPEN=(page,opts)=>openPage(page,opts||{});
+
+  const n=nav();
+  if(n)new MutationObserver(()=>queueMicrotask(refresh)).observe(n,{childList:true,subtree:false});
+  const app=memberApp();
+  if(app)new MutationObserver(()=>queueMicrotask(()=>{
+    refresh();
+    if(!app.hidden){
+      const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+      const page=ROUTE_PAGE[route];
+      if(page){const b=buttonForPage(page);if(usable(b))b.click()}
+    }
+  })).observe(app,{attributes:true,attributeFilter:["hidden"]});
+
+  const boot=()=>{
+    normalizeMenu();
+    const route=decodeURIComponent(location.hash.replace(/^#/,"").trim().toLowerCase());
+    const requested=ROUTE_PAGE[route];
+    if(!memberApp()?.hidden&&requested){const b=buttonForPage(requested);if(usable(b)){b.click();return}}
+    refresh();
+  };
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
+})();
+</script>
+
+
 
 
 <script id="cash-ledger-v2-runtime">
 (()=>{
-  const CASH_TYPES={room_fee:{label:"VERSAMENTO QUOTA SALETTA",flow:"income"},rehearsal_room_cost:{label:"COSTO SALETTA",flow:"expense"},equipment_purchase:{label:"ACQUISTO STRUMENTAZIONE",flow:"expense"},equipment_rental:{label:"NOLEGGIO STRUMENTAZIONE",flow:"expense"},materials_purchase:{label:"MATERIALE VARIO",flow:"expense"},live_income:{label:"INCASSO LIVE",flow:"income"},staff_reward:{label:"RICOMPENSA STAFF",flow:"expense"},loan_repayment:{label:"RESTITUZIONE PRESTITI",flow:"settlement"}};
+  const CASH_TYPES={room_fee:{label:"QUOTA SALETTA",flow:"income"},equipment_purchase:{label:"ACQUISTO STRUMENTAZIONE",flow:"expense"},equipment_rental:{label:"NOLEGGIO STRUMENTAZIONE",flow:"expense"},materials_purchase:{label:"MATERIALE VARIO",flow:"expense"},live_income:{label:"INCASSO LIVE",flow:"income"},staff_reward:{label:"RICOMPENSA STAFF",flow:"expense"},loan_repayment:{label:"RESTITUZIONE PRESTITI",flow:"settlement"}};
   const REALIZATION_LABELS={confirmed:"EFFETTIVO",forecast:"PREVISTO",goal:"OBIETTIVO"};
-  let cashTransactions=[],cashFunders=[],cashRecurringRules=[],cashLoaded=false,cashBusy=false,cashRecurringBusy=false;
+  let cashTransactions=[],cashFunders=[],cashLoaded=false,cashBusy=false;
   const cashMoney=v=>new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR",minimumFractionDigits:2}).format(Number(v)||0);
   const cashState=t=>t?.realization_state||"confirmed";
   function cashBandProfiles(){const order=new Map(BAND_MEMBERS.map((m,i)=>[m.username.toLowerCase(),i]));return(profiles||[]).filter(p=>order.has(String(p.username||"").toLowerCase())).sort((a,b)=>(order.get(String(a.username||"").toLowerCase())??99)-(order.get(String(b.username||"").toLowerCase())??99))}
   const cashProfile=id=>(profiles||[]).find(p=>p.id===id)||null;
   const cashProfileName=id=>{const p=cashProfile(id);return p?.display_name||p?.username||"—"};
   const cashType=row=>CASH_TYPES[row?.category]||{label:String(row?.category||"ALTRO").toUpperCase(),flow:"other"};
-  const cashIsExpense=category=>["rehearsal_room_cost","equipment_purchase","equipment_rental","materials_purchase","staff_reward"].includes(category);
+  const cashIsExpense=category=>["equipment_purchase","equipment_rental","materials_purchase","staff_reward"].includes(category);
   const cashFundersFor=id=>cashFunders.filter(f=>f.transaction_id===id);
   const cashPendingForBase=id=>cashTransactions.filter(t=>t.status==="pending"&&t.supersedes_id===id).sort((a,b)=>String(b.updated_at||b.created_at).localeCompare(String(a.updated_at||a.created_at)));
-  const cashRecurringRule=id=>cashRecurringRules.find(r=>r.id===id)||null;
-  const cashRecurringPendingForBase=id=>cashRecurringRules.filter(r=>r.status==="pending"&&r.supersedes_id===id).sort((a,b)=>String(b.updated_at||b.created_at).localeCompare(String(a.updated_at||a.created_at)));
-  const cashRuleStatusLabel=s=>s==="pending"?"DA APPROVARE":s==="approved"?"ATTIVA":s==="rejected"?"RIFIUTATA":"STORICA";
-  const cashRuleFrequency=r=>{const n=Math.max(1,Number(r?.frequency_months)||1);return n===1?"ogni mese":n===12?"ogni anno":`ogni ${n} mesi`};
-  function cashAddMonths(dateStr,months){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr||""));if(!m)return"";const y=Number(m[1]),mo=Number(m[2])-1,d=Number(m[3]);const target=new Date(Date.UTC(y,mo+months,1));const last=new Date(Date.UTC(target.getUTCFullYear(),target.getUTCMonth()+1,0)).getUTCDate();target.setUTCDate(Math.min(d,last));return target.toISOString().slice(0,10)}
-  function cashNextRuleDue(r,strictAfterStart=false){if(!r?.first_due_date)return todayISO();let due=String(r.first_due_date),step=Math.max(1,Number(r.frequency_months)||1),guard=0;while((due<todayISO()||(strictAfterStart&&due<=String(r.first_due_date)))&&guard++<240)due=cashAddMonths(due,step);return due}
   function cashMonthSpan(start,count){if(!start||!count)return"";const[y,m]=String(start).slice(0,7).split("-").map(Number),n=Math.max(1,Number(count)||1),first=new Date(y,m-1,1),last=new Date(y,m+n-2,1),a=first.toLocaleDateString("it-IT",{month:"short",year:"numeric"}),b=last.toLocaleDateString("it-IT",{month:"short",year:"numeric"});return n===1?a:`${a} → ${b} · ${n} mesi`}
   function cashBalances(){
     const wallet=new Map(cashBandProfiles().map(p=>[p.id,0]));let common=0,income=0,expenses=0,forecastIncome=0,forecastExpenses=0,goals=0;
@@ -6493,7 +6905,7 @@ setMemberRankingTab('songs');
   function cashSetKpi(id,value){const el=$(id);if(!el)return;el.textContent=cashMoney(value);el.classList.toggle("negative",Number(value)<-.004);el.classList.toggle("positive",Number(value)>.004)}
   function renderCashWallets(){const box=$("cashWalletList");if(!box)return;const b=cashBalances();cashSetKpi("cashCommonBalance",b.common);cashSetKpi("cashApprovedIncome",b.income);cashSetKpi("cashApprovedExpenses",b.expenses);cashSetKpi("cashOutstandingCredits",b.credits);cashSetKpi("cashForecastIncome",b.forecastIncome);cashSetKpi("cashForecastExpenses",b.forecastExpenses);cashSetKpi("cashGoalTotal",b.goals);const rows=cashBandProfiles();box.innerHTML=rows.map(p=>{const v=Number(b.wallet.get(p.id)||0),cls=v>.004?"credit":v<-.004?"debt":"zero",meta=v>.004?"Credito verso la band":v<-.004?"Debito verso la cassa":"Nessuna posizione da regolare";return`<div class="cash-wallet-row"><div><div class="cash-wallet-name">${esc(p.display_name||p.username||"Membro")}</div><div class="cash-wallet-meta">${meta}</div></div><div class="cash-wallet-value ${cls}">${cashMoney(v)}</div></div>`}).join("")||'<div class="empty">Nessun membro disponibile.</div>';$("cashWalletCounter").textContent=`${rows.length} portafogli`}
   function cashFundingText(t){if(!cashIsExpense(t.category)){if(t.category==="room_fee")return`Versamento: ${cashProfileName(t.subject_member_id)}`;if(t.category==="loan_repayment")return`Rimborso a: ${cashProfileName(t.subject_member_id)}`;return"Cassa comune"}const rows=cashFundersFor(t.id);return rows.length?rows.map(f=>`${f.source_type==="common"?"Cassa":cashProfileName(f.member_id)} ${cashMoney(f.amount)}`).join(" · "):cashState(t)==="confirmed"?"—":"Da definire"}
-  function cashSubjectText(t){const r=t.recurring_rule_id?cashRecurringRule(t.recurring_rule_id):null;if(t.category==="room_fee")return cashMonthSpan(t.fee_start_month,t.fee_month_count);if(t.category==="loan_repayment")return`credito di ${cashProfileName(t.subject_member_id)}`;if(r)return`Periodica · ${r.name}`;return""}
+  function cashSubjectText(t){if(t.category==="room_fee")return cashMonthSpan(t.fee_start_month,t.fee_month_count);if(t.category==="loan_repayment")return`credito di ${cashProfileName(t.subject_member_id)}`;return""}
   const cashStatusLabel=s=>s==="pending"?"DA APPROVARE":s==="approved"?"APPROVATO":s==="rejected"?"RIFIUTATO":"SUPERATO";
   function cashRowsForFilter(){
     const status=$("cashStatusFilter")?.value||"current",realization=$("cashRealizationFilter")?.value||"",category=$("cashCategoryFilter")?.value||"",q=String($("cashSearch")?.value||"").trim().toLowerCase(),pendingBases=new Set(cashTransactions.filter(t=>t.status==="pending"&&t.supersedes_id).map(t=>t.supersedes_id));
@@ -6531,9 +6943,9 @@ setMemberRankingTab('songs');
     box.querySelectorAll("[data-cash-reject]").forEach(b=>b.onclick=()=>reviewCashTransaction(b.dataset.cashReject,false));
     box.querySelectorAll("[data-cash-confirm]").forEach(b=>b.onclick=()=>confirmCashTransaction(b.dataset.cashConfirm));
   }
-  function renderCashBadges(){const pendingMov=cashTransactions.filter(t=>t.status==="pending").length,pendingRules=cashRecurringRules.filter(r=>r.status==="pending").length,pending=pendingMov+pendingRules,forecast=cashTransactions.filter(t=>t.status==="approved"&&cashState(t)==="forecast").length,goals=cashTransactions.filter(t=>t.status==="approved"&&cashState(t)==="goal").length,b=$("cashPendingBadge");if(b){b.textContent=pending;b.classList.toggle("hidden",!pending)}const h=$("cashApprovalHint");if(h){const bits=[];if(pendingMov)bits.push(isEma()?`${pendingMov} movimenti da approvare`:`${pendingMov} movimenti provvisori`);if(pendingRules)bits.push(isEma()?`${pendingRules} periodiche da approvare`:`${pendingRules} periodiche provvisorie`);if(forecast)bits.push(`${forecast} previsti`);if(goals)bits.push(`${goals} obiettivi`);h.textContent=bits.join(" · ")||"Registro aggiornato"}}
+  function renderCashBadges(){const pending=cashTransactions.filter(t=>t.status==="pending").length,forecast=cashTransactions.filter(t=>t.status==="approved"&&cashState(t)==="forecast").length,goals=cashTransactions.filter(t=>t.status==="approved"&&cashState(t)==="goal").length,b=$("cashPendingBadge");if(b){b.textContent=pending;b.classList.toggle("hidden",!pending)}const h=$("cashApprovalHint");if(h){const bits=[];if(pending)bits.push(isEma()?`${pending} da approvare`:`${pending} provvisori`);if(forecast)bits.push(`${forecast} previsti`);if(goals)bits.push(`${goals} obiettivi`);h.textContent=bits.join(" · ")||"Registro aggiornato"}}
   function renderCashPage(){renderCashWallets();renderCashLedger();renderCashBadges()}
-  async function loadCashPage(force=false){if(cashBusy)return;if(cashLoaded&&!force){renderCashPage();return}cashBusy=true;try{if(!profiles?.length)await loadProfiles();const sync=await sb.rpc("cash_sync_recurring_forecasts",{p_horizon_months:12});if(sync.error)console.warn("Sync spese periodiche",sync.error);const[a,b,c]=await Promise.all([sb.from("cash_transactions").select("*").order("transaction_date",{ascending:false,nullsFirst:false}).order("created_at",{ascending:false}),sb.from("cash_transaction_funders").select("*"),sb.from("cash_recurring_rules").select("*").order("first_due_date",{ascending:false}).order("created_at",{ascending:false})]);if(a.error)throw a.error;if(b.error)throw b.error;if(c.error)throw c.error;cashTransactions=a.data||[];cashFunders=b.data||[];cashRecurringRules=c.data||[];cashLoaded=true;renderCashPage()}finally{cashBusy=false}}
+  async function loadCashPage(force=false){if(cashBusy)return;if(cashLoaded&&!force){renderCashPage();return}cashBusy=true;try{if(!profiles?.length)await loadProfiles();const[a,b]=await Promise.all([sb.from("cash_transactions").select("*").order("transaction_date",{ascending:false,nullsFirst:false}).order("created_at",{ascending:false}),sb.from("cash_transaction_funders").select("*")]);if(a.error)throw a.error;if(b.error)throw b.error;cashTransactions=a.data||[];cashFunders=b.data||[];cashLoaded=true;renderCashPage()}finally{cashBusy=false}}
   function fillCashMemberSelect(select,value){if(!select)return;const rows=cashBandProfiles();select.innerHTML=rows.map(p=>`<option value="${esc(p.id)}">${esc(p.display_name||p.username||"Membro")}</option>`).join("");select.value=value&&rows.some(p=>p.id===value)?value:(currentProfile?.id||rows[0]?.id||"")}
   function renderCashFunderEditor(existing=[],defaultCommon=false){const box=$("cashFunderList");if(!box)return;const entities=[{source_type:"common",member_id:null,label:"Cassa comune"},...cashBandProfiles().map(p=>({source_type:"member",member_id:p.id,label:p.display_name||p.username||"Membro"}))];box.innerHTML=entities.map(e=>{const hit=existing.find(f=>f.source_type===e.source_type&&(e.source_type==="common"||f.member_id===e.member_id)),checked=!!hit||(!existing.length&&defaultCommon&&e.source_type==="common"),value=hit?Number(hit.amount).toFixed(2):(!existing.length&&defaultCommon&&e.source_type==="common"?(Number($("cashAmount")?.value)||0).toFixed(2):"0.00");return`<div class="cash-funder-row" data-source="${e.source_type}" data-member="${e.member_id||""}"><input class="cash-funder-check" type="checkbox" ${checked?"checked":""} aria-label="${esc(e.label)}"><label>${esc(e.label)}</label><input class="cash-funder-amount" type="number" min="0" step="0.01" inputmode="decimal" value="${value}" ${checked?"":"disabled"}></div>`}).join("");box.querySelectorAll(".cash-funder-check").forEach(ch=>ch.onchange=()=>{const row=ch.closest(".cash-funder-row"),input=row.querySelector(".cash-funder-amount");input.disabled=!ch.checked;if(ch.checked&&Number(input.value)<=0)input.value="0.00";if(row.dataset.source==="member")cashAutoCommonRemainder();updateCashFundingSummary()});box.querySelectorAll(".cash-funder-amount").forEach(input=>input.oninput=()=>{if(input.closest(".cash-funder-row")?.dataset.source==="member")cashAutoCommonRemainder();updateCashFundingSummary()});updateCashFundingSummary()}
   function cashAutoCommonRemainder(){const common=document.querySelector('#cashFunderList .cash-funder-row[data-source="common"]');if(!common)return;const check=common.querySelector(".cash-funder-check"),input=common.querySelector(".cash-funder-amount");if(!check.checked)return;const total=Number($("cashAmount")?.value)||0,members=[...document.querySelectorAll('#cashFunderList .cash-funder-row[data-source="member"]')].reduce((sum,row)=>sum+(row.querySelector(".cash-funder-check").checked?(Number(row.querySelector(".cash-funder-amount").value)||0):0),0);input.value=Math.max(0,total-members).toFixed(2)}
@@ -6594,34 +7006,8 @@ setMemberRankingTab('songs');
     if(!confirm(msg))return;
     const{error}=await sb.rpc("cash_confirm_transaction",{p_transaction_id:id,p_actual_date:actualDate});if(error)return alert(error.message);cashLoaded=false;await loadCashPage(true)
   }
-  function resetCashRecurringForm(){
-    $("cashRecurringEditId").value="";$("cashRecurringFormTitle").textContent="NUOVA SPESA PERIODICA";$("cashRecurringName").value="Quota saletta";$("cashRecurringCategory").value="rehearsal_room_cost";$("cashRecurringAmount").value="";$("cashRecurringFrequency").value="1";$("cashRecurringFirstDue").value=todayISO();$("cashRecurringUntil").value="";fillCashMemberSelect($("cashRecurringSigner"),currentProfile?.id);$("cashRecurringDescription").value="";$("cashRecurringSaveStatus").textContent="";$("cashRecurringVersionHint").textContent="Le modifiche future vengono storicizzate come nuova versione."
-  }
-  function openCashRecurringRule(r=null){
-    if(!r){resetCashRecurringForm();return}
-    $("cashRecurringEditId").value=r.id;$("cashRecurringFormTitle").textContent=r.status==="approved"?"NUOVA VERSIONE":"MODIFICA CONFIGURAZIONE";$("cashRecurringName").value=r.name||"";$("cashRecurringCategory").value=r.category||"rehearsal_room_cost";$("cashRecurringAmount").value=Number(r.amount||0).toFixed(2);$("cashRecurringFrequency").value=Number(r.frequency_months)||1;
-    const next=r.status==="approved"?cashNextRuleDue(r,true):(r.first_due_date||todayISO());$("cashRecurringFirstDue").value=next;$("cashRecurringUntil").value=r.status==="pending"?(r.effective_until||""):"";fillCashMemberSelect($("cashRecurringSigner"),r.signer_member_id||currentProfile?.id);$("cashRecurringDescription").value=r.description||"";$("cashRecurringSaveStatus").textContent=r.status==="approved"&&!isEma()?"La nuova versione resterà provvisoria fino all’approvazione admin.":"";$("cashRecurringVersionHint").textContent=r.status==="approved"?`La configurazione attuale resta valida fino al giorno precedente alla nuova scadenza (${formatDate(next)}). Lo storico non viene riscritto.`:"Puoi correggere questa richiesta provvisoria prima dell’approvazione."
-  }
-  function cashRuleRowHtml(r,historic=false){
-    const pendingBase=r.supersedes_id?cashRecurringRule(r.supersedes_id):null,owned=r.created_by===currentUser?.id,canEdit=(r.status==="pending"&&(isEma()||owned))||(r.status==="approved"&&!cashRecurringPendingForBase(r.id).length),range=r.effective_until?`${formatDate(r.first_due_date)} → ${formatDate(r.effective_until)}`:`dal ${formatDate(r.first_due_date)}`,label=CASH_TYPES[r.category]?.label||r.category;
-    let actions="";if(r.status==="pending"&&isEma())actions+=`<button type="button" class="small-btn success" data-recurring-approve="${r.id}">APPROVA</button><button type="button" class="small-btn danger" data-recurring-reject="${r.id}">RIFIUTA</button>`;if(canEdit)actions+=`<button type="button" class="small-btn" data-recurring-edit="${r.id}">${r.status==="approved"?"VARIA":"MODIFICA"}</button>`;
-    const change=pendingBase?`<div class="cash-recurring-rule-meta">Variazione proposta della versione valida dal ${formatDate(pendingBase.first_due_date)}</div>`:"";
-    return `<div class="cash-recurring-rule-row ${esc(r.status)}${historic?" historic":""}"><div class="cash-recurring-rule-top"><div><div class="cash-recurring-rule-name">${esc(r.name)}</div><div class="cash-recurring-rule-meta">${esc(label)} · ${cashMoney(r.amount)} · ${esc(cashRuleFrequency(r))}</div><div class="cash-recurring-rule-meta">${esc(range)} · incaricato ${esc(cashProfileName(r.signer_member_id))}</div>${change}</div><span class="cash-status ${esc(r.status)}">${cashRuleStatusLabel(r.status)}</span></div>${r.description?`<div class="cash-recurring-rule-meta">${esc(r.description)}</div>`:""}<div class="cash-recurring-rule-actions">${actions}</div></div>`
-  }
-  function bindCashRecurringRuleActions(root){
-    root.querySelectorAll("[data-recurring-edit]").forEach(b=>b.onclick=()=>{const r=cashRecurringRules.find(x=>x.id===b.dataset.recurringEdit);if(r)openCashRecurringRule(r)});root.querySelectorAll("[data-recurring-approve]").forEach(b=>b.onclick=()=>reviewCashRecurringRule(b.dataset.recurringApprove,true));root.querySelectorAll("[data-recurring-reject]").forEach(b=>b.onclick=()=>reviewCashRecurringRule(b.dataset.recurringReject,false))
-  }
-  function renderCashRecurringSetup(){
-    const current=$("cashRecurringRuleList"),history=$("cashRecurringHistoryList");if(!current||!history)return;const active=cashRecurringRules.filter(r=>["approved","pending"].includes(r.status)).sort((a,b)=>String(a.name).localeCompare(String(b.name),"it")||String(b.first_due_date||"").localeCompare(String(a.first_due_date||""))),old=cashRecurringRules.filter(r=>["superseded","rejected"].includes(r.status)).sort((a,b)=>String(b.first_due_date||"").localeCompare(String(a.first_due_date||"")));
-    current.innerHTML=active.map(r=>cashRuleRowHtml(r,false)).join("")||'<div class="cash-recurring-empty">Nessuna spesa periodica configurata.</div>';history.innerHTML=old.map(r=>cashRuleRowHtml(r,true)).join("")||'<div class="cash-recurring-empty">Nessuna variazione storica.</div>';bindCashRecurringRuleActions(current);bindCashRecurringRuleActions(history)
-  }
-  async function openCashRecurringSetup(){if(!cashLoaded)await loadCashPage(true);renderCashRecurringSetup();resetCashRecurringForm();openModal("cashRecurringModal")}
-  async function saveCashRecurringRule(e){
-    e.preventDefault();if(cashRecurringBusy)return;const amount=Number($("cashRecurringAmount").value),freq=Number($("cashRecurringFrequency").value),first=$("cashRecurringFirstDue").value,until=$("cashRecurringUntil").value||null,editId=$("cashRecurringEditId").value||null,base=editId?cashRecurringRules.find(r=>r.id===editId):null;if(!Number.isFinite(amount)||amount<=0)return alert("Inserisci un importo atteso valido.");if(!Number.isInteger(freq)||freq<1||freq>120)return alert("Inserisci una frequenza valida in mesi.");if(!first)return alert("Indica la prima o nuova scadenza.");if(base?.status==="approved"&&first<=String(base.first_due_date))return alert("Per storicizzare la variazione, la nuova scadenza deve essere successiva alla decorrenza della versione attuale.");if(until&&until<first)return alert("L’ultima scadenza non può precedere la prima.");const payload={rule_id:editId,name:$("cashRecurringName").value.trim(),category:$("cashRecurringCategory").value,amount:amount.toFixed(2),frequency_months:freq,first_due_date:first,effective_until:until,description:$("cashRecurringDescription").value.trim()||null,signer_member_id:$("cashRecurringSigner").value};if(!payload.name)return alert("Indica il nome della spesa periodica.");cashRecurringBusy=true;$("saveCashRecurringRule").disabled=true;$("cashRecurringSaveStatus").textContent="Salvataggio...";try{const{error}=await sb.rpc("cash_submit_recurring_rule",{p_payload:payload});if(error)throw error;cashLoaded=false;await loadCashPage(true);renderCashRecurringSetup();resetCashRecurringForm();$("cashRecurringSaveStatus").textContent=isEma()?"Salvato ✓":"Richiesta inviata ✓"}catch(err){console.error(err);alert(err.message||String(err));$("cashRecurringSaveStatus").textContent="Errore"}finally{cashRecurringBusy=false;$("saveCashRecurringRule").disabled=false}
-  }
-  async function reviewCashRecurringRule(id,approve){if(!isEma())return;let note=null;if(approve){if(!confirm("Approvare questa configurazione periodica? Le prossime scadenze verranno generate come movimenti previsti."))return}else{note=prompt("Motivo del rifiuto (facoltativo):","");if(note===null)return}const{error}=await sb.rpc("cash_review_recurring_rule",{p_rule_id:id,p_approve:approve,p_note:note||null});if(error)return alert(error.message);cashLoaded=false;await loadCashPage(true);renderCashRecurringSetup();resetCashRecurringForm()}
   function splitCashFundersEqually(){const rows=[...document.querySelectorAll("#cashFunderList .cash-funder-row")].filter(row=>row.querySelector(".cash-funder-check").checked),total=Math.round((Number($("cashAmount")?.value)||0)*100);if(!rows.length||total<=0)return;const base=Math.floor(total/rows.length),rest=total-base*rows.length;rows.forEach((row,i)=>row.querySelector(".cash-funder-amount").value=((base+(i===rows.length-1?rest:0))/100).toFixed(2));updateCashFundingSummary()}
-  $("newCashTransactionButton")?.addEventListener("click",()=>openCashTransaction());$("cashRecurringSetupButton")?.addEventListener("click",()=>openCashRecurringSetup().catch(err=>alert(err.message)));$("cashRefreshButton")?.addEventListener("click",()=>{cashLoaded=false;loadCashPage(true).catch(err=>alert(err.message))});$("closeCashTransactionModal")?.addEventListener("click",()=>closeModal("cashTransactionModal"));$("cancelCashTransaction")?.addEventListener("click",()=>closeModal("cashTransactionModal"));$("cashTransactionForm")?.addEventListener("submit",saveCashTransaction);$("closeCashRecurringModal")?.addEventListener("click",()=>closeModal("cashRecurringModal"));$("newCashRecurringRuleButton")?.addEventListener("click",resetCashRecurringForm);$("resetCashRecurringForm")?.addEventListener("click",resetCashRecurringForm);$("cashRecurringForm")?.addEventListener("submit",saveCashRecurringRule);$("cashCategory")?.addEventListener("change",updateCashConditionalFields);$("cashRealization")?.addEventListener("change",updateCashConditionalFields);$("cashDate")?.addEventListener("change",updateCashConditionalFields);$("cashAmount")?.addEventListener("input",()=>{if(cashIsExpense($("cashCategory")?.value))cashAutoCommonRemainder();updateCashFundingSummary()});$("cashFeeStartMonth")?.addEventListener("change",updateCashFeePreview);$("cashFeeMonthCount")?.addEventListener("input",updateCashFeePreview);$("cashSplitEqualButton")?.addEventListener("click",splitCashFundersEqually);$("cashSearch")?.addEventListener("input",renderCashLedger);$("cashStatusFilter")?.addEventListener("change",renderCashLedger);$("cashRealizationFilter")?.addEventListener("change",renderCashLedger);$("cashCategoryFilter")?.addEventListener("change",renderCashLedger);
+  $("newCashTransactionButton")?.addEventListener("click",()=>openCashTransaction());$("cashRefreshButton")?.addEventListener("click",()=>{cashLoaded=false;loadCashPage(true).catch(err=>alert(err.message))});$("closeCashTransactionModal")?.addEventListener("click",()=>closeModal("cashTransactionModal"));$("cancelCashTransaction")?.addEventListener("click",()=>closeModal("cashTransactionModal"));$("cashTransactionForm")?.addEventListener("submit",saveCashTransaction);$("cashCategory")?.addEventListener("change",updateCashConditionalFields);$("cashRealization")?.addEventListener("change",updateCashConditionalFields);$("cashDate")?.addEventListener("change",updateCashConditionalFields);$("cashAmount")?.addEventListener("input",()=>{if(cashIsExpense($("cashCategory")?.value))cashAutoCommonRemainder();updateCashFundingSummary()});$("cashFeeStartMonth")?.addEventListener("change",updateCashFeePreview);$("cashFeeMonthCount")?.addEventListener("input",updateCashFeePreview);$("cashSplitEqualButton")?.addEventListener("click",splitCashFundersEqually);$("cashSearch")?.addEventListener("input",renderCashLedger);$("cashStatusFilter")?.addEventListener("change",renderCashLedger);$("cashRealizationFilter")?.addEventListener("change",renderCashLedger);$("cashCategoryFilter")?.addEventListener("change",renderCashLedger);
   document.addEventListener("click",e=>{const b=e.target.closest?.('#memberNav [data-page="cashPage"]');if(!b)return;setTimeout(()=>loadCashPage().catch(err=>{console.error(err);alert(err.message)}),0)},true);
   window.jmCash={reload:()=>{cashLoaded=false;return loadCashPage(true)}};
 })();
