@@ -11,6 +11,24 @@
   <link rel="stylesheet" href="css/public.css">
   <link rel="stylesheet" href="css/public-updates.css">
 
+  <style>
+    /* HOME HERO — immagine uniforme, senza sfumatura laterale */
+    #homePage > .home-hero-news > .home-hero-highlights .highlight-slide::before {
+      background: transparent !important;
+    }
+
+    /* Anteprima ritaglio admin coerente con la Home */
+    .home-inline-crop-fade {
+      background: transparent !important;
+    }
+
+    @media (max-width: 700px) {
+      #homePage > .home-hero-news > .home-hero-highlights .highlight-slide::before {
+        background: transparent !important;
+      }
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="js/copy-core.js" defer></script>
   <script src="js/copy-catalog.js" defer></script>
@@ -75,6 +93,7 @@
           <div class="highlights-heading"><h2>In programma & novità</h2><div class="highlights-controls"><button id="highlightPrev" type="button" aria-label="Precedente">←</button><span id="highlightCount" role="status"></span><button id="highlightNext" type="button" aria-label="Successivo">→</button></div></div>
           <div id="highlightTrack" class="highlight-track" tabindex="0" aria-label="Scorri concerti e novità"><p>Caricamento…</p></div>
         </section>
+
         <section class="home-grid">
           <article class="feature-card glass-card" id="homeNextShow">
             <div class="section-kicker" data-copy="ui.a27114e657cc">PROSSIMO CONCERTO</div>
@@ -90,6 +109,7 @@
           <div class="home-media-copy"><h2 data-copy="home.032">Dal palco</h2><p data-copy="home.034">Reperti storici, di dubbio valore.</p><button class="btn btn-ghost" type="button" data-go="more" data-copy="home.035">GUARDA L’ARCHIVIO</button></div>
           <div class="home-media-wall" id="homeMediaWall" aria-label="Anteprima foto e locandine" data-copy-aria-label="home.036"></div>
         </section>
+
         <section class="home-member-carousel glass-card hidden" id="homeMemberCarousel" aria-label="Foto dei membri della band">
           <button class="member-carousel-nav" id="memberCarouselPrev" type="button" aria-label="Foto precedente">←</button>
           <div class="member-carousel-stage" id="memberCarouselStage"></div>
@@ -102,10 +122,12 @@
           <div><span class="section-kicker" data-copy="tour.001">FROM THE RIVER TO THE FIELDS</span><h2 data-copy="tour.002">LIVE / TOUR</h2><p data-copy="tour.003">Prossime date, archivio concerti e scalette svelate quando il live parte.</p></div>
           <div class="page-hero-ornament" data-copy="tour.004">TOUR</div>
         </header>
+
         <section class="content-section" id="upcomingBlock">
           <div class="section-heading"><div><span class="section-kicker" data-copy="tour.005">NEXT</span><h3 data-copy="tour.006">Prossimi concerti</h3></div><span class="section-count" id="upcomingCount"></span></div>
           <div class="concert-grid" id="upcomingConcerts"><div class="empty-state" data-copy="tour.007">Caricamento…</div></div>
         </section>
+
         <section class="content-section" id="archiveBlock">
           <div class="section-heading"><div><span class="section-kicker" data-copy="tour.008">ARCHIVE</span><h3 data-copy="tour.009">Già molestati</h3></div><span class="section-count" id="pastCount"></span></div>
           <div class="concert-list" id="pastConcerts"><div class="empty-state" data-copy="tour.010">Caricamento…</div></div>
@@ -117,19 +139,23 @@
           <div><span class="section-kicker" data-copy="rankings.001">NUMERI, VOTI, LIVE</span><h2 data-copy="rankings.002">CLASSIFICHE</h2><p data-copy="rankings.003">I brani più amati, i fan più presenti, le serate da ricordare.</p></div>
           <div class="page-hero-ornament" data-copy="rankings.004">RANK</div>
         </header>
+
         <section class="ranking-stack">
           <article class="ranking-panel glass-card" id="songsRankingBlock">
             <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.005">01</span><h3 data-copy="rankings.006">Brani</h3></div><button class="text-button" data-expand-ranking="songs" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
             <div class="ranking-list" id="songsRanking"><div class="empty-state" data-copy="rankings.008">Caricamento…</div></div>
           </article>
+
           <article class="ranking-panel glass-card" id="fansRankingBlock">
             <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.009">02</span><h3 data-copy="rankings.010">Fan</h3></div><button class="text-button" data-expand-ranking="fans" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
             <div class="ranking-list" id="fansRanking"><div class="empty-state" data-copy="rankings.012">Caricamento…</div></div>
           </article>
+
           <article class="ranking-panel glass-card" id="concertsRankingBlock">
             <div class="panel-heading"><div><span class="section-kicker" data-copy="rankings.013">03</span><h3 data-copy="rankings.014">Concerti</h3></div><button class="text-button" data-expand-ranking="concerts" type="button" data-copy="ui.c4a5176fc495">MOSTRA TUTTI</button></div>
             <div class="ranking-list" id="concertsRanking"><div class="empty-state" data-copy="rankings.016">Caricamento…</div></div>
           </article>
+
           <article class="ranking-panel glass-card" id="postersRankingBlock">
             <div class="panel-heading"><div><span class="section-kicker">04</span><h3>Locandine</h3></div><button class="text-button" data-expand-ranking="posters" type="button">MOSTRA TUTTE</button></div>
             <div class="ranking-list" id="postersRanking"><div class="empty-state">Caricamento…</div></div>
@@ -142,8 +168,10 @@
           <div class="band-hero-copy"><span class="section-kicker" data-copy="band.001">5 PERSONE · UNA PESSIMA IDEA</span><h2 data-copy="band.002">LA BAND</h2><p data-copy="band.003">Prendiamo canzoni italiane che conoscono tutti e le facciamo correre molto più del dovuto.</p></div>
           <img class="band-seal" src="IMG_6259.PNG" alt="Logo John & i Molesti" width="1280" height="1280" data-copy-alt="band.004">
         </header>
+
         <section class="content-section" id="membersBlock">
           <div class="section-heading"><div><span class="section-kicker" data-copy="band.005">LINE-UP</span><h3 data-copy="band.006">I Molesti</h3></div><button class="text-button hidden" id="manageMemberPhotos" type="button">GESTISCI FOTO</button></div>
+
           <div class="member-grid" id="memberGrid">
             <article class="member-card glass-card"><span class="member-no" data-copy="band.007">01</span><div class="member-avatar" data-copy="band.008">E</div><h4 data-copy="band.009">EMA</h4><p><span data-copy="band.010">John &amp; i Molesti</span></p></article>
             <article class="member-card glass-card"><span class="member-no" data-copy="band.012">02</span><div class="member-avatar" data-copy="band.013">K</div><h4 data-copy="band.014">KEKKO</h4><p><span data-copy="band.015">John &amp; i Molesti</span></p></article>
@@ -152,6 +180,7 @@
             <article class="member-card glass-card"><span class="member-no" data-copy="band.027">05</span><div class="member-avatar" data-copy="band.028">A</div><h4 data-copy="band.029">ALE</h4><p data-copy="band.030">aka Lazza</p></article>
           </div>
         </section>
+
         <section class="content-section" id="conceptBlock">
           <article class="concept-card glass-card">
             <span class="section-kicker" data-copy="band.031">FRASE</span>
@@ -166,17 +195,21 @@
           <div><span class="section-kicker" data-copy="more.001">FOTO, MERCH, CONTATTI</span><h2 data-copy="more.002">BACKSTAGE</h2><p data-copy="more.003">Locandine, ricordi dal palco e tutto quello che succede attorno ai live.</p></div>
           <div class="page-hero-ornament" data-copy="more.004">MORE</div>
         </header>
+
         <section class="more-grid">
           <article class="gallery-card glass-card" id="galleryBlock">
             <div class="gallery-heading"><div><span class="section-kicker" data-copy="more.005">ARCHIVIO VISIVO</span><h3><span data-copy="more.006">Foto &amp; locandine</span></h3></div><span id="galleryCount"></span></div>
             <div class="media-gallery" id="mediaGallery"><div class="empty-state" data-copy="more.008">Caricamento archivio…</div></div>
           </article>
+
           <article class="more-card glass-card" id="merchBlock">
             <span class="section-kicker" data-copy="more.009">MERCH</span><h3 data-copy="more.010">Offline, come piace a noi.</h3><p data-copy="more.011">Magliette e altre cattive idee. Quando c’è roba disponibile la trovi ai live: passa al banchetto.</p><div class="merch-stamp" data-copy="more.012">CHIEDI AL BANCHETTO</div>
           </article>
+
           <article class="more-card glass-card" id="contactsBlock">
             <span class="section-kicker" data-copy="more.013">CONTATTI</span><h3 data-copy="more.014">Booking, serate, idee discutibili.</h3><p data-copy="more.015">Vuoi portarci sul tuo palco? Qui trovi i nostri canali, appena disponibili.</p><div class="contact-actions" id="contactActions"><span class="muted-inline" data-copy="ui.a020039b9031">Canali in aggiornamento.</span></div>
           </article>
+
           <article class="more-card glass-card management-card" id="managementBlock">
             <span class="section-kicker" data-copy="more.017">AREA BAND</span><h3 data-copy="more.018">Gestionale completo.</h3><p data-copy="more.019">Scalette, catalogo, concerti e strumenti interni riservati a membri e admin.</p><a class="btn btn-ghost" href="manage.html" data-copy="more.020">APRI IL GESTIONALE</a>
           </article>
