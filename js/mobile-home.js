@@ -35,6 +35,26 @@
     return match?.[2] || '';
   }
 
+  function instagramIcon() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="fill" cx="17.4" cy="6.7" r="1"></circle></svg>`;
+  }
+
+  function youtubeIcon() {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8.2c-.2-1.6-.9-2.4-2.4-2.6C16.8 5.3 14.4 5.2 12 5.2s-4.8.1-6.6.4C3.9 5.8 3.2 6.6 3 8.2a24.3 24.3 0 0 0 0 7.6c.2 1.6.9 2.4 2.4 2.6 1.8.3 4.2.4 6.6.4s4.8-.1 6.6-.4c1.5-.2 2.2-1 2.4-2.6a24.3 24.3 0 0 0 0-7.6z"></path><path class="fill" d="m10 9 5 3-5 3z"></path></svg>`;
+  }
+
+  function socialHref(type) {
+    const tiles = $$('#contactsSocialActions a.contact-tile');
+    const match = tiles.find(tile => {
+      const href = String(tile.getAttribute('href') || '').toLowerCase();
+      const text = cleanText(tile).toLowerCase();
+      if (type === 'instagram') return href.includes('instagram.com') || text.includes('instagram');
+      if (type === 'youtube') return href.includes('youtube.com') || href.includes('youtu.be') || text.includes('youtube');
+      return false;
+    });
+    return match?.getAttribute('href') || '';
+  }
+
   function ensureShell() {
     const home = $('#homePage');
     if (!home) return null;
@@ -57,45 +77,94 @@
     if (!shell.dataset.bound) {
       shell.dataset.bound = '1';
       shell.addEventListener('click', event => {
-        const band = event.target.closest('[data-mobile-home-action]');
-        if (!band) return;
+        const social = event.target.closest('[data-mobile-social]');
+        if (social) {
+          if (social.dataset.fallbackContact === '1') {
+            event.preventDefault();
+            openRoute('contacts');
+          }
+          return;
+        }
 
-        const action = band.dataset.mobileHomeAction;
+        const actionNode = event.target.closest('[data-mobile-home-action]');
+        if (!actionNode) return;
+
+        const action = actionNode.dataset.mobileHomeAction;
         if (action === 'next-live') {
           const sourceButton = $('#homeNextShow [data-home-live-detail]');
           if (sourceButton) sourceButton.click();
           else openRoute('tour');
           return;
         }
+        if (action === 'news') {
+          const source = $('#homeNewsPreview [data-home-news-preview]') ||
+            $('#highlightTrack [data-highlight-action]');
+          if (source) source.click();
+          else openRoute('home');
+          return;
+        }
         if (action === 'tour') return openRoute('tour');
         if (action === 'rankings') return openRoute('rankings');
-        if (action === 'contacts') openRoute('contacts');
+        if (action === 'contacts') return openRoute('contacts');
       });
     }
 
     return shell;
   }
 
-  function nextLiveMarkup() {
+  function currentNews() {
+    const preview = $('#homeNewsPreview [data-home-news-preview]');
+    if (preview) {
+      return {
+        kicker: cleanText(preview.querySelector('span')) || 'NOVITÀ',
+        title: cleanText(preview.querySelector('strong')) || 'Ultime novità',
+        meta: cleanText(preview.querySelector('small'))
+      };
+    }
+
+    const slide = $('#highlightTrack .highlight-slide');
+    if (slide) {
+      return {
+        kicker: cleanText(slide.querySelector('.section-kicker')) || 'NOVITÀ',
+        title: cleanText(slide.querySelector('h3')) || 'Ultime novità',
+        meta: ''
+      };
+    }
+
+    return { kicker: 'NOVITÀ', title: 'Ultimi aggiornamenti della band', meta: '' };
+  }
+
+  function leadMarkup() {
     const source = $('#homeNextShow');
     const title = cleanText(source?.querySelector('h3')) || 'Nuove date in arrivo';
     const meta = cleanText(source?.querySelector('.section-kicker')) || 'PROSSIMO LIVE';
     const place = cleanText(source?.querySelector('p')) || 'Apri la sezione live';
     const poster = posterFromNextBox(source);
+    const news = currentNews();
 
     return `
-      <button class="mobile-home-band mobile-home-next" type="button" data-mobile-home-action="next-live">
+      <section class="mobile-home-lead">
         ${poster
-          ? `<img class="mobile-home-next-poster" src="${esc(poster)}" alt="Locandina ${esc(title)}">`
-          : `<img class="mobile-home-next-poster" src="IMG_6259.PNG" alt="">`}
-        <span class="mobile-home-next-copy">
-          <span class="mobile-band-kicker">${esc(meta)}</span>
-          <h2>${esc(title)}</h2>
+          ? `<img class="mobile-home-lead-bg" src="${esc(poster)}" alt="" aria-hidden="true">`
+          : `<img class="mobile-home-lead-bg" src="IMG_6259.PNG" alt="" aria-hidden="true">`}
+        <button class="mobile-home-lead-main" type="button" data-mobile-home-action="next-live">
+          <span class="mobile-home-lead-top">
+            <span class="mobile-home-lead-label">PROSSIMO LIVE</span>
+            <span class="mobile-home-lead-date">${esc(meta)}</span>
+          </span>
+          <h1>${esc(title)}</h1>
           <p>${esc(place)}</p>
-          <small>PROSSIMO LIVE</small>
-        </span>
-        <span class="mobile-band-arrow" aria-hidden="true">›</span>
-      </button>`;
+          <span class="mobile-home-lead-cta">DETTAGLI →</span>
+        </button>
+        <button class="mobile-home-lead-news" type="button" data-mobile-home-action="news">
+          <span class="mobile-home-lead-news-tag">NOVITÀ</span>
+          <span class="mobile-home-lead-news-copy">
+            <b>${esc(news.title)}</b>
+            <small>${esc([news.kicker, news.meta].filter(Boolean).join(' · '))}</small>
+          </span>
+          <span class="mobile-band-arrow" aria-hidden="true">›</span>
+        </button>
+      </section>`;
   }
 
   function upcomingDatesMarkup() {
@@ -149,22 +218,31 @@
       </button>`;
   }
 
+  function socialIconMarkup(type, label, iconMarkup) {
+    const href = socialHref(type);
+    const external = !!href;
+    return `<a class="mobile-social-icon" data-mobile-social="${esc(type)}" ${external ? '' : 'data-fallback-contact="1"'} href="${esc(href || '#/contacts')}" ${external ? 'target="_blank" rel="noopener noreferrer"' : ''} aria-label="${esc(label)}">${iconMarkup}</a>`;
+  }
+
   function contactsMarkup() {
     return `
-      <button class="mobile-home-band mobile-home-contacts" type="button" data-mobile-home-action="contacts">
-        <span>
+      <section class="mobile-home-band mobile-home-contacts" data-mobile-home-action="contacts">
+        <button class="mobile-home-contacts-copy" type="button" data-mobile-home-action="contacts" style="border:0;background:none;color:inherit;padding:0;text-align:left">
           <span class="mobile-band-kicker">BOOKING / SOCIAL</span>
           <strong>Contatti</strong>
-          <small>Serate, disponibilità e canali della band</small>
+          <small>Serate e canali della band</small>
+        </button>
+        <span class="mobile-social-icons">
+          ${socialIconMarkup('instagram','Instagram',instagramIcon())}
+          ${socialIconMarkup('youtube','YouTube',youtubeIcon())}
         </span>
-        <span class="mobile-band-arrow" aria-hidden="true">›</span>
-      </button>`;
+      </section>`;
   }
 
   function render() {
     const shell = ensureShell();
     if (!shell) return;
-    shell.innerHTML = nextLiveMarkup() + upcomingDatesMarkup() + popularSongsMarkup() + contactsMarkup();
+    shell.innerHTML = leadMarkup() + upcomingDatesMarkup() + popularSongsMarkup() + contactsMarkup();
   }
 
   function scheduleRender() {
@@ -175,14 +253,19 @@
   function installObservers() {
     if (observer) observer.disconnect();
     observer = new MutationObserver(scheduleRender);
-    [$('#homeNextShow'), $('#homeRankingPreview'), $('#upcomingConcerts')]
-      .filter(Boolean)
-      .forEach(node => observer.observe(node, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style']
-      }));
+    [
+      $('#homeNextShow'),
+      $('#homeRankingPreview'),
+      $('#homeNewsPreview'),
+      $('#highlightTrack'),
+      $('#upcomingConcerts'),
+      $('#contactsSocialActions')
+    ].filter(Boolean).forEach(node => observer.observe(node, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style','href']
+    }));
   }
 
   function init() {
@@ -200,6 +283,10 @@
       installObservers();
       scheduleRender();
     }, 1800);
+    setTimeout(() => {
+      installObservers();
+      scheduleRender();
+    }, 3200);
   }
 
   if (document.readyState === 'loading') {
