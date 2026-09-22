@@ -2259,7 +2259,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
       <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
     </nav>
-    <div class="user-area"><strong id="currentMemberName"></strong><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
+    <div class="user-area"><strong id="currentMemberName"></strong><button id="memberChangePassword" class="small-btn" type="button" title="Cambia la tua password">PASSWORD</button><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="setlists" data-page="mySetlistPage">LA MIA SCALETTA</button>
@@ -2870,6 +2870,43 @@ $("chooseMember").onclick=()=>showOnly("memberLoginScreen");$("chooseFan").oncli
 /* MEMBER LOGIN */
 $("memberLoginForm").addEventListener("submit",async e=>{e.preventDefault();const username=$("memberUsername").value.trim().toLowerCase(),password=$("memberPassword").value;$("memberLoginButton").disabled=true;$("memberLoginMessage").textContent="Accesso in corso...";try{if(!username)throw new Error("Inserisci lo username.");if(password.length<6)throw new Error("La password deve contenere almeno 6 caratteri.");const {data:members,error:me}=await sb.rpc("check_member",{p_username:username});if(me)throw me;if(!members?.length)throw new Error("Username non riconosciuto.");const member=members[0],email=`${username}@johnimolesti.app`;if(!member.activated){const {data:su,error:se}=await sb.auth.signUp({email,password});if(se){const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw se}else if(!su.session)throw new Error("Supabase richiede la conferma email.");const {error:ce}=await sb.rpc("claim_member",{p_username:username});if(ce)throw ce}else{const {error:si}=await sb.auth.signInWithPassword({email,password});if(si)throw new Error("Password errata.")}await startMemberApp()}catch(err){console.error(err);$("memberLoginMessage").textContent=err.message}finally{$("memberLoginButton").disabled=false}});
 $("memberLogout").onclick=async()=>{await sb.auth.signOut();currentUser=currentProfile=null;showOnly("welcomeScreen")};
+
+function openMemberChangePasswordModal(){
+  const overlay=document.createElement("div");
+  overlay.className="modal open member-reset-modal";
+  overlay.style.zIndex="130";
+  const card=document.createElement("div");
+  card.className="modal-card";
+  card.innerHTML=`<div class="modal-header"><div><h2>CAMBIA PASSWORD</h2><div class="section-note" style="margin-top:3px">Sostituisci la password temporanea con una password personale.</div></div><button type="button" class="modal-close">×</button></div><form class="form-body" id="memberChangePasswordForm"><div class="form-field"><label>NUOVA PASSWORD</label><input id="memberNewPassword" type="password" autocomplete="new-password" minlength="8" required></div><div class="form-field"><label>CONFERMA NUOVA PASSWORD</label><input id="memberNewPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required></div><label class="section-note" style="display:flex;align-items:center;gap:7px;cursor:pointer"><input id="memberShowNewPassword" type="checkbox" style="width:auto"> Mostra password</label><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="submit" class="modal-save">SALVA PASSWORD</button></div><div id="memberChangePasswordStatus" class="section-note"></div></form>`;
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  const close=()=>overlay.remove();
+  card.querySelector(".modal-close").onclick=close;
+  card.querySelector(".modal-cancel").onclick=close;
+  overlay.onclick=e=>{if(e.target===overlay)close()};
+  const pass=card.querySelector("#memberNewPassword"),confirmPass=card.querySelector("#memberNewPasswordConfirm"),status=card.querySelector("#memberChangePasswordStatus");
+  card.querySelector("#memberShowNewPassword").onchange=e=>{const type=e.target.checked?"text":"password";pass.type=confirmPass.type=type};
+  card.querySelector("form").onsubmit=async e=>{
+    e.preventDefault();
+    const submit=e.submitter,password=pass.value,confirmation=confirmPass.value;
+    if(password.length<8){status.textContent="La password deve contenere almeno 8 caratteri.";pass.focus();return}
+    if(password!==confirmation){status.textContent="Le due password non coincidono.";confirmPass.focus();return}
+    submit.disabled=true;status.textContent="Aggiornamento password...";
+    try{
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session?.user)throw new Error("Sessione scaduta. Accedi di nuovo.");
+      const {error}=await sb.auth.updateUser({password});
+      if(error)throw error;
+      status.textContent="Password aggiornata correttamente ✓";
+      pass.value=confirmPass.value="";
+      setTimeout(close,1200);
+    }catch(err){console.error(err);status.textContent=err?.message||String(err)}
+    finally{submit.disabled=false}
+  };
+  setTimeout(()=>pass.focus(),0);
+}
+$("memberChangePassword")?.addEventListener("click",openMemberChangePasswordModal);
+
 
 async function recordMemberAccess(event="access"){try{const {data:{session}}=await sb.auth.getSession();if(!session?.access_token)return;await fetch(FAN_API,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({action:"access_log",event})})}catch(err){console.warn("Member access log",err)}}
 async function startMemberApp(){const {data:{user}}=await sb.auth.getUser();if(!user)return showOnly("welcomeScreen");currentUser=user;const {data:p,error}=await sb.from("profiles").select("*").eq("id",user.id).single();if(error)throw error;currentProfile=p;$("currentMemberName").textContent=p.display_name;recordMemberAccess("access");await loadMemberPermissions();showOnly("memberApp");applyMemberPermissionsUI();await refreshAll();applyMemberPermissionsUI();}
