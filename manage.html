@@ -260,6 +260,14 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
 @media(max-width:980px){.concert-setlist-pane .base-artist-col{display:none}.concert-setlist-pane .song-row{grid-template-columns:15px 25px 48px minmax(130px,1fr) 48px 58px auto}}
 @media(max-width:900px){.concert-performance-layout{grid-template-columns:1fr}.concert-catalog{width:100%;min-width:0;max-width:none}.concert-catalog-row .catalog-song-title{min-width:0;max-width:none;flex:1}.concert-catalog-list{max-height:300px}.numeric-setting-row{grid-template-columns:1fr 90px}}
 
+
+
+/* Gestione utenti / reset password */
+.member-forgot-btn{width:100%;margin-top:7px;padding:8px 10px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:transparent;color:#9da5af;font-size:8px;font-weight:900;letter-spacing:.06em;cursor:pointer}.member-forgot-btn:hover{border-color:rgba(243,210,52,.35);color:#f3d234;background:rgba(243,210,52,.06)}
+.setup-user-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:4px;padding:0 5px;border-radius:999px;background:#f3d234;color:#111;font-size:6px;font-weight:950}.setup-user-tab-badge[hidden]{display:none!important}
+.setup-users-section{min-height:0;overflow:hidden!important;display:flex;flex-direction:column;gap:8px}.setup-users-section[hidden]{display:none!important}.setup-users-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.setup-users-hero>div{min-width:0}.setup-users-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;flex:0 0 auto}.setup-users-summary>div{display:flex;align-items:baseline;gap:7px;padding:9px 11px;border:1px solid rgba(255,255,255,.075);border-radius:11px;background:rgba(255,255,255,.022)}.setup-users-summary strong{font-size:17px;color:#f1f3f5}.setup-users-summary span{font-size:6.5px;font-weight:950;letter-spacing:.07em;color:#7e8792}.setup-reset-panel{flex:0 0 auto;max-height:230px;display:flex;flex-direction:column;overflow:hidden}.setup-reset-panel[hidden]{display:none!important}.setup-reset-list{min-height:0;overflow-y:auto}.setup-reset-row,.setup-user-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06)}.setup-reset-row:last-child,.setup-user-row:last-child{border-bottom:0}.setup-reset-main,.setup-user-main{min-width:0}.setup-reset-main strong,.setup-user-title{display:block;font-size:9px;font-weight:900;color:#e9edf2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.setup-reset-main span,.setup-user-meta{display:block;margin-top:3px;color:#7e8792;font-size:6.8px;line-height:1.35}.setup-reset-actions,.setup-user-actions{display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.setup-reset-actions button,.setup-user-actions button{min-height:28px;padding:5px 8px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#292f38;color:#e6e9ed;font-size:6.8px;font-weight:900}.setup-reset-actions .primary,.setup-user-actions .primary{border-color:#f3d234;background:#f3d234;color:#111}.setup-reset-actions .danger,.setup-user-actions .danger{border-color:rgba(204,91,91,.35);background:rgba(204,91,91,.08);color:#e39a9a}.setup-user-directory-panel{flex:1 1 0;min-height:0;display:flex!important;flex-direction:column!important;overflow:hidden!important}.setup-users-directory-head{flex:0 0 auto}.setup-users-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.06);flex:0 0 auto}.setup-users-toolbar input{width:100%;min-width:0;height:34px;padding:7px 10px;border:1px solid #3b424d;border-radius:9px;background:#171c23;color:#e9edf2;font-size:8px}.setup-users-type-tabs{display:flex;gap:3px;padding:3px;border:1px solid rgba(255,255,255,.07);border-radius:9px;background:rgba(255,255,255,.02)}.setup-users-type-tabs button{min-height:27px;padding:5px 8px;border:0;border-radius:7px;background:transparent;color:#7f8894;font-size:6.5px;font-weight:950}.setup-users-type-tabs button.active{background:rgba(243,210,52,.12);color:#f3d234}.setup-users-backend-note{margin:7px 8px 0;padding:7px 9px;border:1px solid rgba(243,210,52,.18);border-radius:9px;background:rgba(243,210,52,.04);color:#bbae68;flex:0 0 auto}.setup-user-list{flex:1 1 0;min-height:80px;overflow-y:auto}.setup-user-kind{display:inline-flex;margin-right:6px;padding:2px 5px;border-radius:999px;border:1px solid rgba(255,255,255,.10);font-size:5.8px;font-weight:950;letter-spacing:.07em;color:#8f98a5;vertical-align:1px}.setup-user-kind.member{border-color:rgba(243,210,52,.22);color:#d8c55b}.setup-user-kind.fan{border-color:rgba(100,170,220,.22);color:#8bbfe0}.setup-user-status{display:inline-flex;margin-left:5px;padding:2px 5px;border-radius:999px;font-size:5.8px;font-weight:950}.setup-user-status.ok{background:rgba(93,180,119,.09);color:#96d3a8}.setup-user-status.pending{background:rgba(243,210,52,.08);color:#d6c55f}.setup-user-status.off{background:rgba(255,255,255,.05);color:#777f89}.setup-user-aliases{margin-top:3px;color:#6f7883;font-size:6.5px;white-space:normal;overflow-wrap:anywhere}
+.member-reset-modal .modal-card{width:min(560px,100%)}.member-reset-password-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:5px}.member-reset-password-line input{min-width:0}.member-reset-password-line button{min-width:74px}.member-reset-result{margin-top:10px;padding:9px;border:1px solid rgba(93,180,119,.25);border-radius:9px;background:rgba(93,180,119,.06);color:#a2d7b0;font-size:8px;line-height:1.45}.member-reset-result code{font-size:11px;color:#f3d234;user-select:all}
+@media(max-width:760px){.setup-users-summary{grid-template-columns:1fr}.setup-users-toolbar{grid-template-columns:1fr}.setup-reset-row,.setup-user-row{grid-template-columns:1fr}.setup-reset-actions,.setup-user-actions{justify-content:flex-start}.setup-user-actions button,.setup-reset-actions button{flex:1 1 auto}.member-reset-password-line{grid-template-columns:1fr 1fr}.member-reset-password-line input{grid-column:1/-1}}
 </style>
 
   <style id="v2-glass-theme">
@@ -2223,6 +2231,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <div class="field"><label>Username</label><input id="memberUsername" autocomplete="username" required></div>
     <div class="field"><label>Password</label><input id="memberPassword" type="password" autocomplete="current-password" required></div>
     <button id="memberLoginButton" class="big-btn" type="submit">ACCEDI</button>
+    <button id="memberPasswordResetRequestButton" class="member-forgot-btn" type="button">PASSWORD DIMENTICATA?</button>
     <div id="memberLoginMessage" class="gate-note"></div>
   </form>
 </section>
@@ -2407,6 +2416,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
         <button type="button" class="setup-tab active" data-setup-tab="labels">ETICHETTE</button>
         <button type="button" class="setup-tab" data-setup-tab="scores">PUNTEGGI</button>
         <button type="button" class="setup-tab" data-setup-tab="params">PARAMETRI</button>
+        <button type="button" class="setup-tab" data-setup-tab="users">UTENTI <span id="setupUserResetBadge" class="setup-user-tab-badge" hidden>0</span></button>
         <button type="button" class="setup-tab" data-setup-tab="venue">VENUE</button>
         <button type="button" class="setup-tab" data-setup-tab="permissions">PERMESSI</button>
         <button type="button" class="setup-tab" data-setup-tab="fanlog">LOG</button>
@@ -2433,6 +2443,43 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <section class="panel setup-section" data-setup-section="params" hidden>
         <div class="panel-header"><h2>PARAMETRI</h2></div>
         <div id="technicalSettingsList" class="numeric-settings-list"></div>
+      </section>
+      <section class="setup-section setup-users-section" data-setup-section="users" hidden>
+        <div class="fan-hero setup-embedded-hero setup-users-hero">
+          <div><h2>Gestione utenti</h2><div class="section-note">Membri e fan nello stesso punto. Gli admin possono gestire i reset password dei membri e le unificazioni dei profili fan.</div></div>
+          <button id="setupUsersRefresh" class="small-btn secondary" type="button">AGGIORNA</button>
+        </div>
+        <div class="setup-users-summary" id="setupUsersSummary">
+          <div><strong id="setupMembersCount">0</strong><span>MEMBRI</span></div>
+          <div><strong id="setupFansCount">0</strong><span>FAN</span></div>
+          <div><strong id="setupResetCount">0</strong><span>RESET IN ATTESA</span></div>
+          <div><strong id="setupFanMergeCount">0</strong><span>UNIONI FAN</span></div>
+        </div>
+        <section id="setupPasswordResetPanel" class="panel setup-reset-panel" hidden>
+          <div class="panel-header"><h2>RICHIESTE RESET PASSWORD</h2><span id="setupPasswordResetCounter" class="counter"></span></div>
+          <div class="section-note" style="margin:8px">L'approvazione non invia email: l'admin imposta una nuova password e la comunica al membro.</div>
+          <div id="setupPasswordResetList" class="setup-reset-list"></div>
+        </section>
+        <section id="setupFanMergePanel" class="panel setup-reset-panel" hidden>
+          <div class="panel-header"><h2>RICHIESTE UNIFICAZIONE FAN</h2><span id="setupFanMergeCounter" class="counter"></span></div>
+          <div id="setupFanMergeList" class="setup-reset-list"></div>
+        </section>
+        <section class="panel setup-user-directory-panel">
+          <div class="panel-header setup-users-directory-head">
+            <h2>UTENTI</h2>
+            <span id="setupUsersCounter" class="counter"></span>
+          </div>
+          <div class="setup-users-toolbar">
+            <input id="setupUsersSearch" type="search" autocomplete="off" placeholder="Cerca nome, username o alias...">
+            <div class="setup-users-type-tabs" role="tablist" aria-label="Tipo utenti">
+              <button type="button" class="active" data-setup-user-type="all">TUTTI</button>
+              <button type="button" data-setup-user-type="member">MEMBRI</button>
+              <button type="button" data-setup-user-type="fan">FAN</button>
+            </div>
+          </div>
+          <div id="setupUsersBackendNotice" class="section-note setup-users-backend-note" hidden></div>
+          <div id="setupUserList" class="setup-user-list"><div class="empty">Apri la sezione per caricare gli utenti.</div></div>
+        </section>
       </section>
       <section class="setup-section" data-setup-section="venue" hidden>
         <div class="fan-hero setup-embedded-hero"><h2>Venue</h2><div class="section-note">Archivio dei luoghi usati nei live. Località e Comune restano distinti; il CAP può essere associato a una Zona per le statistiche.</div></div>
@@ -2908,12 +2955,86 @@ function bindSetupTabs(){
     document.querySelectorAll(".setup-tab").forEach(x=>x.classList.toggle("active",x===btn));
     document.querySelectorAll(".setup-section").forEach(x=>x.hidden=x.dataset.setupSection!==btn.dataset.setupTab);
     try{
+      if(btn.dataset.setupTab==="users")await loadSetupUsers(true);
       if(btn.dataset.setupTab==="venue")await loadVenuePage();
       if(btn.dataset.setupTab==="permissions")await loadPermissionMatrix();
       if(btn.dataset.setupTab==="fanlog"){bindLogScopeTabs();await loadFanOperationLog();renderBrowserSystemLog()}
     }catch(err){const st=$("fanOperationLogStatus");if(st&&btn.dataset.setupTab==="fanlog")st.textContent=err.message;else alert(err.message)}
   });
 }
+
+let setupUserMembers=[],setupUserFans=[],setupPasswordResetRequests=[],setupFanMergeRequests=[],setupUserType="all",setupUsersBackendReady=true,setupUsersLoading=false;
+function setupUserFmtDateTime(value){if(!value)return"—";const d=new Date(value);return Number.isNaN(d.getTime())?"—":d.toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"})}
+async function memberSecurityApi(action,payload={},memberAuth=false){
+  const headers={"Content-Type":"application/json",apikey:SUPABASE_KEY};
+  if(memberAuth){const {data:{session}}=await sb.auth.getSession();if(!session?.access_token)throw new Error("Sessione membro non disponibile.");headers.Authorization=`Bearer ${session.access_token}`}
+  const res=await fetch(FAN_API,{method:"POST",headers,body:JSON.stringify({action,...payload})});
+  let data={};try{data=await res.json()}catch{}
+  if(!res.ok)throw new Error(data?.error||`Errore ${res.status}`);
+  return data||{};
+}
+function memberPasswordResetRequestModal(){
+  const overlay=document.createElement("div");overlay.className="modal open member-reset-modal";overlay.style.zIndex="130";
+  const card=document.createElement("div");card.className="modal-card";const preset=String($("memberUsername")?.value||"").trim().toLowerCase();
+  card.innerHTML=`<div class="modal-header"><div><h2>RICHIEDI RESET PASSWORD</h2><div class="section-note" style="margin-top:3px">La richiesta verrà presa in carico dagli admin. Non viene inviata nessuna email.</div></div><button type="button" class="modal-close">×</button></div><form class="form-body" id="memberResetRequestForm"><div class="form-field"><label>USERNAME</label><input id="memberResetRequestUsername" autocomplete="username" required value="${esc(preset)}"></div><div class="section-note">Per sicurezza la risposta è sempre generica: non viene indicato se lo username esiste.</div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="submit" class="modal-save">INVIA RICHIESTA</button></div><div id="memberResetRequestStatus" class="section-note"></div></form>`;
+  overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;card.querySelector(".modal-cancel").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};
+  card.querySelector("form").onsubmit=async e=>{e.preventDefault();const username=card.querySelector("#memberResetRequestUsername").value.trim().toLowerCase(),status=card.querySelector("#memberResetRequestStatus"),submit=e.submitter; if(!username)return;submit.disabled=true;status.textContent="Invio richiesta...";try{await memberSecurityApi("member_password_reset_request",{username},false);status.textContent="Richiesta registrata. Un admin potrà approvarla dal Setup → Utenti.";setTimeout(close,1700)}catch(err){status.textContent=err.message||String(err)}finally{submit.disabled=false}};
+}
+function setupUsersIsUnknownAction(err){return /azione sconosciuta|unknown action/i.test(String(err?.message||err||""))}
+async function loadSetupUsers(force=false){
+  if(!isEma()||setupUsersLoading)return;if(!force&&setupUserMembers.length+setupUserFans.length){renderSetupUsers();return}setupUsersLoading=true;const box=$("setupUserList");if(box)box.innerHTML='<div class="empty">Caricamento utenti...</div>';
+  setupUsersBackendReady=true;
+  try{
+    try{
+      const data=await memberSecurityApi("admin_list_users",{},true);setupUserMembers=Array.isArray(data.members)?data.members:[];setupPasswordResetRequests=Array.isArray(data.reset_requests)?data.reset_requests:[];
+    }catch(err){
+      if(!setupUsersIsUnknownAction(err))throw err;setupUsersBackendReady=false;setupPasswordResetRequests=[];
+      const {data,error}=await sb.from("profiles").select("id,display_name,username,created_at").order("display_name");if(error)throw error;setupUserMembers=(data||[]).map(x=>({...x,auth_user_id:x.id,activated_at:x.created_at,activated:true}));
+    }
+    const [{data:fans,error:fanErr},{data:mergeRows,error:mergeErr}]=await Promise.all([sb.rpc("admin_list_fans"),sb.from("fan_merge_requests").select("*").eq("status","pending").order("created_at")]);if(fanErr)throw fanErr;if(mergeErr)throw mergeErr;setupUserFans=fans||[];setupFanMergeRequests=mergeRows||[];adminFans=setupUserFans;mergeRequests=setupFanMergeRequests;
+    renderSetupUsers();
+  }finally{setupUsersLoading=false}
+}
+function setupUserSearchText(){return String($("setupUsersSearch")?.value||"").trim().toLowerCase()}
+function renderSetupUsers(){
+  if(!isEma())return;const members=setupUserMembers||[],fans=setupUserFans||[],pending=(setupPasswordResetRequests||[]).filter(r=>String(r.status||"pending")==="pending");
+  if($("setupMembersCount"))$("setupMembersCount").textContent=members.length;if($("setupFansCount"))$("setupFansCount").textContent=fans.length;if($("setupResetCount"))$("setupResetCount").textContent=pending.length;if($("setupFanMergeCount"))$("setupFanMergeCount").textContent=setupFanMergeRequests.length;
+  const badge=$("setupUserResetBadge");if(badge){badge.textContent=pending.length;badge.hidden=!pending.length}
+  const resetPanel=$("setupPasswordResetPanel"),resetList=$("setupPasswordResetList");if(resetPanel)resetPanel.hidden=!pending.length;if($("setupPasswordResetCounter"))$("setupPasswordResetCounter").textContent=pending.length?`${pending.length} in attesa`:"";
+  if(resetList)resetList.innerHTML=pending.map(r=>`<div class="setup-reset-row"><div class="setup-reset-main"><strong>${esc(r.display_name||r.member_display_name||r.username||"Membro")}</strong><span>@${esc(r.username||"")} · richiesta ${esc(setupUserFmtDateTime(r.requested_at||r.created_at))}</span></div><div class="setup-reset-actions"><button type="button" class="primary" data-reset-approve="${esc(r.id)}">APPROVA E RESETTA</button><button type="button" class="danger" data-reset-reject="${esc(r.id)}">RIFIUTA</button></div></div>`).join("")||'<div class="empty">Nessuna richiesta.</div>';
+  const fanMergePanel=$("setupFanMergePanel"),fanMergeList=$("setupFanMergeList");if(fanMergePanel)fanMergePanel.hidden=!setupFanMergeRequests.length;if($("setupFanMergeCounter"))$("setupFanMergeCounter").textContent=setupFanMergeRequests.length?`${setupFanMergeRequests.length} in attesa`:"";
+  if(fanMergeList){const byId=id=>fans.find(f=>String(f.id)===String(id));fanMergeList.innerHTML=setupFanMergeRequests.map(r=>{const a=byId(r.requester_fan_id),b=byId(r.suggested_fan_id);return`<div class="setup-reset-row"><div class="setup-reset-main"><strong>${esc(a?.nickname||a?.display_name||"Fan")} → ${esc(b?.nickname||b?.display_name||"profilo da scegliere")}</strong><span>Richiesta ${esc(setupUserFmtDateTime(r.created_at))}${r.requested_nickname?` · nickname ${esc(r.requested_nickname)}`:""}</span></div><div class="setup-reset-actions"><button type="button" class="primary" data-fan-merge-approve="${esc(r.id)}">UNISCI</button><button type="button" class="danger" data-fan-merge-reject="${esc(r.id)}">RIFIUTA</button></div></div>`}).join("")||'<div class="empty">Nessuna richiesta.</div>'}
+  const notice=$("setupUsersBackendNotice");if(notice){notice.hidden=setupUsersBackendReady;notice.textContent=setupUsersBackendReady?"":"La gestione membri è disponibile in sola lettura, ma il backend reset password non è ancora installato nella Edge Function fan-api. Fan e unificazioni restano operative."}
+  const query=setupUserSearchText(),rows=[];
+  if(setupUserType!=="fan")for(const m of members){const hay=[m.display_name,m.username].filter(Boolean).join(" ").toLowerCase();if(query&&!hay.includes(query))continue;rows.push({kind:"member",sort:m.display_name||m.username||"",data:m})}
+  if(setupUserType!=="member")for(const f of fans){const aliases=Array.isArray(f.aliases)?f.aliases:[],hay=[f.display_name,f.nickname,...aliases].filter(Boolean).join(" ").toLowerCase();if(query&&!hay.includes(query))continue;rows.push({kind:"fan",sort:f.nickname||f.display_name||"",data:f})}
+  rows.sort((a,b)=>String(a.sort).localeCompare(String(b.sort),"it"));const list=$("setupUserList");if($("setupUsersCounter"))$("setupUsersCounter").textContent=`${rows.length} / ${members.length+fans.length}`;
+  if(!list)return;list.innerHTML=rows.map(x=>x.kind==="member"?setupMemberRowHtml(x.data):setupFanRowHtml(x.data)).join("")||'<div class="empty">Nessun utente corrisponde ai filtri.</div>';bindSetupUserActions();
+}
+function setupMemberRowHtml(m){
+  const username=String(m.username||"").toLowerCase(),pending=(setupPasswordResetRequests||[]).some(r=>String(r.status||"pending")==="pending"&&String(r.username||"").toLowerCase()===username),activated=!!(m.auth_user_id||m.activated_at||m.activated);
+  return `<div class="setup-user-row" data-user-kind="member"><div class="setup-user-main"><div class="setup-user-title"><span class="setup-user-kind member">MEMBRO</span>${esc(m.display_name||m.username||"Membro")}<span class="setup-user-status ${activated?"ok":"off"}">${activated?"ATTIVO":"NON ATTIVATO"}</span>${pending?'<span class="setup-user-status pending">RESET RICHIESTO</span>':""}</div><div class="setup-user-meta">@${esc(username||"—")}</div></div><div class="setup-user-actions"><button type="button" class="primary" data-member-reset="${esc(username)}" ${activated?"":"disabled"}>RESET PASSWORD</button></div></div>`
+}
+function setupFanRowHtml(f){
+  const aliases=Array.isArray(f.aliases)?f.aliases:[],active=!!f.claimed_at,mergePending=setupFanMergeRequests.some(r=>String(r.requester_fan_id)===String(f.id)||String(r.suggested_fan_id)===String(f.id));
+  return `<div class="setup-user-row" data-user-kind="fan"><div class="setup-user-main"><div class="setup-user-title"><span class="setup-user-kind fan">FAN</span>${esc(f.nickname||f.display_name||"Fan")}<span class="setup-user-status ${active?"ok":"pending"}">${active?"ATTIVO":"DA RIVENDICARE"}</span>${mergePending?'<span class="setup-user-status pending">UNIONE IN ATTESA</span>':""}</div><div class="setup-user-meta">${f.nickname&&f.display_name&&f.nickname!==f.display_name?`nome: ${esc(f.display_name)}`:"profilo fan"}</div>${aliases.length?`<div class="setup-user-aliases">Alias: ${aliases.map(esc).join(" · ")}</div>`:""}</div><div class="setup-user-actions"><button type="button" data-setup-fan-edit="${esc(f.id)}">MODIFICA</button><button type="button" data-setup-fan-alias="${esc(f.id)}">ALIAS</button><button type="button" data-setup-fan-att="${esc(f.id)}">PRESENZE</button><button type="button" class="danger" data-setup-fan-merge="${esc(f.id)}">UNISCI</button></div></div>`
+}
+function randomMemberPassword(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";const a=new Uint32Array(14);crypto.getRandomValues(a);return Array.from(a,n=>chars[n%chars.length]).join("")}
+function adminMemberPasswordResetModal(member,request=null){
+  if(!setupUsersBackendReady)return alert("Il backend reset password non è ancora installato nella Edge Function fan-api.");const overlay=document.createElement("div");overlay.className="modal open member-reset-modal";overlay.style.zIndex="130";const card=document.createElement("div");card.className="modal-card";const username=String(member?.username||request?.username||"").toLowerCase(),display=member?.display_name||request?.display_name||request?.member_display_name||username;const initial=randomMemberPassword();
+  card.innerHTML=`<div class="modal-header"><div><h2>RESET PASSWORD — ${esc(display||username)}</h2><div class="section-note" style="margin-top:3px">La password non viene salvata nel database. Dopo il reset comunicala direttamente al membro.</div></div><button type="button" class="modal-close">×</button></div><form class="form-body"><div class="form-field"><label>NUOVA PASSWORD</label><div class="member-reset-password-line"><input id="adminMemberNewPassword" type="text" autocomplete="off" minlength="8" required value="${esc(initial)}"><button type="button" id="adminMemberGeneratePassword" class="small-btn">GENERA</button><button type="button" id="adminMemberCopyPassword" class="small-btn">COPIA</button></div></div><div class="modal-actions"><button type="button" class="modal-cancel">ANNULLA</button><button type="submit" class="modal-save">${request?"APPROVA E RESETTA":"RESETTA PASSWORD"}</button></div><div id="adminMemberResetStatus" class="section-note"></div></form>`;overlay.appendChild(card);document.body.appendChild(overlay);const close=()=>overlay.remove();card.querySelector(".modal-close").onclick=close;card.querySelector(".modal-cancel").onclick=close;overlay.onclick=e=>{if(e.target===overlay)close()};const inp=card.querySelector("#adminMemberNewPassword");card.querySelector("#adminMemberGeneratePassword").onclick=()=>{inp.value=randomMemberPassword();inp.select()};card.querySelector("#adminMemberCopyPassword").onclick=async()=>{try{await navigator.clipboard.writeText(inp.value);card.querySelector("#adminMemberResetStatus").textContent="Password copiata."}catch{inp.select();document.execCommand("copy")}};
+  card.querySelector("form").onsubmit=async e=>{e.preventDefault();const password=inp.value,status=card.querySelector("#adminMemberResetStatus"),submit=e.submitter;if(password.length<8)return alert("La password deve contenere almeno 8 caratteri.");if(!confirm(`Confermare il reset della password di ${display||username}?`))return;submit.disabled=true;status.textContent="Reset in corso...";try{await memberSecurityApi("admin_reset_member_password",{username,new_password:password,request_id:request?.id||null},true);status.innerHTML=`Password aggiornata. Comunica al membro: <code>${esc(password)}</code>`;await loadSetupUsers(true);setTimeout(close,2300)}catch(err){status.textContent=err.message||String(err)}finally{submit.disabled=false}}
+}
+async function rejectMemberPasswordReset(id){const note=prompt("Motivo del rifiuto (facoltativo):","");if(note===null)return;try{await memberSecurityApi("admin_review_password_reset_request",{request_id:id,approve:false,note:note||null},true);await loadSetupUsers(true)}catch(err){alert(err.message||String(err))}}
+function bindSetupUserActions(){
+  const root=$("setupPage");if(!root)return;root.querySelectorAll("[data-member-reset]").forEach(b=>b.onclick=()=>{const m=setupUserMembers.find(x=>String(x.username||"").toLowerCase()===String(b.dataset.memberReset||"").toLowerCase());if(m)adminMemberPasswordResetModal(m)});root.querySelectorAll("[data-reset-approve]").forEach(b=>b.onclick=()=>{const r=setupPasswordResetRequests.find(x=>String(x.id)===String(b.dataset.resetApprove)),m=setupUserMembers.find(x=>String(x.username||"").toLowerCase()===String(r?.username||"").toLowerCase());if(r)adminMemberPasswordResetModal(m||{username:r.username,display_name:r.display_name||r.member_display_name},r)});root.querySelectorAll("[data-reset-reject]").forEach(b=>b.onclick=()=>rejectMemberPasswordReset(b.dataset.resetReject));root.querySelectorAll("[data-fan-merge-approve]").forEach(b=>b.onclick=async()=>{const r=setupFanMergeRequests.find(x=>String(x.id)===String(b.dataset.fanMergeApprove));if(r){await mergeFanRequest(r);await loadSetupUsers(true)}});root.querySelectorAll("[data-fan-merge-reject]").forEach(b=>b.onclick=async()=>{const r=setupFanMergeRequests.find(x=>String(x.id)===String(b.dataset.fanMergeReject));if(r){await rejectFanRequest(r);await loadSetupUsers(true)}});
+  const fanById=id=>setupUserFans.find(x=>String(x.id)===String(id));root.querySelectorAll("[data-setup-fan-edit]").forEach(b=>b.onclick=async()=>{const f=fanById(b.dataset.setupFanEdit);if(f){await editAdminFan(f);await loadSetupUsers(true)}});root.querySelectorAll("[data-setup-fan-alias]").forEach(b=>b.onclick=()=>{const f=fanById(b.dataset.setupFanAlias);if(f)manageFanAliases(f)});root.querySelectorAll("[data-setup-fan-att]").forEach(b=>b.onclick=()=>{const f=fanById(b.dataset.setupFanAtt);if(f)manageFanAttendances(f)});root.querySelectorAll("[data-setup-fan-merge]").forEach(b=>b.onclick=async()=>{const f=fanById(b.dataset.setupFanMerge);if(f){await manualMergeFan(f);await loadSetupUsers(true)}})
+}
+function bindSetupUserControls(){
+  $("setupUsersSearch")?.addEventListener("input",renderSetupUsers);$("setupUsersRefresh")?.addEventListener("click",()=>loadSetupUsers(true));document.querySelectorAll("[data-setup-user-type]").forEach(b=>b.onclick=()=>{setupUserType=b.dataset.setupUserType||"all";document.querySelectorAll("[data-setup-user-type]").forEach(x=>x.classList.toggle("active",x===b));renderSetupUsers()});$("memberPasswordResetRequestButton")?.addEventListener("click",memberPasswordResetRequestModal)
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindSetupUserControls,{once:true});else bindSetupUserControls();
+
 function renderNumericSettingRows(rows,box){
   box.innerHTML=rows.map(r=>`<div class="numeric-setting-row" data-setting-key="${esc(r.setting_key)}"><div><div class="setting-label">${esc(r.label)}</div><div class="setting-desc">${esc(r.description||r.setting_key)}</div></div><input class="numeric-setting-value" type="number" value="${esc(r.value)}" ${r.min_value!=null?`min="${esc(r.min_value)}"`:""} ${r.max_value!=null?`max="${esc(r.max_value)}"`:""} step="${esc(r.step??1)}"><div class="small-info">${esc(r.unit||"")}</div></div>`).join("")||'<div class="empty">Nessun parametro configurato.</div>';
   box.querySelectorAll(".numeric-setting-value").forEach(input=>input.onchange=()=>saveNumericSetting(input.closest(".numeric-setting-row"),input));
