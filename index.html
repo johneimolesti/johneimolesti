@@ -24,8 +24,10 @@
       background: transparent !important;
     }
 
+    .mobile-home-bands,
+    .mobile-hero-next-strip,
     .mobile-punk-hero-layer {
-      display: none;
+      display: none !important;
     }
 
     @media (max-width: 760px) {
@@ -1478,6 +1480,8 @@
       let observer = null;
       let lastSignature = '';
 
+      const mobileHeroMedia = window.matchMedia('(max-width: 760px)');
+
       const $ = (selector, root = document) => root.querySelector(selector);
       const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -1605,6 +1609,11 @@
       }
 
       function ensureLayer() {
+        if (!mobileHeroMedia.matches) {
+          $('#mobilePunkHeroLayer')?.remove();
+          return null;
+        }
+
         const hero = $('#homePage .home-hero-news, #homePage .hero');
         if (!hero) return null;
 
@@ -1819,6 +1828,11 @@
       }
 
       function render() {
+        if (!mobileHeroMedia.matches) {
+          $('#mobilePunkHeroLayer')?.remove();
+          return;
+        }
+
         const layer = ensureLayer();
         if (!layer) return;
 
@@ -1855,6 +1869,11 @@
       function installObserver() {
         observer?.disconnect();
 
+        if (!mobileHeroMedia.matches) {
+          observer = null;
+          return;
+        }
+
         const home = $('#homePage');
         if (!home) return;
 
@@ -1867,17 +1886,38 @@
         });
       }
 
-      function init() {
+      function syncMobileHeroMode() {
+        if (!mobileHeroMedia.matches) {
+          observer?.disconnect();
+          observer = null;
+          $('#mobilePunkHeroLayer')?.remove();
+          return;
+        }
+
         render();
         installObserver();
+        scheduleRender();
+      }
 
-        addEventListener('resize', scheduleRender);
-        addEventListener('hashchange', scheduleRender);
+      function init() {
+        syncMobileHeroMode();
 
-        setTimeout(scheduleRender, 180);
-        setTimeout(scheduleRender, 550);
-        setTimeout(scheduleRender, 1100);
-        setTimeout(scheduleRender, 1900);
+        addEventListener('hashchange', () => {
+          if (mobileHeroMedia.matches) scheduleRender();
+        });
+
+        if (typeof mobileHeroMedia.addEventListener === 'function') {
+          mobileHeroMedia.addEventListener('change', syncMobileHeroMode);
+        } else if (typeof mobileHeroMedia.addListener === 'function') {
+          mobileHeroMedia.addListener(syncMobileHeroMode);
+        }
+
+        if (mobileHeroMedia.matches) {
+          setTimeout(scheduleRender, 180);
+          setTimeout(scheduleRender, 550);
+          setTimeout(scheduleRender, 1100);
+          setTimeout(scheduleRender, 1900);
+        }
       }
 
       if (document.readyState === 'loading') {
