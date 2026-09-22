@@ -4,6 +4,7 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
+  const CHECKIN_API = `${SUPABASE_URL}/functions/v1/checkin-api`;
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
   const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more', 'contacts', 'news-admin']);
@@ -38,6 +39,8 @@
   let fanOnboardingStatus = null;
   let highlightSignature = '', highlightTimer = null, concertRequest = 0, lastConcertData = null;
   let refreshBusy = false, concertDirty = false;
+  let qrCheckinPending = false;
+  let qrClaimedOnLogin = [];
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
@@ -1251,6 +1254,101 @@
     if (!res.ok) throw new Error(data.error || `fan-api HTTP ${res.status}`);
     return data;
   }
+
+  function rawRoute() {
+    return location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
+  }
+
+  async function checkinApi(action, payload = {}) {
+    const body = {
+      action,
+      device_token:getFanDeviceToken(),
+      fingerprint:fanFingerprint(),
+      ...payload
+    };
+    const res = await fetch(CHECKIN_API, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPABASE_KEY,
+        'Authorization':`Bearer ${SUPABASE_KEY}`
+      },
+      body:JSON.stringify(body)
+    });
+    let data = {};
+    try { data = await res.json(); } catch {}
+    if (!res.ok) throw new Error(data.error || `checkin-api HTTP ${res.status}`);
+    return data;
+  }
+
+  async function claimPendingQrCheckins({notify=true}={}) {
+    try {
+      const data = await checkinApi('claim');
+      qrClaimedOnLogin = Array.isArray(data.concerts) ? data.concerts : [];
+      if (notify && Number(data.claimed_count || 0) > 0) {
+        const first = qrClaimedOnLogin[0];
+        toast(
+          Number(data.claimed_count) === 1
+            ? `Presenza certificata · ${first?.name || 'live'}`
+            : `${data.claimed_count} presenze QR recuperate`,
+          'ok'
+        );
+      }
+      return data;
+    } catch (err) {
+      console.warn('Recupero check-in QR non disponibile',err);
+      return {ok:false,claimed_count:0,concerts:[]};
+    }
+  }
+
+  async function handleQrCheckin() {
+    if (rawRoute() !== 'checkin') return;
+
+    qrCheckinPending = true;
+    qrClaimedOnLogin = [];
+
+    try {
+      const data = await checkinApi('scan');
+
+      if (data.status === 'inactive') {
+        qrCheckinPending = false;
+        go('contacts');
+        return;
+      }
+
+      if (data.status === 'certified') {
+        qrCheckinPending = false;
+        toast(data.message || 'Presenza certificata','ok');
+        try {
+          await loadRankings(true);
+          renderRankings();
+          renderHome();
+        } catch {}
+        go('contacts');
+        return;
+      }
+
+      if (data.status === 'pending' && data.requires_identity) {
+        renderUserModal();
+        showLoginMode('fan');
+        const msg = $('fanLoginMessage');
+        if (msg) {
+          msg.textContent = `CHECK-IN ${String(data.concert?.name || 'LIVE').toUpperCase()} · inserisci il tuo nome per certificare la presenza.`;
+        }
+        openModal('userModal');
+        setTimeout(()=>$('fanNameInput')?.focus(),50);
+        return;
+      }
+
+      qrCheckinPending = false;
+      go('contacts');
+    } catch (err) {
+      qrCheckinPending = false;
+      console.warn('Check-in QR non disponibile',err);
+      toast(err.message || 'Check-in QR non disponibile','error');
+      go('contacts');
+    }
+  }
   function can(role, key) {
     const map = role === 'fan' ? fanPermissions : guestPermissions;
     return Object.prototype.hasOwnProperty.call(map, key) ? !!map[key] : true;
@@ -1425,6 +1523,7 @@
     data = await resolvePossibleFanMatches(data);
     currentFan = data.fan || data;
     localStorage.setItem('jm_public_fan_name', currentFan.display_name || name);
+    await claimPendingQrCheckins({notify:!qrCheckinPending});
     const perms = await fanApi('permissions');
     fanPermissions = perms.permissions || {};
     try { fanOnboardingStatus = await fanApi('onboarding_status'); }
@@ -2697,7 +2796,10 @@
     document.addEventListener('contextmenu',e=>{if(protectedImage(e))e.preventDefault();});
     document.addEventListener('dragstart',e=>{if(protectedImage(e))e.preventDefault();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('posterViewer')?.open)e.stopImmediatePropagation();},true);
-    window.addEventListener('hashchange', applyRoute);
+    window.addEventListener('hashchange',()=>{
+      applyRoute();
+      if(rawRoute()==='checkin')handleQrCheckin();
+    });
     document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); contactRender(); renderContextRail(currentRoute()); });
     window.addEventListener('jm:song-play-counted', async()=>{
       publicSongsLoaded=false;
@@ -2715,7 +2817,24 @@
     $('fanLoginForm').addEventListener('submit', async e => {
       e.preventDefault(); const name = $('fanNameInput').value.trim(); const msg = $('fanLoginMessage');
       if (!name) return; msg.textContent = window.JMCopy.text('ui.876e88411094');
-      try { await loginFan(name); msg.textContent = ''; closeModal('userModal'); toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok'); }
+      try {
+        await loginFan(name);
+        msg.textContent = '';
+        closeModal('userModal');
+        if(qrCheckinPending){
+          qrCheckinPending=false;
+          const first=qrClaimedOnLogin[0];
+          toast(first?`Presenza certificata · ${first.name}`:'Presenza QR associata al tuo profilo','ok');
+          try{
+            await loadRankings(true);
+            renderRankings();
+            renderHome();
+          }catch{}
+          go('contacts');
+        }else{
+          toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok');
+        }
+      }
       catch (err) { msg.textContent = err.message; }
     });
     $('memberLoginForm').addEventListener('submit', async e => {
@@ -2763,6 +2882,7 @@
     renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderBookingCalendar(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
+    if(rawRoute()==='checkin')await handleQrCheckin();
     startRealtime();
     window.JMCopy.ready();
   }
