@@ -733,15 +733,15 @@
     </nav>
 
     <div class="theme-switcher" id="themeSwitcher">
-      <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Scegli il tema del sito">
-        <span class="theme-trigger-dot" aria-hidden="true"></span>
-        <span class="theme-trigger-label" id="themeTriggerLabel">DARK</span>
-        <span class="theme-trigger-caret" aria-hidden="true">▾</span>
+      <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Cambia palette del sito" title="Cambia palette">
+        <svg class="theme-flag-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 21V3m1 1h11l-2.2 3L17 10H6z"></path>
+        </svg>
       </button>
-      <div class="theme-menu" id="themeMenu" role="menu" hidden>
-        <button type="button" role="menuitemradio" aria-checked="true" data-theme-pick="dark"><span class="theme-menu-swatch dark" aria-hidden="true"></span><span>DARK</span></button>
-        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="fresh"><span class="theme-menu-swatch fresh" aria-hidden="true"></span><span>FRESH</span></button>
-        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="west-ham"><span class="theme-menu-swatch west-ham" aria-hidden="true"></span><span>WEST HAM</span></button>
+      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Palette del sito" hidden>
+        <button type="button" role="menuitemradio" aria-checked="true" data-theme-pick="dark" aria-label="Palette nera" title="Nera"><span class="theme-menu-swatch dark" aria-hidden="true"></span></button>
+        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="fresh" aria-label="Palette bianca" title="Bianca"><span class="theme-menu-swatch fresh" aria-hidden="true"></span></button>
+        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="west-ham" aria-label="Palette granata azzurra gialla" title="Granata / azzurra / gialla"><span class="theme-menu-swatch west-ham" aria-hidden="true"></span></button>
       </div>
     </div>
 
