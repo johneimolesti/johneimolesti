@@ -71,13 +71,21 @@
   }
 
   async function loadRepertoire(){
-    if(!sb)return;
-    const {data,error}=await sb.rpc('get_public_repertoire');
-    if(error){
-      console.warn('Demo repertoire',error);
-      return;
+    if(!sb)return false;
+    let lastError=null;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const {data,error}=await sb.rpc('get_public_repertoire');
+        if(error)throw error;
+        repertoire=new Map((data||[]).map(song=>[String(song.id),song]));
+        return true;
+      }catch(err){
+        lastError=err;
+        if(attempt<2)await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
+      }
     }
-    repertoire=new Map((data||[]).map(song=>[String(song.id),song]));
+    console.warn('Demo repertoire',lastError);
+    return false;
   }
 
   async function loadStatus(){
@@ -497,6 +505,74 @@
     return `${m}:${s}`;
   }
 
+  function bindPlayCounter(audioEl,data,songId,source='songs'){
+    const playId=String(data?.play_id||'').trim();
+    if(!playId)return;
+
+    const threshold=Math.max(8,Number(data?.qualify_after_seconds)||8);
+    let listenedMs=0;
+    let playStartedAt=0;
+    let timer=null;
+    let qualifying=false;
+    let finished=false;
+
+    const totalListenedMs=()=>listenedMs+(playStartedAt?Math.max(0,performance.now()-playStartedAt):0);
+    const clearTimer=()=>{if(timer){clearTimeout(timer);timer=null}};
+
+    const qualify=async()=>{
+      if(finished||qualifying)return;
+      const seconds=totalListenedMs()/1000;
+      if(seconds<threshold){schedule();return}
+
+      qualifying=true;
+      try{
+        const result=await call('qualify_play',{
+          play_id:playId,
+          listened_seconds:Math.max(threshold,Math.floor(seconds))
+        });
+        if(result?.counted||result?.already_counted){
+          finished=true;
+          window.dispatchEvent(new CustomEvent('jm:song-play-counted',{
+            detail:{song_id:String(songId),source}
+          }));
+        }else if(result?.ok&&result?.counted===false){
+          finished=true;
+        }
+      }catch(err){
+        if(err.status===409&&!audioEl.paused&&!audioEl.ended){
+          timer=setTimeout(qualify,1000);
+        }else{
+          console.warn('Conteggio riproduzione',err);
+        }
+      }finally{
+        qualifying=false;
+      }
+    };
+
+    function schedule(){
+      clearTimer();
+      if(finished||qualifying||audioEl.paused||audioEl.ended)return;
+      const remaining=Math.max(0,threshold*1000-totalListenedMs());
+      timer=setTimeout(qualify,remaining+120);
+    }
+
+    const markPlay=()=>{
+      if(!playStartedAt)playStartedAt=performance.now();
+      schedule();
+    };
+    const markPause=()=>{
+      if(playStartedAt){
+        listenedMs+=Math.max(0,performance.now()-playStartedAt);
+        playStartedAt=0;
+      }
+      clearTimer();
+    };
+
+    audioEl.addEventListener('play',markPlay);
+    audioEl.addEventListener('pause',markPause);
+    audioEl.addEventListener('ended',markPause,{once:true});
+  }
+
   function stopRepertoireAudio({restore=true}={}){
     const host=repertoireAudioHost;
     if(repertoireAudio){
@@ -520,7 +596,7 @@
     button.textContent='CARICAMENTO…';
 
     try{
-      const data=await call('audio',{song_id:songId});
+      const data=await call('audio',{song_id:songId,source:'songs'});
 
       // Una sola demo alla volta nel repertorio.
       stopRepertoireAudio({restore:true});
@@ -530,6 +606,7 @@
       repertoireAudio=audioEl;
       repertoireAudioSongId=String(songId);
       repertoireAudioHost=host;
+      bindPlayCounter(audioEl,data,songId,'songs');
 
       const wrap=document.createElement('div');
       wrap.className='demo-site-player';
@@ -720,13 +797,14 @@
     setJukeboxNow(`CARICAMENTO · ${song.title}`);
 
     try{
-      const data=await call('audio',{song_id:songId});
+      const data=await call('audio',{song_id:songId,source:'jukebox'});
       if(request!==jukeboxRequest)return;
 
       jukeboxAudio=new Audio(data.url);
       jukeboxAudio.preload='auto';
       jukeboxAudio.controls=false;
       jukeboxSongId=String(songId);
+      bindPlayCounter(jukeboxAudio,data,songId,'jukebox');
 
       const release=()=>{
         if(jukeboxSongId!==String(songId))return;
