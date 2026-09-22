@@ -138,17 +138,19 @@
           );
       }
 
+
       /* =========================================================
-         IDENTITÀ DELLA BAND
+         IDENTITÀ DELLA BAND — CENTRATA
          ========================================================= */
       #homePage > .home-hero-news > .hero-copy {
         position: absolute !important;
         z-index: 30 !important;
-        top: clamp(72px, 13vh, 118px) !important;
-        left: 18px !important;
+        top: 29% !important;
+        left: 50% !important;
+        right: auto !important;
         bottom: auto !important;
 
-        width: min(82%, 330px) !important;
+        width: min(calc(100% - 56px), 360px) !important;
         height: auto !important;
         min-height: 0 !important;
 
@@ -158,9 +160,12 @@
 
         background: transparent !important;
         color: #fff !important;
+        text-align: center !important;
         text-shadow:
-          0 2px 5px rgba(0,0,0,.9),
-          0 8px 28px rgba(0,0,0,.75) !important;
+          0 2px 5px rgba(0,0,0,.95),
+          0 8px 28px rgba(0,0,0,.78) !important;
+
+        transform: translateX(-50%) !important;
         pointer-events: none;
       }
 
@@ -168,6 +173,7 @@
         display: flex !important;
         flex-wrap: wrap !important;
         align-items: baseline !important;
+        justify-content: center !important;
         gap: 0 8px !important;
 
         width: 100% !important;
@@ -179,6 +185,7 @@
         font-size: clamp(46px, 14.6vw, 66px) !important;
         line-height: .82 !important;
         letter-spacing: -.035em !important;
+        text-align: center !important;
       }
 
       #homePage > .home-hero-news > .hero-copy .title-john {
@@ -190,26 +197,30 @@
         padding: 0 !important;
         color: var(--gold) !important;
         font-size: .56em !important;
-        transform: rotate(-4deg);
+        transform: none !important;
       }
 
       #homePage > .home-hero-news > .hero-copy .title-molesti {
         display: block !important;
         flex: 0 0 100% !important;
-        max-width: none !important;
-        margin-top: 5px !important;
-        padding: 4px 8px 6px !important;
+        max-width: 100% !important;
+
+        margin-top: 6px !important;
+        padding: 4px 10px 6px !important;
+
         background: var(--gold) !important;
         color: #111 !important;
+        text-align: center !important;
         text-shadow: none !important;
-        transform: rotate(-1.2deg);
+
+        transform: none !important;
         box-shadow: 5px 5px 0 rgba(0,0,0,.48);
       }
 
       #homePage > .home-hero-news > .hero-copy .hero-lead {
         display: block !important;
-        max-width: 295px !important;
-        margin: 15px 0 0 !important;
+        max-width: 330px !important;
+        margin: 15px auto 0 !important;
         padding: 0 !important;
 
         color: #fff !important;
@@ -217,6 +228,7 @@
         line-height: 1.02 !important;
         font-weight: 850 !important;
         letter-spacing: -.02em !important;
+        text-align: center !important;
       }
 
       #homePage > .home-hero-news > .hero-copy .hero-actions {
@@ -307,91 +319,51 @@
           ) !important;
       }
 
-      /* Controlli molto piccoli, come dettaglio editoriale. */
+
+      /* I controlli restano gestiti dallo script ma non rubano spazio
+         alla composizione mobile. Swipe e rotazione automatica restano attivi. */
       #homePage > .home-hero-news > .home-hero-highlights .highlights-heading {
-        position: absolute !important;
-        z-index: 48 !important;
-        top: 16px !important;
-        right: 14px !important;
-        left: auto !important;
-
-        width: auto !important;
-        margin: 0 !important;
-
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-      }
-
-      #homePage > .home-hero-news > .home-hero-highlights .highlights-heading h2 {
         display: none !important;
       }
 
-      #homePage > .home-hero-news > .home-hero-highlights .highlights-controls {
-        display: flex !important;
-        align-items: center !important;
-        gap: 4px !important;
-      }
-
-      #homePage > .home-hero-news > .home-hero-highlights .highlights-controls button {
-        width: 27px !important;
-        height: 27px !important;
-        min-width: 27px !important;
-        min-height: 27px !important;
-        padding: 0 !important;
-
-        border: 1px solid rgba(255,255,255,.26) !important;
-        background: rgba(7,7,7,.48) !important;
-        color: #fff !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-
-        font-size: 13px !important;
-      }
-
-      #homePage > .home-hero-news > .home-hero-highlights #highlightCount {
-        min-width: 32px !important;
-        color: rgba(255,255,255,.82) !important;
-        font: 900 8px/1 "Courier New", monospace !important;
-        text-align: center;
-      }
-
-      /* Piccolo contenuto editoriale che cambia con la slide. */
+      /* La novità corrente occupa l'angolo inferiore destro. */
       #homePage > .home-hero-news > .home-hero-highlights .highlight-copy {
         position: absolute !important;
         z-index: 12 !important;
 
-        top: clamp(310px, 46%, 430px) !important;
-        left: 18px !important;
-        right: auto !important;
-        bottom: auto !important;
+        top: auto !important;
+        left: auto !important;
+        right: 12px !important;
+        bottom: calc(var(--mobile-nav-safe) + 158px) !important;
 
-        width: min(58%, 235px) !important;
-        max-width: min(58%, 235px) !important;
+        width: min(44vw, 174px) !important;
+        max-width: min(44vw, 174px) !important;
+        min-height: 78px !important;
 
         display: flex !important;
         flex-direction: column !important;
-        align-items: flex-start !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
 
         margin: 0 !important;
-        padding: 10px 22px 10px 11px !important;
+        padding: 9px 10px 9px 18px !important;
 
         color: #fff !important;
-        text-align: left !important;
+        text-align: right !important;
 
         background:
           linear-gradient(
-            90deg,
-            rgba(8,8,8,.72) 0%,
-            rgba(8,8,8,.48) 68%,
-            rgba(8,8,8,0) 100%
+            270deg,
+            rgba(8,8,8,.78) 0%,
+            rgba(8,8,8,.58) 68%,
+            rgba(8,8,8,.04) 100%
           ) !important;
 
-        backdrop-filter: blur(7px);
-        -webkit-backdrop-filter: blur(7px);
+        backdrop-filter: blur(9px);
+        -webkit-backdrop-filter: blur(9px);
 
-        border-left: 2px solid var(--gold);
-        transform: rotate(-.8deg);
+        border-right: 2px solid var(--gold);
+        transform: none !important;
       }
 
       #homePage > .home-hero-news > .home-hero-highlights .highlight-copy .section-kicker {
@@ -399,17 +371,22 @@
         color: var(--gold) !important;
         font: 900 7px/1.15 "Courier New", monospace !important;
         letter-spacing: .06em !important;
-        text-align: left !important;
+        text-align: right !important;
       }
 
       #homePage > .home-hero-news > .home-hero-highlights .highlight-copy h3 {
+        display: -webkit-box !important;
+        overflow: hidden !important;
         max-width: 100% !important;
         margin: 0 !important;
 
         color: #fff !important;
-        font-size: clamp(15px, 4.7vw, 20px) !important;
-        line-height: .96 !important;
-        text-align: left !important;
+        font-size: clamp(13px, 3.8vw, 17px) !important;
+        line-height: .98 !important;
+        text-align: right !important;
+
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
       }
 
       #homePage > .home-hero-news > .home-hero-highlights .highlight-copy p {
@@ -418,16 +395,17 @@
 
       #homePage > .home-hero-news > .home-hero-highlights .highlight-action {
         min-width: 0 !important;
-        min-height: 26px !important;
-        margin-top: 7px !important;
-        padding: 5px 8px !important;
+        min-height: 24px !important;
+        margin-top: 6px !important;
+        padding: 4px 7px !important;
 
-        align-self: flex-start !important;
+        align-self: flex-end !important;
         font-size: 7px !important;
       }
 
+
       /* =========================================================
-         LAYER DI CARD FLUTTUANTI
+         LAYER DI CARD — STATICHE AGLI ANGOLI
          ========================================================= */
       .mobile-punk-hero-layer {
         position: absolute;
@@ -440,7 +418,8 @@
       }
 
       .punk-float-card,
-      .punk-live-card {
+      .punk-live-card,
+      .punk-tour-teaser {
         appearance: none;
         -webkit-appearance: none;
         font: inherit;
@@ -458,25 +437,21 @@
         color: #fff;
         text-align: left;
 
-        background: rgba(12,12,12,.54);
-        backdrop-filter: blur(11px) saturate(1.05);
-        -webkit-backdrop-filter: blur(11px) saturate(1.05);
+        background: rgba(12,12,12,.56);
+        backdrop-filter: blur(10px) saturate(1.05);
+        -webkit-backdrop-filter: blur(10px) saturate(1.05);
 
-        box-shadow: 0 9px 30px rgba(0,0,0,.16);
-        opacity: .86;
-      }
+        box-shadow: 0 9px 30px rgba(0,0,0,.14);
+        opacity: .9;
 
-      .punk-float-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
+        animation: none !important;
+        transform: none !important;
       }
 
       .punk-float-card:active,
-      .punk-live-card:active {
-        transform: translateY(1px) scale(.99);
+      .punk-live-card:active,
+      .punk-tour-teaser:active {
+        filter: brightness(1.08);
       }
 
       .punk-float-kicker {
@@ -489,26 +464,26 @@
         text-transform: uppercase;
       }
 
-      /* TOP SONGS: entra da destra e sfuma verso sinistra. */
+      /* TOP SONGS — angolo alto sinistro */
       .punk-float-songs {
-        top: 42%;
-        right: -8px;
+        top: 16px;
+        left: 12px;
+        right: auto;
+        bottom: auto;
 
-        width: min(47vw, 185px);
+        width: min(45vw, 176px);
         min-height: 88px;
 
-        padding-right: 17px;
-        border-right: 2px solid var(--gold);
+        padding-left: 12px;
+        border-left: 2px solid var(--gold);
+
         background:
           linear-gradient(
-            270deg,
-            rgba(10,10,10,.78) 0%,
-            rgba(10,10,10,.62) 62%,
-            rgba(10,10,10,.06) 100%
+            90deg,
+            rgba(10,10,10,.80) 0%,
+            rgba(10,10,10,.60) 70%,
+            rgba(10,10,10,.10) 100%
           );
-
-        transform: rotate(2.2deg);
-        animation: punkFloatA 6.8s ease-in-out infinite alternate;
       }
 
       .punk-song-line {
@@ -537,33 +512,42 @@
         white-space: nowrap;
       }
 
-      /* TOP FAN: sticker piccolo, più netto. */
+      /* TOP FAN — angolo alto destro */
       .punk-float-fan {
-        top: 55%;
-        left: -5px;
+        top: 16px;
+        right: 12px;
+        left: auto;
+        bottom: auto;
 
-        width: min(39vw, 150px);
-        min-height: 72px;
+        width: min(39vw, 148px);
+        min-height: 76px;
 
-        padding-left: 15px;
-        border-left: 2px solid rgba(255,255,255,.72);
+        padding-right: 12px;
+        border-right: 2px solid rgba(255,255,255,.72);
+
+        text-align: right;
+
         background:
           linear-gradient(
-            90deg,
-            rgba(10,10,10,.76) 0%,
-            rgba(10,10,10,.54) 67%,
-            rgba(10,10,10,.04) 100%
+            270deg,
+            rgba(10,10,10,.80) 0%,
+            rgba(10,10,10,.58) 70%,
+            rgba(10,10,10,.08) 100%
           );
+      }
 
-        transform: rotate(-2.8deg);
-        animation: punkFloatB 7.4s ease-in-out infinite alternate;
+      .punk-float-fan .punk-float-kicker {
+        text-align: right;
       }
 
       .punk-fan-rank {
         display: block;
+        overflow: hidden;
         color: #fff;
         font: 900 clamp(14px,4vw,18px)/.95 Impact, "Arial Narrow", sans-serif;
         letter-spacing: -.01em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .punk-fan-score {
@@ -573,25 +557,26 @@
         font: 800 7px/1.1 "Courier New", monospace;
       }
 
-      /* PROSSIME DATE: sospesa a destra appena sopra il live. */
+      /* PROSSIME DATE / TOUR — angolo basso sinistro */
       .punk-float-dates {
-        top: 64%;
-        right: 7px;
+        left: 12px;
+        right: auto;
+        top: auto;
+        bottom: calc(var(--mobile-nav-safe) + 158px);
 
-        width: min(45vw, 174px);
-        min-height: 76px;
+        width: min(44vw, 174px);
+        min-height: 78px;
 
-        border-top: 1px solid rgba(238,229,43,.58);
+        padding-left: 12px;
+        border-left: 2px solid rgba(238,229,43,.72);
+
         background:
           linear-gradient(
-            255deg,
-            rgba(13,13,13,.74) 0%,
-            rgba(13,13,13,.50) 72%,
-            rgba(13,13,13,.02) 100%
+            90deg,
+            rgba(13,13,13,.78) 0%,
+            rgba(13,13,13,.56) 72%,
+            rgba(13,13,13,.04) 100%
           );
-
-        transform: rotate(1deg);
-        animation: punkFloatC 8.2s ease-in-out infinite alternate;
       }
 
       .punk-date-row {
@@ -599,6 +584,7 @@
         grid-template-columns: 48px minmax(0,1fr);
         gap: 5px;
         align-items: baseline;
+
         min-width: 0;
         padding: 2px 0;
       }
@@ -620,16 +606,17 @@
       }
 
       /* =========================================================
-         PROSSIMO LIVE: elemento principale, sempre leggibile
+         PROSSIMO LIVE — FISSO IN BASSO
          ========================================================= */
       .punk-live-card {
         position: absolute;
         z-index: 60;
+
         left: 14px;
         right: 14px;
-        bottom: var(--mobile-nav-safe);
+        bottom: calc(var(--mobile-nav-safe) + 31px);
 
-        min-height: 112px;
+        min-height: 104px;
         pointer-events: auto;
 
         display: grid;
@@ -637,14 +624,14 @@
         gap: 10px;
         align-items: center;
 
-        padding: 12px 12px 12px 10px;
+        padding: 10px 12px 10px 10px;
 
         overflow: hidden;
         border: 1px solid rgba(255,255,255,.28);
         border-left: 4px solid var(--gold);
 
         background:
-          linear-gradient(108deg,rgba(7,7,7,.92),rgba(7,7,7,.68) 70%,rgba(7,7,7,.48));
+          linear-gradient(108deg,rgba(7,7,7,.94),rgba(7,7,7,.72) 72%,rgba(7,7,7,.52));
         color: #fff;
         text-align: left;
 
@@ -652,10 +639,10 @@
         -webkit-backdrop-filter: blur(14px) saturate(1.12);
 
         box-shadow:
-          7px 7px 0 rgba(0,0,0,.42),
-          0 16px 50px rgba(0,0,0,.24);
+          6px 6px 0 rgba(0,0,0,.38),
+          0 16px 50px rgba(0,0,0,.22);
 
-        transform: rotate(-.35deg);
+        transform: none !important;
       }
 
       .punk-live-date {
@@ -685,6 +672,7 @@
       .punk-live-copy small {
         display: block;
         margin-bottom: 4px;
+
         color: var(--gold);
         font: 900 7px/1 "Courier New", monospace;
         letter-spacing: .08em;
@@ -693,6 +681,7 @@
       .punk-live-copy strong {
         display: block;
         overflow: hidden;
+
         color: #fff;
         font-size: clamp(16px, 5vw, 22px);
         line-height: .94;
@@ -722,25 +711,58 @@
         font-size: 13px;
       }
 
-      @keyframes punkFloatA {
-        from { translate: 0 -2px; }
-        to   { translate: -3px 5px; }
+      /* Piccolo richiamo TOUR subito sotto il prossimo live. */
+      .punk-tour-teaser {
+        position: absolute;
+        z-index: 61;
+
+        left: 14px;
+        right: 14px;
+        bottom: var(--mobile-nav-safe);
+
+        height: 27px;
+        pointer-events: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+
+        padding: 0 10px;
+
+        border: 0;
+        border-top: 1px solid rgba(238,229,43,.62);
+
+        background: rgba(7,7,7,.84);
+        color: #fff;
+        text-align: left;
+
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
 
-      @keyframes punkFloatB {
-        from { translate: 0 3px; }
-        to   { translate: 4px -3px; }
+      .punk-tour-teaser span {
+        min-width: 0;
+        overflow: hidden;
+
+        color: rgba(255,255,255,.76);
+        font: 800 7px/1 "Courier New", monospace;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
-      @keyframes punkFloatC {
-        from { translate: 1px -2px; }
-        to   { translate: -3px 4px; }
+      .punk-tour-teaser b {
+        margin-right: 7px;
+        color: var(--gold);
+        letter-spacing: .09em;
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .punk-float-card {
-          animation: none !important;
-        }
+      .punk-tour-teaser strong {
+        flex: 0 0 auto;
+        color: var(--gold);
+        font: 900 7px/1 "Courier New", monospace;
+        letter-spacing: .05em;
       }
 
       /* Menu inferiore: una riga scorrevole. */
@@ -773,18 +795,20 @@
       }
     }
 
-    /* Telefoni bassi: riduciamo e risistemiamo senza sovrapposizioni. */
+
+    /* Telefoni bassi: manteniamo la gerarchia senza sovrapposizioni. */
     @media (max-width: 760px) and (max-height: 720px) {
       #homePage > .home-hero-news {
         min-height: 560px !important;
       }
 
       #homePage > .home-hero-news > .hero-copy {
-        top: 58px !important;
+        top: 25% !important;
+        width: min(calc(100% - 72px), 330px) !important;
       }
 
       #homePage > .home-hero-news > .hero-copy h1 {
-        font-size: clamp(41px, 13vw, 54px) !important;
+        font-size: clamp(40px, 12.8vw, 52px) !important;
       }
 
       #homePage > .home-hero-news > .hero-copy .hero-lead {
@@ -792,43 +816,41 @@
         font-size: 16px !important;
       }
 
-      #homePage > .home-hero-news > .home-hero-highlights .highlight-copy {
-        top: 38% !important;
-      }
-
-      .punk-float-songs {
-        top: 47%;
-        min-height: 76px;
-      }
-
+      .punk-float-songs,
       .punk-float-fan {
-        top: 58%;
-        min-height: 62px;
+        top: 10px;
       }
 
-      .punk-float-dates {
-        top: 66%;
-        min-height: 66px;
+      .punk-float-dates,
+      #homePage > .home-hero-news > .home-hero-highlights .highlight-copy {
+        bottom: calc(var(--mobile-nav-safe) + 146px) !important;
+        min-height: 70px !important;
       }
 
       .punk-live-card {
-        min-height: 96px;
-        padding-top: 9px;
-        padding-bottom: 9px;
+        min-height: 92px;
+        padding-top: 8px;
+        padding-bottom: 8px;
       }
     }
 
     @media (max-width: 390px) {
+      #homePage > .home-hero-news > .hero-copy {
+        width: calc(100% - 54px) !important;
+      }
+
       .punk-float-songs {
-        width: 48vw;
+        width: 46vw;
       }
 
       .punk-float-fan {
         width: 40vw;
       }
 
-      .punk-float-dates {
-        width: 47vw;
+      .punk-float-dates,
+      #homePage > .home-hero-news > .home-hero-highlights .highlight-copy {
+        width: 45vw !important;
+        max-width: 45vw !important;
       }
 
       .punk-live-card {
@@ -836,6 +858,7 @@
         gap: 8px;
       }
     }
+
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -1723,13 +1746,29 @@
             data-punk-action="dates"
             aria-label="Apri le prossime date">
 
-            <span class="punk-float-kicker">PROSSIME DATE</span>
+            <span class="punk-float-kicker">TOUR / PROSSIME DATE</span>
             ${rows}
           </button>
         `;
       }
 
-      function liveMarkup(live) {
+      function liveMarkup(live, dates) {
+        const nextTour = dates?.[0]
+          ? `${dates[0].date || 'LIVE'} · ${dates[0].title || 'Prossima data'}`
+          : 'Calendario, archivio e prossime date';
+
+        const teaser = `
+          <button
+            class="punk-tour-teaser"
+            type="button"
+            data-punk-action="dates"
+            aria-label="Apri il tour">
+
+            <span><b>TOUR</b>${esc(nextTour)}</span>
+            <strong>TUTTE LE DATE →</strong>
+          </button>
+        `;
+
         if (!live) {
           return `
             <button
@@ -1750,6 +1789,7 @@
 
               <span class="punk-live-arrow" aria-hidden="true">›</span>
             </button>
+            ${teaser}
           `;
         }
 
@@ -1774,6 +1814,7 @@
 
             <span class="punk-live-arrow" aria-hidden="true">›</span>
           </button>
+          ${teaser}
         `;
       }
 
@@ -1803,7 +1844,7 @@
           songsMarkup(songs) +
           fanMarkup(fan) +
           datesMarkup(dates) +
-          liveMarkup(live);
+          liveMarkup(live, dates);
       }
 
       function scheduleRender() {
