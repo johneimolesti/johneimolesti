@@ -29,6 +29,7 @@
     fallback_image_zoom:100
   };
   let publicSongs = [], publicMedia = [];
+  let publicSongsLoaded = false, publicMediaLoaded = false, publicSongsError = null;
   let bookingUnavailable = new Set(), bookingUnavailableSources = new Map(), bookingSelectedDates = new Set();
   let bookingCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let memberMedia = [];
@@ -1297,7 +1298,12 @@
     $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.route === route));
     renderContextRail(route);
     if (route === 'tour') renderTour();
-    if (route === 'repertoire') renderRepertoire();
+    if (route === 'repertoire') {
+      renderRepertoire();
+      if (!publicSongsLoaded) {
+        loadPublicContentExtensions().then(renderRepertoire).catch(err=>console.warn('Retry repertorio pubblico',err));
+      }
+    }
     if (route === 'rankings') renderRankings();
     if (route === 'more') renderPublicMedia();
     if (route === 'contacts') { renderBookingCalendar(); }
@@ -1511,21 +1517,47 @@
 
 
   async function loadPublicContentExtensions(force = false) {
-    if ((publicSongs.length || publicMedia.length) && !force) return {songs:publicSongs,media:publicMedia};
-    const [songsResult, mediaResult] = await Promise.allSettled([
-      sb.rpc('get_public_repertoire'),
-      sb.from('public_media').select('id,kind,title,caption,source_url,storage_path,sort_order,created_at').eq('published',true).order('sort_order',{ascending:true}).order('created_at',{ascending:false})
-    ]);
-    if (songsResult.status === 'fulfilled' && !songsResult.value.error) publicSongs = songsResult.value.data || [];
-    else {
-      console.warn('Repertorio pubblico non disponibile',songsResult.status === 'fulfilled' ? songsResult.value.error : songsResult.reason);
-      publicSongs = [];
+    const jobs = [];
+
+    if (force || !publicSongsLoaded) {
+      jobs.push((async()=>{
+        let lastError = null;
+        for (let attempt=0; attempt<3; attempt++) {
+          try {
+            const result = await sb.rpc('get_public_repertoire');
+            if (result.error) throw result.error;
+            publicSongs = result.data || [];
+            publicSongsLoaded = true;
+            publicSongsError = null;
+            return;
+          } catch (err) {
+            lastError = err;
+            if (attempt < 2) await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
+          }
+        }
+        publicSongsError = lastError || new Error('Repertorio pubblico non disponibile');
+        console.warn('Repertorio pubblico non disponibile',publicSongsError);
+      })());
     }
-    if (mediaResult.status === 'fulfilled' && !mediaResult.value.error) publicMedia = mediaResult.value.data || [];
-    else {
-      console.warn('Media pubblici non disponibili',mediaResult.status === 'fulfilled' ? mediaResult.value.error : mediaResult.reason);
-      publicMedia = [];
+
+    if (force || !publicMediaLoaded) {
+      jobs.push((async()=>{
+        try {
+          const result = await sb.from('public_media')
+            .select('id,kind,title,caption,source_url,storage_path,sort_order,created_at')
+            .eq('published',true)
+            .order('sort_order',{ascending:true})
+            .order('created_at',{ascending:false});
+          if (result.error) throw result.error;
+          publicMedia = result.data || [];
+          publicMediaLoaded = true;
+        } catch (err) {
+          console.warn('Media pubblici non disponibili',err);
+        }
+      })());
     }
+
+    if (jobs.length) await Promise.all(jobs);
     return {songs:publicSongs,media:publicMedia};
   }
   function songArtistLine(song) {
@@ -1536,8 +1568,6 @@
   }
   function songTechLine(song) {
     const parts=[];
-    if (song.bpm) parts.push(`${Number(song.bpm).toFixed(Number(song.bpm)%1?1:0)} BPM`);
-    if (song.key_note) parts.push(`${song.key_note}${song.key_mode==='minor'?'m':''}`);
     if (song.duration_seconds) {
       const m=Math.floor(Number(song.duration_seconds)/60), s=String(Number(song.duration_seconds)%60).padStart(2,'0');
       parts.push(`${m}:${s}`);
@@ -1546,6 +1576,11 @@
   }
   function renderRepertoire() {
     const grid=$('repertoireGrid'); if(!grid)return;
+    if (!publicSongsLoaded && publicSongsError && !publicSongs.length) {
+      if($('repertoireCount')) $('repertoireCount').textContent='—';
+      grid.innerHTML='<div class="empty-state">Catalogo temporaneamente non disponibile. Riprova tra poco.</div>';
+      return;
+    }
     const q=String($('repertoireSearch')?.value||'').trim().toLowerCase();
     const rows=publicSongs.filter(song=>!q || [song.title,song.base_artist,song.lyrics_artist,song.base_title,song.lyrics_title].some(v=>String(v||'').toLowerCase().includes(q)));
     if($('repertoireCount')) $('repertoireCount').textContent=`${rows.length} BRANI`;
@@ -1961,6 +1996,13 @@
   function openSongRankingDetail(r, position) {
     if (!r) return;
     const cover = posterUrl(r.cover_path);
+    const rankingMatch = (rankingData?.songs||[]).find(item =>
+      (String(item.song_id||item.id||'') && String(item.song_id||item.id||'')===String(r.song_id||r.id||'')) ||
+      String(item.title||'').toLowerCase()===String(r.title||'').toLowerCase()
+    );
+    const score = r.ranking_score ?? r.score ?? rankingMatch?.ranking_score ?? rankingMatch?.score ?? '—';
+    const rankPosition = rankingMatch?.ranking_position ?? ((rankingData?.songs||[]).indexOf(rankingMatch)+1 || position);
+    const plays = Number(r.weighted_play_count ?? rankingMatch?.weighted_play_count ?? 0);
     const actions = [];
     if (currentFan) actions.push({label:'VOTA QUESTO BRANO',primary:true,run:()=>{
       closeModal('rankingDetailModal');
@@ -1969,7 +2011,22 @@
         if(search){search.value=r.title||'';renderFanCatalog();}
       });
     }});
-    openRankingDetail({kind:'BRANO',title:r.title||'Brano',image:cover,imageAlt:`Cover di ${r.title||'brano'}`,score:r.ranking_score??'—',scoreLabel:'SCORE',rows:[['Posizione',`#${position}`],['Base',r.base_artist||'—'],['Testo',r.lyrics_artist||'—'],['BPM',r.bpm],['Tonalità',r.key||r.tonality]],actions});
+    openRankingDetail({
+      kind:'BRANO',
+      title:r.title||'Brano',
+      image:cover,
+      imageAlt:`Cover di ${r.title||'brano'}`,
+      score,
+      scoreLabel:'SCORE',
+      rows:[
+        ['Posizione',rankPosition ? `#${rankPosition}` : null],
+        ['Base',r.base_artist||'—'],
+        ['Testo',r.lyrics_artist||'—'],
+        ['Prima esecuzione live',r.first_live_date ? formatDate(r.first_live_date) : '—'],
+        ['Riproduzioni',Number.isFinite(plays) ? Math.max(0,Math.trunc(plays)) : 0]
+      ],
+      actions
+    });
   }
   function openFanRankingDetail(r, position) {
     if (!r) return;
@@ -2642,6 +2699,10 @@
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('posterViewer')?.open)e.stopImmediatePropagation();},true);
     window.addEventListener('hashchange', applyRoute);
     document.addEventListener('jm:copy-change', () => { renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); contactRender(); renderContextRail(currentRoute()); });
+    window.addEventListener('jm:song-play-counted', async()=>{
+      publicSongsLoaded=false;
+      await loadPublicContentExtensions();
+    });
     $$('.nav-item').forEach(b => b.onclick = () => go(b.dataset.route));
     $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
     $('userEntry').onclick = () => { renderUserModal(); openModal('userModal'); };
