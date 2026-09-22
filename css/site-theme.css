@@ -1,4 +1,4 @@
-* John & i Molesti — temi sito pubblico */
+/* John & i Molesti — temi sito pubblico */
 html[data-theme="dark"]{
   color-scheme:dark;
   --bg:#0d0d0d;
@@ -311,93 +311,112 @@ html[data-theme="dark"] .management-card{
   color:#111!important;
 }
 
-/* Selettore tema nell'header */
+/* Selettore tema nell'header — una sola bandierina, stile fanzine */
 .theme-switcher{
   position:relative;
   flex:0 0 auto;
 }
 
 .theme-trigger{
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:7px 10px;
-  border:2px solid var(--line-strong);
-  background:var(--panel-solid);
+  width:38px;
+  height:38px;
+  min-height:38px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-bottom:3px solid var(--gold);
+  background:transparent;
   color:var(--text);
-  font:900 10px/1 "Courier New",monospace;
-  letter-spacing:.04em;
-  text-transform:uppercase;
+  transform:rotate(-2deg);
+  transition:transform .12s ease,background .12s ease,color .12s ease;
 }
 
-.theme-trigger-dot{
-  width:13px;
-  height:13px;
-  flex:0 0 13px;
-  border:2px solid currentColor;
-  background:var(--theme-accent);
-  box-shadow:inset 0 0 0 3px var(--panel-solid);
+.theme-trigger:hover,
+.theme-trigger[aria-expanded="true"]{
+  background:var(--gold);
+  color:#111;
+  transform:rotate(1deg);
 }
 
-.theme-trigger-caret{
-  font-size:10px;
-  opacity:.8;
+.theme-flag-icon{
+  width:24px;
+  height:24px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.2;
+  stroke-linecap:square;
+  stroke-linejoin:miter;
 }
 
 .theme-menu{
   position:absolute;
   z-index:120;
-  top:calc(100% + 8px);
+  top:calc(100% + 7px);
   right:0;
-  width:190px;
-  padding:6px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:auto;
+  padding:8px;
   border:2px solid var(--line-strong);
   background:var(--panel-solid);
   box-shadow:5px 5px 0 var(--theme-shadow);
 }
 
 .theme-menu button{
-  width:100%;
+  position:relative;
+  width:48px;
+  height:36px;
   display:grid;
-  grid-template-columns:20px minmax(0,1fr) auto;
-  gap:8px;
-  align-items:center;
-  padding:9px 8px;
-  border:0;
+  place-items:center;
+  flex:0 0 48px;
+  padding:0;
+  border:2px solid var(--line-strong);
   background:transparent;
   color:var(--text);
-  text-align:left;
-  font:900 10px/1.15 "Courier New",monospace;
+  transform:rotate(-1deg);
 }
 
-.theme-menu button:hover,
+.theme-menu button:nth-child(2){transform:rotate(1deg)}
+.theme-menu button:nth-child(3){transform:rotate(-.5deg)}
+
+.theme-menu button:hover{
+  transform:translateY(-2px) rotate(0deg);
+}
+
 .theme-menu button[aria-checked="true"]{
-  background:var(--row-hover);
+  outline:3px solid var(--gold);
+  outline-offset:2px;
 }
 
 .theme-menu button[aria-checked="true"]::after{
-  content:"✓";
-  color:var(--gold);
+  content:"";
+  position:absolute;
+  right:-5px;
+  bottom:-5px;
+  width:10px;
+  height:10px;
+  background:var(--gold);
+  border:2px solid var(--panel-solid);
 }
 
 .theme-menu-swatch{
-  width:20px;
-  height:20px;
-  border:1px solid currentColor;
+  display:block;
+  width:100%;
+  height:100%;
 }
 
 .theme-menu-swatch.dark{
-  background:linear-gradient(135deg,#111 0 70%,#EEE52B 70%);
+  background:#0d0d0d;
 }
 
 .theme-menu-swatch.fresh{
-  background:linear-gradient(135deg,#fff 0 70%,#EEE52B 70%);
-  color:#111;
+  background:#fff;
 }
 
 .theme-menu-swatch.west-ham{
-  background:linear-gradient(135deg,#7C2C3B 0 50%,#2BABE5 50% 75%,#FDB742 75%);
+  background:linear-gradient(90deg,#7C2C3B 0 52%,#2BABE5 52% 76%,#FDB742 76% 100%);
 }
 
 /* Primo accesso / nuovo dispositivo */
@@ -541,17 +560,24 @@ html[data-theme="dark"] .management-card{
     margin-left:auto;
   }
   .theme-trigger{
-    width:38px;
-    min-height:38px;
-    justify-content:center;
-    padding:0;
+    width:34px;
+    height:34px;
+    min-height:34px;
   }
-  .theme-trigger-label,
-  .theme-trigger-caret{
-    display:none;
+  .theme-flag-icon{
+    width:21px;
+    height:21px;
   }
   .theme-menu{
-    width:176px;
+    right:-6px;
+    width:auto;
+    padding:7px;
+    gap:6px;
+  }
+  .theme-menu button{
+    width:44px;
+    height:33px;
+    flex-basis:44px;
   }
   .theme-choice-grid{
     grid-template-columns:1fr;
