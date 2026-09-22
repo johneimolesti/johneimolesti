@@ -1,29 +1,39 @@
-/* John & i Molesti — temi sito pubblico */
+/* John & i Molesti — palette complete del sito pubblico.
+   Caricato per ultimo: neutralizza i colori hardcoded della Night Edition. */
+
 html[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#0d0d0d;
-  --text:#f4f1e8;
-  --muted:#aaa69c;
-  --muted-2:#8b887d;
+  --bg:#111111;
+  --text:#f2eee3;
+  --muted:#b9b4a8;
+  --muted-2:#aaa69d;
   --gold:#EEE52B;
   --gold-2:#DED620;
   --red:#d63835;
   --blue:#2BABE5;
   --green:#4fa36f;
-  --line:#555248;
-  --line-strong:#f4f1e8;
-  --panel:#181817;
-  --panel-solid:#181817;
-  --row:#20201d;
-  --row-hover:#2a2a26;
   --pink:#f2a8cd;
+  --line:#747366;
+  --line-strong:#EEE52B;
+  --panel:#1b1b1a;
+  --panel-solid:#1b1b1a;
+  --row:#222220;
+  --row-hover:#30302a;
   --theme-accent:#EEE52B;
   --theme-accent-2:#f2a8cd;
   --theme-accent-ink:#111111;
-  --theme-footer:#090909;
-  --theme-shadow:#000000;
-  --theme-input:#111111;
-  --theme-input-text:#f4f1e8;
+  --theme-page:#111111;
+  --theme-panel:#1b1b1a;
+  --theme-panel-2:#222220;
+  --theme-panel-3:#2a2924;
+  --theme-footer:#080808;
+  --theme-shadow:#050505;
+  --theme-input:#252523;
+  --theme-input-text:#f2eee3;
+  --theme-on-accent:#111111;
+  --theme-soft-accent:rgba(238,229,43,.12);
+  --theme-soft-accent-2:rgba(242,168,205,.12);
+  --theme-photo-wash:rgba(0,0,0,.12);
 }
 
 html[data-theme="fresh"]{
@@ -37,20 +47,28 @@ html[data-theme="fresh"]{
   --red:#c8332f;
   --blue:#2155bb;
   --green:#287b49;
-  --line:#232323;
+  --pink:#EEE52B;
+  --line:#2b2b29;
   --line-strong:#111111;
   --panel:#ffffff;
   --panel-solid:#ffffff;
   --row:#efede4;
-  --row-hover:#e5e1d4;
-  --pink:#f2a8cd;
+  --row-hover:#e2dfd3;
   --theme-accent:#EEE52B;
   --theme-accent-2:#111111;
   --theme-accent-ink:#111111;
+  --theme-page:#f7f6ef;
+  --theme-panel:#ffffff;
+  --theme-panel-2:#efede4;
+  --theme-panel-3:#e5e1d4;
   --theme-footer:#111111;
   --theme-shadow:#111111;
   --theme-input:#ffffff;
   --theme-input-text:#111111;
+  --theme-on-accent:#111111;
+  --theme-soft-accent:rgba(238,229,43,.30);
+  --theme-soft-accent-2:rgba(17,17,17,.07);
+  --theme-photo-wash:rgba(255,255,255,.13);
 }
 
 html[data-theme="west-ham"]{
@@ -58,95 +76,245 @@ html[data-theme="west-ham"]{
   --bg:#7C2C3B;
   --text:#FEFFFF;
   --muted:#ead6da;
-  --muted-2:#d8b8bf;
+  --muted-2:#d3b6bd;
   --gold:#FDB742;
-  --gold-2:#e6a22d;
+  --gold-2:#e9a62f;
   --red:#7C2C3B;
   --blue:#2BABE5;
   --green:#2BABE5;
+  --pink:#2BABE5;
   --line:#2BABE5;
-  --line-strong:#FEFFFF;
+  --line-strong:#FDB742;
   --panel:#672330;
   --panel-solid:#672330;
   --row:#74303d;
-  --row-hover:#88394a;
-  --pink:#2BABE5;
+  --row-hover:#8b3b4c;
   --theme-accent:#FDB742;
   --theme-accent-2:#2BABE5;
-  --theme-accent-ink:#3a1520;
-  --theme-footer:#571c28;
-  --theme-shadow:#4e1823;
+  --theme-accent-ink:#3b1520;
+  --theme-page:#7C2C3B;
+  --theme-panel:#672330;
+  --theme-panel-2:#74303d;
+  --theme-panel-3:#5b1d29;
+  --theme-footer:#4d1721;
+  --theme-shadow:#45131d;
   --theme-input:#FEFFFF;
-  --theme-input-text:#3a1520;
+  --theme-input-text:#3b1520;
+  --theme-on-accent:#3b1520;
+  --theme-soft-accent:rgba(253,183,66,.15);
+  --theme-soft-accent-2:rgba(43,171,229,.16);
+  --theme-photo-wash:rgba(124,44,59,.18);
 }
 
+/* =========================================================
+   STRUTTURA GENERALE
+   ========================================================= */
+html[data-theme],
 html[data-theme] body{
-  background:var(--bg)!important;
+  background:var(--theme-page)!important;
+  color:var(--text)!important;
+}
+
+html[data-theme] body,
+html[data-theme] .desktop-frame,
+html[data-theme] .content-stage,
+html[data-theme] .page,
+html[data-theme] .content-section,
+html[data-theme] .home-dashboard-shell,
+html[data-theme] .ranking-stack,
+html[data-theme] .more-grid,
+html[data-theme] .contacts-layout,
+html[data-theme] .repertoire-grid{
   color:var(--text)!important;
 }
 
 html[data-theme] .site-header,
 html[data-theme] .main-nav{
-  background:var(--bg)!important;
+  background:var(--theme-page)!important;
   color:var(--text)!important;
   border-color:var(--line-strong)!important;
 }
 
-html[data-theme] .glass-card,
-html[data-theme] .feature-card,
-html[data-theme] .ranking-panel,
-html[data-theme] .more-card,
-html[data-theme] .gallery-card,
-html[data-theme] .member-card,
-html[data-theme] .concept-card,
-html[data-theme] .rail-card,
-html[data-theme] .modal-card,
-html[data-theme] .page-hero,
-html[data-theme] .concert-card,
-html[data-theme] .home-media,
-html[data-theme] .home-member-carousel,
-html[data-theme] .ranking-detail-modal-card{
-  background:var(--panel)!important;
+html[data-theme] .brand-copy strong{
+  color:var(--gold)!important;
+}
+html[data-theme="fresh"] .brand-copy strong{
+  color:#111!important;
+}
+
+html[data-theme] .desktop-rail,
+html[data-theme] .rail-card{
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+
+html[data-theme] .rail-links button,
+html[data-theme] .rail-action{
+  color:var(--gold)!important;
+  border-color:var(--line)!important;
+}
+
+/* =========================================================
+   CARD / SUPERFICI
+   ========================================================= */
+html[data-theme] :where(
+  .glass-card,
+  .feature-card,
+  .ranking-panel,
+  .more-card,
+  .gallery-card,
+  .concept-card,
+  .concert-card,
+  .repertoire-card,
+  .contacts-channel-card,
+  .booking-card,
+  .home-dash-card,
+  .home-media,
+  .home-member-carousel,
+  .ranking-detail-modal-card,
+  .fan-song-card,
+  .fan-area-toolbar,
+  .private-show-switch,
+  .band-editor-row,
+  .home-fallback-editor,
+  .home-news-crop-panel,
+  .modal-card
+){
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+  box-shadow:none;
+}
+
+html[data-theme] :where(
+  .ranking-row,
+  .concert-row,
+  .mini-rank-row,
+  .fan-catalog-row,
+  .song-row,
+  .session-hero,
+  .ranking-detail-row,
+  .booking-selected-dates>span,
+  .home-news-mini-row
+){
   color:var(--text)!important;
   border-color:var(--line)!important;
 }
 
 html[data-theme] .ranking-row,
 html[data-theme] .concert-row,
-html[data-theme] .fan-catalog-row,
-html[data-theme] .song-row,
-html[data-theme] .session-hero,
+html[data-theme] .fan-song-advanced,
 html[data-theme] .private-show-switch,
-html[data-theme] .band-editor-row,
-html[data-theme] .ranking-detail-row{
+html[data-theme] .band-editor-row{
   background:var(--row)!important;
-  color:var(--text)!important;
-  border-color:var(--line)!important;
 }
 
 html[data-theme] .ranking-row:hover,
 html[data-theme] .ranking-row:focus-visible,
-html[data-theme] .concert-row:hover{
+html[data-theme] .concert-row:hover,
+html[data-theme] .repertoire-card:hover,
+html[data-theme] .home-dash-card:hover,
+html[data-theme] .home-dash-card:focus-visible{
   background:var(--row-hover)!important;
 }
 
-html[data-theme] .section-kicker,
-html[data-theme] .rail-kicker,
-html[data-theme] .ranking-score,
-html[data-theme] .member-period,
-html[data-theme] .mobile-widget-kicker,
-html[data-theme] .home-inline-crop-status{
+html[data-theme] .feature-card,
+html[data-theme] .concert-card,
+html[data-theme] .member-card{
+  box-shadow:4px 4px 0 var(--theme-shadow)!important;
+}
+
+/* =========================================================
+   TITOLI / TESTI / ACCENTI
+   ========================================================= */
+html[data-theme] :where(
+  .section-kicker,
+  .rail-kicker,
+  .ranking-score,
+  .member-period,
+  .home-dash-arrow,
+  .home-news-mini-row span,
+  .home-inline-crop-status,
+  .repertoire-hero .section-kicker,
+  .contacts-hero .section-kicker
+){
   color:var(--gold)!important;
 }
 
-html[data-theme] .muted-inline,
-html[data-theme] .ranking-meta,
-html[data-theme] .member-description,
-html[data-theme] .home-inline-crop-help,
-html[data-theme] .private-show-switch span,
-html[data-theme] .ranking-detail-score span,
-html[data-theme] .ranking-detail-row span{
+html[data-theme] :where(
+  .muted-inline,
+  .ranking-meta,
+  .member-description,
+  .home-inline-crop-help,
+  .private-show-switch span,
+  .ranking-detail-score span,
+  .ranking-detail-row span,
+  .booking-help,
+  .booking-submit-row #bookingStatus,
+  .home-news-mini-row small,
+  .card-loading,
+  .empty-state
+){
   color:var(--muted)!important;
+}
+
+html[data-theme] .page-hero,
+html[data-theme] .compact-hero,
+html[data-theme] .repertoire-hero,
+html[data-theme] .contacts-hero,
+html[data-theme] .band-hero{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+}
+
+html[data-theme] .page-hero h2,
+html[data-theme] .repertoire-hero h2,
+html[data-theme] .contacts-hero h2,
+html[data-theme] .band-hero h2{
+  color:var(--gold)!important;
+}
+html[data-theme="fresh"] .page-hero h2,
+html[data-theme="fresh"] .repertoire-hero h2,
+html[data-theme="fresh"] .contacts-hero h2,
+html[data-theme="fresh"] .band-hero h2{
+  color:#111!important;
+}
+
+html[data-theme] .page-hero-ornament{
+  color:transparent!important;
+  -webkit-text-stroke-color:var(--line)!important;
+}
+html[data-theme="west-ham"] .page-hero-ornament{
+  -webkit-text-stroke-color:#2BABE5!important;
+}
+
+/* =========================================================
+   NAVIGAZIONE / PULSANTI
+   ========================================================= */
+html[data-theme] .nav-item{
+  color:var(--text)!important;
+}
+html[data-theme="dark"] .nav-item.active{
+  background:#EEE52B!important;
+  color:#111!important;
+}
+html[data-theme="fresh"] .nav-item.active{
+  background:#111!important;
+  color:#EEE52B!important;
+}
+html[data-theme="west-ham"] .nav-item.active{
+  background:#2BABE5!important;
+  color:#FEFFFF!important;
+}
+html[data-theme="dark"] .nav-item:hover,
+html[data-theme="fresh"] .nav-item:hover{
+  background:#EEE52B!important;
+  color:#111!important;
+}
+html[data-theme="west-ham"] .nav-item:hover{
+  background:#FDB742!important;
+  color:#3b1520!important;
 }
 
 html[data-theme] .btn-primary,
@@ -157,42 +325,420 @@ html[data-theme] .modal-head{
   border-color:var(--line-strong)!important;
 }
 
-html[data-theme] .btn-ghost,
-html[data-theme] .text-button,
-html[data-theme] .rail-action,
-html[data-theme] .highlights-controls button,
-html[data-theme] #posterViewer button{
-  background:var(--panel-solid)!important;
+html[data-theme] :where(
+  .btn-ghost,
+  .text-button,
+  .rail-action,
+  .member-carousel-nav,
+  .concert-poster-nav,
+  .booking-calendar-head button,
+  .highlights-controls button,
+  #posterViewer button
+){
+  background:var(--theme-panel-2)!important;
   color:var(--text)!important;
   border-color:var(--line)!important;
 }
 
-html[data-theme] .nav-item{
-  color:var(--text)!important;
-}
-
-html[data-theme="dark"] .nav-item:hover,
-html[data-theme="fresh"] .nav-item:hover{
-  background:var(--gold)!important;
+html[data-theme="fresh"] .btn-ghost,
+html[data-theme="fresh"] .text-button{
   color:#111!important;
 }
 
-html[data-theme="dark"] .nav-item.active,
-html[data-theme="fresh"] .nav-item.active{
-  background:#191919!important;
-  color:#EEE52B!important;
+html[data-theme] .modal-close{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
 }
 
-html[data-theme="west-ham"] .nav-item:hover{
-  background:#FDB742!important;
-  color:#3a1520!important;
+/* =========================================================
+   HOME HERO — mantiene la foto, ma l'edizione cambia davvero
+   ========================================================= */
+html[data-theme] #homePage>.home-hero-news{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+  box-shadow:4px 4px 0 var(--theme-shadow)!important;
 }
 
-html[data-theme="west-ham"] .nav-item.active{
+html[data-theme] #homePage>.home-hero-news>.hero-copy{
+  color:var(--text)!important;
+}
+
+html[data-theme] #homePage>.home-hero-news>.hero-copy h1,
+html[data-theme] #homePage>.home-hero-news>.hero-copy .hero-lead{
+  color:var(--text)!important;
+}
+
+html[data-theme] #homePage>.home-hero-news>.hero-copy h1 span{
+  color:var(--gold)!important;
+}
+html[data-theme="fresh"] #homePage>.home-hero-news>.hero-copy h1 span{
+  color:#111!important;
+}
+html[data-theme="fresh"] #homePage>.home-hero-news>.hero-copy .title-molesti{
+  background:#EEE52B!important;
+  color:#111!important;
+}
+
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-slide::before{
+  background:var(--theme-photo-wash)!important;
+}
+
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlights-heading h2,
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-copy .section-kicker{
+  color:var(--gold)!important;
+}
+
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-copy{
+  color:#fff!important;
+}
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-copy h3,
+html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-copy p{
+  color:#fff!important;
+}
+
+html[data-theme] .mobile-hero-next-strip{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--gold)!important;
+}
+html[data-theme] .mobile-hero-next-strip-tag{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+}
+
+/* =========================================================
+   HOME DASHBOARD / WIDGET
+   ========================================================= */
+html[data-theme] .home-dashboard-heading h2,
+html[data-theme] .home-dashboard-heading p{
+  color:var(--text)!important;
+}
+
+html[data-theme] .home-dash-card{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+
+html[data-theme] .home-dash-merch{
+  background:
+    radial-gradient(circle at 86% 15%,var(--theme-soft-accent),transparent 36%),
+    var(--theme-panel)!important;
+}
+html[data-theme] .home-dash-contacts{
+  background:linear-gradient(145deg,var(--theme-panel),var(--theme-panel-3))!important;
+}
+
+html[data-theme] .home-dash-live{
+  color:#fff!important;
+  border-color:var(--line)!important;
+  background-image:linear-gradient(0deg,rgba(0,0,0,.80),rgba(0,0,0,.20)),var(--dash-bg)!important;
+}
+html[data-theme] .home-dash-live-copy,
+html[data-theme] .home-dash-live-copy h3,
+html[data-theme] .home-dash-live-copy p,
+html[data-theme] .home-dash-live-copy .text-button{
+  color:#fff!important;
+}
+
+html[data-theme] .mini-rank-row{
+  border-color:var(--line)!important;
+}
+html[data-theme] .mini-rank-row strong{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+}
+
+html[data-theme] .home-news-mini-row{
+  background:transparent!important;
+  border-color:var(--line)!important;
+}
+
+/* Widget home mobile */
+html[data-theme] .mobile-widget{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+  box-shadow:3px 3px 0 var(--theme-shadow)!important;
+}
+html[data-theme] .mobile-widget-dates,
+html[data-theme] .mobile-widget-social,
+html[data-theme] .mobile-widget-fans{
+  background:var(--theme-panel)!important;
+}
+html[data-theme] .mobile-widget-vote{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+  border-color:var(--gold)!important;
+  box-shadow:4px 4px 0 var(--theme-shadow)!important;
+}
+html[data-theme] .mobile-widget-vote .mobile-widget-kicker{
+  color:var(--theme-on-accent)!important;
+}
+html[data-theme] .mobile-social-icon,
+html[data-theme] .mobile-fan-leader,
+html[data-theme] .mobile-song-tile{
+  background:var(--theme-panel-2)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .mobile-social-booking{
+  color:var(--text)!important;
+}
+html[data-theme] .mobile-date-item,
+html[data-theme] .mobile-fan-runner{
+  border-color:var(--line)!important;
+}
+
+/* =========================================================
+   CLASSIFICHE
+   ========================================================= */
+html[data-theme] .ranking-panel{
+  background:var(--theme-panel)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .ranking-panel .panel-heading{
+  background:var(--theme-panel-2)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .ranking-panel:nth-child(2) .panel-heading{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+}
+html[data-theme] .ranking-panel:nth-child(3) .panel-heading{
+  background:var(--theme-panel-3)!important;
+  color:var(--text)!important;
+}
+html[data-theme] .ranking-panel:nth-child(4) .panel-heading{
+  background:var(--theme-accent-2)!important;
+  color:var(--text)!important;
+}
+html[data-theme="fresh"] .ranking-panel:nth-child(4) .panel-heading{
+  background:#111!important;
+  color:#fff!important;
+}
+html[data-theme="west-ham"] .ranking-panel:nth-child(4) .panel-heading{
   background:#2BABE5!important;
   color:#FEFFFF!important;
 }
+html[data-theme] .ranking-row.self{
+  background:var(--theme-soft-accent)!important;
+}
 
+/* =========================================================
+   LIVE / CONCERTI
+   ========================================================= */
+html[data-theme] .concert-card{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .concert-card:hover{
+  background:var(--row-hover)!important;
+}
+html[data-theme] .concert-date-block{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+  border-color:var(--line-strong)!important;
+}
+html[data-theme] .concert-poster-stage,
+html[data-theme] .concert-poster-frame,
+html[data-theme] .ranking-detail-media{
+  background:var(--theme-panel-3)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .concert-poster-dot{
+  background:var(--muted-2)!important;
+}
+html[data-theme] .concert-poster-dot.active{
+  background:var(--gold)!important;
+  box-shadow:0 0 0 2px var(--theme-panel)!important;
+}
+
+/* =========================================================
+   BAND / BACKSTAGE
+   ========================================================= */
+html[data-theme] .member-card{
+  background:var(--theme-panel-2)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .member-card:nth-child(even){
+  background:var(--theme-panel-3)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .member-avatar{
+  color:var(--gold)!important;
+}
+html[data-theme="fresh"] .member-card{
+  background:#fff!important;
+  color:#111!important;
+}
+html[data-theme="fresh"] .member-card:nth-child(even){
+  background:#EEE52B!important;
+  color:#111!important;
+}
+html[data-theme="west-ham"] .member-card{
+  background:#FDB742!important;
+  color:#3b1520!important;
+  border-color:#FEFFFF!important;
+}
+html[data-theme="west-ham"] .member-card:nth-child(even){
+  background:#2BABE5!important;
+  color:#FEFFFF!important;
+  border-color:#FDB742!important;
+}
+html[data-theme="west-ham"] .member-card .member-avatar{
+  color:inherit!important;
+}
+
+html[data-theme] .management-card{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+}
+html[data-theme="west-ham"] .management-card{
+  background:#2BABE5!important;
+  color:#FEFFFF!important;
+}
+html[data-theme] .merch-stamp{
+  background:var(--theme-accent-2)!important;
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+}
+html[data-theme="fresh"] .merch-stamp{
+  background:#EEE52B!important;
+  color:#111!important;
+}
+html[data-theme="west-ham"] .merch-stamp{
+  background:#FDB742!important;
+  color:#3b1520!important;
+  border-color:#2BABE5!important;
+}
+
+html[data-theme] .gallery-item,
+html[data-theme] .media-tile{
+  background:var(--theme-panel-3)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .gallery-item span{
+  background:var(--theme-footer)!important;
+  color:#fff!important;
+}
+
+/* =========================================================
+   REPERTORIO
+   ========================================================= */
+html[data-theme] .repertoire-card{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .repertoire-card:hover{
+  background:var(--row-hover)!important;
+}
+html[data-theme] .repertoire-cover,
+html[data-theme] .repertoire-audio,
+html[data-theme] .repertoire-audio-missing{
+  background:var(--theme-panel-3)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme] .repertoire-stream-link{
+  color:var(--gold)!important;
+  border-color:var(--gold)!important;
+}
+
+/* =========================================================
+   CONTATTI / BOOKING
+   ========================================================= */
+html[data-theme] .booking-calendar{
+  background:var(--theme-panel-2)!important;
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+}
+html[data-theme="fresh"] .booking-calendar{
+  background:#efede4!important;
+  color:#111!important;
+}
+html[data-theme="west-ham"] .booking-calendar{
+  background:#FEFFFF!important;
+  color:#3b1520!important;
+  border-color:#FDB742!important;
+}
+
+html[data-theme] .booking-calendar-head button,
+html[data-theme] .booking-day{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line)!important;
+}
+html[data-theme="fresh"] .booking-calendar-head button,
+html[data-theme="fresh"] .booking-day{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#111!important;
+}
+html[data-theme="west-ham"] .booking-calendar-head button,
+html[data-theme="west-ham"] .booking-day{
+  background:#FEFFFF!important;
+  color:#3b1520!important;
+  border-color:#7C2C3B!important;
+}
+html[data-theme] .booking-day:hover:not(:disabled){
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+}
+html[data-theme] .booking-day.selected{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
+  border-color:var(--line-strong)!important;
+}
+html[data-theme="west-ham"] .booking-day.selected{
+  background:#2BABE5!important;
+  color:#FEFFFF!important;
+  border-color:#FDB742!important;
+}
+html[data-theme] .booking-day.busy{
+  background:var(--theme-panel-3)!important;
+  color:var(--muted)!important;
+}
+html[data-theme] .booking-selected-dates>span{
+  background:var(--theme-panel-2)!important;
+  color:var(--text)!important;
+}
+html[data-theme] .booking-form input,
+html[data-theme] .booking-form select,
+html[data-theme] .booking-form textarea{
+  background:var(--theme-input)!important;
+  color:var(--theme-input-text)!important;
+  border-color:var(--line-strong)!important;
+}
+
+/* =========================================================
+   MODAL / LOGIN / FORM
+   ========================================================= */
+html[data-theme] .modal-backdrop{
+  background:rgba(0,0,0,.72)!important;
+}
+html[data-theme] .modal-card{
+  background:var(--theme-panel)!important;
+  color:var(--text)!important;
+  border-color:var(--line-strong)!important;
+  box-shadow:9px 9px 0 var(--theme-shadow)!important;
+}
+html[data-theme] .login-switch{
+  border-color:var(--line-strong)!important;
+}
+html[data-theme] .login-switch button{
+  color:var(--text)!important;
+}
+html[data-theme] .login-switch button.active{
+  background:var(--theme-accent)!important;
+  color:var(--theme-accent-ink)!important;
+}
 html[data-theme] input,
 html[data-theme] select,
 html[data-theme] textarea,
@@ -204,114 +750,38 @@ html[data-theme] .advanced-field select{
   color:var(--theme-input-text)!important;
   border-color:var(--line-strong)!important;
 }
-
-html[data-theme] .login-switch{
+html[data-theme] .fan-song-toggle{
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
   border-color:var(--line-strong)!important;
 }
-
-html[data-theme] .login-switch button{
-  color:var(--text)!important;
+html[data-theme] .live-feedback-actions{
+  background:var(--theme-panel)!important;
 }
-
-html[data-theme] .login-switch button.active{
-  background:var(--theme-accent-2)!important;
-  color:var(--theme-accent-ink)!important;
-}
-
-html[data-theme="west-ham"] .login-switch button.active{
-  color:#FEFFFF!important;
-}
-
-html[data-theme] .modal-backdrop{
-  background:rgba(0,0,0,.72)!important;
-}
-
-html[data-theme] .modal-card{
-  box-shadow:9px 9px 0 var(--theme-shadow)!important;
-}
-
-html[data-theme] .modal-close{
-  background:var(--panel-solid)!important;
-  color:var(--text)!important;
-  border-color:var(--line-strong)!important;
-}
-
-html[data-theme] .site-footer{
+html[data-theme] .toast{
   background:var(--theme-footer)!important;
-  color:#FEFFFF!important;
-  border-color:var(--theme-accent)!important;
-}
-
-html[data-theme] .site-footer a{
-  color:#FEFFFF!important;
-}
-
-html[data-theme] .highlights,
-html[data-theme] .highlight-track{
-  color:var(--text)!important;
-}
-
-html[data-theme] .highlight-slide{
+  color:#fff!important;
   border-color:var(--gold)!important;
-}
-
-html[data-theme] .mobile-widget{
-  background:var(--panel)!important;
-  color:var(--text)!important;
-  border-color:var(--line)!important;
-  box-shadow:3px 3px 0 var(--theme-shadow)!important;
-}
-
-html[data-theme] .mobile-widget-dates,
-html[data-theme] .mobile-widget-social,
-html[data-theme] .mobile-widget-fans{
-  background:var(--panel)!important;
-}
-
-html[data-theme] .mobile-widget-vote{
-  background:var(--theme-accent)!important;
-  color:var(--theme-accent-ink)!important;
-  border-color:var(--theme-accent)!important;
   box-shadow:4px 4px 0 var(--theme-shadow)!important;
 }
 
-html[data-theme] .mobile-widget-vote .mobile-widget-kicker{
-  color:var(--theme-accent-ink)!important;
+/* =========================================================
+   FOOTER
+   ========================================================= */
+html[data-theme] .site-footer{
+  background:var(--theme-footer)!important;
+  color:#FEFFFF!important;
+  border-color:var(--gold)!important;
 }
-
-html[data-theme] .mobile-social-icon,
-html[data-theme] .mobile-fan-leader,
-html[data-theme] .mobile-song-tile{
-  background:var(--row)!important;
-  color:var(--text)!important;
-  border-color:var(--line)!important;
-}
-
-html[data-theme] .mobile-social-booking{
-  color:var(--text)!important;
-}
-
-html[data-theme="fresh"] .mobile-song-tile b,
-html[data-theme="fresh"] .highlight-copy{
-  color:#fff!important;
-}
-
-html[data-theme="west-ham"] .page-hero-ornament{
-  color:#2BABE5!important;
-}
-
-html[data-theme="west-ham"] .management-card{
-  background:#2BABE5!important;
+html[data-theme] .site-footer a,
+html[data-theme] .site-footer span{
   color:#FEFFFF!important;
 }
 
-html[data-theme="fresh"] .management-card,
-html[data-theme="dark"] .management-card{
-  background:#EEE52B!important;
-  color:#111!important;
-}
-
-/* Selettore tema nell'header — una sola bandierina, stile fanzine */
+/* =========================================================
+   SELETTORE PALETTE — i tre pulsanti sono la palette stessa.
+   Nessun elemento figlio dipende dal tema corrente.
+   ========================================================= */
 .theme-switcher{
   position:relative;
   flex:0 0 auto;
@@ -326,19 +796,17 @@ html[data-theme="dark"] .management-card{
   padding:0;
   border:0;
   border-bottom:3px solid var(--gold);
-  background:transparent;
-  color:var(--text);
+  background:transparent!important;
+  color:var(--text)!important;
   transform:rotate(-2deg);
   transition:transform .12s ease,background .12s ease,color .12s ease;
 }
-
 .theme-trigger:hover,
 .theme-trigger[aria-expanded="true"]{
-  background:var(--gold);
-  color:#111;
+  background:var(--gold)!important;
+  color:var(--theme-on-accent)!important;
   transform:rotate(1deg);
 }
-
 .theme-flag-icon{
   width:24px;
   height:24px;
@@ -360,238 +828,109 @@ html[data-theme="dark"] .management-card{
   width:auto;
   padding:8px;
   border:2px solid var(--line-strong);
-  background:var(--panel-solid);
+  background:var(--theme-panel)!important;
   box-shadow:5px 5px 0 var(--theme-shadow);
 }
+.theme-menu[hidden]{display:none!important}
 
-.theme-menu button{
+/* IMPORTANTE: il colore sta direttamente sul button, non sullo span. */
+#themeMenu button[data-theme-pick]{
   position:relative;
   width:48px;
   height:36px;
-  display:grid;
-  place-items:center;
+  min-width:48px;
+  min-height:36px;
   flex:0 0 48px;
-  padding:0;
-  border:2px solid var(--line-strong);
-  background:transparent;
-  color:var(--text);
+  padding:0!important;
+  border:2px solid currentColor!important;
+  color:#111!important;
+  box-shadow:none!important;
   transform:rotate(-1deg);
+  overflow:hidden;
 }
-
-.theme-menu button:nth-child(2){transform:rotate(1deg)}
-.theme-menu button:nth-child(3){transform:rotate(-.5deg)}
-
-.theme-menu button:hover{
-  transform:translateY(-2px) rotate(0deg);
+#themeMenu button[data-theme-pick="dark"]{
+  background:#0d0d0d!important;
+  border-color:#f2eee3!important;
 }
-
-.theme-menu button[aria-checked="true"]{
-  outline:3px solid var(--gold);
+#themeMenu button[data-theme-pick="fresh"]{
+  background:#ffffff!important;
+  border-color:#111111!important;
+}
+#themeMenu button[data-theme-pick="west-ham"]{
+  background:linear-gradient(90deg,#7C2C3B 0 50%,#2BABE5 50% 75%,#FDB742 75% 100%)!important;
+  border-color:#FEFFFF!important;
+}
+#themeMenu button[data-theme-pick]:nth-child(2){transform:rotate(1deg)}
+#themeMenu button[data-theme-pick]:nth-child(3){transform:rotate(-.5deg)}
+#themeMenu button[data-theme-pick]:hover{transform:translateY(-2px) rotate(0deg)}
+#themeMenu button[data-theme-pick][aria-checked="true"]{
+  outline:3px solid var(--gold)!important;
   outline-offset:2px;
 }
-
-.theme-menu button[aria-checked="true"]::after{
+#themeMenu button[data-theme-pick][aria-checked="true"]::after{
   content:"";
   position:absolute;
-  right:-5px;
-  bottom:-5px;
-  width:10px;
-  height:10px;
-  background:var(--gold);
-  border:2px solid var(--panel-solid);
+  right:3px;
+  bottom:3px;
+  width:8px;
+  height:8px;
+  background:var(--gold)!important;
+  border:1px solid #111;
 }
+.theme-menu-swatch{display:none!important}
 
-.theme-menu-swatch{
-  display:block;
-  width:100%;
-  height:100%;
-}
-
-.theme-menu-swatch.dark{
-  background:#0d0d0d;
-}
-
-.theme-menu-swatch.fresh{
-  background:#fff;
-}
-
-.theme-menu-swatch.west-ham{
-  background:linear-gradient(90deg,#7C2C3B 0 52%,#2BABE5 52% 76%,#FDB742 76% 100%);
-}
-
-/* Primo accesso / nuovo dispositivo */
-.theme-welcome-card{
-  width:min(760px,100%)!important;
-}
-
-.theme-welcome-intro{
-  margin:0 0 18px;
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.45;
-}
-
-.theme-welcome-form{
-  display:grid;
-  gap:18px;
-}
-
-.theme-welcome-name{
-  display:grid;
-  gap:7px;
-  font-weight:900;
-}
-
-.theme-welcome-name span{
-  font:900 11px/1 "Courier New",monospace;
-  letter-spacing:.06em;
-}
-
-.theme-welcome-name input{
-  min-height:48px;
-  padding:11px 12px;
-  font-size:17px;
-}
-
-.theme-choice-title{
-  margin:0 0 9px;
-  font:900 11px/1 "Courier New",monospace;
-  letter-spacing:.06em;
-}
-
-.theme-choice-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:10px;
-}
-
-.theme-choice-grid input{
-  position:absolute;
-  opacity:0;
-  pointer-events:none;
-}
-
-.theme-choice{
-  min-width:0;
-  min-height:138px;
-  display:grid;
-  align-content:space-between;
-  gap:10px;
-  padding:12px;
-  border:3px solid transparent;
-  cursor:pointer;
-  transform:rotate(-.4deg);
-}
-
+/* =========================================================
+   PRIMO ACCESSO
+   ========================================================= */
+.theme-welcome-card{width:min(760px,100%)!important}
+.theme-welcome-intro{margin:0 0 18px;color:var(--muted)!important;font-size:13px;line-height:1.45}
+.theme-welcome-form{display:grid;gap:18px}
+.theme-welcome-name{display:grid;gap:7px;font-weight:900}
+.theme-welcome-name span{font:900 11px/1 "Courier New",monospace;letter-spacing:.06em}
+.theme-welcome-name input{min-height:48px;padding:11px 12px;font-size:17px}
+.theme-choice-title{margin:0 0 9px;font:900 11px/1 "Courier New",monospace;letter-spacing:.06em}
+.theme-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.theme-choice-grid input{position:absolute;opacity:0;pointer-events:none}
+.theme-choice{min-width:0;min-height:138px;display:grid;align-content:space-between;gap:10px;padding:12px;border:3px solid transparent;cursor:pointer;transform:rotate(-.4deg)}
 .theme-choice:nth-of-type(2){transform:rotate(.35deg)}
 .theme-choice:nth-of-type(3){transform:rotate(-.15deg)}
-
-.theme-choice strong{
-  display:block;
-  font:900 23px/.95 Impact,"Arial Narrow",sans-serif;
-  text-transform:uppercase;
-}
-
-.theme-choice small{
-  display:block;
-  margin-top:5px;
-  font-size:10px;
-  line-height:1.3;
-  font-weight:700;
-}
-
-.theme-choice-preview{
-  height:42px;
-  border:2px solid currentColor;
-}
-
-.theme-choice.dark{
-  background:#111;
-  color:#f4f1e8;
-}
-.theme-choice.dark .theme-choice-preview{
-  background:linear-gradient(90deg,#111 0 68%,#EEE52B 68%);
-}
-
-.theme-choice.fresh{
-  background:#fff;
-  color:#111;
-}
-.theme-choice.fresh .theme-choice-preview{
-  background:linear-gradient(90deg,#fff 0 55%,#111 55% 75%,#EEE52B 75%);
-}
-
-.theme-choice.west-ham{
-  background:#7C2C3B;
-  color:#FEFFFF;
-}
-.theme-choice.west-ham .theme-choice-preview{
-  background:linear-gradient(90deg,#7C2C3B 0 55%,#2BABE5 55% 76%,#FDB742 76%);
-}
-
+.theme-choice strong{display:block;font:900 23px/.95 Impact,"Arial Narrow",sans-serif;text-transform:uppercase}
+.theme-choice small{display:block;margin-top:5px;font-size:10px;line-height:1.3;font-weight:700}
+.theme-choice-preview{height:42px;border:2px solid currentColor}
+.theme-choice.dark{background:#111!important;color:#f4f1e8!important}
+.theme-choice.dark .theme-choice-preview{background:linear-gradient(90deg,#111 0 68%,#EEE52B 68%)!important}
+.theme-choice.fresh{background:#fff!important;color:#111!important}
+.theme-choice.fresh .theme-choice-preview{background:linear-gradient(90deg,#fff 0 55%,#111 55% 75%,#EEE52B 75%)!important}
+.theme-choice.west-ham{background:#7C2C3B!important;color:#FEFFFF!important}
+.theme-choice.west-ham .theme-choice-preview{background:linear-gradient(90deg,#7C2C3B 0 55%,#2BABE5 55% 76%,#FDB742 76%)!important}
 #themeChoiceDark:checked + label,
 #themeChoiceFresh:checked + label,
-#themeChoiceWestHam:checked + label{
-  border-color:var(--gold);
-  box-shadow:4px 4px 0 var(--theme-shadow);
-}
+#themeChoiceWestHam:checked + label{border-color:var(--gold)!important;box-shadow:4px 4px 0 var(--theme-shadow)!important}
+.theme-welcome-submit{min-height:48px}
+.theme-welcome-message{min-height:18px;margin-top:-7px;color:var(--muted)!important;font-size:11px;font-weight:800}
+.theme-welcome-message.error{color:#ff7770!important}
 
-.theme-welcome-submit{
-  min-height:48px;
-}
-
-.theme-welcome-message{
-  min-height:18px;
-  margin-top:-7px;
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-}
-
-.theme-welcome-message.error{
-  color:#ff7770;
-}
-
+/* =========================================================
+   MOBILE
+   ========================================================= */
 @media(max-width:760px){
-  .site-header{
-    gap:8px!important;
+  html[data-theme] .main-nav{
+    background:var(--theme-page)!important;
+    border-color:var(--line-strong)!important;
   }
-  .theme-switcher{
-    margin-left:auto;
+  html[data-theme] #homePage>.home-hero-news{
+    background:var(--theme-panel)!important;
+    border-color:var(--line)!important;
   }
-  .theme-trigger{
-    width:34px;
-    height:34px;
-    min-height:34px;
+  html[data-theme] #homePage>.home-hero-news>.home-hero-highlights .highlight-slide::before{
+    background:var(--theme-photo-wash)!important;
   }
-  .theme-flag-icon{
-    width:21px;
-    height:21px;
-  }
-  .theme-menu{
-    right:-6px;
-    width:auto;
-    padding:7px;
-    gap:6px;
-  }
-  .theme-menu button{
-    width:44px;
-    height:33px;
-    flex-basis:44px;
-  }
-  .theme-choice-grid{
-    grid-template-columns:1fr;
-    gap:8px;
-  }
-  .theme-choice{
-    min-height:96px;
-    grid-template-columns:minmax(0,1fr) 88px;
-    align-items:center;
-  }
-  .theme-choice-preview{
-    height:54px;
-  }
-  .theme-welcome-card .modal-body{
-    padding:16px!important;
-  }
+  .theme-trigger{width:34px;height:34px;min-height:34px}
+  .theme-flag-icon{width:21px;height:21px}
+  .theme-menu{right:-4px;gap:6px;padding:7px}
+  #themeMenu button[data-theme-pick]{width:44px;height:34px;min-width:44px;min-height:34px;flex-basis:44px}
+  .theme-choice-grid{grid-template-columns:1fr;gap:8px}
+  .theme-choice{min-height:96px;grid-template-columns:minmax(0,1fr) 88px;align-items:center}
+  .theme-choice-preview{height:54px}
+  .theme-welcome-card .modal-body{padding:16px!important}
 }
