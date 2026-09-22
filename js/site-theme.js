@@ -39,9 +39,6 @@
   }
 
   function updateThemeControls(theme) {
-    const label = $('themeTriggerLabel');
-    if (label) label.textContent = LABELS[theme] || LABELS.dark;
-
     document.querySelectorAll('[data-theme-pick]').forEach(button => {
       button.setAttribute('aria-checked', String(button.dataset.themePick === theme));
     });
@@ -421,9 +418,13 @@
         try {
           await persistTheme(theme);
         } catch (error) {
-          /* Il dispositivo resta comunque aggiornato; il profilo verrà
-             risincronizzato alla prossima sessione valida. */
+          /* Il dispositivo conserva comunque la palette scelta. */
           console.warn('Tema salvato solo sul dispositivo', error);
+        } finally {
+          /* Il cambio tema è intenzionalmente un cambio di "edizione":
+             si ricarica tutto il sito e la nuova palette viene applicata
+             prima del rendering, evitando un'interfaccia metà vecchia/metà nuova. */
+          location.reload();
         }
       });
     });
