@@ -272,6 +272,50 @@
       .demo-request-song input{width:14px!important;height:14px;padding:0!important}
       .demo-request-result{padding:8px;border:1px solid #655f2b;background:#27230e;color:#f3d234;font:800 11px/1.35 monospace;word-break:break-word}
 
+      .jm-global-player[hidden]{display:none!important}
+      .jm-global-player{
+        position:fixed;left:0;right:0;bottom:0;z-index:99990;
+        display:grid;grid-template-columns:minmax(220px,1fr) minmax(360px,2fr) minmax(120px,.7fr);
+        align-items:center;gap:18px;min-height:82px;padding:10px 18px;
+        border-top:1px solid #4e4b43;background:rgba(10,10,10,.97);backdrop-filter:blur(16px);
+        box-shadow:0 -10px 28px rgba(0,0,0,.5);color:#fff
+      }
+      body.has-jm-global-player{padding-bottom:94px}
+      .jm-global-player-song{display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:10px;min-width:0}
+      .jm-global-player-cover{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border:1px solid #4e4b43;background:#171717;color:var(--gold);font:900 15px/1 Impact,Arial,sans-serif}
+      .jm-global-player-cover img{width:100%;height:100%;object-fit:cover;display:block}
+      .jm-global-player-copy{display:grid;gap:4px;min-width:0}
+      .jm-global-player-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:900 13px/1.1 Arial,sans-serif}
+      .jm-global-player-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font:700 9px/1.2 monospace}
+      .jm-global-player-main{display:grid;gap:7px;min-width:0}
+      .jm-global-player-controls{display:flex;align-items:center;justify-content:center;gap:10px}
+      .jm-player-icon,.jm-player-play,.jm-player-close{border:0;background:transparent;color:#fff;cursor:pointer}
+      .jm-player-icon{width:34px;height:34px;font-size:18px;opacity:.82}
+      .jm-player-icon:hover,.jm-player-icon.active{color:var(--gold);opacity:1}
+      .jm-player-icon:disabled{opacity:.25;cursor:default}
+      .jm-player-play{width:40px;height:40px;display:grid;place-items:center;border:1px solid #6f6a5f;border-radius:50%;background:#fff;color:#111;font:900 15px/1 Arial,sans-serif}
+      .jm-global-player-progress{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px;color:var(--muted);font:800 8px/1 monospace}
+      .jm-global-player-progress input[type="range"]{width:100%;accent-color:var(--gold);cursor:pointer}
+      .jm-global-player-side{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+      .jm-global-player-side>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gold);font:800 8px/1.2 monospace}
+      .jm-player-close{width:30px;height:30px;font-size:24px;color:var(--muted)}
+      .jm-player-close:hover{color:#fff}
+      @media(max-width:760px){
+        .jm-global-player{
+          grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"song side" "main main";
+          gap:7px 10px;min-height:112px;padding:8px 10px
+        }
+        body.has-jm-global-player{padding-bottom:124px}
+        .jm-global-player-song{grid-area:song;grid-template-columns:42px minmax(0,1fr)}
+        .jm-global-player-cover{width:42px;height:42px}
+        .jm-global-player-main{grid-area:main;gap:4px}
+        .jm-global-player-side{grid-area:side}
+        .jm-global-player-side>span{display:none}
+        .jm-global-player-controls{gap:7px}
+        .jm-player-icon{width:30px;height:30px;font-size:16px}
+        .jm-player-play{width:36px;height:36px}
+      }
+
       .repertoire-toolbar{flex-wrap:wrap}
       .jukebox-launch{margin-left:auto;min-width:170px;flex:0 0 auto}
       @media(max-width:700px){.jukebox-launch{width:100%;margin-left:0}}
@@ -496,6 +540,11 @@
   let repertoireAudio=null;
   let repertoireAudioSongId='';
   let repertoireAudioHost=null;
+  let repertoireAudioData=null;
+  let repertoireAudioSource='songs';
+  let repertoireRequest=0;
+  let playerShuffle=false;
+  let previewCutoffTimer=null;
 
   function formatDemoTime(seconds){
     if(!Number.isFinite(seconds)||seconds<0)return '0:00';
@@ -573,8 +622,225 @@
     audioEl.addEventListener('ended',markPause,{once:true});
   }
 
-  function stopRepertoireAudio({restore=true}={}){
+  function currentSong(){
+    return repertoire.get(String(repertoireAudioSongId||''))||null;
+  }
+
+  function playableSongs(){
+    return [...repertoire.values()]
+      .filter(song=>song?.has_demo&&songAccess(String(song.id)))
+      .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it',{sensitivity:'base'}));
+  }
+
+  function effectiveDuration(audioEl=repertoireAudio,data=repertoireAudioData){
+    if(!audioEl)return 0;
+    const raw=Number.isFinite(audioEl.duration)?audioEl.duration:0;
+    if(data?.access_mode==='preview_30'&&raw>0)return Math.min(30,raw);
+    return raw;
+  }
+
+  function ensureGlobalPlayer(){
+    let player=document.getElementById('jmGlobalAudioPlayer');
+    if(player)return player;
+
+    player=document.createElement('section');
+    player.id='jmGlobalAudioPlayer';
+    player.className='jm-global-player';
+    player.hidden=true;
+    player.setAttribute('aria-label','Player audio');
+    player.innerHTML=`
+      <div class="jm-global-player-song">
+        <div class="jm-global-player-cover" data-global-cover><span>JM</span></div>
+        <div class="jm-global-player-copy">
+          <strong data-global-title>—</strong>
+          <span data-global-artist>JOHN & I MOLESTI</span>
+        </div>
+      </div>
+      <div class="jm-global-player-main">
+        <div class="jm-global-player-controls">
+          <button type="button" class="jm-player-icon" data-global-shuffle aria-label="Riproduzione casuale" title="Riproduzione casuale">⤨</button>
+          <button type="button" class="jm-player-icon" data-global-prev aria-label="Brano precedente" title="Brano precedente">⏮</button>
+          <button type="button" class="jm-player-play" data-global-toggle aria-label="Play/Pausa">▶</button>
+          <button type="button" class="jm-player-icon" data-global-next aria-label="Brano successivo" title="Brano successivo">⏭</button>
+        </div>
+        <div class="jm-global-player-progress">
+          <span data-global-current>0:00</span>
+          <input type="range" min="0" max="1000" step="1" value="0" data-global-seek aria-label="Avanzamento brano">
+          <span data-global-duration>0:00</span>
+        </div>
+      </div>
+      <div class="jm-global-player-side">
+        <span data-global-mode>DEMO</span>
+        <button type="button" class="jm-player-close" data-global-stop aria-label="Chiudi player" title="Chiudi player">×</button>
+      </div>`;
+
+    document.body.appendChild(player);
+
+    player.querySelector('[data-global-toggle]').addEventListener('click',()=>{
+      if(!repertoireAudio)return;
+      if(repertoireAudio.paused)repertoireAudio.play().catch(()=>{});
+      else repertoireAudio.pause();
+    });
+
+    player.querySelector('[data-global-prev]').addEventListener('click',()=>playAdjacent(-1));
+    player.querySelector('[data-global-next]').addEventListener('click',()=>playAdjacent(1));
+    player.querySelector('[data-global-shuffle]').addEventListener('click',()=>{
+      playerShuffle=!playerShuffle;
+      syncGlobalPlayer();
+    });
+    player.querySelector('[data-global-stop]').addEventListener('click',()=>{
+      stopRepertoireAudio({restore:true,hidePlayer:true});
+    });
+
+    const seek=player.querySelector('[data-global-seek]');
+    seek.addEventListener('input',()=>{
+      if(!repertoireAudio)return;
+      const duration=effectiveDuration();
+      if(duration<=0)return;
+      const target=duration*(Number(seek.value)||0)/1000;
+      try{repertoireAudio.currentTime=Math.max(0,Math.min(duration,target))}catch{}
+      syncPlaybackUi();
+    });
+
+    return player;
+  }
+
+  function syncGlobalPlayer(){
+    const player=ensureGlobalPlayer();
+    const audioEl=repertoireAudio;
+    const song=currentSong();
+
+    if(!audioEl||!song){
+      player.hidden=true;
+      document.body.classList.remove('has-jm-global-player');
+      return;
+    }
+
+    player.hidden=false;
+    document.body.classList.add('has-jm-global-player');
+
+    const cover=publicMediaUrl(song.cover_path);
+    const coverHost=player.querySelector('[data-global-cover]');
+    coverHost.innerHTML=cover
+      ? `<img src="${esc(cover)}" alt="" draggable="false">`
+      : '<span>JM</span>';
+
+    player.querySelector('[data-global-title]').textContent=song.title||'Brano';
+    player.querySelector('[data-global-artist]').textContent=
+      [song.base_artist,song.lyrics_artist].filter(Boolean).join(' / ')||'JOHN & I MOLESTI';
+
+    const toggle=player.querySelector('[data-global-toggle]');
+    toggle.textContent=audioEl.paused?'▶':'❚❚';
+    toggle.setAttribute('aria-label',audioEl.paused?'Riproduci':'Pausa');
+
+    const duration=effectiveDuration(audioEl,repertoireAudioData);
+    const current=Math.max(0,Math.min(duration||Infinity,Number.isFinite(audioEl.currentTime)?audioEl.currentTime:0));
+    player.querySelector('[data-global-current]').textContent=formatDemoTime(current);
+    player.querySelector('[data-global-duration]').textContent=duration?formatDemoTime(duration):'--:--';
+
+    const seek=player.querySelector('[data-global-seek]');
+    seek.value=duration>0?String(Math.round(Math.max(0,Math.min(1,current/duration))*1000)):'0';
+
+    player.querySelector('[data-global-mode]').textContent=
+      repertoireAudioData?.access_mode==='preview_30'?'ANTEPRIMA 30S':'BRANO INTERO';
+
+    const songs=playableSongs();
+    const multi=songs.length>1;
+    player.querySelector('[data-global-prev]').disabled=!multi;
+    player.querySelector('[data-global-next]').disabled=!multi;
+
+    const shuffle=player.querySelector('[data-global-shuffle]');
+    shuffle.classList.toggle('active',playerShuffle);
+    shuffle.setAttribute('aria-pressed',playerShuffle?'true':'false');
+  }
+
+  function renderInlinePlayer(host,songId){
+    if(!host||!repertoireAudio||String(songId)!==String(repertoireAudioSongId))return;
+    repertoireAudioHost=host;
+
+    let wrap=host.querySelector('.demo-site-player');
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.className='demo-site-player';
+      wrap.innerHTML=`
+        <div class="demo-site-player-actions">
+          <button class="btn btn-primary" type="button" data-demo-toggle></button>
+          <button class="btn btn-ghost" type="button" data-demo-stop>■ STOP</button>
+        </div>
+        <div class="demo-site-progress" aria-hidden="true"><span></span></div>
+        <div class="demo-site-player-meta">
+          <strong data-demo-mode></strong>
+          <span data-demo-time>0:00 / --:--</span>
+        </div>`;
+      host.replaceChildren(wrap);
+
+      wrap.querySelector('[data-demo-toggle]').onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        if(!repertoireAudio||String(repertoireAudioSongId)!==String(songId))return;
+        if(repertoireAudio.paused)repertoireAudio.play().catch(()=>{});
+        else repertoireAudio.pause();
+      };
+
+      wrap.querySelector('[data-demo-stop]').onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        stopRepertoireAudio({restore:true,hidePlayer:true});
+      };
+    }
+
+    const duration=effectiveDuration();
+    const current=Math.max(0,Math.min(duration||Infinity,Number.isFinite(repertoireAudio.currentTime)?repertoireAudio.currentTime:0));
+    const percent=duration>0?Math.max(0,Math.min(100,current/duration*100)):0;
+    wrap.querySelector('.demo-site-progress>span').style.width=percent+'%';
+    wrap.querySelector('[data-demo-time]').textContent=`${formatDemoTime(current)} / ${duration?formatDemoTime(duration):'--:--'}`;
+    wrap.querySelector('[data-demo-toggle]').textContent=repertoireAudio.paused?'▶ RIPRENDI':'❚❚ PAUSA';
+    wrap.querySelector('[data-demo-mode]').textContent=repertoireAudioData?.access_mode==='preview_30'?'ANTEPRIMA 30S':'BRANO INTERO';
+    host.dataset.demoState='playing';
+  }
+
+  function syncJukeboxPlaybackUi(){
+    if(!document.getElementById('jukeboxOverlay')?.classList.contains('open'))return;
+    document.querySelectorAll('[data-jukebox-song]').forEach(slot=>{
+      const id=String(slot.dataset.jukeboxSong||'');
+      const active=id===String(repertoireAudioSongId)&&repertoireAudio&&!repertoireAudio.paused;
+      slot.classList.toggle('is-playing',!!active);
+      const button=slot.querySelector('.jukebox-push');
+      button?.classList.toggle('is-playing',!!active);
+      button?.classList.remove('is-loading');
+      button?.querySelector('.jukebox-lamp')?.classList.toggle('on',!!active);
+    });
+    const song=currentSong();
+    if(song&&repertoireAudio){
+      setJukeboxNow(`${repertoireAudio.paused?'IN PAUSA':'IN RIPRODUZIONE'} · ${song.title}`);
+    }else{
+      setJukeboxNow('');
+    }
+  }
+
+  function syncPlaybackUi(){
+    syncGlobalPlayer();
+
+    if(repertoireAudio&&repertoireAudioSongId){
+      let host=repertoireAudioHost;
+      if(!host||!document.contains(host)){
+        host=document.querySelector(
+          `#repertoireGrid [data-repertoire-song="${CSS.escape(String(repertoireAudioSongId))}"] .repertoire-player`
+        );
+      }
+      if(host)renderInlinePlayer(host,repertoireAudioSongId);
+    }
+
+    syncJukeboxPlaybackUi();
+  }
+
+  function stopRepertoireAudio({restore=true,hidePlayer=true}={}){
+    repertoireRequest++;
     const host=repertoireAudioHost;
+    if(previewCutoffTimer){
+      clearTimeout(previewCutoffTimer);
+      previewCutoffTimer=null;
+    }
     if(repertoireAudio){
       try{
         repertoireAudio.pause();
@@ -586,7 +852,133 @@
     repertoireAudio=null;
     repertoireAudioSongId='';
     repertoireAudioHost=null;
-    if(restore&&host&&document.contains(host))setTimeout(decorate,0);
+    repertoireAudioData=null;
+    repertoireAudioSource='songs';
+
+    if(hidePlayer){
+      const player=document.getElementById('jmGlobalAudioPlayer');
+      if(player)player.hidden=true;
+      document.body.classList.remove('has-jm-global-player');
+    }
+
+    if(restore&&host&&document.contains(host)){
+      delete host.dataset.demoState;
+      setTimeout(decorate,0);
+    }
+    syncJukeboxPlaybackUi();
+  }
+
+  function schedulePreviewCutoff(){
+    if(previewCutoffTimer){
+      clearTimeout(previewCutoffTimer);
+      previewCutoffTimer=null;
+    }
+    if(!repertoireAudio||repertoireAudioData?.access_mode!=='preview_30'||repertoireAudio.paused)return;
+    const remaining=Math.max(0,30-(Number(repertoireAudio.currentTime)||0));
+    previewCutoffTimer=setTimeout(()=>{
+      if(!repertoireAudio)return;
+      if((Number(repertoireAudio.currentTime)||0)>=29.8){
+        playAdjacent(1,{fromEnded:true});
+      }
+    },remaining*1000+120);
+  }
+
+  async function startTrack(songId,{source='songs',host=null}={}){
+    const id=String(songId);
+    const song=repertoire.get(id);
+    if(!song||!song.has_demo)return;
+
+    if(!songAccess(id)){
+      openUnlockModal(id);
+      return;
+    }
+
+    if(repertoireAudio&&repertoireAudioSongId===id){
+      if(host)repertoireAudioHost=host;
+      if(repertoireAudio.paused)await repertoireAudio.play();
+      syncPlaybackUi();
+      return;
+    }
+
+    const request=++repertoireRequest;
+    const previousHost=repertoireAudioHost;
+    if(repertoireAudio){
+      try{
+        repertoireAudio.pause();
+        repertoireAudio.removeAttribute('src');
+        repertoireAudio.load();
+      }catch{}
+    }
+    repertoireAudio=null;
+    repertoireAudioSongId='';
+    repertoireAudioHost=null;
+    repertoireAudioData=null;
+
+    if(previousHost&&document.contains(previousHost)){
+      delete previousHost.dataset.demoState;
+      setTimeout(decorate,0);
+    }
+
+    const data=await call('audio',{song_id:id,source:source==='jukebox'?'jukebox':'songs'});
+    if(request!==repertoireRequest)return;
+
+    const audioEl=new Audio(data.url);
+    audioEl.preload='metadata';
+    repertoireAudio=audioEl;
+    repertoireAudioSongId=id;
+    repertoireAudioHost=host;
+    repertoireAudioData=data;
+    repertoireAudioSource=source==='jukebox'?'jukebox':'songs';
+
+    bindPlayCounter(audioEl,data,id,repertoireAudioSource);
+
+    const onSync=()=>{
+      if(repertoireAudio!==audioEl)return;
+      syncPlaybackUi();
+      schedulePreviewCutoff();
+    };
+
+    audioEl.addEventListener('loadedmetadata',onSync);
+    audioEl.addEventListener('durationchange',onSync);
+    audioEl.addEventListener('timeupdate',onSync);
+    audioEl.addEventListener('play',onSync);
+    audioEl.addEventListener('pause',onSync);
+    audioEl.addEventListener('ended',()=>{
+      if(repertoireAudio!==audioEl)return;
+      playAdjacent(1,{fromEnded:true});
+    },{once:true});
+    audioEl.addEventListener('error',()=>{
+      if(repertoireAudio!==audioEl)return;
+      stopRepertoireAudio({restore:true,hidePlayer:true});
+      alert('Riproduzione demo non riuscita.');
+    },{once:true});
+
+    syncPlaybackUi();
+    await audioEl.play();
+    onSync();
+  }
+
+  async function playAdjacent(direction,{fromEnded=false}={}){
+    const songs=playableSongs();
+    if(!songs.length||(fromEnded&&songs.length===1)){
+      if(fromEnded)stopRepertoireAudio({restore:true,hidePlayer:true});
+      return;
+    }
+
+    const currentIndex=songs.findIndex(song=>String(song.id)===String(repertoireAudioSongId));
+    let nextIndex=0;
+
+    if(playerShuffle&&songs.length>1){
+      do{
+        nextIndex=Math.floor(Math.random()*songs.length);
+      }while(nextIndex===currentIndex);
+    }else if(currentIndex>=0){
+      nextIndex=(currentIndex+direction+songs.length)%songs.length;
+    }
+
+    const next=songs[nextIndex];
+    if(!next)return;
+    await startTrack(next.id,{source:repertoireAudioSource||'songs'});
   }
 
   async function playDemo(songId,button){
@@ -596,75 +988,7 @@
     button.textContent='CARICAMENTO…';
 
     try{
-      const data=await call('audio',{song_id:songId,source:'songs'});
-
-      // Una sola demo alla volta nel repertorio.
-      stopRepertoireAudio({restore:true});
-
-      const audioEl=new Audio(data.url);
-      audioEl.preload='metadata';
-      repertoireAudio=audioEl;
-      repertoireAudioSongId=String(songId);
-      repertoireAudioHost=host;
-      bindPlayCounter(audioEl,data,songId,'songs');
-
-      const wrap=document.createElement('div');
-      wrap.className='demo-site-player';
-      wrap.innerHTML=`
-        <div class="demo-site-player-actions">
-          <button class="btn btn-primary" type="button" data-demo-toggle>❚❚ PAUSA</button>
-          <button class="btn btn-ghost" type="button" data-demo-stop>■ STOP</button>
-        </div>
-        <div class="demo-site-progress" aria-hidden="true"><span></span></div>
-        <div class="demo-site-player-meta">
-          <strong>${data.access_mode==='preview_30'?'ANTEPRIMA 30S':'BRANO INTERO'}</strong>
-          <span data-demo-time>0:00 / --:--</span>
-        </div>`;
-      host.replaceChildren(wrap);
-
-      const toggle=wrap.querySelector('[data-demo-toggle]');
-      const stop=wrap.querySelector('[data-demo-stop]');
-      const progress=wrap.querySelector('.demo-site-progress>span');
-      const time=wrap.querySelector('[data-demo-time]');
-
-      const sync=()=>{
-        if(repertoireAudio!==audioEl)return;
-        const duration=Number.isFinite(audioEl.duration)?audioEl.duration:0;
-        const current=Number.isFinite(audioEl.currentTime)?audioEl.currentTime:0;
-        const percent=duration>0?Math.max(0,Math.min(100,current/duration*100)):0;
-        progress.style.width=percent+'%';
-        time.textContent=`${formatDemoTime(current)} / ${duration?formatDemoTime(duration):'--:--'}`;
-        toggle.textContent=audioEl.paused?'▶ RIPRENDI':'❚❚ PAUSA';
-      };
-
-      toggle.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        if(audioEl.paused)audioEl.play().catch(()=>{});
-        else audioEl.pause();
-        sync();
-      };
-
-      stop.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        stopRepertoireAudio({restore:true});
-      };
-
-      audioEl.addEventListener('loadedmetadata',sync);
-      audioEl.addEventListener('timeupdate',sync);
-      audioEl.addEventListener('play',sync);
-      audioEl.addEventListener('pause',sync);
-      audioEl.addEventListener('ended',()=>stopRepertoireAudio({restore:true}),{once:true});
-      audioEl.addEventListener('error',()=>{
-        if(repertoireAudio===audioEl){
-          stopRepertoireAudio({restore:true});
-          alert('Riproduzione demo non riuscita.');
-        }
-      },{once:true});
-
-      await audioEl.play();
-      sync();
+      await startTrack(songId,{source:'songs',host});
     }catch(err){
       if(err.status===403){
         access={allowed:false,reason:'locked'};
@@ -678,10 +1002,6 @@
     }
   }
 
-
-  let jukeboxAudio=null;
-  let jukeboxSongId='';
-  let jukeboxRequest=0;
   let jukeboxClosing=false;
 
   function ensureJukeboxLauncher(){
@@ -722,7 +1042,7 @@
       const hasAudio=!!song.has_demo;
       const mode=songAccess(id);
       const number=String(index+1).padStart(2,'0');
-      const active=id===jukeboxSongId&&jukeboxAudio&&!jukeboxAudio.paused;
+      const active=id===String(repertoireAudioSongId)&&repertoireAudio&&!repertoireAudio.paused;
       return `<article class="jukebox-slot${active?' is-playing':''}${hasAudio?'':' is-unavailable'}" data-jukebox-song="${esc(id)}">
         <div class="jukebox-number">${number}</div>
         <div class="jukebox-push-wrap">
@@ -745,6 +1065,8 @@
         toggleJukeboxSong(button.dataset.jukeboxPush,button);
       });
     });
+
+    syncJukeboxPlaybackUi();
   }
 
   function setJukeboxNow(text=''){
@@ -752,89 +1074,34 @@
     if(el)el.textContent=text||'SELEZIONA UN BRANO';
   }
 
-  function resetJukeboxVisual(id){
-    if(!id)return;
-    const slot=document.querySelector(`[data-jukebox-song="${CSS.escape(String(id))}"]`);
-    slot?.classList.remove('is-playing');
-    const button=slot?.querySelector('.jukebox-push');
-    button?.classList.remove('is-playing','is-loading');
-    button?.querySelector('.jukebox-lamp')?.classList.remove('on');
-  }
-
-  function stopJukeboxSong(){
-    jukeboxRequest++;
-    if(jukeboxAudio){
-      try{
-        jukeboxAudio.pause();
-        jukeboxAudio.currentTime=0;
-        jukeboxAudio.removeAttribute('src');
-        jukeboxAudio.load();
-      }catch{}
-    }
-    resetJukeboxVisual(jukeboxSongId);
-    jukeboxSongId='';
-    setJukeboxNow('');
-  }
-
   async function toggleJukeboxSong(songId,button){
-    const song=repertoire.get(String(songId));
+    const id=String(songId);
+    const song=repertoire.get(id);
     if(!song||!song.has_demo)return;
 
-    if(jukeboxSongId===String(songId)&&jukeboxAudio&&!jukeboxAudio.paused){
-      stopJukeboxSong();
+    if(!songAccess(id)){
+      openUnlockModal(id);
       return;
     }
 
-    if(!songAccess(songId)){
-      openUnlockModal(songId);
+    if(repertoireAudio&&repertoireAudioSongId===id){
+      if(repertoireAudio.paused)await repertoireAudio.play().catch(()=>{});
+      else repertoireAudio.pause();
+      syncPlaybackUi();
       return;
     }
 
-    stopJukeboxSong();
-    const request=++jukeboxRequest;
-    const slot=button.closest('.jukebox-slot');
     button.classList.add('is-loading');
     setJukeboxNow(`CARICAMENTO · ${song.title}`);
 
     try{
-      const data=await call('audio',{song_id:songId,source:'jukebox'});
-      if(request!==jukeboxRequest)return;
-
-      jukeboxAudio=new Audio(data.url);
-      jukeboxAudio.preload='auto';
-      jukeboxAudio.controls=false;
-      jukeboxSongId=String(songId);
-      bindPlayCounter(jukeboxAudio,data,songId,'jukebox');
-
-      const release=()=>{
-        if(jukeboxSongId!==String(songId))return;
-        resetJukeboxVisual(songId);
-        jukeboxSongId='';
-        setJukeboxNow('');
-      };
-
-      jukeboxAudio.addEventListener('ended',release,{once:true});
-      jukeboxAudio.addEventListener('error',()=>{
-        release();
-        alert('Riproduzione demo non riuscita.');
-      },{once:true});
-
-      await jukeboxAudio.play();
-      if(request!==jukeboxRequest){
-        stopJukeboxSong();
-        return;
-      }
-
-      button.classList.remove('is-loading');
-      button.classList.add('is-playing');
-      button.querySelector('.jukebox-lamp')?.classList.add('on');
-      slot?.classList.add('is-playing');
-      setJukeboxNow(`IN RIPRODUZIONE · ${song.title}`);
+      await startTrack(id,{source:'jukebox'});
+      syncPlaybackUi();
     }catch(err){
       button.classList.remove('is-loading');
       if(err.status===403){
         access={allowed:false,reason:'locked'};
-        openUnlockModal();
+        openUnlockModal(id);
       }else{
         alert(err.message||'Demo non disponibile.');
       }
@@ -853,7 +1120,7 @@
       overlay.setAttribute('aria-label','Jukebox del repertorio');
       overlay.innerHTML=`
         <header class="jukebox-topbar">
-          <div class="jukebox-brand"><strong>JOHN & I MOLESTI · JUKEBOX</strong><span>PREMI IL PULSANTE DEL BRANO · RIPREMI PER FERMARE</span></div>
+          <div class="jukebox-brand"><strong>JOHN & I MOLESTI · JUKEBOX</strong><span>PREMI IL PULSANTE DEL BRANO · RIPREMI PER PAUSA / RIPRENDI</span></div>
           <div class="jukebox-now" id="jukeboxNowPlaying">SELEZIONA UN BRANO</div>
           <button class="jukebox-close" id="closeJukeboxMode" type="button" aria-label="Chiudi Jukebox">×</button>
         </header>
@@ -867,6 +1134,7 @@
 
     renderJukebox();
     overlay.classList.add('open');
+    syncJukeboxPlaybackUi();
     document.documentElement.style.overflow='hidden';
 
     try{
@@ -881,7 +1149,6 @@
   async function closeJukebox(){
     if(jukeboxClosing)return;
     jukeboxClosing=true;
-    stopJukeboxSong();
 
     const overlay=document.getElementById('jukeboxOverlay');
     overlay?.classList.remove('open');
@@ -917,7 +1184,15 @@
       const host=card.querySelector('.repertoire-player');
       if(!host)return;
 
-      // Spotify resta pubblico e ha priorità.
+      // Se questo è il brano attivo, ricostruiamo il controllo della card
+      // collegandolo alla stessa istanza audio globale, anche dopo un cambio tab.
+      if(repertoireAudio&&repertoireAudioSongId===id){
+        renderInlinePlayer(host,id);
+        return;
+      }
+
+      // Spotify resta pubblico e ha priorità quando il brano non è già
+      // in riproduzione nel player interno.
       if(song.spotify_url){
         host.dataset.demoState='spotify';
         return;
@@ -933,17 +1208,6 @@
 
       const mode=songAccess(id);
       const desiredState=mode?`play:${mode}`:'locked';
-
-      // Se il player custom sta riproducendo proprio questo brano,
-      // non sostituirlo durante refresh/session update.
-      if(
-        repertoireAudio &&
-        repertoireAudioSongId===id &&
-        repertoireAudioHost===host
-      ){
-        host.dataset.demoState='playing';
-        return;
-      }
 
       if(host.dataset.demoState===desiredState)return;
 
