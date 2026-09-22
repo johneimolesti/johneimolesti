@@ -4,16 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111111">
-  <script>
-    (() => {
-      try {
-        const theme = localStorage.getItem('jm_site_theme');
-        document.documentElement.dataset.theme = ['dark','fresh','west-ham'].includes(theme) ? theme : 'dark';
-      } catch {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    })();
-  </script>
   <meta name="description" content="John & i Molesti - Punk Rock Revival" data-copy-content="global.001">
   <title data-copy="global.title">John &amp; i Molesti</title>
   <link rel="icon" type="image/png" href="favicon.png">
@@ -699,8 +689,6 @@
 
   </style>
 
-  <link rel="stylesheet" href="css/site-themes.css?theme=20260922c">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="js/copy-core.js" defer></script>
   <script src="js/copy-catalog.js" defer></script>
@@ -710,7 +698,6 @@
   <script src="js/songs-disc-view.js" defer></script>
   <script src="js/contact-editor.js" defer></script>
   <script src="js/mobile-home.js" defer></script>
-  <script src="js/site-theme.js?theme=20260922c" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#contentStage" data-copy="global.002">Salta al contenuto</a>
@@ -731,19 +718,6 @@
       <button class="nav-item" data-route="band" type="button"><span data-copy="global.013">BAND</span></button>
       <button class="nav-item" data-route="more" type="button"><span data-copy="global.014">MERCH</span></button>
     </nav>
-
-    <div class="theme-switcher" id="themeSwitcher">
-      <button class="theme-trigger" id="themeTrigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Cambia palette del sito" title="Cambia palette">
-        <svg class="theme-flag-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 21V3m1 1h11l-2.2 3L17 10H6z"></path>
-        </svg>
-      </button>
-      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Palette del sito" hidden>
-        <button type="button" role="menuitemradio" aria-checked="true" data-theme-pick="dark" aria-label="Palette nera" title="Nera"><span class="theme-menu-swatch dark" aria-hidden="true"></span></button>
-        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="fresh" aria-label="Palette bianca" title="Bianca"><span class="theme-menu-swatch fresh" aria-hidden="true"></span></button>
-        <button type="button" role="menuitemradio" aria-checked="false" data-theme-pick="west-ham" aria-label="Palette granata azzurra gialla" title="Granata / azzurra / gialla"><span class="theme-menu-swatch west-ham" aria-hidden="true"></span></button>
-      </div>
-    </div>
 
     <button class="user-entry" id="userEntry" type="button" aria-haspopup="dialog">
       <span class="user-dot" id="userDot" aria-hidden="true"></span>
@@ -915,53 +889,6 @@
     <div><strong><span data-copy="footer.001">JOHN &amp; I MOLESTI</span></strong><span data-copy="footer.003">Italian beat × punk rock</span></div>
     <div class="footer-right"><a href="manage.html" data-copy="footer.004">Gestionale</a><span id="siteVersion">public v1.1</span></div>
   </footer>
-
-  <div class="modal" id="deviceWelcomeModal" hidden>
-    <div class="modal-backdrop"></div>
-    <section class="modal-card theme-welcome-card" role="dialog" aria-modal="true" aria-labelledby="deviceWelcomeTitle">
-      <header class="modal-head">
-        <div>
-          <span class="section-kicker">NUOVO DISPOSITIVO</span>
-          <h2 id="deviceWelcomeTitle">COME TI SENTI OGGI?</h2>
-        </div>
-      </header>
-      <div class="modal-body">
-        <p class="theme-welcome-intro">Prima dimmi il tuo nome molesto e scegli la faccia del sito. Il tema resta su questo dispositivo e, quando hai un profilo attivo, viene salvato anche sul tuo utente.</p>
-        <form class="theme-welcome-form" id="deviceWelcomeForm">
-          <label class="theme-welcome-name">
-            <span>IL TUO NOME MOLESTO</span>
-            <input id="deviceWelcomeName" maxlength="20" autocomplete="name" placeholder="Come ti chiami?" required>
-          </label>
-
-          <div>
-            <div class="theme-choice-title">SCEGLI LA PALETTE</div>
-            <div class="theme-choice-grid">
-              <input id="themeChoiceDark" type="radio" name="welcomeTheme" value="dark" checked>
-              <label class="theme-choice dark" for="themeChoiceDark">
-                <span><strong>DARK</strong><small>Nero dominante, giallo e contrasto secco.</small></span>
-                <span class="theme-choice-preview" aria-hidden="true"></span>
-              </label>
-
-              <input id="themeChoiceFresh" type="radio" name="welcomeTheme" value="fresh">
-              <label class="theme-choice fresh" for="themeChoiceFresh">
-                <span><strong>FRESH</strong><small>Bianco dominante, nero e giallo invertiti in chiave pulita.</small></span>
-                <span class="theme-choice-preview" aria-hidden="true"></span>
-              </label>
-
-              <input id="themeChoiceWestHam" type="radio" name="welcomeTheme" value="west-ham">
-              <label class="theme-choice west-ham" for="themeChoiceWestHam">
-                <span><strong>WEST HAM</strong><small>Claret #7C2C3B · oro #FDB742 · bianco · azzurro #2BABE5.</small></span>
-                <span class="theme-choice-preview" aria-hidden="true"></span>
-              </label>
-            </div>
-          </div>
-
-          <button class="btn btn-primary theme-welcome-submit" id="deviceWelcomeSubmit" type="submit">ENTRA NEL SITO</button>
-          <div class="theme-welcome-message" id="deviceWelcomeMessage" aria-live="polite"></div>
-        </form>
-      </div>
-    </section>
-  </div>
 
   <div class="modal" id="userModal" hidden>
     <div class="modal-backdrop" data-close-modal="userModal"></div>
