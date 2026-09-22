@@ -28,32 +28,48 @@
       }
     }
 
-    /* HOME MOBILE — stessa identità visiva del desktop */
+    /* HOME MOBILE — hero desktop + griglia bento punk */
     .mobile-home-bands,
     .mobile-hero-next-strip { display:none; }
 
     @media (max-width:760px) {
-      .site-header{min-height:64px!important;padding:8px 14px!important}
+      .site-header{
+        min-height:64px!important;
+        padding:8px 14px!important
+      }
       .brand-mark{width:42px!important;height:42px!important}
       .brand-copy strong{max-width:150px!important;font-size:18px!important}
       .user-entry{min-height:42px!important;padding:5px 9px!important}
       .user-entry-copy small{font-size:8px!important}
       .user-entry-copy strong{font-size:13px!important}
-      .desktop-frame{padding:7px 10px 22px!important;gap:7px!important}
 
-      /* Hero desktop ridotta, non sostituita */
+      .desktop-frame{
+        padding:7px 10px 20px!important;
+        gap:7px!important
+      }
+
+      /* I rail desktop duplicavano NEXT SHOW e allungavano la home. */
+      .desktop-rail-left,
+      .desktop-rail-right{
+        display:none!important
+      }
+
+      /* =====================================================
+         HERO — stessa composizione del desktop, solo compressa
+         ===================================================== */
       #homePage>.home-hero-news{
         display:block!important;
         position:relative!important;
         width:100%!important;
-        height:248px!important;
-        min-height:248px!important;
-        margin:0 0 6px!important;
+        height:240px!important;
+        min-height:240px!important;
+        margin:0 0 7px!important;
         padding:0!important;
         border:1px solid #5c594f!important;
         background:#101010!important;
         overflow:hidden!important;
-        isolation:isolate!important
+        isolation:isolate!important;
+        box-shadow:4px 4px 0 rgba(0,0,0,.45)!important
       }
 
       #homePage>.home-hero-news>.hero-copy{
@@ -65,7 +81,7 @@
         width:43%!important;
         min-height:0!important;
         height:auto!important;
-        padding:15px 8px 12px 13px!important;
+        padding:14px 8px 11px 13px!important;
         display:flex!important;
         flex-direction:column!important;
         justify-content:center!important;
@@ -82,7 +98,10 @@
         line-height:.95!important
       }
 
-      #homePage>.home-hero-news>.hero-copy .title-and{padding:0 5px!important}
+      #homePage>.home-hero-news>.hero-copy .title-and{
+        padding:0 5px!important
+      }
+
       #homePage>.home-hero-news>.hero-copy .title-molesti{
         max-width:100%!important;
         padding:0 5px 4px!important;
@@ -98,15 +117,17 @@
         line-height:1.25!important
       }
 
-      #homePage>.home-hero-news>.hero-copy .hero-actions{display:none!important}
+      #homePage>.home-hero-news>.hero-copy .hero-actions{
+        display:none!important
+      }
 
       #homePage>.home-hero-news>.home-hero-highlights{
         position:absolute!important;
         z-index:1!important;
         inset:0!important;
         width:100%!important;
-        height:248px!important;
-        min-height:248px!important;
+        height:240px!important;
+        min-height:240px!important;
         margin:0!important;
         overflow:hidden!important
       }
@@ -114,8 +135,8 @@
       #homePage>.home-hero-news>.home-hero-highlights .highlight-track,
       #homePage>.home-hero-news>.home-hero-highlights .highlight-slide{
         width:100%!important;
-        height:248px!important;
-        min-height:248px!important
+        height:240px!important;
+        min-height:240px!important
       }
 
       #homePage>.home-hero-news>.home-hero-highlights .highlight-slide{
@@ -140,15 +161,20 @@
       }
 
       #homePage>.home-hero-news>.home-hero-highlights .highlight-slide::after{
-        background:linear-gradient(0deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.18) 44%,rgba(0,0,0,.04) 72%)!important
+        background:linear-gradient(
+          0deg,
+          rgba(0,0,0,.72) 0%,
+          rgba(0,0,0,.16) 46%,
+          rgba(0,0,0,.03) 74%
+        )!important
       }
 
       #homePage>.home-hero-news>.home-hero-highlights .highlights-heading{
         position:absolute!important;
         z-index:8!important;
-        top:10px!important;
+        top:9px!important;
         left:auto!important;
-        right:10px!important;
+        right:9px!important;
         width:52%!important;
         margin:0!important;
         display:flex!important;
@@ -165,21 +191,30 @@
         text-align:left!important
       }
 
-      #homePage>.home-hero-news>.home-hero-highlights .highlights-controls{gap:4px!important}
-      #homePage>.home-hero-news>.home-hero-highlights .highlights-controls button{
-        width:25px!important;height:25px!important;padding:0!important;font-size:13px!important
+      #homePage>.home-hero-news>.home-hero-highlights .highlights-controls{
+        gap:4px!important
       }
+
+      #homePage>.home-hero-news>.home-hero-highlights .highlights-controls button{
+        width:24px!important;
+        height:24px!important;
+        padding:0!important;
+        font-size:13px!important;
+        background:rgba(10,10,10,.72)!important
+      }
+
       #homePage>.home-hero-news>.home-hero-highlights #highlightCount{
-        min-width:25px!important;font-size:8px!important
+        min-width:24px!important;
+        font-size:8px!important
       }
 
       #homePage>.home-hero-news>.home-hero-highlights .highlight-copy{
         position:absolute!important;
         z-index:5!important;
-        right:11px!important;
-        bottom:44px!important;
-        width:54%!important;
-        max-width:54%!important;
+        right:10px!important;
+        bottom:42px!important;
+        width:55%!important;
+        max-width:55%!important;
         margin:0!important;
         padding:0!important;
         display:flex!important;
@@ -199,25 +234,29 @@
       #homePage>.home-hero-news>.home-hero-highlights .highlight-copy h3{
         max-width:100%!important;
         margin:0 0 5px!important;
-        font-size:23px!important;
+        font-size:22px!important;
         line-height:.95!important;
         text-align:right!important
       }
 
-      #homePage>.home-hero-news>.home-hero-highlights .highlight-copy p{display:none!important}
+      #homePage>.home-hero-news>.home-hero-highlights .highlight-copy p{
+        display:none!important
+      }
+
       #homePage>.home-hero-news>.home-hero-highlights .highlight-action{
         min-width:0!important;
-        min-height:29px!important;
+        min-height:28px!important;
         padding:5px 8px!important;
         font-size:8px!important;
         align-self:flex-end!important
       }
 
-      /* Fascia prossimo live, senza cambiare la hero */
       .mobile-hero-next-strip{
         position:absolute;
         z-index:20;
-        left:0;right:0;bottom:0;
+        left:0;
+        right:0;
+        bottom:0;
         height:34px;
         display:grid;
         grid-template-columns:auto minmax(0,1fr) auto;
@@ -254,124 +293,142 @@
       }
 
       #homePage>.home-dashboard-shell,
-      #homePage>.home-grid{display:none!important}
-
-      /* Riepiloghi sotto la hero */
-      .mobile-home-bands{
-        display:grid;
-        gap:5px;
-        margin:0 0 7px
+      #homePage>.home-grid{
+        display:none!important
       }
 
-      .mobile-home-band{
-        width:100%;
+      /* =====================================================
+         BENTO / WIDGET GRID
+         ===================================================== */
+      .mobile-home-bands{
+        display:grid;
+        grid-template-columns:repeat(12,minmax(0,1fr));
+        grid-auto-flow:dense;
+        gap:7px;
+        margin:0 0 8px;
+        padding:1px 1px 5px
+      }
+
+      .mobile-widget{
+        position:relative;
         min-width:0;
         margin:0;
-        padding:7px 9px;
+        overflow:hidden;
         border:1px solid #555248;
         background:#181817;
         color:var(--text);
-        text-align:left;
-        overflow:hidden;
-        box-shadow:none;
+        box-shadow:3px 3px 0 rgba(0,0,0,.55);
         appearance:none;
         -webkit-appearance:none;
-        font:inherit
+        font:inherit;
+        text-align:left
       }
 
-      .mobile-home-band:active{border-color:var(--gold);background:#1f1f1c}
+      .mobile-widget:active{
+        border-color:var(--gold);
+        transform:translate(1px,1px)
+      }
 
-      .mobile-band-kicker{
+      .mobile-widget-kicker{
         display:block;
-        margin:0 0 2px;
         color:var(--gold);
-        font:900 7px/1.1 "Courier New",monospace;
-        letter-spacing:.08em
+        font:900 7px/1 "Courier New",monospace;
+        letter-spacing:.09em;
+        text-transform:uppercase
       }
 
-      .mobile-band-head{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:6px;
-        margin:0 0 4px
+      .mobile-widget-title{
+        display:block;
+        margin-top:3px;
+        font:900 17px/.98 Impact,"Arial Narrow",sans-serif
       }
 
-      .mobile-band-head strong{font:900 16px/1 Impact,"Arial Narrow",sans-serif}
-      .mobile-band-arrow{color:var(--gold);font:900 18px/1 Arial,sans-serif}
+      .mobile-widget-arrow{
+        position:absolute;
+        top:8px;
+        right:8px;
+        color:var(--gold);
+        font:900 18px/1 Arial,sans-serif
+      }
 
-      .mobile-home-dates{min-height:64px}
+      /* DATE — largo, non perfettamente allineato */
+      .mobile-widget-dates{
+        grid-column:span 7;
+        min-height:86px;
+        padding:9px 9px 8px;
+        transform:rotate(-.35deg);
+        background:
+          repeating-linear-gradient(
+            -12deg,
+            rgba(255,255,255,.014) 0 7px,
+            transparent 7px 15px
+          ),
+          #181817
+      }
+
       .mobile-dates-list{
         display:grid;
-        grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:5px
+        gap:3px;
+        margin-top:7px
       }
 
       .mobile-date-item{
+        display:grid;
+        grid-template-columns:51px minmax(0,1fr);
+        gap:6px;
+        align-items:center;
         min-width:0;
-        padding:4px 6px;
-        border-top:1px solid #45433c;
-        background:#111
+        padding-top:4px;
+        border-top:1px solid #45433c
       }
 
-      .mobile-date-item b,
-      .mobile-date-item span{
-        display:block;
-        overflow:hidden;
-        text-overflow:ellipsis;
+      .mobile-date-item b{
+        color:var(--gold);
+        font:900 8px/1 monospace;
         white-space:nowrap
       }
 
-      .mobile-date-item b{color:var(--gold);font:900 8px/1.15 monospace}
-      .mobile-date-item span{margin-top:1px;font-size:9px;font-weight:800}
-      .mobile-date-empty{grid-column:1/-1;color:#aaa69c;font-size:9px}
-
-      .mobile-home-songs{min-height:69px}
-      .mobile-song-list{display:grid}
-      .mobile-song-row{
-        display:grid;
-        grid-template-columns:21px minmax(0,1fr) auto;
-        gap:6px;
-        align-items:center;
-        min-height:15px;
-        border-top:1px solid #403e38
-      }
-
-      .mobile-song-row:first-child{border-top:0}
-      .mobile-song-row em{color:var(--gold);font:900 8px/1 monospace;font-style:normal}
-      .mobile-song-row b{
+      .mobile-date-item span{
+        min-width:0;
         overflow:hidden;
         text-overflow:ellipsis;
         white-space:nowrap;
-        font-size:9px
+        font-size:9px;
+        font-weight:800
       }
-      .mobile-song-row strong{font-size:9px}
 
-      .mobile-home-contacts{
-        min-height:52px;
-        display:grid;
-        grid-template-columns:minmax(0,1fr) auto;
+      .mobile-date-empty{
+        display:block;
+        margin-top:9px;
+        color:#aaa69c;
+        font-size:8px;
+        line-height:1.25
+      }
+
+      /* SOCIAL / BOOKING — quasi quadrato, inclinato dall'altra parte */
+      .mobile-widget-social{
+        grid-column:span 5;
+        min-height:86px;
+        padding:9px;
+        transform:rotate(.65deg) translateY(2px);
+        background:
+          radial-gradient(circle at 84% 18%,rgba(238,229,43,.2),transparent 35%),
+          #20200f
+      }
+
+      .mobile-social-icons{
+        position:absolute;
+        left:9px;
+        right:9px;
+        bottom:9px;
+        display:flex;
         align-items:center;
-        gap:8px;
-        background:#20200f
+        gap:6px
       }
 
-      .mobile-home-contacts-copy strong{
-        display:block;
-        margin-top:1px;
-        font:900 16px/1 Impact,"Arial Narrow",sans-serif
-      }
-
-      .mobile-home-contacts-copy small{
-        display:block;
-        margin-top:2px;
-        color:#c9c5b9;
-        font-size:7px
-      }
-
-      .mobile-social-icons{display:flex;gap:5px}
       .mobile-social-icon{
-        width:33px;height:33px;
+        width:33px;
+        height:33px;
         display:grid;
         place-items:center;
         border:1px solid #777568;
@@ -381,7 +438,8 @@
       }
 
       .mobile-social-icon svg{
-        width:18px;height:18px;
+        width:18px;
+        height:18px;
         fill:none;
         stroke:currentColor;
         stroke-width:1.8;
@@ -389,7 +447,200 @@
         stroke-linejoin:round
       }
 
-      .mobile-social-icon svg .fill{fill:currentColor;stroke:none}
+      .mobile-social-icon svg .fill{
+        fill:currentColor;
+        stroke:none
+      }
+
+      .mobile-social-booking{
+        margin-left:auto;
+        border:0;
+        background:transparent;
+        color:#e7e2d5;
+        padding:0;
+        font:900 8px/1.1 monospace
+      }
+
+      /* TOP SONGS — tre cover come mini locandine */
+      .mobile-widget-songs{
+        grid-column:1/-1;
+        min-height:116px;
+        padding:9px;
+        transform:translateX(2px)
+      }
+
+      .mobile-song-tiles{
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:5px;
+        margin-top:7px
+      }
+
+      .mobile-song-tile{
+        position:relative;
+        min-width:0;
+        height:76px;
+        overflow:hidden;
+        border:1px solid #5a574e;
+        background:#0e0e0e
+      }
+
+      .mobile-song-tile img{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        opacity:.7
+      }
+
+      .mobile-song-tile::after{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:linear-gradient(0deg,rgba(0,0,0,.94),rgba(0,0,0,.08) 75%)
+      }
+
+      .mobile-song-tile-copy{
+        position:absolute;
+        z-index:2;
+        left:6px;
+        right:6px;
+        bottom:5px;
+        min-width:0
+      }
+
+      .mobile-song-tile-rank{
+        display:inline-block;
+        margin-bottom:3px;
+        padding:2px 4px;
+        background:var(--gold);
+        color:#111;
+        font:900 7px/1 monospace
+      }
+
+      .mobile-song-tile b{
+        display:block;
+        overflow:hidden;
+        color:#fff;
+        font-size:8px;
+        line-height:1.08;
+        text-overflow:ellipsis;
+        white-space:nowrap
+      }
+
+      .mobile-song-tile strong{
+        display:block;
+        margin-top:2px;
+        color:var(--gold);
+        font:900 8px/1 monospace
+      }
+
+      /* TOP FAN — card principale */
+      .mobile-widget-fans{
+        grid-column:span 8;
+        min-height:107px;
+        padding:9px 10px;
+        transform:rotate(.25deg);
+        background:
+          linear-gradient(145deg,rgba(242,168,205,.08),transparent 55%),
+          #1b181a
+      }
+
+      .mobile-fan-leader{
+        display:grid;
+        grid-template-columns:25px minmax(0,1fr) auto;
+        gap:6px;
+        align-items:center;
+        margin-top:7px;
+        padding:6px 6px 5px;
+        border:1px solid rgba(238,229,43,.55);
+        background:#111
+      }
+
+      .mobile-fan-leader em{
+        color:var(--gold);
+        font:900 12px/1 Impact,Arial,sans-serif;
+        font-style:normal
+      }
+
+      .mobile-fan-leader b{
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:10px
+      }
+
+      .mobile-fan-leader strong{
+        color:var(--gold);
+        font:900 9px/1 monospace
+      }
+
+      .mobile-fan-runners{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:4px;
+        margin-top:4px
+      }
+
+      .mobile-fan-runner{
+        min-width:0;
+        padding:4px 5px;
+        border-top:1px solid #45433c;
+        font-size:8px
+      }
+
+      .mobile-fan-runner i{
+        color:var(--gold);
+        font-style:normal;
+        font-weight:900
+      }
+
+      .mobile-fan-runner b{
+        display:block;
+        overflow:hidden;
+        margin-top:1px;
+        text-overflow:ellipsis;
+        white-space:nowrap
+      }
+
+      /* CTA VOTO — volutamente “storta” */
+      .mobile-widget-vote{
+        grid-column:span 4;
+        min-height:107px;
+        padding:9px;
+        transform:rotate(-1deg) translateY(-2px);
+        border-color:var(--gold);
+        background:var(--gold);
+        color:#111;
+        box-shadow:4px 4px 0 #4d283a
+      }
+
+      .mobile-widget-vote .mobile-widget-kicker{
+        color:#111
+      }
+
+      .mobile-widget-vote strong{
+        display:block;
+        margin-top:7px;
+        font:900 20px/.9 Impact,"Arial Narrow",sans-serif
+      }
+
+      .mobile-widget-vote small{
+        display:block;
+        margin-top:7px;
+        font-size:7px;
+        line-height:1.25;
+        font-weight:800
+      }
+
+      .mobile-vote-arrow{
+        position:absolute;
+        right:8px;
+        bottom:7px;
+        font:900 21px/1 Arial,sans-serif
+      }
 
       .home-fallback-crop-button{
         top:auto!important;
@@ -400,6 +651,7 @@
         font-size:7px!important
       }
 
+      /* Menu inferiore in una sola riga */
       .main-nav{
         display:flex!important;
         grid-template-columns:none!important;
@@ -413,7 +665,10 @@
         -webkit-overflow-scrolling:touch
       }
 
-      .main-nav::-webkit-scrollbar{display:none}
+      .main-nav::-webkit-scrollbar{
+        display:none
+      }
+
       .main-nav .nav-item{
         flex:0 0 auto!important;
         min-width:auto!important;
@@ -422,6 +677,14 @@
         font-size:9px!important;
         white-space:nowrap!important
       }
+    }
+
+    @media (max-width:390px) {
+      .mobile-widget-dates{grid-column:span 7}
+      .mobile-widget-social{grid-column:span 5}
+      .mobile-widget-fans{grid-column:span 8}
+      .mobile-widget-vote{grid-column:span 4}
+      .mobile-widget-title{font-size:15px}
     }
 
   </style>
