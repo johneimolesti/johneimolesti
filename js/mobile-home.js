@@ -27,6 +27,38 @@
     location.hash = `#/${route}`;
   }
 
+  function openFansRanking() {
+    openRoute('rankings');
+    setTimeout(() => {
+      $('#fansRankingBlock')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 80);
+  }
+
+  function openVoteFlow() {
+    /*
+     * public.js mantiene currentFan e openFanCatalog privati nel suo IIFE.
+     * Passiamo quindi dall'area utente già esistente:
+     * - fan loggato -> il modal espone "VOTA I BRANI", che clicchiamo;
+     * - guest -> resta aperto il login fan.
+     */
+    const userEntry = $('#userEntry');
+
+    if (!userEntry) {
+      openRoute('rankings');
+      return;
+    }
+
+    userEntry.click();
+
+    setTimeout(() => {
+      const voteButton = $('#openFanCatalog');
+      if (voteButton) voteButton.click();
+    }, 0);
+  }
+
   function instagramIcon() {
     return `<svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="5"></rect>
@@ -71,7 +103,7 @@
       shell = document.createElement('section');
       shell.id = 'mobileHomeBands';
       shell.className = 'mobile-home-bands';
-      shell.setAttribute('aria-label', 'Home in breve');
+      shell.setAttribute('aria-label', 'Anteprima del sito');
     }
 
     const hero = home.querySelector('.home-hero-news, .hero');
@@ -99,12 +131,16 @@
           return;
         }
 
-        const band = event.target.closest('[data-mobile-home-action]');
-        if (!band) return;
+        const actionNode = event.target.closest('[data-mobile-home-action]');
+        if (!actionNode) return;
 
-        if (band.dataset.mobileHomeAction === 'tour') return openRoute('tour');
-        if (band.dataset.mobileHomeAction === 'rankings') return openRoute('rankings');
-        if (band.dataset.mobileHomeAction === 'contacts') return openRoute('contacts');
+        const action = actionNode.dataset.mobileHomeAction;
+
+        if (action === 'tour') return openRoute('tour');
+        if (action === 'rankings') return openRoute('rankings');
+        if (action === 'fans') return openFansRanking();
+        if (action === 'contacts') return openRoute('contacts');
+        if (action === 'vote') return openVoteFlow();
       });
     }
 
@@ -127,6 +163,7 @@
         event.preventDefault();
 
         const detail = $('#homeNextShow [data-home-live-detail]');
+
         if (detail) return detail.click();
 
         openRoute('tour');
@@ -163,44 +200,13 @@
       : '<span class="mobile-date-empty">Nessun’altra data pubblicata al momento.</span>';
 
     return `
-      <button class="mobile-home-band mobile-home-dates"
+      <button class="mobile-widget mobile-widget-dates"
               type="button"
               data-mobile-home-action="tour">
-        <span class="mobile-band-head">
-          <span>
-            <span class="mobile-band-kicker">CALENDARIO</span>
-            <strong>Prossime date</strong>
-          </span>
-          <span class="mobile-band-arrow" aria-hidden="true">›</span>
-        </span>
+        <span class="mobile-widget-kicker">CALENDARIO</span>
+        <strong class="mobile-widget-title">Prossime date</strong>
+        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
         <span class="mobile-dates-list">${rows}</span>
-      </button>`;
-  }
-
-  function songsMarkup() {
-    const rows = $$('#homeRankingPreview .mini-rank-row').slice(0, 3);
-
-    const content = rows.length
-      ? rows.map((row, index) => `
-          <span class="mobile-song-row">
-            <em>${esc(cleanText(row.querySelector('span')) || `#${index + 1}`)}</em>
-            <b>${esc(cleanText(row.querySelector('b')) || 'Brano')}</b>
-            <strong>${esc(cleanText(row.querySelector('strong')) || '—')}</strong>
-          </span>`).join('')
-      : '<span class="mobile-date-empty">Classifica in caricamento.</span>';
-
-    return `
-      <button class="mobile-home-band mobile-home-songs"
-              type="button"
-              data-mobile-home-action="rankings">
-        <span class="mobile-band-head">
-          <span>
-            <span class="mobile-band-kicker">TOP SONGS</span>
-            <strong>Canzoni più popolari</strong>
-          </span>
-          <span class="mobile-band-arrow" aria-hidden="true">›</span>
-        </span>
-        <span class="mobile-song-list">${content}</span>
       </button>`;
   }
 
@@ -212,26 +218,138 @@
          href="${esc(href || '#')}"
          ${href ? 'target="_blank" rel="noopener noreferrer"' : ''}
          data-mobile-social="${esc(type)}"
-         aria-label="${esc(label)}">${icon}</a>`;
+         aria-label="${esc(label)}">
+        ${icon}
+      </a>`;
   }
 
-  function contactsMarkup() {
+  function socialMarkup() {
     return `
-      <div class="mobile-home-band mobile-home-contacts">
-        <button class="mobile-home-contacts-copy"
-                type="button"
-                data-mobile-home-action="contacts"
-                style="border:0;background:transparent;color:inherit;text-align:left;padding:0;font:inherit">
-          <span class="mobile-band-kicker">BOOKING / SOCIAL</span>
-          <strong>Contatti</strong>
-          <small>Serate, disponibilità e canali della band</small>
-        </button>
+      <article class="mobile-widget mobile-widget-social">
+        <span class="mobile-widget-kicker">BOOKING / SOCIAL</span>
+        <strong class="mobile-widget-title">Contatti</strong>
 
-        <span class="mobile-social-icons">
+        <div class="mobile-social-icons">
           ${socialLink('instagram', 'Instagram', instagramIcon())}
           ${socialLink('youtube', 'YouTube', youtubeIcon())}
+          <button class="mobile-social-booking"
+                  type="button"
+                  data-mobile-home-action="contacts">BOOKING →</button>
+        </div>
+      </article>`;
+  }
+
+  function songRows() {
+    const rankingRows = $$('#songsRanking .ranking-row').slice(0, 3);
+
+    if (rankingRows.length) {
+      return rankingRows.map((row, index) => ({
+        rank: `#${index + 1}`,
+        title: cleanText(row.querySelector('.ranking-title')) || 'Brano',
+        score: cleanText(row.querySelector('.ranking-score')) || '—',
+        cover: row.querySelector('.ranking-cover')?.getAttribute('src') || ''
+      }));
+    }
+
+    return $$('#homeRankingPreview .mini-rank-row').slice(0, 3).map((row, index) => ({
+      rank: cleanText(row.querySelector('span')) || `#${index + 1}`,
+      title: cleanText(row.querySelector('b')) || 'Brano',
+      score: cleanText(row.querySelector('strong')) || '—',
+      cover: ''
+    }));
+  }
+
+  function songsMarkup() {
+    const rows = songRows();
+
+    const content = rows.length
+      ? rows.map(item => `
+          <span class="mobile-song-tile">
+            ${item.cover
+              ? `<img src="${esc(item.cover)}" alt="" loading="lazy">`
+              : ''}
+            <span class="mobile-song-tile-copy">
+              <em class="mobile-song-tile-rank">${esc(item.rank)}</em>
+              <b>${esc(item.title)}</b>
+              <strong>${esc(item.score)}</strong>
+            </span>
+          </span>`).join('')
+      : `
+        <span class="mobile-date-empty">
+          Classifica in caricamento.
+        </span>`;
+
+    return `
+      <button class="mobile-widget mobile-widget-songs"
+              type="button"
+              data-mobile-home-action="rankings">
+        <span class="mobile-widget-kicker">HITS / TOP 3</span>
+        <strong class="mobile-widget-title">Canzoni più popolari</strong>
+        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
+        <span class="mobile-song-tiles">${content}</span>
+      </button>`;
+  }
+
+  function fanRows() {
+    return $$('#fansRanking .ranking-row').slice(0, 3).map((row, index) => ({
+      rank: cleanText(row.querySelector('.ranking-pos')) || String(index + 1),
+      name: cleanText(row.querySelector('.ranking-title')) || 'Fan',
+      points: cleanText(row.querySelector('.ranking-score')) || '0'
+    }));
+  }
+
+  function fansMarkup() {
+    const rows = fanRows();
+
+    if (!rows.length) {
+      return `
+        <button class="mobile-widget mobile-widget-fans"
+                type="button"
+                data-mobile-home-action="fans">
+          <span class="mobile-widget-kicker">COMMUNITY</span>
+          <strong class="mobile-widget-title">Top fan</strong>
+          <span class="mobile-widget-arrow" aria-hidden="true">›</span>
+          <span class="mobile-date-empty">Classifica fan in caricamento.</span>
+        </button>`;
+    }
+
+    const leader = rows[0];
+    const runners = rows.slice(1);
+
+    return `
+      <button class="mobile-widget mobile-widget-fans"
+              type="button"
+              data-mobile-home-action="fans">
+        <span class="mobile-widget-kicker">COMMUNITY / TOP 3</span>
+        <strong class="mobile-widget-title">Top fan</strong>
+        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
+
+        <span class="mobile-fan-leader">
+          <em>#${esc(leader.rank)}</em>
+          <b>${esc(leader.name)}</b>
+          <strong>${esc(leader.points)}</strong>
         </span>
-      </div>`;
+
+        <span class="mobile-fan-runners">
+          ${runners.map(item => `
+            <span class="mobile-fan-runner">
+              <i>#${esc(item.rank)}</i>
+              <b>${esc(item.name)}</b>
+            </span>`).join('')}
+        </span>
+      </button>`;
+  }
+
+  function voteMarkup() {
+    return `
+      <button class="mobile-widget mobile-widget-vote"
+              type="button"
+              data-mobile-home-action="vote">
+        <span class="mobile-widget-kicker">FAN AREA</span>
+        <strong>ENTRA<br>IN CLASSIFICA</strong>
+        <small>Registrati, vota i brani e scala la Top Fan.</small>
+        <span class="mobile-vote-arrow" aria-hidden="true">↗</span>
+      </button>`;
   }
 
   function render() {
@@ -242,8 +360,10 @@
 
     shell.innerHTML =
       upcomingDatesMarkup() +
+      socialMarkup() +
       songsMarkup() +
-      contactsMarkup();
+      fansMarkup() +
+      voteMarkup();
   }
 
   function scheduleRender() {
@@ -260,6 +380,8 @@
       $('#homeNextShow'),
       $('#homeRankingPreview'),
       $('#upcomingConcerts'),
+      $('#songsRanking'),
+      $('#fansRanking'),
       $('#contactsSocialActions'),
       $('#highlightTrack')
     ].filter(Boolean).forEach(node => {
@@ -267,7 +389,7 @@
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['style', 'href']
+        attributeFilter: ['style', 'href', 'src']
       });
     });
   }
@@ -281,6 +403,7 @@
 
     setTimeout(scheduleRender, 250);
     setTimeout(scheduleRender, 800);
+
     setTimeout(() => {
       installObservers();
       scheduleRender();
