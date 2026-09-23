@@ -120,10 +120,6 @@
       }
 
       /* La Home mobile occupa esattamente lo spazio rimasto sotto l'header. */
-      .jm-mobile-home-active {
-        overflow: hidden;
-      }
-
       .jm-mobile-home-active .desktop-frame {
         max-width: none !important;
         height: calc(100dvh - var(--jm-mobile-header-h)) !important;
@@ -347,7 +343,6 @@
         font-weight: 750;
         line-height: 1.32;
       }
-
       .jm-mobile-home-meta {
         display: flex;
         flex-wrap: wrap;
@@ -602,6 +597,38 @@
         }
       }
     }
+
+
+    /* GLOBAL SOCIAL + RESPONSIVE SHELL */
+    :root { --jm-global-social-h: calc(50px + env(safe-area-inset-bottom)); }
+    .jm-global-mobile-social{display:none}
+    .jm-header-social{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+    .jm-header-social.is-empty,.jm-global-mobile-social.is-empty{visibility:hidden;pointer-events:none}
+    .jm-header-social-link,.jm-global-social-link{display:grid;place-items:center;text-decoration:none}
+    .jm-header-social-link{width:32px;height:32px;border:1px solid #5f5c52;background:#151515;color:var(--gold)}
+    .jm-global-social-icon{display:grid;place-items:center;width:100%;height:100%}
+    .jm-global-social-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .jm-global-social-icon svg .fill{fill:currentColor;stroke:none}
+
+    @media(max-width:760px){
+      html{overflow-y:auto!important;overscroll-behavior-y:auto!important}
+      body{overflow-x:hidden!important;overflow-y:visible!important;padding-bottom:var(--jm-global-social-h)!important;overscroll-behavior-y:auto!important}
+      body.jm-mobile-home-active{overflow-x:hidden!important;overflow-y:visible!important}
+      .jm-mobile-home-active .desktop-frame{height:calc(100dvh - var(--jm-mobile-header-h) - var(--jm-global-social-h))!important}
+      .jm-mobile-home-social{display:none!important}
+      .jm-header-social{display:none!important}
+      .jm-global-mobile-social{position:fixed;z-index:90;left:0;right:0;bottom:0;min-height:var(--jm-global-social-h);display:flex;align-items:flex-start;justify-content:center;gap:6px;padding:5px 10px calc(5px + env(safe-area-inset-bottom));overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;background:#090909;border-top:2px solid var(--gold)}
+      .jm-global-mobile-social::-webkit-scrollbar{display:none}
+      .jm-global-social-link{flex:0 0 38px;width:38px;height:38px;border:1px solid #5f5c52;background:#151515;color:var(--gold)}
+      .jm-global-social-link .jm-global-social-icon svg{width:21px;height:21px}
+      .site-footer{padding-bottom:calc(25px + var(--jm-global-social-h))!important}
+      .jm-mobile-home-active .site-footer{display:none!important}
+    }
+    @media(min-width:761px){
+      .jm-global-mobile-social{display:none!important}
+      .site-header{gap:clamp(10px,1.5vw,30px)}
+      .jm-header-social{margin-left:2px}
+    }
   </style>
 
 
@@ -610,8 +637,16 @@
   <script src="js/copy-catalog.js" defer></script>
   <script src="js/copy-runtime.js" defer></script>
   <script src="js/public.js" defer></script>
-  <script src="js/mobile-home.js" defer></script>
-  <script src="js/desktop-home.js" defer></script>
+  <script>
+    (() => {
+      const renderer = document.createElement('script');
+      renderer.src = window.matchMedia('(max-width: 760px)').matches
+        ? 'js/mobile-home.js'
+        : 'js/desktop-home.js';
+      renderer.async = false;
+      document.head.appendChild(renderer);
+    })();
+  </script>
   <script src="js/demo-audio-access.js" defer></script>
   <script src="js/songs-disc-view.js" defer></script>
   <script src="js/contact-editor.js" defer></script>
@@ -798,7 +833,7 @@
         <section class="content-section" id="archiveBlock">
           <div class="section-heading">
             <div>
-              <span class="section-kicker" data-copy="tour.008">ARCHIVE</span>
+
               <h3 data-copy="tour.009">Già molestati</h3>
             </div>
 
