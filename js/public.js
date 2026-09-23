@@ -34,6 +34,10 @@
   let bookingUnavailable = new Set(), bookingUnavailableSources = new Map(), bookingSelectedDates = new Set();
   let bookingCalendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let memberMedia = [];
+  let memberMediaLoaded = false;
+  let bookingAvailabilityLoaded = false;
+  let globalContactsObserver = null;
+  let globalContactsRetry = null;
   let memberCarouselIndex = 0;
   let tourPrivateMode = false;
   let fanOnboardingStatus = null;
@@ -108,6 +112,79 @@
     if (!path || !sb) return null;
     try { return sb.storage.from('public-media').getPublicUrl(path).data.publicUrl || null; } catch { return null; }
   }
+  function globalSocialItems() {
+    return $$('#contactsSocialActions .contact-tile').map(link => {
+      const href = link.getAttribute('href') || '';
+      const icon = link.querySelector('.contact-tile-icon');
+      const label = link.querySelector('.contact-tile-copy strong')?.textContent?.trim()
+        || link.getAttribute('aria-label')
+        || link.getAttribute('title')
+        || 'Contatto';
+      if (!href || !icon) return null;
+      return {href,label,iconHtml:icon.innerHTML,external:link.getAttribute('target') === '_blank'};
+    }).filter(Boolean);
+  }
+
+  function makeGlobalSocialLink(item,className) {
+    const link=document.createElement('a');
+    link.className=className;
+    link.href=item.href;
+    link.setAttribute('aria-label',item.label);
+    link.title=item.label;
+    if(item.external){link.target='_blank';link.rel='noopener noreferrer';}
+    const icon=document.createElement('span');
+    icon.className='jm-global-social-icon';
+    icon.innerHTML=item.iconHtml;
+    link.appendChild(icon);
+    return link;
+  }
+
+  function ensureGlobalSocialShells() {
+    let mobile=$('jmGlobalMobileSocial');
+    if(!mobile){
+      mobile=document.createElement('nav');
+      mobile.id='jmGlobalMobileSocial';
+      mobile.className='jm-global-mobile-social is-empty';
+      mobile.setAttribute('aria-label','Social e contatti');
+      document.body.appendChild(mobile);
+    }
+    let desktop=$('jmHeaderSocial');
+    if(!desktop){
+      desktop=document.createElement('nav');
+      desktop.id='jmHeaderSocial';
+      desktop.className='jm-header-social is-empty';
+      desktop.setAttribute('aria-label','Social e contatti');
+      const header=$('siteHeader'),user=$('userEntry');
+      if(header){
+        if(user?.parentElement===header)header.insertBefore(desktop,user);
+        else header.appendChild(desktop);
+      }
+    }
+    return {mobile,desktop};
+  }
+
+  function renderGlobalSocialShells() {
+    const {mobile,desktop}=ensureGlobalSocialShells();
+    const items=globalSocialItems();
+    mobile.replaceChildren(...items.map(item=>makeGlobalSocialLink(item,'jm-global-social-link')));
+    desktop.replaceChildren(...items.map(item=>makeGlobalSocialLink(item,'jm-header-social-link')));
+    mobile.classList.toggle('is-empty',!items.length);
+    desktop.classList.toggle('is-empty',!items.length);
+  }
+
+  function observePublishedContacts() {
+    globalContactsObserver?.disconnect();
+    const source=$('contactsSocialActions');
+    if(!source){
+      clearTimeout(globalContactsRetry);
+      globalContactsRetry=setTimeout(observePublishedContacts,200);
+      return;
+    }
+    globalContactsObserver=new MutationObserver(renderGlobalSocialShells);
+    globalContactsObserver.observe(source,{childList:true,subtree:true,attributes:true,attributeFilter:['href','target','title','aria-label']});
+    renderGlobalSocialShells();
+  }
+
   function ensureHomeHeroNewsLayout() {
     const home=$('homePage');
     if(!home)return;
@@ -677,7 +754,6 @@
     const x=Number($('homeFallbackPosX')?.value??homeSettings.fallback_image_position_x??50);
     const y=Number($('homeFallbackPosY')?.value??homeSettings.fallback_image_position_y??50);
     const zoom=Number($('homeFallbackZoom')?.value??homeSettings.fallback_image_zoom??100);
-
     if($('homeFallbackPosXOut'))$('homeFallbackPosXOut').textContent=x+'%';
     if($('homeFallbackPosYOut'))$('homeFallbackPosYOut').textContent=y+'%';
     if($('homeFallbackZoomOut'))$('homeFallbackZoomOut').textContent=zoom+'%';
@@ -960,6 +1036,7 @@
     bookingUnavailable=new Set((data||[]).map(r=>String(r.day)));
     bookingUnavailableSources=new Map((data||[]).map(r=>[String(r.day),String(r.source||'busy')]));
     [...bookingSelectedDates].forEach(day=>{if(bookingUnavailable.has(day))bookingSelectedDates.delete(day)});
+    bookingAvailabilityLoaded=true;
     renderBookingCalendar();
   }
   function renderBookingSelectedDates() {
@@ -1039,6 +1116,7 @@
         {id:'fallback-ale',name:'Ale Lazza',role:'Chitarra',description:'',sort_order:50,is_current:true,active_from_year:2025,published:true}
       ];
     }
+    memberMediaLoaded=true;
     renderMemberMedia();
     return memberMedia;
   }
@@ -1395,17 +1473,45 @@
     $$('.page').forEach(p => p.classList.toggle('active', p.dataset.page === route));
     $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.route === route));
     renderContextRail(route);
+
     if (route === 'tour') renderTour();
+
     if (route === 'repertoire') {
       renderRepertoire();
       if (!publicSongsLoaded) {
-        loadPublicContentExtensions().then(renderRepertoire).catch(err=>console.warn('Retry repertorio pubblico',err));
+        loadPublicContentExtensions().then(()=>{
+          renderRepertoire();
+          renderPublicMedia();
+          renderHome();
+        }).catch(err=>console.warn('Repertorio pubblico non disponibile',err));
       }
     }
+
     if (route === 'rankings') renderRankings();
-    if (route === 'more') renderPublicMedia();
-    if (route === 'contacts') { renderBookingCalendar(); }
-    if (route === 'news-admin') { loadHomeNewsAdminList().catch(err=>console.warn('Novità admin',err)); }
+
+    if (route === 'band' && !memberMediaLoaded) {
+      loadMemberMedia().catch(err=>console.warn('Membri band non disponibili',err));
+    }
+
+    if (route === 'more') {
+      renderPublicMedia();
+      if (!publicMediaLoaded) {
+        loadPublicContentExtensions().then(()=>{
+          renderPublicMedia();
+          renderRepertoire();
+          renderHome();
+        }).catch(err=>console.warn('Media pubblici non disponibili',err));
+      }
+    }
+
+    if (route === 'contacts') {
+      renderBookingCalendar();
+      if (!bookingAvailabilityLoaded) {
+        loadBookingAvailability().then(renderBookingCalendar).catch(err=>console.warn('Disponibilità booking non disponibile',err));
+      }
+    }
+
+    if (route === 'news-admin') loadHomeNewsAdminList().catch(err=>console.warn('Novità admin',err));
     window.scrollTo({top:0, behavior:'instant'});
   }
 
@@ -1518,7 +1624,7 @@
     return data;
   }
 
-  async function loginFan(name) {
+  async function loginFan(name, {refreshData = true} = {}) {
     let data = await fanApi('enter', {display_name:name});
     data = await resolvePossibleFanMatches(data);
     currentFan = data.fan || data;
@@ -1531,8 +1637,12 @@
     currentMember = null;
     updateUserUI();
     startRealtime();
-    await Promise.all([loadConcerts(true), loadRankings(true)]);
-    renderHome(); renderTour(); renderRankings();
+    if (refreshData) {
+      await Promise.allSettled([
+        loadConcerts(true).then(()=>{renderHome();renderTour();renderRailNextShow();}),
+        loadRankings(true).then(()=>{renderHome();renderRankings();})
+      ]);
+    }
     return data;
   }
   async function loginMember(username, password) {
@@ -1705,8 +1815,6 @@
       });
     });
 
-    // demo-audio-access.js usa questo evento per applicare play / sblocco
-    // anche quando il catalogo viene creato dopo il caricamento iniziale.
     window.dispatchEvent(new CustomEvent('jm:repertoire-rendered'));
   }
   function renderPublicMedia() {
@@ -1834,7 +1942,6 @@
       </span>`;
     }).join('');
 
-    // Se esistono foto vere usa il carosello; altrimenti mostra almeno i nomi.
     box.hidden=!!(carousel&&!carousel.classList.contains('hidden'));
   }
 
@@ -2183,10 +2290,6 @@
     });
   }
 
-  // I contatti pubblici sono gestiti da contact-editor.js tramite site_contacts.
-  // Qui manteniamo solo l'eventuale vecchio box Backstage, se presente, senza
-  // toccare #contactsSocialActions: in questo modo il renderer nuovo non viene
-  // sovrascritto a fine inizializzazione.
   function contactRender() {
     const box=$('contactActions');
     if(!box)return;
@@ -2860,31 +2963,64 @@
       toast(window.JMCopy.text('ui.supabaseUnavailable'),'error');
       return;
     }
+
     sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     ensurePublicSections();
     ensureHomeHeroNewsLayout();
+    ensureGlobalSocialShells();
+    observePublishedContacts();
     bindStaticEvents();
+
     await window.JMCopy.init(sb);
     await loadPermissions();
+
     try {
       const {data:{session}} = await sb.auth.getSession();
       if (session?.user) await restoreMemberSession();
-    } catch (err) { console.warn('Sessione membro non ripristinata',err); }
+    } catch (err) {
+      console.warn('Sessione membro non ripristinata',err);
+    }
+
     if (!currentMember) {
       const savedName = localStorage.getItem('jm_public_fan_name');
       if (savedName) {
-        try { await loginFan(savedName); }
+        try { await loginFan(savedName,{refreshData:false}); }
         catch (err) { console.warn('Sessione fan non ripristinata',err); currentFan = null; }
       }
     }
+
     updateUserUI();
-    await Promise.all([loadConcerts(),loadRankings(),loadPublicUpdates(),loadMemberMedia(),loadPublicContentExtensions(),loadBookingAvailability()]);
-    renderHome(); renderTour(); renderRepertoire(); renderRankings(); renderPublicMedia(); renderBookingCalendar(); renderRailNextShow();
     if (!location.hash) history.replaceState(null,'','#/home');
     applyRoute();
-    if(rawRoute()==='checkin')await handleQrCheckin();
-    startRealtime();
     window.JMCopy.ready();
+    startRealtime();
+
+    loadConcerts().then(()=>{
+      renderHome();
+      renderTour();
+      renderRailNextShow();
+    }).catch(err=>console.warn('Concerti non disponibili',err));
+
+    loadRankings().then(()=>{
+      renderHome();
+      renderRankings();
+    }).catch(err=>console.warn('Classifiche non disponibili',err));
+
+    loadPublicUpdates().then(()=>{
+      renderHome();
+    }).catch(err=>console.warn('Novità Home non disponibili',err));
+
+    if (currentRoute()==='home') {
+      setTimeout(()=>{
+        loadPublicContentExtensions().then(()=>{
+          renderRepertoire();
+          renderPublicMedia();
+          renderHome();
+        }).catch(err=>console.warn('Contenuti pubblici non disponibili',err));
+      },450);
+    }
+
+    if(rawRoute()==='checkin') await handleQrCheckin();
   }
 
   window.addEventListener('DOMContentLoaded', init);
