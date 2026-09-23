@@ -178,14 +178,18 @@
   function writePublicCache() {
     publicCacheWriteTimer = null;
     try {
+      const savedAt = Date.now();
       localStorage.setItem(PUBLIC_CACHE_KEY, JSON.stringify({
-        saved_at: Date.now(),
+        saved_at: savedAt,
         concerts: cacheableConcerts(),
         rankingData,
         siteNews,
         homeSettings,
         publicSongs,
         publicMedia
+      }));
+      window.dispatchEvent(new CustomEvent('jm:public-cache-updated', {
+        detail:{saved_at:savedAt}
       }));
     } catch (err) {
       console.warn('Cache pubblica non salvabile', err);
