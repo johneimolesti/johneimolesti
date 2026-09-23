@@ -1,8 +1,21 @@
 (() => {
   'use strict';
 
+  const MOBILE_QUERY = '(max-width: 760px)';
+  const AUTOPLAY_MS = 7000;
+  const media = window.matchMedia(MOBILE_QUERY);
+
+  let experience = null;
+  let track = null;
+  let progress = null;
+  let count = null;
+  let autoTimer = null;
+  let restartTimer = null;
   let renderTimer = null;
   let observer = null;
+  let headerObserver = null;
+  let currentIndex = 0;
+  let currentSignature = '';
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -21,29 +34,562 @@
     return String(node?.textContent || '').replace(/\s+/g, ' ').trim();
   }
 
+  function isHomeRoute() {
+    const hash = String(location.hash || '');
+    return !hash || hash === '#' || hash === '#/' || hash.startsWith('#/home');
+  }
+
   function openRoute(route) {
     const button = document.querySelector(`.main-nav [data-route="${route}"]`);
-    if (button) return button.click();
+
+    if (button) {
+      button.click();
+      return;
+    }
+
     location.hash = `#/${route}`;
   }
 
-  function openFansRanking() {
-    openRoute('rankings');
-    setTimeout(() => {
-      $('#fansRankingBlock')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }, 80);
+  function extractCssUrl(value) {
+    const raw = String(value || '').trim();
+    const match = raw.match(/url\((['"]?)(.*?)\1\)/i);
+    return match ? match[2] : '';
   }
 
-  function openVoteFlow() {
-    /*
-     * public.js mantiene currentFan e openFanCatalog privati nel suo IIFE.
-     * Passiamo quindi dall'area utente già esistente:
-     * - fan loggato -> il modal espone "VOTA I BRANI", che clicchiamo;
-     * - guest -> resta aperto il login fan.
-     */
+  function readLive() {
+    const source = $('#homeNextShow');
+    const title = cleanText(source?.querySelector('h3'));
+    const meta = cleanText(source?.querySelector('.section-kicker'));
+    const place = cleanText(source?.querySelector('p'));
+
+    let image = extractCssUrl(source?.style.getPropertyValue('--dash-bg'));
+
+    if (!image && source) {
+      image = extractCssUrl(getComputedStyle(source).getPropertyValue('--dash-bg'));
+    }
+
+    if (!title && !meta && !place) {
+      return {
+        title: 'Nuove date in arrivo',
+        meta: '',
+        place: 'Apri il tour per vedere tutte le date.',
+        image: ''
+      };
+    }
+
+    return {
+      title: title || 'Prossimo live',
+      meta,
+      place,
+      image
+    };
+  }
+
+  function readSongs() {
+    let rows = $$('#songsRanking .ranking-row').slice(0, 3).map((row, index) => ({
+      rank: index + 1,
+      title: cleanText(row.querySelector('.ranking-title')) || 'Brano',
+      score: cleanText(row.querySelector('.ranking-score')) || '',
+      cover: row.querySelector('.ranking-cover')?.getAttribute('src') || ''
+    }));
+
+    if (!rows.length) {
+      rows = $$('#homeRankingPreview .mini-rank-row').slice(0, 3).map((row, index) => ({
+        rank: index + 1,
+        title: cleanText(row.querySelector('b')) || 'Brano',
+        score: cleanText(row.querySelector('strong')) || '',
+        cover: ''
+      }));
+    }
+
+    return rows;
+  }
+
+  function readFans() {
+    return $$('#fansRanking .ranking-row').slice(0, 3).map((row, index) => ({
+      rank: cleanText(row.querySelector('.ranking-pos')).replace(/^#/, '') || String(index + 1),
+      name: cleanText(row.querySelector('.ranking-title')) || 'Fan',
+      score: cleanText(row.querySelector('.ranking-score')) || ''
+    }));
+  }
+
+  function readMedia() {
+    const candidates = [
+      ...$$('#mediaGallery .gallery-item img'),
+      ...$$('#mediaGallery img'),
+      ...$$('#homeMediaWall img'),
+      ...$$('.media-gallery img')
+    ];
+
+    const imageNode = candidates.find(node => {
+      const src = node.currentSrc || node.getAttribute('src') || '';
+      return /^https?:\/\//i.test(src) || src.startsWith('/');
+    }) || candidates[0];
+
+    const image = imageNode
+      ? (imageNode.currentSrc || imageNode.getAttribute('src') || '')
+      : '';
+
+    return { image };
+  }
+
+  function readContacts() {
+    const links = $$('#contactsSocialActions .contact-tile');
+
+    return links.map(link => {
+      const icon = link.querySelector('.contact-tile-icon');
+      const href = link.getAttribute('href') || '';
+      const label = cleanText(link.querySelector('.contact-tile-copy strong')) || 'Contatto';
+
+      if (!icon || !href) return null;
+
+      return {
+        href,
+        label,
+        iconHtml: icon.outerHTML,
+        external: link.getAttribute('target') === '_blank'
+      };
+    }).filter(Boolean);
+  }
+
+  function slideBackground(image, alt = '') {
+    if (image) {
+      return `<img class="jm-mobile-home-bg" src="${esc(image)}" alt="${esc(alt)}">`;
+    }
+
+    return `
+      <div class="jm-mobile-home-bg-fallback" aria-hidden="true">
+        <img src="IMG_6259.PNG" alt="">
+      </div>
+    `;
+  }
+
+  function signatureMarkup() {
+    return `
+      <div class="jm-mobile-home-signature">
+        <strong>JOHN &amp; I MOLESTI</strong>
+        <span>I classici italiani incontrano il Punk.</span>
+      </div>
+    `;
+  }
+
+  function liveSlide(live) {
+    return `
+      <article class="jm-mobile-home-slide" data-slide="live">
+        ${slideBackground(live.image, live.title)}
+        ${signatureMarkup()}
+
+        <div class="jm-mobile-home-copy">
+          <span class="jm-mobile-home-kicker">NEXT LIVE</span>
+          <h2>${esc(live.title)}</h2>
+
+          <div class="jm-mobile-home-meta">
+            ${live.meta ? `<b>${esc(live.meta)}</b>` : ''}
+            ${live.place ? `<span>${esc(live.place)}</span>` : ''}
+          </div>
+
+          <div class="jm-mobile-home-actions">
+            <button class="jm-mobile-home-action primary" type="button" data-jm-action="live-detail">
+              DETTAGLI DEL LIVE →
+            </button>
+
+            <button class="jm-mobile-home-action text" type="button" data-jm-action="tour">
+              TOUR · TUTTE LE DATE →
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function songsSlide(songs, fallbackImage) {
+    const background = songs.find(song => song.cover)?.cover || fallbackImage || '';
+
+    const rows = songs.length
+      ? songs.map(song => `
+          <div class="jm-mobile-song-row">
+            <em>#${esc(song.rank)}</em>
+            <b>${esc(song.title)}</b>
+            <strong>${esc(song.score || '')}</strong>
+          </div>
+        `).join('')
+      : `
+          <div class="jm-mobile-song-row">
+            <em>···</em>
+            <b>Classifica in caricamento</b>
+            <strong></strong>
+          </div>
+        `;
+
+    return `
+      <article class="jm-mobile-home-slide" data-slide="songs">
+        ${slideBackground(background, 'Cover della canzone più popolare')}
+        ${signatureMarkup()}
+
+        <div class="jm-mobile-home-copy">
+          <span class="jm-mobile-home-kicker">POPULAR SONGS</span>
+          <h2>LE PIÙ POPOLARI</h2>
+
+          <div class="jm-mobile-song-list">
+            ${rows}
+          </div>
+
+          <div class="jm-mobile-home-actions">
+            <button class="jm-mobile-home-action primary" type="button" data-jm-action="songs">
+              SCOPRI LE SONGS →
+            </button>
+
+            <button class="jm-mobile-home-action text" type="button" data-jm-action="song-ranking">
+              CLASSIFICA COMPLETA →
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function fansSlide(fans) {
+    const rows = fans.length
+      ? fans.map((fan, index) => `
+          <div class="jm-mobile-fan-row">
+            <em>#${esc(fan.rank || index + 1)}</em>
+            <b>${esc(fan.name)}</b>
+            <strong>${esc(fan.score || '')}</strong>
+          </div>
+        `).join('')
+      : `
+          <div class="jm-mobile-fan-row">
+            <em>···</em>
+            <b>Classifica fan in caricamento</b>
+            <strong></strong>
+          </div>
+        `;
+
+    return `
+      <article class="jm-mobile-home-slide" data-slide="fans">
+        ${slideBackground('', '')}
+        ${signatureMarkup()}
+
+        <div class="jm-mobile-home-copy">
+          <span class="jm-mobile-home-kicker">COMMUNITY</span>
+          <h2>TOP FAN</h2>
+
+          <div class="jm-mobile-fan-list">
+            ${rows}
+          </div>
+
+          <p>Vieni ai live, registrati e vota i brani per entrare in classifica.</p>
+
+          <div class="jm-mobile-home-actions">
+            <button class="jm-mobile-home-action primary" type="button" data-jm-action="fan-area">
+              ENTRA / AREA FAN →
+            </button>
+
+            <button class="jm-mobile-home-action text" type="button" data-jm-action="vote">
+              VOTA I BRANI →
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function mediaSlide(mediaData, fallbackImage) {
+    return `
+      <article class="jm-mobile-home-slide" data-slide="media">
+        ${slideBackground(mediaData.image || fallbackImage || '', 'Dal palco')}
+        ${signatureMarkup()}
+
+        <div class="jm-mobile-home-copy">
+          <span class="jm-mobile-home-kicker">MEDIA</span>
+          <h2>DAL PALCO</h2>
+          <p>Foto, locandine e reperti di dubbio valore.</p>
+
+          <div class="jm-mobile-home-actions">
+            <button class="jm-mobile-home-action primary" type="button" data-jm-action="media">
+              GUARDA I MEDIA →
+            </button>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function socialMarkup(contacts) {
+    return contacts.map(item => `
+      <a
+        class="jm-mobile-social-link"
+        href="${esc(item.href)}"
+        aria-label="${esc(item.label)}"
+        title="${esc(item.label)}"
+        ${item.external ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+        ${item.iconHtml}
+      </a>
+    `).join('');
+  }
+
+  function getSlideData() {
+    const live = readLive();
+    const songs = readSongs();
+    const fans = readFans();
+    const mediaData = readMedia();
+    const contacts = readContacts();
+
+    return { live, songs, fans, mediaData, contacts };
+  }
+
+  function dataSignature(data) {
+    return JSON.stringify({
+      live: data.live,
+      songs: data.songs,
+      fans: data.fans,
+      media: data.mediaData,
+      contacts: data.contacts.map(x => ({
+        href: x.href,
+        label: x.label,
+        iconHtml: x.iconHtml
+      }))
+    });
+  }
+
+  function ensureExperience() {
+    const home = $('#homePage');
+    if (!home) return null;
+
+    experience = $('#jmMobileHomeExperience');
+
+    if (!experience) {
+      experience = document.createElement('section');
+      experience.id = 'jmMobileHomeExperience';
+      experience.className = 'jm-mobile-home-experience';
+      experience.setAttribute('aria-label', 'Home John & i Molesti');
+      home.prepend(experience);
+
+      experience.addEventListener('click', handleAction);
+    }
+
+    return experience;
+  }
+
+  function renderExperience(force = false) {
+    if (!media.matches || !isHomeRoute()) return;
+
+    const root = ensureExperience();
+    if (!root) return;
+
+    const data = getSlideData();
+    const signature = dataSignature(data);
+
+    if (!force && signature === currentSignature && track) {
+      renderSocialOnly(data.contacts);
+      return;
+    }
+
+    const previousType = track
+      ? track.querySelectorAll('.jm-mobile-home-slide')[currentIndex]?.dataset.slide
+      : 'live';
+
+    currentSignature = signature;
+
+    root.innerHTML = `
+      <div class="jm-mobile-home-hero">
+        <div
+          class="jm-mobile-home-track"
+          id="jmMobileHomeTrack"
+          tabindex="0"
+          aria-label="Scorri i contenuti della Home">
+          ${liveSlide(data.live)}
+          ${songsSlide(data.songs, data.live.image)}
+          ${fansSlide(data.fans)}
+          ${mediaSlide(data.mediaData, data.live.image)}
+        </div>
+
+        <div class="jm-mobile-home-pager" aria-hidden="true">
+          <span class="jm-mobile-home-count" id="jmMobileHomeCount">01 / 04</span>
+          <span class="jm-mobile-home-progress" id="jmMobileHomeProgress"><span></span></span>
+        </div>
+      </div>
+
+      <div
+        class="jm-mobile-home-social"
+        id="jmMobileHomeSocial"
+        aria-label="Contatti e social">
+        ${socialMarkup(data.contacts)}
+      </div>
+    `;
+
+    track = $('#jmMobileHomeTrack', root);
+    progress = $('#jmMobileHomeProgress', root);
+    count = $('#jmMobileHomeCount', root);
+
+    const slides = $$('.jm-mobile-home-slide', track);
+    const restored = Math.max(
+      0,
+      slides.findIndex(slide => slide.dataset.slide === previousType)
+    );
+
+    currentIndex = restored;
+
+    bindTrack();
+
+    requestAnimationFrame(() => {
+      track.scrollLeft = currentIndex * track.clientWidth;
+      updatePager(false);
+      startAuto();
+    });
+  }
+
+  function renderSocialOnly(contacts = readContacts()) {
+    const social = $('#jmMobileHomeSocial');
+    if (!social) return;
+
+    const next = socialMarkup(contacts);
+
+    if (social.innerHTML !== next) {
+      social.innerHTML = next;
+    }
+  }
+
+  function slideCount() {
+    return track ? $$('.jm-mobile-home-slide', track).length : 0;
+  }
+
+  function detectIndex() {
+    if (!track) return 0;
+    const width = Math.max(1, track.clientWidth);
+    return Math.max(0, Math.min(slideCount() - 1, Math.round(track.scrollLeft / width)));
+  }
+
+  function updatePager(restart = true) {
+    currentIndex = detectIndex();
+    const total = Math.max(1, slideCount());
+
+    if (count) {
+      count.textContent =
+        String(currentIndex + 1).padStart(2, '0') +
+        ' / ' +
+        String(total).padStart(2, '0');
+    }
+
+    if (restart) restartAutoSoon();
+    restartProgress();
+  }
+
+  function restartProgress() {
+    if (!progress) return;
+
+    progress.classList.remove('running');
+    void progress.offsetWidth;
+
+    if (
+      !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+      media.matches &&
+      isHomeRoute()
+    ) {
+      progress.classList.add('running');
+    }
+  }
+
+  function stopAuto() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+
+    if (restartTimer) {
+      clearTimeout(restartTimer);
+      restartTimer = null;
+    }
+
+    progress?.classList.remove('running');
+  }
+
+  function startAuto() {
+    stopAuto();
+
+    if (
+      !track ||
+      slideCount() <= 1 ||
+      !media.matches ||
+      !isHomeRoute() ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      restartProgress();
+      return;
+    }
+
+    restartProgress();
+
+    autoTimer = setInterval(() => {
+      if (document.hidden || !media.matches || !isHomeRoute()) return;
+
+      const total = slideCount();
+      const next = (detectIndex() + 1) % total;
+      goToSlide(next, true);
+    }, AUTOPLAY_MS);
+  }
+
+  function restartAutoSoon() {
+    if (restartTimer) clearTimeout(restartTimer);
+
+    restartTimer = setTimeout(() => {
+      startAuto();
+    }, 1200);
+  }
+
+  function goToSlide(index, smooth = true) {
+    if (!track) return;
+
+    const total = slideCount();
+    const next = Math.max(0, Math.min(total - 1, index));
+
+    currentIndex = next;
+    track.scrollTo({
+      left: next * track.clientWidth,
+      behavior:
+        smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'smooth'
+          : 'auto'
+    });
+
+    if (count) {
+      count.textContent =
+        String(next + 1).padStart(2, '0') +
+        ' / ' +
+        String(total).padStart(2, '0');
+    }
+
+    restartProgress();
+  }
+
+  function bindTrack() {
+    if (!track || track.dataset.jmBound === '1') return;
+    track.dataset.jmBound = '1';
+
+    let scrollTimer = null;
+
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => updatePager(true), 80);
+    }, { passive: true });
+
+    track.addEventListener('pointerdown', stopAuto, { passive: true });
+    track.addEventListener('pointerup', restartAutoSoon, { passive: true });
+    track.addEventListener('pointercancel', restartAutoSoon, { passive: true });
+
+    track.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+
+      event.preventDefault();
+      goToSlide(
+        detectIndex() + (event.key === 'ArrowRight' ? 1 : -1),
+        true
+      );
+      restartAutoSoon();
+    });
+  }
+
+  function openFanArea(voteDirectly = false) {
     const userEntry = $('#userEntry');
 
     if (!userEntry) {
@@ -53,366 +599,193 @@
 
     userEntry.click();
 
+    if (!voteDirectly) return;
+
     setTimeout(() => {
       const voteButton = $('#openFanCatalog');
       if (voteButton) voteButton.click();
-    }, 0);
+    }, 50);
   }
 
-  function instagramIcon() {
-    return `<svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-      <circle cx="12" cy="12" r="4"></circle>
-      <circle class="fill" cx="17.4" cy="6.7" r="1"></circle>
-    </svg>`;
-  }
+  function handleAction(event) {
+    const button = event.target.closest('[data-jm-action]');
+    if (!button) return;
 
-  function youtubeIcon() {
-    return `<svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M21 8.2c-.2-1.6-.9-2.4-2.4-2.6C16.8 5.3 14.4 5.2 12 5.2s-4.8.1-6.6.4C3.9 5.8 3.2 6.6 3 8.2a24.3 24.3 0 0 0 0 7.6c.2 1.6.9 2.4 2.4 2.6 1.8.3 4.2.4 6.6.4s4.8-.1 6.6-.4c1.5-.2 2.2-1 2.4-2.6a24.3 24.3 0 0 0 0-7.6z"></path>
-      <path class="fill" d="m10 9 5 3-5 3z"></path>
-    </svg>`;
-  }
+    const action = button.dataset.jmAction;
 
-  function socialHref(type) {
-    const tiles = $$('#contactsSocialActions a.contact-tile');
-
-    const tile = tiles.find(node => {
-      const href = String(node.getAttribute('href') || '').toLowerCase();
-      const text = cleanText(node).toLowerCase();
-
-      if (type === 'instagram') {
-        return href.includes('instagram.com') || text.includes('instagram');
-      }
-
-      return href.includes('youtube.com') ||
-        href.includes('youtu.be') ||
-        text.includes('youtube');
-    });
-
-    return tile?.getAttribute('href') || '';
-  }
-
-  function ensureShell() {
-    const home = $('#homePage');
-    if (!home) return null;
-
-    let shell = $('#mobileHomeBands');
-
-    if (!shell) {
-      shell = document.createElement('section');
-      shell.id = 'mobileHomeBands';
-      shell.className = 'mobile-home-bands';
-      shell.setAttribute('aria-label', 'Anteprima del sito');
+    if (action === 'live-detail') {
+      const sourceButton = $('#homeNextShow [data-home-live-detail]');
+      if (sourceButton) sourceButton.click();
+      else openRoute('tour');
+      return;
     }
 
-    const hero = home.querySelector('.home-hero-news, .hero');
-
-    if (hero && hero.nextElementSibling !== shell) {
-      hero.insertAdjacentElement('afterend', shell);
-    } else if (!hero && shell.parentElement !== home) {
-      home.prepend(shell);
+    if (action === 'tour') {
+      openRoute('tour');
+      return;
     }
 
-    if (!shell.dataset.bound) {
-      shell.dataset.bound = '1';
-
-      shell.addEventListener('click', event => {
-        const social = event.target.closest('[data-mobile-social]');
-
-        if (social) {
-          const href = social.getAttribute('href');
-
-          if (!href || href === '#') {
-            event.preventDefault();
-            openRoute('contacts');
-          }
-
-          return;
-        }
-
-        const actionNode = event.target.closest('[data-mobile-home-action]');
-        if (!actionNode) return;
-
-        const action = actionNode.dataset.mobileHomeAction;
-
-        if (action === 'tour') return openRoute('tour');
-        if (action === 'rankings') return openRoute('rankings');
-        if (action === 'fans') return openFansRanking();
-        if (action === 'contacts') return openRoute('contacts');
-        if (action === 'vote') return openVoteFlow();
-      });
+    if (action === 'songs') {
+      openRoute('repertoire');
+      return;
     }
 
-    return shell;
-  }
-
-  function ensureNextStrip() {
-    const hero = $('#homePage .home-hero-news');
-    if (!hero) return;
-
-    let strip = $('#mobileHeroNextStrip');
-
-    if (!strip) {
-      strip = document.createElement('button');
-      strip.id = 'mobileHeroNextStrip';
-      strip.className = 'mobile-hero-next-strip';
-      strip.type = 'button';
-
-      strip.onclick = event => {
-        event.preventDefault();
-
-        const detail = $('#homeNextShow [data-home-live-detail]');
-
-        if (detail) return detail.click();
-
-        openRoute('tour');
-      };
-
-      hero.appendChild(strip);
+    if (action === 'song-ranking') {
+      openRoute('rankings');
+      setTimeout(() => {
+        $('#songsRankingBlock')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 90);
+      return;
     }
 
-    const source = $('#homeNextShow');
-    const title = cleanText(source?.querySelector('h3')) || 'Nuove date in arrivo';
-    const meta = cleanText(source?.querySelector('.section-kicker')) || 'PROSSIMO LIVE';
-
-    strip.innerHTML = `
-      <span class="mobile-hero-next-strip-tag">PROSSIMO LIVE</span>
-      <span class="mobile-hero-next-strip-copy">${esc(meta)} · ${esc(title)}</span>
-      <span class="mobile-hero-next-strip-arrow" aria-hidden="true">›</span>`;
-  }
-
-  function upcomingDatesMarkup() {
-    const cards = $$('#upcomingConcerts .concert-card').slice(1, 3);
-
-    const rows = cards.length
-      ? cards.map(card => {
-          const day = cleanText(card.querySelector('.concert-date-block strong'));
-          const month = cleanText(card.querySelector('.concert-date-block span'));
-          const name = cleanText(card.querySelector('h4')) || 'Live';
-
-          return `
-            <span class="mobile-date-item">
-              <b>${esc([day, month].filter(Boolean).join(' '))}</b>
-              <span>${esc(name)}</span>
-            </span>`;
-        }).join('')
-      : '<span class="mobile-date-empty">Nessun’altra data pubblicata al momento.</span>';
-
-    return `
-      <button class="mobile-widget mobile-widget-dates"
-              type="button"
-              data-mobile-home-action="tour">
-        <span class="mobile-widget-kicker">CALENDARIO</span>
-        <strong class="mobile-widget-title">Prossime date</strong>
-        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
-        <span class="mobile-dates-list">${rows}</span>
-      </button>`;
-  }
-
-  function socialLink(type, label, icon) {
-    const href = socialHref(type);
-
-    return `
-      <a class="mobile-social-icon"
-         href="${esc(href || '#')}"
-         ${href ? 'target="_blank" rel="noopener noreferrer"' : ''}
-         data-mobile-social="${esc(type)}"
-         aria-label="${esc(label)}">
-        ${icon}
-      </a>`;
-  }
-
-  function socialMarkup() {
-    return `
-      <article class="mobile-widget mobile-widget-social">
-        <span class="mobile-widget-kicker">BOOKING / SOCIAL</span>
-        <strong class="mobile-widget-title">Contatti</strong>
-
-        <div class="mobile-social-icons">
-          ${socialLink('instagram', 'Instagram', instagramIcon())}
-          ${socialLink('youtube', 'YouTube', youtubeIcon())}
-          <button class="mobile-social-booking"
-                  type="button"
-                  data-mobile-home-action="contacts">BOOKING →</button>
-        </div>
-      </article>`;
-  }
-
-  function songRows() {
-    const rankingRows = $$('#songsRanking .ranking-row').slice(0, 3);
-
-    if (rankingRows.length) {
-      return rankingRows.map((row, index) => ({
-        rank: `#${index + 1}`,
-        title: cleanText(row.querySelector('.ranking-title')) || 'Brano',
-        score: cleanText(row.querySelector('.ranking-score')) || '—',
-        cover: row.querySelector('.ranking-cover')?.getAttribute('src') || ''
-      }));
+    if (action === 'fan-area') {
+      openFanArea(false);
+      return;
     }
 
-    return $$('#homeRankingPreview .mini-rank-row').slice(0, 3).map((row, index) => ({
-      rank: cleanText(row.querySelector('span')) || `#${index + 1}`,
-      title: cleanText(row.querySelector('b')) || 'Brano',
-      score: cleanText(row.querySelector('strong')) || '—',
-      cover: ''
-    }));
-  }
-
-  function songsMarkup() {
-    const rows = songRows();
-
-    const content = rows.length
-      ? rows.map(item => `
-          <span class="mobile-song-tile">
-            ${item.cover
-              ? `<img src="${esc(item.cover)}" alt="" loading="lazy">`
-              : ''}
-            <span class="mobile-song-tile-copy">
-              <em class="mobile-song-tile-rank">${esc(item.rank)}</em>
-              <b>${esc(item.title)}</b>
-              <strong>${esc(item.score)}</strong>
-            </span>
-          </span>`).join('')
-      : `
-        <span class="mobile-date-empty">
-          Classifica in caricamento.
-        </span>`;
-
-    return `
-      <button class="mobile-widget mobile-widget-songs"
-              type="button"
-              data-mobile-home-action="rankings">
-        <span class="mobile-widget-kicker">HITS / TOP 3</span>
-        <strong class="mobile-widget-title">Canzoni più popolari</strong>
-        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
-        <span class="mobile-song-tiles">${content}</span>
-      </button>`;
-  }
-
-  function fanRows() {
-    return $$('#fansRanking .ranking-row').slice(0, 3).map((row, index) => ({
-      rank: cleanText(row.querySelector('.ranking-pos')) || String(index + 1),
-      name: cleanText(row.querySelector('.ranking-title')) || 'Fan',
-      points: cleanText(row.querySelector('.ranking-score')) || '0'
-    }));
-  }
-
-  function fansMarkup() {
-    const rows = fanRows();
-
-    if (!rows.length) {
-      return `
-        <button class="mobile-widget mobile-widget-fans"
-                type="button"
-                data-mobile-home-action="fans">
-          <span class="mobile-widget-kicker">COMMUNITY</span>
-          <strong class="mobile-widget-title">Top fan</strong>
-          <span class="mobile-widget-arrow" aria-hidden="true">›</span>
-          <span class="mobile-date-empty">Classifica fan in caricamento.</span>
-        </button>`;
+    if (action === 'vote') {
+      openFanArea(true);
+      return;
     }
 
-    const leader = rows[0];
-    const runners = rows.slice(1);
-
-    return `
-      <button class="mobile-widget mobile-widget-fans"
-              type="button"
-              data-mobile-home-action="fans">
-        <span class="mobile-widget-kicker">COMMUNITY / TOP 3</span>
-        <strong class="mobile-widget-title">Top fan</strong>
-        <span class="mobile-widget-arrow" aria-hidden="true">›</span>
-
-        <span class="mobile-fan-leader">
-          <em>#${esc(leader.rank)}</em>
-          <b>${esc(leader.name)}</b>
-          <strong>${esc(leader.points)}</strong>
-        </span>
-
-        <span class="mobile-fan-runners">
-          ${runners.map(item => `
-            <span class="mobile-fan-runner">
-              <i>#${esc(item.rank)}</i>
-              <b>${esc(item.name)}</b>
-            </span>`).join('')}
-        </span>
-      </button>`;
+    if (action === 'media') {
+      openRoute('more');
+      setTimeout(() => {
+        ($('#galleryBlock') || $('#photosBlock'))?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 90);
+    }
   }
 
-  function voteMarkup() {
-    return `
-      <button class="mobile-widget mobile-widget-vote"
-              type="button"
-              data-mobile-home-action="vote">
-        <span class="mobile-widget-kicker">FAN AREA</span>
-        <strong>ENTRA<br>IN CLASSIFICA</strong>
-        <small>Registrati, vota i brani e scala la Top Fan.</small>
-        <span class="mobile-vote-arrow" aria-hidden="true">↗</span>
-      </button>`;
+  function measureHeader() {
+    if (!media.matches) return;
+
+    const header = $('#siteHeader');
+    const height = Math.ceil(header?.getBoundingClientRect().height || 112);
+
+    document.documentElement.style.setProperty(
+      '--jm-mobile-header-h',
+      `${height}px`
+    );
   }
 
-  function render() {
-    ensureNextStrip();
-
-    const shell = ensureShell();
-    if (!shell) return;
-
-    shell.innerHTML =
-      upcomingDatesMarkup() +
-      socialMarkup() +
-      songsMarkup() +
-      fansMarkup() +
-      voteMarkup();
-  }
-
-  function scheduleRender() {
+  function scheduleRender(force = false) {
     clearTimeout(renderTimer);
-    renderTimer = setTimeout(render, 40);
+
+    renderTimer = setTimeout(() => {
+      if (!media.matches || !isHomeRoute()) return;
+      measureHeader();
+      renderExperience(force);
+    }, 70);
   }
 
-  function installObservers() {
-    if (observer) observer.disconnect();
+  function installObserver() {
+    observer?.disconnect();
 
-    observer = new MutationObserver(scheduleRender);
+    observer = new MutationObserver(mutations => {
+      const onlyOwnMutations = mutations.every(mutation => {
+        const node = mutation.target?.nodeType === 1
+          ? mutation.target
+          : mutation.target?.parentElement;
 
-    [
-      $('#homeNextShow'),
-      $('#homeRankingPreview'),
-      $('#upcomingConcerts'),
-      $('#songsRanking'),
-      $('#fansRanking'),
-      $('#contactsSocialActions'),
-      $('#highlightTrack')
-    ].filter(Boolean).forEach(node => {
-      observer.observe(node, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'href', 'src']
+        return node?.closest?.('#jmMobileHomeExperience');
       });
+
+      if (onlyOwnMutations) return;
+      scheduleRender(false);
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['href', 'src', 'style', 'class']
     });
   }
 
-  function init() {
-    render();
-    installObservers();
+  function syncRouteState() {
+    const active = media.matches && isHomeRoute();
 
-    addEventListener('hashchange', scheduleRender);
-    addEventListener('resize', scheduleRender);
+    document.body.classList.toggle('jm-mobile-home-active', active);
 
-    setTimeout(scheduleRender, 250);
-    setTimeout(scheduleRender, 800);
+    if (!media.matches) {
+      stopAuto();
+      $('#jmMobileHomeExperience')?.remove();
+      experience = null;
+      track = null;
+      progress = null;
+      count = null;
+      currentSignature = '';
+      document.documentElement.style.removeProperty('--jm-mobile-header-h');
+      return;
+    }
 
-    setTimeout(() => {
-      installObservers();
-      scheduleRender();
-    }, 1600);
+    measureHeader();
+
+    if (active) {
+      renderExperience(true);
+    } else {
+      stopAuto();
+    }
+  }
+
+  function watchHeader() {
+    headerObserver?.disconnect();
+
+    const header = $('#siteHeader');
+    if (!header || typeof ResizeObserver === 'undefined') return;
+
+    headerObserver = new ResizeObserver(() => {
+      measureHeader();
+
+      if (media.matches && isHomeRoute()) {
+        requestAnimationFrame(() => {
+          if (track) track.scrollLeft = currentIndex * track.clientWidth;
+        });
+      }
+    });
+
+    headerObserver.observe(header);
+  }
+
+  function boot() {
+    installObserver();
+    watchHeader();
+    syncRouteState();
+
+    addEventListener('hashchange', syncRouteState);
+    addEventListener('resize', () => {
+      measureHeader();
+
+      if (media.matches && isHomeRoute()) {
+        requestAnimationFrame(() => {
+          if (track) track.scrollLeft = currentIndex * track.clientWidth;
+        });
+      }
+    }, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopAuto();
+      else if (media.matches && isHomeRoute()) startAuto();
+    });
+
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', syncRouteState);
+    } else if (typeof media.addListener === 'function') {
+      media.addListener(syncRouteState);
+    }
+
+    [180, 500, 900, 1500, 2500].forEach(delay => {
+      setTimeout(() => scheduleRender(false), delay);
+    });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, {once:true});
+    document.addEventListener('DOMContentLoaded', boot, { once: true });
   } else {
-    init();
+    boot();
   }
 })();
