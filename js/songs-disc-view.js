@@ -967,8 +967,12 @@
       title.insertAdjacentElement('afterend',count);
     }
 
-    count.textContent =
+    const nextText =
       `▶ ${Number(song?.weighted_play_count || 0)} RIPRODUZIONI`;
+
+    if (count.textContent !== nextText) {
+      count.textContent = nextText;
+    }
   }
 
   function syncCardPlayingState(card) {
@@ -1848,18 +1852,35 @@
   function observeDynamicContent() {
     if (gridObserver) gridObserver.disconnect();
 
+    let scheduled = false;
+
     gridObserver = new MutationObserver(() => {
-      decorateAll();
-      decorateHitRows();
+      if (scheduled) return;
+      scheduled = true;
+
+      requestAnimationFrame(() => {
+        scheduled = false;
+        decorateAll();
+        decorateHitRows();
+      });
     });
 
-    gridObserver.observe(
-      document.body,
-      {
+    const repertoireGrid = document.getElementById('repertoireGrid');
+    const songsRanking = document.getElementById('songsRanking');
+
+    if (repertoireGrid) {
+      gridObserver.observe(repertoireGrid, {
         childList:true,
         subtree:true
-      }
-    );
+      });
+    }
+
+    if (songsRanking) {
+      gridObserver.observe(songsRanking, {
+        childList:true,
+        subtree:true
+      });
+    }
   }
 
   function setup() {
