@@ -631,6 +631,9 @@
     progress = $('#jmMobileHomeProgress', root);
     count = $('#jmMobileHomeCount', root);
 
+    document.documentElement.classList.remove('jm-mobile-home-pending');
+    window.dispatchEvent(new CustomEvent('jm:mobile-home-ready'));
+
     const slides = $$('.jm-mobile-home-slide', track);
     const restored = Math.max(
       0,
@@ -1032,6 +1035,7 @@
     );
 
     if (!media.matches) {
+      document.documentElement.classList.remove('jm-mobile-home-pending');
       pauseAuto();
 
       $('#jmMobileHomeExperience')?.remove();
@@ -1052,7 +1056,10 @@
     measureHeader();
 
     if (active) renderExperience(true);
-    else pauseAuto();
+    else {
+      document.documentElement.classList.remove('jm-mobile-home-pending');
+      pauseAuto();
+    }
   }
 
   function watchHeader() {
