@@ -268,6 +268,7 @@
     desktop.replaceChildren(...items.map(item=>makeGlobalSocialLink(item,'jm-header-social-link')));
     mobile.classList.toggle('is-empty',!items.length);
     desktop.classList.toggle('is-empty',!items.length);
+    if ($('checkinSocialModal') && !$('checkinSocialModal').hidden) renderCheckinSocialModal();
   }
 
   function observePublishedContacts() {
@@ -281,6 +282,101 @@
     globalContactsObserver=new MutationObserver(renderGlobalSocialShells);
     globalContactsObserver.observe(source,{childList:true,subtree:true,attributes:true,attributeFilter:['href','target','title','aria-label']});
     renderGlobalSocialShells();
+  }
+
+  function ensureCheckinSocialModal() {
+    let modal=$('checkinSocialModal');
+    if(modal)return modal;
+
+    if(!$('checkinSocialModalStyles')){
+      const style=document.createElement('style');
+      style.id='checkinSocialModalStyles';
+      style.textContent=`
+        .checkin-social-card{width:min(480px,100%);overflow:hidden}
+        .checkin-social-card .modal-head{align-items:flex-start}
+        .checkin-social-card .modal-head h2{font-size:clamp(27px,6vw,40px)}
+        .checkin-social-intro{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.5}
+        .checkin-social-links{display:grid;gap:9px}
+        .checkin-social-link{display:grid;grid-template-columns:44px minmax(0,1fr) 24px;gap:12px;align-items:center;min-height:58px;padding:8px 12px;border:2px solid #6f6b5e;background:#22211d;color:var(--text);text-decoration:none;transition:transform .12s ease,border-color .12s ease,background .12s ease}
+        .checkin-social-link:hover,.checkin-social-link:focus-visible{transform:translate(-2px,-2px);border-color:var(--gold);background:#2d2b21;outline:none}
+        .checkin-social-icon{display:grid;place-items:center;width:42px;height:42px;border:1px solid #716d5f;background:#111;color:var(--gold)}
+        .checkin-social-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+        .checkin-social-icon svg .fill{fill:currentColor;stroke:none}
+        .checkin-social-label{min-width:0;font-weight:900;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .checkin-social-arrow{font-size:20px;color:var(--gold);text-align:right}
+        .checkin-social-empty{padding:18px;border:1px dashed #656157;color:var(--muted);text-align:center;font-size:13px}
+        .checkin-social-home-note{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+        @media(max-width:760px){.checkin-social-link{min-height:54px;grid-template-columns:40px minmax(0,1fr) 20px}.checkin-social-icon{width:38px;height:38px}.checkin-social-label{font-size:14px}}
+      `;
+      document.head.appendChild(style);
+    }
+
+    modal=document.createElement('div');
+    modal.className='modal';
+    modal.id='checkinSocialModal';
+    modal.hidden=true;
+    modal.innerHTML=`
+      <div class="modal-backdrop" data-checkin-social-close></div>
+      <section class="modal-card checkin-social-card" role="dialog" aria-modal="true" aria-labelledby="checkinSocialTitle">
+        <header class="modal-head">
+          <div><span class="section-kicker">CHECK-IN COMPLETATO</span><h2 id="checkinSocialTitle">PRESENZA CERTIFICATA ✓</h2></div>
+          <button class="modal-close" type="button" aria-label="Chiudi" data-checkin-social-close>×</button>
+        </header>
+        <div class="modal-body">
+          <p class="checkin-social-intro" id="checkinSocialIntro">Presenza salvata. Se vuoi, trovi qui i nostri canali.</p>
+          <div class="checkin-social-links" id="checkinSocialLinks"></div>
+          <div class="checkin-social-home-note">Chiudendo rimani direttamente nella Home.</div>
+        </div>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-checkin-social-close]').forEach(el=>el.addEventListener('click',()=>closeCheckinSocialModal()));
+    return modal;
+  }
+
+  function renderCheckinSocialModal() {
+    const modal=ensureCheckinSocialModal();
+    const list=$('checkinSocialLinks');
+    if(!list)return;
+    const items=globalSocialItems();
+    list.replaceChildren();
+    if(!items.length){
+      const empty=document.createElement('div');
+      empty.className='checkin-social-empty';
+      empty.textContent='Social e contatti in caricamento…';
+      list.appendChild(empty);
+      return;
+    }
+    items.forEach(item=>{
+      const link=document.createElement('a');
+      link.className='checkin-social-link';
+      link.href=item.href;
+      if(item.external){link.target='_blank';link.rel='noopener noreferrer';}
+      link.setAttribute('aria-label',item.label);
+      link.innerHTML=`<span class="checkin-social-icon">${item.iconHtml}</span><span class="checkin-social-label">${esc(item.label)}</span><span class="checkin-social-arrow">↗</span>`;
+      list.appendChild(link);
+    });
+  }
+
+  function openCheckinSocialModal(concertName='') {
+    const modal=ensureCheckinSocialModal();
+    const intro=$('checkinSocialIntro');
+    if(intro)intro.textContent=concertName
+      ? `Presenza a “${concertName}” certificata. Se vuoi, trovi qui i nostri canali.`
+      : 'Presenza certificata. Se vuoi, trovi qui i nostri canali.';
+    renderCheckinSocialModal();
+    openModal('checkinSocialModal');
+    setTimeout(()=>modal.querySelector('.modal-close')?.focus(),0);
+  }
+
+  function closeCheckinSocialModal() {
+    if(!$('checkinSocialModal'))return;
+    closeModal('checkinSocialModal');
+  }
+
+  function completeQrCheckin(concertName='') {
+    qrCheckinPending=false;
+    go('home');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>openCheckinSocialModal(concertName)));
   }
 
   function ensureHomeHeroNewsLayout() {
@@ -1488,19 +1584,18 @@
 
       if (data.status === 'inactive') {
         qrCheckinPending = false;
-        go('contacts');
+        toast(data.message || 'Check-in non disponibile in questo momento','error');
+        go('home');
         return;
       }
 
       if (data.status === 'certified') {
-        qrCheckinPending = false;
-        toast(data.message || 'Presenza certificata','ok');
         try {
           await loadRankings(true);
           renderRankings();
           renderHome();
         } catch {}
-        go('contacts');
+        completeQrCheckin(data.concert?.name || '');
         return;
       }
 
@@ -1517,12 +1612,12 @@
       }
 
       qrCheckinPending = false;
-      go('contacts');
+      go('home');
     } catch (err) {
       qrCheckinPending = false;
       console.warn('Check-in QR non disponibile',err);
       toast(err.message || 'Check-in QR non disponibile','error');
-      go('contacts');
+      go('home');
     }
   }
   function can(role, key) {
@@ -3032,15 +3127,13 @@
         msg.textContent = '';
         closeModal('userModal');
         if(qrCheckinPending){
-          qrCheckinPending=false;
           const first=qrClaimedOnLogin[0];
-          toast(first?`Presenza certificata · ${first.name}`:'Presenza QR associata al tuo profilo','ok');
           try{
             await loadRankings(true);
             renderRankings();
             renderHome();
           }catch{}
-          go('contacts');
+          completeQrCheckin(first?.name || '');
         }else{
           toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok');
         }
@@ -3075,6 +3168,7 @@
     ensurePublicSections();
     ensureHomeHeroNewsLayout();
     ensureGlobalSocialShells();
+    ensureCheckinSocialModal();
     observePublishedContacts();
     bindStaticEvents();
 
