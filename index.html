@@ -12,6 +12,15 @@
   <link rel="preconnect" href="https://etzwybamvfpeitkttwrc.supabase.co" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://etzwybamvfpeitkttwrc.supabase.co">
+  <script>
+    (() => {
+      try {
+        if (window.matchMedia('(max-width: 760px)').matches) {
+          document.documentElement.classList.add('jm-mobile-home-pending');
+        }
+      } catch {}
+    })();
+  </script>
   <link rel="preload" href="js/mobile-home.js" as="script" media="(max-width: 760px)">
   <link rel="preload" href="js/desktop-home.js" as="script" media="(min-width: 761px)">
   <link rel="stylesheet" href="css/public.css">
@@ -26,6 +35,14 @@
     }
 
     @media (max-width: 760px) {
+      html.jm-mobile-home-pending #homePage > :not(#jmMobileHomeExperience) {
+        visibility: hidden !important;
+      }
+
+      html.jm-mobile-home-pending #homePage {
+        background: #080808 !important;
+      }
+
       :root {
         --jm-mobile-header-h: 112px;
         --jm-mobile-social-h: calc(50px + env(safe-area-inset-bottom));
