@@ -290,23 +290,37 @@
     renderGlobalSocialShells();
   }
 
-  function checkinHeroTarget() {
-    const home=$('homePage');
-    if(!home)return null;
-    if(window.matchMedia('(max-width: 760px)').matches)return home;
-    return home.querySelector('.hero') || home;
-  }
-
   function ensureCheckinHeroStyles() {
     if($('checkinHeroFlowStyles'))return;
     const style=document.createElement('style');
     style.id='checkinHeroFlowStyles';
     style.textContent=`
-      #homePage .hero,.jm-mobile-home-hero{position:relative}
-      .jm-mobile-home-active #homePage>.checkin-hero-flow{display:grid!important}
-      .checkin-hero-flow{position:absolute;z-index:80;inset:0;display:grid;place-items:center;padding:clamp(14px,3vw,32px);background:rgba(5,5,5,.56);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+      .checkin-hero-flow{
+        position:fixed;
+        z-index:2147483000;
+        inset:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:clamp(14px,4vw,36px);
+        background:rgba(4,4,4,.62);
+        backdrop-filter:blur(3px);
+        -webkit-backdrop-filter:blur(3px);
+        overflow:auto;
+        overscroll-behavior:contain;
+      }
       .checkin-hero-flow[hidden]{display:none!important}
-      .checkin-hero-card{width:min(500px,100%);max-height:calc(100% - 8px);overflow:auto;border:2px solid #6f6b5e;background:rgba(22,22,20,.96);box-shadow:0 18px 55px rgba(0,0,0,.55);color:var(--text)}
+      .checkin-hero-card{
+        position:relative;
+        z-index:1;
+        width:min(500px,calc(100vw - 28px));
+        max-height:min(82dvh,760px);
+        overflow:auto;
+        border:2px solid #6f6b5e;
+        background:#161614;
+        box-shadow:0 24px 80px rgba(0,0,0,.78),0 0 0 1px rgba(255,255,255,.03) inset;
+        color:var(--text);
+      }
       .checkin-hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 18px 12px;border-bottom:1px solid #454239}
       .checkin-hero-head h2{margin:3px 0 0;font-size:clamp(25px,5vw,38px);line-height:.98}
       .checkin-hero-close{flex:0 0 auto;width:38px;height:38px;border:1px solid #615e53;background:#171715;color:var(--text);font-size:25px;line-height:1;cursor:pointer}
@@ -322,7 +336,7 @@
       .checkin-social-arrow{font-size:19px;color:var(--gold);text-align:right}
       .checkin-social-empty{padding:16px;border:1px dashed #656157;color:var(--muted);text-align:center;font-size:13px}
       .checkin-hero-note{margin-top:13px;color:var(--muted);font-size:11px;text-align:center}
-      .checkin-live-card{width:min(540px,100%)}
+      .checkin-live-card{width:min(540px,calc(100vw - 28px))}
       .checkin-live-visual{position:relative;min-height:150px;margin:-16px -18px 15px;overflow:hidden;background:#111;border-bottom:1px solid #454239}
       .checkin-live-visual img{display:block;width:100%;height:190px;object-fit:cover;filter:brightness(.72)}
       .checkin-live-visual.no-poster{display:grid;place-items:center;background:linear-gradient(135deg,#111,#252116);color:var(--gold);font-size:34px;font-weight:1000;letter-spacing:.08em}
@@ -333,11 +347,14 @@
       .checkin-live-open{background:var(--gold);color:#111;border-color:var(--gold)}
       .checkin-live-dismiss{padding:0 16px;background:#222;color:var(--text)}
       @media(max-width:760px){
-        .checkin-hero-flow{padding:12px}
-        .checkin-hero-card{max-height:calc(100% - 4px)}
-        .checkin-hero-head{padding:14px 14px 10px}.checkin-hero-body{padding:13px 14px 15px}
-        .checkin-live-visual{margin:-13px -14px 13px}.checkin-live-visual img{height:160px}
-        .checkin-live-actions{grid-template-columns:1fr}.checkin-live-dismiss{min-height:40px}
+        .checkin-hero-flow{padding:12px;align-items:center}
+        .checkin-hero-card{width:min(100%,480px);max-height:calc(100dvh - 24px)}
+        .checkin-hero-head{padding:14px 14px 10px}
+        .checkin-hero-body{padding:13px 14px 15px}
+        .checkin-live-visual{margin:-13px -14px 13px}
+        .checkin-live-visual img{height:160px}
+        .checkin-live-actions{grid-template-columns:1fr}
+        .checkin-live-dismiss{min-height:40px}
       }
     `;
     document.head.appendChild(style);
@@ -377,16 +394,14 @@
   function ensureCheckinHeroFlow() {
     ensureCheckinHeroStyles();
     let flow=$('checkinHeroFlow');
-    const target=checkinHeroTarget();
-    if(!target)return null;
-    if(flow && flow.parentElement!==target){flow.remove();flow=null;}
     if(flow)return flow;
     flow=document.createElement('div');
     flow.id='checkinHeroFlow';
     flow.className='checkin-hero-flow';
     flow.hidden=true;
+    flow.setAttribute('role','presentation');
     flow.innerHTML='<section class="checkin-hero-card" id="checkinHeroCard" role="dialog" aria-modal="true"></section>';
-    target.appendChild(flow);
+    document.body.appendChild(flow);
     flow.addEventListener('click',e=>{if(e.target===flow)advanceHomeEntryFlow();});
     return flow;
   }
@@ -477,14 +492,20 @@
     const flow=$('checkinHeroFlow');
     if(flow)flow.hidden=true;
     homeEntryFlowContext=null;
+    if(!$$('.modal:not([hidden])').length){
+      document.documentElement.style.removeProperty('overflow');
+      document.body.style.removeProperty('overflow');
+    }
   }
 
   function openHomeEntryFlow({source='checkin',concert=null}={}) {
     const flow=ensureCheckinHeroFlow();
     if(!flow)return;
     homeEntryFlowContext={source,concert:fullConcertForEntry(concert),stage:'social'};
+    window.scrollTo({top:0,left:0,behavior:'instant'});
     flow.hidden=false;
-    window.scrollTo({top:0,behavior:'instant'});
+    document.documentElement.style.setProperty('overflow','hidden','important');
+    document.body.style.setProperty('overflow','hidden','important');
     renderCheckinHeroSocialCard();
     setTimeout(()=>$('checkinHeroCard')?.querySelector('.checkin-hero-close')?.focus(),0);
   }
@@ -494,14 +515,20 @@
     newDeviceEntryPending=false;
     qrCheckinConcert=null;
     go('home');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>openHomeEntryFlow({source:'checkin',concert})));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      openHomeEntryFlow({source:'checkin',concert});
+    }));
   }
 
   function completeNewDeviceEntry() {
     newDeviceEntryPending=false;
     const live=activeLoadedConcertForEntry();
     go('home');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>openHomeEntryFlow({source:'new-device',concert:live})));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      openHomeEntryFlow({source:'new-device',concert:live});
+    }));
   }
 
   function ensureHomeHeroNewsLayout() {
