@@ -6505,6 +6505,8 @@ setMemberRankingTab('songs');
 
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
+  <script src="js/fan-presenze.js"></script>
+  <script src="js/qr-checkin-admin.js"></script>
   <script id="requests-admin-inline">
 (()=>{
   'use strict';
@@ -6812,7 +6814,7 @@ setMemberRankingTab('songs');
     cashPage:"management",bandAvailabilityPage:"management",requestsPage:"management",
     demoCodesPage:"management",bookingAdminPage:"management",
     songRankingPage:"rankings",analyticsPage:"rankings",
-    publicMediaAdminPage:"setup",setupPage:"setup"
+    publicMediaAdminPage:"setup",setupPage:"setup",checkinQrPage:"setup"
   };
   const PAGE_ROUTE={
     mySetlistPage:"scaletta",proposalsPage:"proposte",membersPage:"scalette-membri",
@@ -6820,7 +6822,7 @@ setMemberRankingTab('songs');
     demoCertificationPage:"presenze",fansAdminPage:"fan",
     cashPage:"cassa",bandAvailabilityPage:"disponibilita",requestsPage:"richieste",
     songRankingPage:"classifiche",analyticsPage:"statistiche",
-    publicMediaAdminPage:"media-pubblici",setupPage:"setup"
+    publicMediaAdminPage:"media-pubblici",setupPage:"setup",checkinQrPage:"qr-checkin"
   };
   const ROUTE_PAGE={
     scaletta:"mySetlistPage",proposte:"proposalsPage","scalette-membri":"membersPage",
@@ -6828,7 +6830,7 @@ setMemberRankingTab('songs');
     presenze:"demoCertificationPage",fan:"fansAdminPage",
     cassa:"cashPage",disponibilita:"bandAvailabilityPage",richieste:"requestsPage",
     classifiche:"songRankingPage","classifica-brani":"songRankingPage",statistiche:"analyticsPage",
-    "media-pubblici":"publicMediaAdminPage",setup:"setupPage"
+    "media-pubblici":"publicMediaAdminPage",setup:"setupPage","qr-checkin":"checkinQrPage"
   };
   const ORDER=[
     "mySetlistPage","proposalsPage","membersPage",
@@ -6836,10 +6838,10 @@ setMemberRankingTab('songs');
     "demoCertificationPage","fansAdminPage",
     "cashPage","bandAvailabilityPage","requestsPage",
     "songRankingPage","analyticsPage",
-    "publicMediaAdminPage","setupPage",
+    "publicMediaAdminPage","setupPage","checkinQrPage",
     "demoCodesPage","bookingAdminPage"
   ];
-  const LABELS={demoCertificationPage:"PRESENZE",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",publicMediaAdminPage:"MEDIA PUBBLICI"};
+  const LABELS={demoCertificationPage:"PRESENZE",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",publicMediaAdminPage:"MEDIA PUBBLICI",checkinQrPage:"QR CHECK-IN"};
   const nav=()=>document.getElementById("memberNav");
   const top=()=>document.getElementById("memberCategoryNav");
   const memberApp=()=>document.getElementById("memberApp");
