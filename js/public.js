@@ -47,6 +47,8 @@
   let refreshBusy = false, concertDirty = false;
   let qrCheckinPending = false;
   let qrClaimedOnLogin = [];
+  let qrCheckinConcert = null;
+  let qrLiveAfterSocialId = null;
   let publicCacheWriteTimer = null;
   let publicCacheHydrated = false;
 
@@ -371,10 +373,19 @@
   function closeCheckinSocialModal() {
     if(!$('checkinSocialModal'))return;
     closeModal('checkinSocialModal');
+    const liveId=qrLiveAfterSocialId;
+    qrLiveAfterSocialId=null;
+    qrCheckinConcert=null;
+    if(liveId){
+      requestAnimationFrame(()=>openConcert(liveId));
+    }
   }
 
-  function completeQrCheckin(concertName='') {
+  function completeQrCheckin(concert=null) {
     qrCheckinPending=false;
+    const live=concert&&typeof concert==='object'?concert:null;
+    const concertName=live?.name||String(concert||'');
+    qrLiveAfterSocialId=live?.id?String(live.id):null;
     go('home');
     requestAnimationFrame(()=>requestAnimationFrame(()=>openCheckinSocialModal(concertName)));
   }
@@ -1584,22 +1595,26 @@
 
       if (data.status === 'inactive') {
         qrCheckinPending = false;
+        qrCheckinConcert = null;
+        qrLiveAfterSocialId = null;
         toast(data.message || 'Check-in non disponibile in questo momento','error');
         go('home');
         return;
       }
 
       if (data.status === 'certified') {
+        qrCheckinConcert = data.concert || null;
         try {
           await loadRankings(true);
           renderRankings();
           renderHome();
         } catch {}
-        completeQrCheckin(data.concert?.name || '');
+        completeQrCheckin(data.concert || null);
         return;
       }
 
       if (data.status === 'pending' && data.requires_identity) {
+        qrCheckinConcert = data.concert || null;
         renderUserModal();
         showLoginMode('fan');
         const msg = $('fanLoginMessage');
@@ -1612,9 +1627,13 @@
       }
 
       qrCheckinPending = false;
+      qrCheckinConcert = null;
+      qrLiveAfterSocialId = null;
       go('home');
     } catch (err) {
       qrCheckinPending = false;
+      qrCheckinConcert = null;
+      qrLiveAfterSocialId = null;
       console.warn('Check-in QR non disponibile',err);
       toast(err.message || 'Check-in QR non disponibile','error');
       go('home');
@@ -3117,7 +3136,13 @@
     $('memberCarouselPrev')?.addEventListener('click',()=>moveMemberCarousel(-1));
     $('memberCarouselNext')?.addEventListener('click',()=>moveMemberCarousel(1));
     $$('[data-close-modal]').forEach(n => n.onclick = () => closeModal(n.dataset.closeModal));
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { const open = $$('.modal:not([hidden])').at(-1); if (open) closeModal(open.id); } });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      const open = $$('.modal:not([hidden])').at(-1);
+      if (!open) return;
+      if (open.id === 'checkinSocialModal') closeCheckinSocialModal();
+      else closeModal(open.id);
+    });
     $$('#loginSwitch [data-login-mode]').forEach(b => b.onclick = () => showLoginMode(b.dataset.loginMode));
     $('fanLoginForm').addEventListener('submit', async e => {
       e.preventDefault(); const name = $('fanNameInput').value.trim(); const msg = $('fanLoginMessage');
@@ -3133,7 +3158,7 @@
             renderRankings();
             renderHome();
           }catch{}
-          completeQrCheckin(first?.name || '');
+          completeQrCheckin(qrCheckinConcert || first || null);
         }else{
           toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok');
         }
