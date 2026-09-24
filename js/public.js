@@ -412,18 +412,28 @@
     if(!flow||!card||!homeEntryFlowContext)return;
     homeEntryFlowContext.stage='social';
     const isCheckin=homeEntryFlowContext.source==='checkin';
+    const certified=!!homeEntryFlowContext.certified;
     const concert=homeEntryFlowContext.concert;
     const items=globalSocialItems();
+    const kicker=isCheckin
+      ? (certified?'CHECK-IN COMPLETATO':'DAL QR DEI MOLESTI')
+      : 'BENVENUTO';
+    const title=isCheckin
+      ? (certified?'PRESENZA CERTIFICATA ✓':'SEGUICI')
+      : 'JOHN & I MOLESTI';
+    const intro=isCheckin
+      ? (certified
+        ? (concert?.name?`Presenza a “${esc(concert.name)}” certificata. Intanto, seguici anche qui.`:'Presenza certificata. Intanto, seguici anche qui.')
+        : 'Sei nella Home dei Molesti. Qui trovi tutti i nostri canali social.')
+      : 'Nuovo dispositivo riconosciuto. Qui trovi tutti i nostri canali.';
     card.className='checkin-hero-card';
     card.innerHTML=`
       <header class="checkin-hero-head">
-        <div><span class="section-kicker">${isCheckin?'CHECK-IN COMPLETATO':'BENVENUTO'}</span><h2>${isCheckin?'PRESENZA CERTIFICATA ✓':'JOHN & I MOLESTI'}</h2></div>
+        <div><span class="section-kicker">${kicker}</span><h2>${title}</h2></div>
         <button class="checkin-hero-close" type="button" aria-label="Chiudi">×</button>
       </header>
       <div class="checkin-hero-body">
-        <p class="checkin-social-intro">${isCheckin
-          ? (concert?.name?`Presenza a “${esc(concert.name)}” certificata. Intanto, seguici anche qui.`:'Presenza certificata. Intanto, seguici anche qui.')
-          : 'Nuovo dispositivo riconosciuto. Qui trovi tutti i nostri canali.'}</p>
+        <p class="checkin-social-intro">${intro}</p>
         <div class="checkin-social-links" id="checkinSocialLinks"></div>
         <div class="checkin-hero-note">Chiudi per continuare sulla Home${homeEntryFlowContext.concert?' e vedere il live attivo':''}.</div>
       </div>`;
@@ -498,10 +508,10 @@
     }
   }
 
-  function openHomeEntryFlow({source='checkin',concert=null}={}) {
+  function openHomeEntryFlow({source='checkin',concert=null,certified=false}={}) {
     const flow=ensureCheckinHeroFlow();
     if(!flow)return;
-    homeEntryFlowContext={source,concert:fullConcertForEntry(concert),stage:'social'};
+    homeEntryFlowContext={source,concert:fullConcertForEntry(concert),certified:!!certified,stage:'social'};
     window.scrollTo({top:0,left:0,behavior:'instant'});
     flow.hidden=false;
     document.documentElement.style.setProperty('overflow','hidden','important');
@@ -510,25 +520,48 @@
     setTimeout(()=>$('checkinHeroCard')?.querySelector('.checkin-hero-close')?.focus(),0);
   }
 
-  function completeQrCheckin(concert=null) {
+  function openEntryFlowOnHome(options) {
+    let opened=false;
+    let fallbackTimer=null;
+    const mobile=window.matchMedia('(max-width: 760px)').matches;
+    const show=()=>{
+      if(opened)return;
+      if(mobile && !$('#jmMobileHomeExperience'))return;
+      opened=true;
+      if(fallbackTimer)clearTimeout(fallbackTimer);
+      window.removeEventListener('jm:mobile-home-ready',show);
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      openHomeEntryFlow(options);
+    };
+
+    if(mobile)window.addEventListener('jm:mobile-home-ready',show);
+    go('home');
+
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(!mobile || $('#jmMobileHomeExperience'))show();
+    }));
+
+    fallbackTimer=setTimeout(()=>{
+      if(opened)return;
+      if(mobile && !$('#jmMobileHomeExperience')){
+        requestAnimationFrame(()=>requestAnimationFrame(show));
+        return;
+      }
+      show();
+    },1200);
+  }
+
+  function completeQrCheckin(concert=null,{certified=!!concert}={}) {
     qrCheckinPending=false;
     newDeviceEntryPending=false;
     qrCheckinConcert=null;
-    go('home');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      openHomeEntryFlow({source:'checkin',concert});
-    }));
+    openEntryFlowOnHome({source:'checkin',concert,certified});
   }
 
   function completeNewDeviceEntry() {
     newDeviceEntryPending=false;
     const live=activeLoadedConcertForEntry();
-    go('home');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      openHomeEntryFlow({source:'new-device',concert:live});
-    }));
+    openEntryFlowOnHome({source:'new-device',concert:live,certified:false});
   }
 
   function ensureHomeHeroNewsLayout() {
@@ -1735,10 +1768,8 @@
       const data = await checkinApi('scan');
 
       if (data.status === 'inactive') {
-        qrCheckinPending = false;
         qrCheckinConcert = null;
-        toast(data.message || 'Check-in non disponibile in questo momento','error');
-        go('home');
+        completeQrCheckin(null,{certified:false});
         return;
       }
 
@@ -1749,7 +1780,7 @@
           renderRankings();
           renderHome();
         } catch {}
-        completeQrCheckin(data.concert || null);
+        completeQrCheckin(data.concert || null,{certified:true});
         return;
       }
 
@@ -1766,15 +1797,12 @@
         return;
       }
 
-      qrCheckinPending = false;
       qrCheckinConcert = null;
-      go('home');
+      completeQrCheckin(null,{certified:false});
     } catch (err) {
-      qrCheckinPending = false;
       qrCheckinConcert = null;
       console.warn('Check-in QR non disponibile',err);
-      toast(err.message || 'Check-in QR non disponibile','error');
-      go('home');
+      completeQrCheckin(null,{certified:false});
     }
   }
   function can(role, key) {
@@ -3295,7 +3323,7 @@
             renderRankings();
             renderHome();
           }catch{}
-          completeQrCheckin(qrCheckinConcert || first || null);
+          completeQrCheckin(qrCheckinConcert || first || null,{certified:true});
         }else if(newDeviceEntryPending){
           completeNewDeviceEntry();
         }else{
