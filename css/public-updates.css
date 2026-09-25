@@ -1234,3 +1234,34 @@
 @media(max-width:620px){
   .fan-primary-label{max-width:118px;font-size:6.5px}
 }
+
+
+/* Intenzione presenza: separata dalla presenza certificata. */
+.concert-intention-box{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:12px 0;
+  padding:12px;
+  border:1px solid rgba(243,210,52,.23);
+  border-radius:10px;
+  background:rgba(243,210,52,.045);
+}
+.concert-intention-box>div{min-width:0;flex:1}
+.concert-intention-box strong{display:block;font-size:11px}
+.concert-intention-box span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font:700 8px/1.4 monospace;
+}
+.concert-intention-box.confirmed{
+  border-color:rgba(93,170,112,.28);
+  background:rgba(93,170,112,.06);
+}
+@media(max-width:620px){
+  .concert-intention-box{align-items:stretch}
+  .concert-intention-box .btn{width:100%}
+}
