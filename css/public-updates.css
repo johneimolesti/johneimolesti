@@ -1187,3 +1187,63 @@
 @media(max-width:620px){
   .fan-group-label{max-width:118px;font-size:6.5px}
 }
+
+
+/* Disambiguazione identità fan tramite gruppo / cerchia. */
+.fan-group-help{
+  margin:-2px 0 2px;
+  color:var(--muted);
+  font:700 9px/1.45 monospace;
+}
+#fanGroupRequiredMark{color:var(--gold)}
+.fan-name-matches{
+  display:grid;
+  gap:8px;
+  padding:9px;
+  border:1px solid rgba(243,210,52,.22);
+  border-radius:10px;
+  background:rgba(243,210,52,.045);
+}
+.fan-name-match-note{
+  color:var(--muted);
+  font:750 9px/1.4 monospace;
+}
+.fan-name-match-list{display:grid;gap:6px}
+.fan-name-match{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  width:100%;
+  padding:9px 10px;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:9px;
+  background:rgba(255,255,255,.035);
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+}
+.fan-name-match:hover,
+.fan-name-match.selected{
+  border-color:rgba(243,210,52,.42);
+  background:rgba(243,210,52,.08);
+}
+.fan-name-match span{min-width:0}
+.fan-name-match strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font:900 10px/1.2 monospace;
+}
+.fan-name-match small{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font:700 8px/1.2 monospace;
+}
+.fan-name-match b{
+  color:var(--gold);
+  font:900 8px/1 monospace;
+  white-space:nowrap;
+}
