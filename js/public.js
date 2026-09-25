@@ -1686,6 +1686,14 @@
 
       if (data.status === 'certified') {
         qrCheckinConcert = data.concert || null;
+        if (!currentFan && data.fan?.display_name) {
+          try {
+            localStorage.setItem('jm_public_fan_name',data.fan.display_name);
+            await loginFan(data.fan.display_name,{refreshData:false});
+          } catch (err) {
+            console.warn('Ripristino fan dopo check-in',err);
+          }
+        }
         try {
           await loadRankings(true);
           renderRankings();
