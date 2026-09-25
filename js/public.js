@@ -2543,8 +2543,8 @@
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
-    const groupLabel = r.group_label ? `<span class="fan-group-label">${esc(r.group_label)}</span>` : '';
-    return `<div class="ranking-row ranking-row-clickable${self ? ' self' : ''}" data-ranking-fan-index="${i}" title="${esc(String(r.fan_name || '').toUpperCase())}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title fan-ranking-title"><span>${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</span>${groupLabel}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
+    const primaryLabel = r.primary_label ? `<span class="fan-primary-label">${esc(r.primary_label)}</span>` : '';
+    return `<div class="ranking-row ranking-row-clickable${self ? ' self' : ''}" data-ranking-fan-index="${i}" title="${esc(String(r.fan_name || '').toUpperCase())}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title fan-ranking-title"><span>${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</span>${primaryLabel}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
   }
   function rankingConcertRow(r, i) {
     const name = r.concert_name || r.name || window.JMCopy.text('ui.fallbackLive',{date:formatDate(r.concert_date)});
