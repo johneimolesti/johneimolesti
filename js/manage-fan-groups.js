@@ -59,9 +59,9 @@
       panel.id = 'setupFanGroupsPanel';
       panel.className = 'panel setup-fan-group-panel';
       panel.innerHTML = `
-        <div class="panel-header"><h2>GRUPPI FAN / CERCHIE</h2><span id="setupFanGroupsCounter" class="counter"></span></div>
-        <div class="section-note" style="margin:8px">Il gruppo identifica la cerchia con cui il fan segue i Molesti. I fan possono proporne uno nuovo; finché non viene confermato dall'admin resta privato e non appare in HITS.</div>
-        <div class="setup-fan-group-toolbar"><input id="setupFanGroupNewName" maxlength="80" placeholder="Nuovo gruppo, es. Amici Kekko Saletto"><button id="setupFanGroupCreate" class="small-btn primary" type="button">+ CREA E CONFERMA</button></div>
+        <div class="panel-header"><h2>CLAN FAN / CERCHIE</h2><span id="setupFanGroupsCounter" class="counter"></span></div>
+        <div class="section-note" style="margin:8px">Il clan identifica lo zoccolo duro / gruppo di amici / cerchia con cui il fan segue i Molesti o da cui conosce uno dei membri. I fan possono sceglierne uno esistente o proporne uno nuovo; finché l’admin non lo conferma resta DA CONFERMARE.</div>
+        <div class="setup-fan-group-toolbar"><input id="setupFanGroupNewName" maxlength="80" placeholder="Nuovo clan, es. Amici Kekko Saletto"><button id="setupFanGroupCreate" class="small-btn primary" type="button">+ CREA E CONFERMA</button></div>
         <div id="setupFanGroupList" class="setup-fan-group-list"></div>
         <div id="setupFanGroupStatus" class="section-note" style="margin:7px 8px"></div>`;
       directory.insertAdjacentElement('beforebegin', panel);
@@ -88,7 +88,7 @@
           ${g.status === 'pending' ? '<button type="button" class="primary" data-confirm-group>CONFERMA</button>' : ''}
           <button type="button" data-rename-group>RINOMINA</button>
         </div>
-      </div>`).join('') || '<div class="empty">Nessun gruppo.</div>';
+      </div>`).join('') || '<div class="empty">Nessun clan.</div>';
 
     $$('[data-group-row]', list).forEach(row => {
       const id = row.dataset.groupRow;
@@ -128,17 +128,17 @@
         groupMeta.className = 'setup-user-meta setup-fan-group-meta';
         meta.insertAdjacentElement('afterend', groupMeta);
       }
-      if (groupMeta) groupMeta.textContent = group ? `Gruppo: ${group.name}${group.status === 'pending' ? ' · da confermare' : ''}` : 'Gruppo: non assegnato';
+      if (groupMeta) groupMeta.textContent = group ? `Clan: ${group.name}${group.status === 'pending' ? ' · da confermare' : ''}` : 'Clan: non assegnato';
 
       let select = $('.setup-fan-group-select', row);
       if (!select && actions) {
         select = document.createElement('select');
         select.className = 'setup-fan-group-select';
-        select.title = 'Assegna gruppo fan';
+        select.title = 'Assegna clan / cerchia al fan';
         actions.prepend(select);
       }
       if (!select) return;
-      select.innerHTML = `<option value="">— NESSUN GRUPPO —</option>${(state.groups || []).map(g => `<option value="${esc(g.id)}">${esc(g.name)}${g.status === 'pending' ? ' · DA CONFERMARE' : ''}</option>`).join('')}`;
+      select.innerHTML = `<option value="">— NESSUN CLAN —</option>${(state.groups || []).map(g => `<option value="${esc(g.id)}">${esc(g.name)}${g.status === 'pending' ? ' · DA CONFERMARE' : ''}</option>`).join('')}`;
       select.value = groupId;
       select.onchange = () => assignGroup(fanId, select.value, select);
     });
@@ -179,10 +179,10 @@
   async function confirmGroup(groupId) {
     const panel = ensurePanel();
     const status = $('#setupFanGroupStatus', panel);
-    status.textContent = 'Conferma gruppo…';
+    status.textContent = 'Conferma clan…';
     try {
       await api('admin_confirm_fan_group', {group_id:groupId});
-      status.textContent = 'Gruppo confermato ✓';
+      status.textContent = 'Clan confermato ✓';
       await refresh(true);
     } catch (err) { status.textContent = err.message || String(err); }
   }
@@ -190,14 +190,14 @@
   async function renameGroup(groupId) {
     const group = (state.groups || []).find(g => String(g.id) === String(groupId));
     if (!group) return;
-    const name = prompt('Nome gruppo', group.name);
+    const name = prompt('Nome clan / cerchia', group.name);
     if (!name?.trim() || name.trim() === group.name) return;
     const panel = ensurePanel();
     const status = $('#setupFanGroupStatus', panel);
-    status.textContent = 'Rinomina gruppo…';
+    status.textContent = 'Rinomina clan…';
     try {
       await api('admin_save_fan_group', {group_id:groupId, name:name.trim(), confirm:group.status === 'confirmed'});
-      status.textContent = 'Gruppo aggiornato ✓';
+      status.textContent = 'Clan aggiornato ✓';
       await refresh(true);
     } catch (err) { status.textContent = err.message || String(err); }
   }
@@ -208,11 +208,11 @@
     const status = $('#setupFanGroupStatus', panel);
     const name = input.value.trim();
     if (!name) return;
-    status.textContent = 'Creazione gruppo…';
+    status.textContent = 'Creazione clan…';
     try {
       await api('admin_save_fan_group', {name, confirm:true});
       input.value = '';
-      status.textContent = 'Gruppo creato e confermato ✓';
+      status.textContent = 'Clan creato e confermato ✓';
       await refresh(true);
     } catch (err) { status.textContent = err.message || String(err); }
   }
