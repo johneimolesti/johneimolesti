@@ -11,6 +11,7 @@
   let sb = null;
   let songs = new Map();
   let songsByTitle = new Map();
+  let songDetails = new Map();
   let songsLoading = null;
   let gridObserver = null;
   let playerSyncTimer = null;
@@ -87,37 +88,95 @@
     }
   }
 
-  async function loadSongs(force = false) {
-    if (songsLoading && !force) return songsLoading;
+  function seedSongs(rows) {
+    const list=Array.isArray(rows)?rows:[];
+    const nextSongs=new Map();
+    const nextByTitle=new Map();
 
-    songsLoading = (async () => {
-      const c = client();
-      if (!c) return;
+    list.forEach(summary=>{
+      const id=String(summary?.id||summary?.song_id||'');
+      if(!id)return;
+      const detailed=songDetails.get(id);
+      const song=detailed?{...summary,...detailed}:{...summary};
+      nextSongs.set(id,song);
+      nextByTitle.set(normalizeTitle(song.title),song);
+    });
 
-      const { data, error } = await c.rpc('get_public_repertoire');
-      if (error) throw error;
+    songs=nextSongs;
+    songsByTitle=nextByTitle;
+  }
 
-      songs = new Map();
-      songsByTitle = new Map();
+  async function waitForPublicSongs() {
+    if (Array.isArray(window.JM_PUBLIC_DATA?.songs)) {
+      return window.JM_PUBLIC_DATA.songs;
+    }
 
-      (data || []).forEach(song => {
-        const id = String(song.id);
-        songs.set(id, song);
-        songsByTitle.set(normalizeTitle(song.title), song);
-      });
+    await new Promise(resolve=>{
+      window.addEventListener('jm:public-data-ready',resolve,{once:true});
+    });
 
+    return Array.isArray(window.JM_PUBLIC_DATA?.songs)
+      ? window.JM_PUBLIC_DATA.songs
+      : [];
+  }
+
+  async function loadSongs() {
+    if (songsLoading) return songsLoading;
+
+    songsLoading=(async()=>{
+      const rows=await waitForPublicSongs();
+      seedSongs(rows);
       decorateAll();
       decorateHitRows();
       refreshOpenDetail();
-    })()
-      .catch(error => {
-        console.warn('Schede SONGS non disponibili', error);
-      })
-      .finally(() => {
-        songsLoading = null;
-      });
+      return songs;
+    })().finally(()=>{
+      songsLoading=null;
+    });
 
     return songsLoading;
+  }
+
+  async function loadSongDetail(songId,{force=false}={}) {
+    const id=String(songId||'');
+    if(!id)return null;
+
+    await loadSongs();
+
+    if(!force&&songDetails.has(id)){
+      return songDetails.get(id);
+    }
+
+    const c=client();
+    if(!c)return songs.get(id)||null;
+
+    const {data,error}=await c.rpc('get_public_song_detail',{
+      p_song_id:id
+    });
+    if(error)throw error;
+
+    const row=Array.isArray(data)?data[0]:data;
+    if(!row)return songs.get(id)||null;
+
+    const merged={...(songs.get(id)||{}),...row};
+    songDetails.set(id,merged);
+    songs.set(id,merged);
+    songsByTitle.set(normalizeTitle(merged.title),merged);
+
+    const shared=window.JM_PUBLIC_DATA?.songs;
+    if(Array.isArray(shared)){
+      const index=shared.findIndex(item=>String(item?.id||item?.song_id||'')===id);
+      if(index>=0){
+        shared[index]={
+          ...shared[index],
+          weighted_play_count:merged.weighted_play_count,
+          ranking_score:merged.ranking_score,
+          ranking_position:merged.ranking_position
+        };
+      }
+    }
+
+    return merged;
   }
 
   function ensureStyles() {
@@ -296,12 +355,13 @@
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-copy p,
-      .repertoire-grid.repertoire-discs-view .repertoire-copy > span,
+      .repertoire-grid.repertoire-discs-view .repertoire-copy > span:not(.song-play-count),
       .repertoire-grid.repertoire-discs-view .repertoire-player{
         display:none!important;
       }
 
       .repertoire-grid.repertoire-discs-view .song-play-count{
+        display:block!important;
         margin-top:6px;
         text-align:center;
       }
@@ -1474,9 +1534,7 @@
   }
 
   async function openSongDetail(songId) {
-    if (!songs.size) await loadSongs();
-
-    const song = songs.get(String(songId));
+    const song = await loadSongDetail(songId);
     if (!song) return;
 
     currentDetailSongId = String(song.id);
@@ -1716,7 +1774,7 @@
   }
 
   function resolveHitSong(row) {
-    const directId = row?.dataset?.songDetailId;
+    const directId = row?.dataset?.songId || row?.dataset?.songDetailId;
 
     if (directId && songs.has(String(directId))) {
       return songs.get(String(directId));
@@ -1887,25 +1945,44 @@
     ensureStyles();
     renameSection();
     ensureSwitch();
-    applyView();
     installUnifiedOpenHandler();
     observeDynamicContent();
-    loadSongs();
+
+    window.JMSongs={
+      openDetail:openSongDetail,
+      loadDetail:(songId,options)=>loadSongDetail(songId,options)
+    };
+
+    loadSongs().then(()=>{
+      applyView();
+      decorateAll();
+      decorateHitRows();
+    });
   }
 
   window.addEventListener(
     'jm:repertoire-rendered',
     () => {
+      if(Array.isArray(window.JM_PUBLIC_DATA?.songs)){
+        seedSongs(window.JM_PUBLIC_DATA.songs);
+      }
       applyView();
       decorateAll();
-      loadSongs();
+      decorateHitRows();
     }
   );
 
   window.addEventListener(
     'jm:song-play-counted',
-    () => {
-      loadSongs(true);
+    event => {
+      const id=String(event.detail?.song_id||'');
+      if(!id)return;
+      loadSongDetail(id,{force:true})
+        .then(()=>{
+          decorateAll();
+          refreshOpenDetail();
+        })
+        .catch(error=>console.warn('Aggiornamento riproduzioni',error));
     }
   );
 
