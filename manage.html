@@ -480,8 +480,10 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
     .label-setup-name input,.label-description{font-size:8px}.label-vis-cell{font-size:6.4px}
   }
   @media(max-width:899px), (pointer:coarse){
-    #setupNavButton{display:none!important}
-    #setupPage{display:none!important}
+    #setupNavButton{display:inline-flex!important}
+    #setupPage{min-height:0}
+    #setupPage>.setup-tabs{overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+    #setupPage>.setup-tabs::-webkit-scrollbar{display:none}
   }
 
   /* Pagine membro dense: altezza viewport, nessuno scroll generale. */
@@ -3016,7 +3018,7 @@ function fillConcertVenueSelect(){const sel=$("concertVenueSelect");if(!sel)retu
 async function loadFanLabelDefinitions(){try{const {data,error}=await sb.from("fan_label_definitions").select("*").order("name");if(error)throw error;fanLabelDefinitions=data||[]}catch(err){console.warn("Etichette fan non disponibili",err);fanLabelDefinitions=[]}}
 async function loadSongLabelData(){try{const [h,m,d,f,c]=await Promise.all([sb.rpc("get_song_history_metrics"),sb.rpc("get_song_label_metrics"),sb.from("song_label_definitions").select("*").order("name"),sb.from("fan_label_definitions").select("*").order("name"),sb.rpc("get_song_comeback_context")]);if(h.error)throw h.error;if(m.error)throw m.error;if(d.error)throw d.error;if(f.error)throw f.error;if(c.error)throw c.error;songHistoryMetrics=h.data||[];songLabelMetrics=m.data||[];labelDefinitions=d.data||[];fanLabelDefinitions=f.data||[];songComebackContext=c.data||[]}catch(err){console.warn("Metriche/etichette non disponibili",err);songHistoryMetrics=[];songLabelMetrics=[];labelDefinitions=[];fanLabelDefinitions=[];songComebackContext=[]}}
 async function loadSetupPage(){
-  if(!isEma()||!canUseDesktopSetup())return;
+  if(!isEma())return;
   await Promise.all([loadSongLabelData(),loadNumericSettings()]);
   bindLabelScopeTabs();
   renderLabelSetup();
@@ -7278,7 +7280,7 @@ setMemberRankingTab('songs');
 
 </script>
   <script src="js/hero-background-admin.js"></script>
-  <script src="js/manage-fan-groups.js?h=a9b26de14ec7"></script>
+  <script src="js/manage-fan-groups.js?h=9b7fea03dae5"></script>
   <script src="js/manage-live-intentions.js"></script>
 </body>
 </html>
