@@ -34,17 +34,6 @@
     return token;
   }
 
-  function fingerprint() {
-    return [
-      navigator.userAgent,
-      navigator.language,
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-      screen.width,
-      screen.height,
-      window.devicePixelRatio || 1
-    ].join('|');
-  }
-
   async function fanApi(action, payload = {}) {
     const res = await fetch(FAN_API, {
       method: 'POST',
@@ -56,7 +45,6 @@
       body: JSON.stringify({
         action,
         device_token: deviceToken(),
-        fingerprint: fingerprint(),
         ...payload
       })
     });
