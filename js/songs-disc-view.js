@@ -1534,7 +1534,7 @@
   }
 
   async function openSongDetail(songId) {
-    const song = await loadSongDetail(songId);
+    const song = await loadSongDetail(songId,{force:true});
     if (!song) return;
 
     currentDetailSongId = String(song.id);
