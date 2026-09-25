@@ -449,21 +449,33 @@
 
   function boot(){
     if(!media.matches)return;
-    installCss();
-    observeSources();
-    observeDashboard();
-    syncRouteState();
-    addEventListener('hashchange',syncRouteState);
-    addEventListener('resize',()=>{
-      if(!media.matches||!isHomeRoute()||!track)return;
-      requestAnimationFrame(()=>{track.scrollLeft=currentIndex*track.clientWidth});
-    },{passive:true});
-    document.addEventListener('visibilitychange',()=>{
-      if(document.hidden)pauseAuto();
-      else if(media.matches&&isHomeRoute())resumeAuto();
-    });
-    if(typeof media.addEventListener==='function')media.addEventListener('change',syncRouteState);
-    else if(typeof media.addListener==='function')media.addListener(syncRouteState);
+
+    const start=()=>{
+      if(document.documentElement.dataset.jmDesktopHomeStarted==='1')return;
+      document.documentElement.dataset.jmDesktopHomeStarted='1';
+
+      installCss();
+      observeSources();
+      observeDashboard();
+      syncRouteState();
+
+      addEventListener('hashchange',syncRouteState);
+      addEventListener('resize',()=>{
+        if(!media.matches||!isHomeRoute()||!track)return;
+        requestAnimationFrame(()=>{track.scrollLeft=currentIndex*track.clientWidth});
+      },{passive:true});
+
+      document.addEventListener('visibilitychange',()=>{
+        if(document.hidden)pauseAuto();
+        else if(media.matches&&isHomeRoute())resumeAuto();
+      });
+
+      if(typeof media.addEventListener==='function')media.addEventListener('change',syncRouteState);
+      else if(typeof media.addListener==='function')media.addListener(syncRouteState);
+    };
+
+    if(document.documentElement.classList.contains('jm-public-data-ready'))start();
+    else window.addEventListener('jm:public-data-ready',start,{once:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
