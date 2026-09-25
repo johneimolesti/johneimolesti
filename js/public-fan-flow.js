@@ -11,9 +11,19 @@
     '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'
   }[ch]));
 
+  const HAD_DEVICE_AT_LOAD = (() => {
+    try { return !!localStorage.getItem('jm_fan_device_token'); }
+    catch { return true; }
+  })();
+
   let onboardingBusy = false;
+  let identityFlowBusy = false;
   let patchFrame = 0;
   let catalogSaveBusy = new Set();
+
+  function rawRoute() {
+    return location.hash.replace(/^#\/?/,'').split('/')[0] || 'home';
+  }
 
   function deviceToken() {
     let token = localStorage.getItem('jm_fan_device_token');
@@ -177,6 +187,12 @@
       .fan-song-quick .jm-public-rating-scale{width:min(440px,100%)}
       .song-vote-controls .jm-public-rating-scale{grid-column:1/-1}
       .general-score .jm-public-rating-scale{margin-top:8px}
+      .jm-public-entry-socials{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px}
+      .jm-public-entry-social{
+        display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #4a463b;
+        background:#1d1c19;color:inherit;text-decoration:none
+      }
+      .jm-public-entry-social svg,.jm-public-entry-social img{width:22px;height:22px;object-fit:contain;flex:0 0 22px}
       @media(max-width:620px){
         .jm-public-fan-flow{padding:0;place-items:stretch}
         .jm-public-fan-card{width:100%;max-height:100dvh;border-left:0;border-right:0}
@@ -817,17 +833,212 @@
     patchFrame=requestAnimationFrame(patchAll);
   }
 
-  function installVotingObserver() {
-    const obs=new MutationObserver(mutations=>{
-      for(const m of mutations){
-        if(m.type==='childList' && (m.addedNodes.length || m.removedNodes.length)){
-          schedulePatch();
-          break;
+
+  function openFanLoginModal() {
+    document.getElementById('userEntry')?.click();
+    setTimeout(() => document.getElementById('fanNameInput')?.focus(), 30);
+  }
+
+  function contactLinks() {
+    const roots = [
+      document.getElementById('contactsSocialActions'),
+      document.getElementById('contactActions')
+    ].filter(Boolean);
+    const found = [];
+    const seen = new Set();
+
+    for (const root of roots) {
+      root.querySelectorAll('a[href]').forEach(link => {
+        const href = link.getAttribute('href') || '';
+        if (!href || seen.has(href)) return;
+        seen.add(href);
+        const icon = link.querySelector('.contact-tile-icon,svg,img');
+        const label = link.querySelector('strong')?.textContent?.trim()
+          || link.getAttribute('aria-label')
+          || link.getAttribute('title')
+          || 'Contatto';
+        found.push({
+          href,
+          label,
+          icon: icon ? icon.outerHTML : '',
+          external: link.getAttribute('target') === '_blank'
+        });
+      });
+    }
+    return found.slice(0,8);
+  }
+
+  function entryContacts() {
+    return new Promise(resolve => {
+      const ui = overlay();
+      const links = contactLinks();
+      ui.card.innerHTML = `
+        <header class="jm-public-fan-head">
+          <div><span class="section-kicker">BENVENUTO</span><h2>RESTIAMO IN CONTATTO</h2></div>
+          <button class="jm-public-fan-close" type="button" aria-label="Chiudi">×</button>
+        </header>
+        <div class="jm-public-fan-body">
+          <div class="jm-public-fan-copy">Qui trovi i canali ufficiali dei Molesti.</div>
+          <div class="jm-public-entry-socials">
+            ${links.map(item => `<a class="jm-public-entry-social" href="${esc(item.href)}" ${item.external?'target="_blank" rel="noopener noreferrer"':''}>${item.icon}<strong>${esc(item.label)}</strong></a>`).join('') || '<div class="jm-public-fan-note">Contatti disponibili nella sezione CONTATTI.</div>'}
+          </div>
+          <div class="jm-public-fan-actions"><button type="button" class="primary" data-next>CONTINUA</button></div>
+        </div>`;
+      const finish = () => { ui.close(); resolve(true); };
+      $('.jm-public-fan-close',ui.card).onclick = finish;
+      $('[data-next]',ui.card).onclick = finish;
+    });
+  }
+
+  function entryFanChoice() {
+    return new Promise(resolve => {
+      const ui = overlay();
+      ui.card.innerHTML = `
+        <header class="jm-public-fan-head"><div><span class="section-kicker">AREA FAN</span><h2>SEI UN FAN?</h2></div></header>
+        <div class="jm-public-fan-body">
+          <div class="jm-public-fan-copy">Come fan puoi salvare “Ci sarò”, presenze, voti e preferenze. Altrimenti puoi visitare normalmente il sito come ospite.</div>
+          <div class="jm-public-fan-actions">
+            <button type="button" data-guest>CONTINUA COME OSPITE</button>
+            <button type="button" class="primary" data-fan>REGISTRATI / ENTRA</button>
+          </div>
+        </div>`;
+      $('[data-guest]',ui.card).onclick = () => { ui.close(); resolve('guest'); };
+      $('[data-fan]',ui.card).onclick = () => { ui.close(); resolve('fan'); };
+    });
+  }
+
+  function entryRecognizedFan(fan) {
+    return new Promise(resolve => {
+      const ui = overlay();
+      const name = fan?.nickname || fan?.display_name || 'questo fan';
+      ui.card.innerHTML = `
+        <header class="jm-public-fan-head"><div><span class="section-kicker">DISPOSITIVO RICONOSCIUTO</span><h2>SEI ${esc(String(name).toUpperCase())}?</h2></div></header>
+        <div class="jm-public-fan-body">
+          <div class="jm-public-fan-copy">Questo dispositivo è già associato a <strong>${esc(name)}</strong>${fan?.group_name ? ` · ${esc(fan.group_name)}` : ''}.</div>
+          <div class="jm-public-fan-actions">
+            <button type="button" data-no>NO</button>
+            <button type="button" class="primary" data-yes>SÌ, SONO IO</button>
+          </div>
+        </div>`;
+      $('[data-no]',ui.card).onclick = () => { ui.close(); resolve(false); };
+      $('[data-yes]',ui.card).onclick = () => { ui.close(); resolve(true); };
+    });
+  }
+
+  function entryDifferentIdentity() {
+    return new Promise(resolve => {
+      const ui = overlay();
+      ui.card.innerHTML = `
+        <header class="jm-public-fan-head"><div><span class="section-kicker">DISPOSITIVO CONDIVISO</span><h2>COME VUOI ENTRARE?</h2></div></header>
+        <div class="jm-public-fan-body">
+          <div class="jm-public-fan-copy">Puoi usare un altro profilo fan oppure continuare come ospite senza modificare lo storico del fan ricordato.</div>
+          <div class="jm-public-fan-actions">
+            <button type="button" data-guest>OSPITE</button>
+            <button type="button" class="primary" data-other>ALTRO FAN</button>
+          </div>
+        </div>`;
+      $('[data-guest]',ui.card).onclick = () => { ui.close(); resolve('guest'); };
+      $('[data-other]',ui.card).onclick = () => { ui.close(); resolve('other'); };
+    });
+  }
+
+  function questionnaireOffer() {
+    return new Promise(resolve => {
+      const ui = overlay();
+      ui.card.innerHTML = `
+        <header class="jm-public-fan-head"><div><span class="section-kicker">PROFILO FAN</span><h2>VUOI FARE IL QUESTIONARIO?</h2></div></header>
+        <div class="jm-public-fan-body">
+          <div class="jm-public-fan-copy">Puoi farlo adesso oppure più avanti dal profilo. Se inizi ora, il flusso prosegue con preferenze, live e catalogo.</div>
+          <div class="jm-public-fan-actions">
+            <button type="button" data-later>PIÙ TARDI</button>
+            <button type="button" class="primary" data-now>SÌ, ORA</button>
+          </div>
+        </div>`;
+      $('[data-later]',ui.card).onclick = () => { ui.close(); resolve(false); };
+      $('[data-now]',ui.card).onclick = () => { ui.close(); resolve(true); };
+    });
+  }
+
+  async function afterFanLogin(data,{source='normal'}={}) {
+    if (source === 'checkin') return;
+    if (!data?.is_new) return;
+    try {
+      const status = await fanApi('onboarding_status');
+      if (status.flow_completed) return;
+      const now = await questionnaireOffer();
+      if (!now) {
+        await postpone();
+        return;
+      }
+      if (!status.onboarding_state?.intro_seen_at) {
+        await fanApi('onboarding_step_complete',{step:'intro'});
+      }
+      await runOnboarding({force:true});
+    } catch (err) {
+      console.warn('Offerta questionario non disponibile',err);
+    }
+  }
+
+  async function runEntryIdentity() {
+    if (identityFlowBusy || rawRoute() === 'checkin') return;
+    if (sessionStorage.getItem('jm_entry_identity_done') === '1') return;
+    if (document.getElementById('userEntry')?.classList.contains('is-member')) return;
+    if (localStorage.getItem('jm_public_fan_name')) {
+      sessionStorage.setItem('jm_entry_identity_done','1');
+      return;
+    }
+
+    identityFlowBusy = true;
+    try {
+      if (HAD_DEVICE_AT_LOAD) {
+        let state = null;
+        try { state = await fanApi('device_status'); }
+        catch (err) { console.warn('Riconoscimento dispositivo',err); }
+
+        if (state?.recognized && state.fan) {
+          const yes = await entryRecognizedFan(state.fan);
+          if (yes) {
+            localStorage.setItem('jm_public_fan_name',state.fan.display_name);
+            sessionStorage.setItem('jm_entry_identity_done','1');
+            location.reload();
+            return;
+          }
+
+          const choice = await entryDifferentIdentity();
+          if (choice === 'guest') {
+            sessionStorage.setItem('jm_entry_guest','1');
+            sessionStorage.setItem('jm_entry_identity_done','1');
+            return;
+          }
+
+          await fanApi('device_forget');
+          sessionStorage.setItem('jm_entry_identity_done','1');
+          openFanLoginModal();
+          return;
         }
       }
-    });
 
-    obs.observe(document.body,{childList:true,subtree:true});
+      await entryContacts();
+      sessionStorage.setItem('jm_entry_contacts_seen','1');
+      const choice = await entryFanChoice();
+      sessionStorage.setItem('jm_entry_identity_done','1');
+      if (choice === 'guest') {
+        sessionStorage.setItem('jm_entry_guest','1');
+        return;
+      }
+      openFanLoginModal();
+    } finally {
+      identityFlowBusy = false;
+    }
+  }
+
+  function installVotingObserver() {
+    const targets=[
+      document.getElementById('concertModalBody'),
+      document.getElementById('fanCatalogList')
+    ].filter(Boolean);
+    const obs=new MutationObserver(schedulePatch);
+    targets.forEach(target=>obs.observe(target,{childList:true,subtree:true}));
     schedulePatch();
   }
 
@@ -855,27 +1066,17 @@
     },true);
   }
 
-  function installLoginOnboarding() {
-    const form=document.getElementById('fanLoginForm');
-    if(!form)return;
-
-    form.addEventListener('submit',()=>{
-      setTimeout(async()=>{
-        const data=await waitForFanSession();
-        if(!data)return;
-
-        if(!data.flow_completed){
-          await runOnboarding();
-        }
-      },0);
-    });
+  function installEntryIdentity() {
+    const run=()=>runEntryIdentity().catch(err=>console.warn('Flusso ingresso fan',err));
+    if(document.documentElement.classList.contains('jm-public-data-ready')) run();
+    else window.addEventListener('jm:public-data-ready',run,{once:true});
   }
 
   function init() {
     ensureStyles();
     installVotingObserver();
     installQuestionnaireRedirectGuard();
-    installLoginOnboarding();
+    installEntryIdentity();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
@@ -883,6 +1084,8 @@
 
   window.JMPublicFanFlow = {
     onboarding: runOnboarding,
-    patchVotes: patchAll
+    patchVotes: patchAll,
+    afterLogin: afterFanLogin,
+    identity: runEntryIdentity
   };
 })();
