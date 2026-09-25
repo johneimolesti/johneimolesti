@@ -47,8 +47,9 @@
   let qrClaimedOnLogin = [];
   let qrCheckinConcert = null;
   let homeEntryFlowContext = null;
-  const CHECKIN_WINDOW_BEFORE_MINUTES = 240;
-  const CHECKIN_WINDOW_AFTER_MINUTES = 360;
+  const CHECKIN_WINDOW_BEFORE_MINUTES = 30;
+  const CHECKIN_WINDOW_AFTER_END_MINUTES = 60;
+  const DEFAULT_LIVE_DURATION_MINUTES = 90;
   const hadFanDeviceTokenAtLoad = (()=>{ try { return !!localStorage.getItem('jm_fan_device_token'); } catch { return true; } })();
   let newDeviceEntryPending = !hadFanDeviceTokenAtLoad;
 
@@ -288,10 +289,14 @@
     const now=Date.now();
     return [...(concerts||[])]
       .filter(c=>!c.private_show && ['future','confirmed','completed'].includes(String(c.status||'')))
-      .map(c=>({c,start:romeConcertStartMs(c)}))
+      .map(c=>({
+        c,
+        start:romeConcertStartMs(c),
+        duration:Math.max(15,Number(c.duration_minutes||DEFAULT_LIVE_DURATION_MINUTES))
+      }))
       .filter(x=>Number.isFinite(x.start)
         && now>=x.start-CHECKIN_WINDOW_BEFORE_MINUTES*60000
-        && now<=x.start+CHECKIN_WINDOW_AFTER_MINUTES*60000)
+        && now<=x.start+(x.duration+CHECKIN_WINDOW_AFTER_END_MINUTES)*60000)
       .sort((a,b)=>Math.abs(now-a.start)-Math.abs(now-b.start))[0]?.c || null;
   }
 
@@ -2377,7 +2382,7 @@
     const time = String(c.start_time || '21:30').slice(0,5).replace(':','');
     if (!end) return `${date}T${time}00`;
     const finish = new Date(`${c.concert_date}T${String(c.start_time || '21:30').slice(0,5)}:00`);
-    finish.setHours(finish.getHours() + 2);
+    finish.setMinutes(finish.getMinutes() + Math.max(15,Number(c.duration_minutes||DEFAULT_LIVE_DURATION_MINUTES)));
     return `${finish.getFullYear()}${String(finish.getMonth()+1).padStart(2,'0')}${String(finish.getDate()).padStart(2,'0')}T${String(finish.getHours()).padStart(2,'0')}${String(finish.getMinutes()).padStart(2,'0')}00`;
   }
   function downloadCalendar(c) {
@@ -2444,7 +2449,8 @@
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
-    return `<div class="ranking-row ranking-row-clickable${self ? ' self' : ''}" data-ranking-fan-index="${i}" title="${esc(String(r.fan_name || '').toUpperCase())}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title">${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
+    const groupLabel = r.group_label ? `<span class="fan-group-label">${esc(r.group_label)}</span>` : '';
+    return `<div class="ranking-row ranking-row-clickable${self ? ' self' : ''}" data-ranking-fan-index="${i}" title="${esc(String(r.fan_name || '').toUpperCase())}"><div class="ranking-pos">${esc(r.ranking_position ?? i+1)}</div><div class="ranking-main"><div class="ranking-title fan-ranking-title"><span>${esc(String(r.fan_name || '').toUpperCase())}${self ? ' · '+esc(window.JMCopy.text('ui.you')) : ''}</span>${groupLabel}</div><div class="ranking-meta">${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count || 0)}))}</div></div><div class="ranking-score">${esc(r.points ?? 0)}<small data-copy="ui.7c4c910b08dc">PT</small></div></div>`;
   }
   function rankingConcertRow(r, i) {
     const name = r.concert_name || r.name || window.JMCopy.text('ui.fallbackLive',{date:formatDate(r.concert_date)});
@@ -2532,7 +2538,7 @@
     if (!r) return;
     const isMe = currentFan?.id && currentFan.id === r.fan_id;
     const actions = isMe ? [{label:'APRI IL MIO PROFILO',primary:true,run:()=>{closeModal('rankingDetailModal');renderUserModal();openModal('userModal');}}] : [];
-    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
+    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Gruppo',r.group_label||null],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
   }
   function openPosterRankingDetail(r, position) {
     if (!r) return;
