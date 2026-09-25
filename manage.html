@@ -3694,6 +3694,7 @@ async function pdfImageData(src){
   return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("Logo non leggibile"));reader.readAsDataURL(blob)})
 }
 async function saveConcertPdf(c,concertItems=[]){
+  const includeEmoji=askSetlistEmojiOption();
   const api=window.jspdf?.jsPDF;if(!api){alert("Generatore PDF non disponibile. Ricarica la pagina e riprova.");return}
   const doc=new api({orientation:"portrait",unit:"mm",format:"a4"});
   const rows=concertPrintableRows(c,concertItems),title=String(c?.name||"Concerto"),venue=concertLocationParts(c).join(" · ");
@@ -3724,10 +3725,16 @@ async function saveConcertPdf(c,concertItems=[]){
     const slot=(tracksBottom-tracksTop)/rows.length;
     const baseFont=Math.max(9,Math.min(15,slot*1.25));
     rows.forEach((r,index)=>{
+      const emoji=includeEmoji?setlistEmojisForTitle(r.title):"";
+      const emojiPng=includeEmoji?setlistEmojiPng(emoji):null;
+      const emojiH=emojiPng?Math.min(6.6,Math.max(4.4,slot*.52)):0;
+      const emojiW=emojiPng?emojiH*emojiPng.ratio:0;
+      const gap=emojiPng?2.2:0;
+      const availableTextWidth=trackWidth-(emojiW+gap);
       let fontSize=baseFont,lines=[];
       do{
         doc.setFont("helvetica","bold");doc.setFontSize(fontSize);
-        lines=doc.splitTextToSize(String(r.title||""),trackWidth);
+        lines=doc.splitTextToSize(String(r.title||""),availableTextWidth);
         const lineHeight=fontSize*.3528*1.08;
         if(lines.length*lineHeight<=slot*.82||fontSize<=8)break;
         fontSize-=.5
@@ -3738,8 +3745,17 @@ async function saveConcertPdf(c,concertItems=[]){
       doc.setTextColor(0);
       const lineHeight=fontSize*.3528*1.08;
       const centerY=tracksTop+(index*slot)+(slot/2);
+      const textWidths=lines.map(line=>doc.getTextWidth(String(line)));
+      const widest=Math.max(0,...textWidths);
+      const groupW=(emojiW+gap)+widest;
+      const groupLeft=(pageW-groupW)/2;
       const firstBaseline=centerY-((lines.length-1)*lineHeight/2)+(fontSize*.3528*.34);
-      lines.forEach((line,lineIndex)=>doc.text(String(line),pageW/2,firstBaseline+(lineIndex*lineHeight),{align:"center"}))
+
+      if(emojiPng){
+        doc.addImage(emojiPng.data,"PNG",groupLeft,centerY-(emojiH/2),emojiW,emojiH,undefined,"FAST")
+      }
+      const textCenter=groupLeft+emojiW+gap+(widest/2);
+      lines.forEach((line,lineIndex)=>doc.text(String(line),textCenter,firstBaseline+(lineIndex*lineHeight),{align:"center"}))
     })
   }
 
