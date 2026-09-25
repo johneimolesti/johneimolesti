@@ -1939,11 +1939,11 @@
     if (!matchesBox) return;
     matchesBox.hidden = !matches.length;
     matchesBox.innerHTML = matches.length ? `
-      <div class="fan-name-match-note"><strong>Nome già presente.</strong> Se uno di questi profili sei tu, selezionalo. Altrimenti indica il tuo gruppo per distinguerti.</div>
+      <div class="fan-name-match-note"><strong>Nome già presente.</strong> Se uno di questi profili sei tu, selezionalo. Altrimenti indica il tuo clan / cerchia per distinguerti.</div>
       <div class="fan-name-match-list">
         ${matches.map(m => `
           <button class="fan-name-match" type="button" data-fan-match="${esc(m.fan_id)}">
-            <span><strong>${esc(m.fan_name)}</strong><small>${esc(m.group_name || 'Nessun gruppo assegnato')}</small></span>
+            <span><strong>${esc(m.fan_name)}</strong><small>${esc(m.group_name || 'Nessun clan assegnato')}</small></span>
             <b>SONO IO</b>
           </button>`).join('')}
       </div>` : '';
@@ -2641,7 +2641,7 @@
     if (!r) return;
     const isMe = currentFan?.id && currentFan.id === r.fan_id;
     const actions = isMe ? [{label:'APRI IL MIO PROFILO',primary:true,run:()=>{closeModal('rankingDetailModal');renderUserModal();openModal('userModal');}}] : [];
-    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Gruppo',r.group_label||null],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
+    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Clan',r.group_label||null],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
   }
   function openPosterRankingDetail(r, position) {
     if (!r) return;
@@ -3405,7 +3405,7 @@
         if (!targetFanId) {
           const check = await checkFanName(name,{force:true});
           if (check?.group_required && !groupName) {
-            msg.textContent = 'Questo nome esiste già: seleziona il tuo profilo oppure indica il gruppo / cerchia.';
+            msg.textContent = 'Questo nome esiste già: seleziona il tuo profilo oppure indica il clan / cerchia.';
             $('fanGroupInput')?.focus();
             return;
           }
@@ -3440,7 +3440,7 @@
       }
       catch (err) {
         msg.textContent = err.message;
-        if (err.message && /scegli il tuo profilo|stesso nome|gruppo/i.test(err.message)) {
+        if (err.message && /scegli il tuo profilo|stesso nome|gruppo|clan|cerchia/i.test(err.message)) {
           try { await checkFanName(name,{force:true}); } catch {}
         }
       }
