@@ -3250,10 +3250,76 @@
     });
   }
 
+  async function loadPublicBootstrap() {
+    let lastError = null;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const {data,error} = await sb.rpc('get_public_bootstrap');
+        if (error) throw error;
+
+        const row = Array.isArray(data) ? data[0] : data;
+        const payload = row?.payload;
+
+        if (!payload || typeof payload !== 'object') {
+          throw new Error('Bootstrap pubblico non valido');
+        }
+
+        concerts = Array.isArray(payload.concerts) ? payload.concerts : [];
+        rankingData = payload.rankings && typeof payload.rankings === 'object'
+          ? payload.rankings
+          : {fans:[],songs:[],concerts:[],posters:[]};
+
+        siteNews = Array.isArray(payload.news) ? payload.news : [];
+        homeSettings = {
+          ...homeSettings,
+          ...(payload.home_settings && typeof payload.home_settings === 'object'
+            ? payload.home_settings
+            : {})
+        };
+
+        publicSongs = Array.isArray(payload.songs) ? payload.songs : [];
+        publicMedia = Array.isArray(payload.media) ? payload.media : [];
+        guestPermissions = payload.permissions && typeof payload.permissions === 'object'
+          ? payload.permissions
+          : {};
+
+        publicSongsLoaded = true;
+        publicMediaLoaded = true;
+        publicSongsError = null;
+
+        window.JM_PUBLIC_DATA = {
+          revision:Number(row?.revision ?? payload.revision ?? 0),
+          generated_at:row?.generated_at || payload.generated_at || new Date().toISOString(),
+          concerts:[...concerts],
+          rankings:rankingData,
+          news:[...siteNews],
+          home_settings:{...homeSettings},
+          songs:[...publicSongs],
+          media:[...publicMedia],
+          contacts:Array.isArray(payload.contacts) ? payload.contacts : [],
+          permissions:{...guestPermissions}
+        };
+
+        return window.JM_PUBLIC_DATA;
+      } catch (err) {
+        lastError = err;
+        if (attempt < 2) {
+          await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+        }
+      }
+    }
+
+    throw lastError || new Error('Dati pubblici non disponibili');
+  }
+
   async function init() {
+    const loader = $('jmDataLoader');
+
     if (!window.supabase?.createClient) {
-      toast(window.JMCopy.text('ui.supabaseUnavailable'),'error');
-      document.documentElement.classList.remove('jm-data-loading');
+      if (loader) {
+        loader.querySelector('.jm-data-loader-title').textContent = 'DATI NON DISPONIBILI';
+      }
       return;
     }
 
@@ -3267,12 +3333,8 @@
 
     if (!location.hash) history.replaceState(null,'','#/home');
 
-    // Nessun dato locale obsoleto: ogni avvio usa esclusivamente dati correnti.
     const copyJob = window.JMCopy.init(sb)
       .catch(err=>console.warn('Testi pubblicati non disponibili',err));
-
-    const permissionsJob = loadPermissions()
-      .catch(err=>console.warn('Permessi guest non disponibili',err));
 
     const identityJob = (async()=>{
       try {
@@ -3285,40 +3347,53 @@
       if (!currentMember) {
         const savedName = localStorage.getItem('jm_public_fan_name');
         if (savedName) {
-          try { await loginFan(savedName,{refreshData:false}); }
-          catch (err) { console.warn('Sessione fan non ripristinata',err); currentFan = null; }
+          try {
+            await loginFan(savedName,{refreshData:false});
+          } catch (err) {
+            console.warn('Sessione fan non ripristinata',err);
+            currentFan = null;
+          }
         }
       }
     })();
 
-    // Tutti i dataset pubblici partono insieme: niente waterfall.
-    const publicJobs = [
-      loadConcerts(true),
-      loadRankings(true),
-      loadPublicUpdates(),
-      loadPublicContentExtensions(true)
-    ];
-
-    await Promise.allSettled([
-      copyJob,
-      permissionsJob,
-      identityJob,
-      window.JM_CONTACTS_READY || Promise.resolve(),
-      ...publicJobs
-    ]);
-
-    // Se l'identità fan è stata ripristinata, completa i due dataset personali
-    // prima di mostrare qualunque parte dell'interfaccia.
-    if (currentFan) {
-      await Promise.allSettled([
-        loadConcerts(true),
-        loadRankings(true)
+    try {
+      await Promise.all([
+        loadPublicBootstrap(),
+        identityJob,
+        copyJob,
+        window.JM_CONTACTS_READY || Promise.resolve()
       ]);
+    } catch (err) {
+      console.error('Bootstrap pubblico',err);
+
+      if (loader) {
+        const title = loader.querySelector('.jm-data-loader-title');
+        const card = loader.querySelector('.jm-data-loader-card');
+
+        if (title) title.textContent = 'DATI NON DISPONIBILI';
+
+        if (card && !card.querySelector('[data-jm-retry]')) {
+          const retry = document.createElement('button');
+          retry.type = 'button';
+          retry.className = 'btn btn-primary';
+          retry.dataset.jmRetry = '1';
+          retry.textContent = 'RIPROVA';
+          retry.onclick = () => location.reload();
+          card.appendChild(retry);
+        }
+      }
+
+      return;
+    }
+
+    if (rankingData && typeof rankingData === 'object') {
+      rankingData.current_fan_id = currentFan?.id || null;
     }
 
     updateUserUI();
 
-    // Un solo pass di rendering, quando il dataset iniziale è completo.
+    // Un solo render: nessun dato parziale e nessuna cache locale obsoleta.
     renderHome();
     renderTour();
     renderRankings();
@@ -3330,24 +3405,17 @@
     window.JMCopy.ready();
     startRealtime();
 
-    window.JM_PUBLIC_DATA = {
-      generated_at:new Date().toISOString(),
-      concerts:[...concerts],
-      rankings:rankingData,
-      news:[...siteNews],
-      home_settings:{...homeSettings},
-      songs:[...publicSongs],
-      media:[...publicMedia]
-    };
-
     document.documentElement.classList.add('jm-public-data-ready');
     window.dispatchEvent(new CustomEvent('jm:public-data-ready',{
-      detail:{generated_at:window.JM_PUBLIC_DATA.generated_at}
+      detail:{
+        revision:window.JM_PUBLIC_DATA?.revision || 0,
+        generated_at:window.JM_PUBLIC_DATA?.generated_at || null
+      }
     }));
+
     document.documentElement.classList.remove('jm-mobile-home-pending');
     document.documentElement.classList.remove('jm-data-loading');
-    const loader=$('jmDataLoader');
-    if(loader)loader.hidden=true;
+    if (loader) loader.hidden = true;
 
     if (rawRoute()==='checkin') {
       await handleQrCheckin();
