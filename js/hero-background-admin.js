@@ -4,8 +4,6 @@
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
   const BUCKET = 'public-site';
-  const CACHE_KEY = 'jm_hero_backgrounds_v1';
-  const PUBLIC_CACHE_KEY = 'jm_public_cache_v3';
   const MAX_FILE_BYTES = 15 * 1024 * 1024;
 
   const SLIDES = [
@@ -192,34 +190,7 @@
     node.classList.toggle('error', !!isError);
   }
 
-  function writeCaches() {
-    const payload = {
-      saved_at: Date.now(),
-      hero_backgrounds: settings
-    };
-
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
-    } catch {}
-
-    try {
-      const raw = localStorage.getItem(PUBLIC_CACHE_KEY);
-      if (raw) {
-        const publicCache = JSON.parse(raw);
-
-        publicCache.saved_at = Date.now();
-        publicCache.homeSettings = {
-          ...(publicCache.homeSettings || {}),
-          hero_backgrounds: settings
-        };
-
-        localStorage.setItem(
-          PUBLIC_CACHE_KEY,
-          JSON.stringify(publicCache)
-        );
-      }
-    } catch {}
-
+  function publishUpdate() {
     window.dispatchEvent(
       new CustomEvent('jm:hero-backgrounds-updated', {
         detail: {hero_backgrounds: settings}
@@ -722,7 +693,7 @@
       }
 
       settings = normalizeConfig(data?.hero_backgrounds);
-      writeCaches();
+      publishUpdate();
 
       if (
         uploadedPath &&
@@ -803,7 +774,7 @@
       if (error) throw error;
 
       settings = normalizeConfig(data?.hero_backgrounds);
-      writeCaches();
+      publishUpdate();
 
       if (oldPath) {
         const {error: removeError} = await client
