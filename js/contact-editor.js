@@ -24,6 +24,8 @@
   };
 
   let rows=[],admin=false,rendering=false,observer=null,reloadTimer=null;
+  let resolveInitialContacts;
+  window.JM_CONTACTS_READY=new Promise(resolve=>{resolveInitialContacts=resolve});
   const q=(s,r=document)=>r.querySelector(s);
   const qa=(s,r=document)=>[...r.querySelectorAll(s)];
   const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({
@@ -754,11 +756,18 @@
     pageObserver.observe(document.body,{childList:true,subtree:true});
   }
 
-  function boot(){
-    if(!client)return;
+  async function boot(){
+    if(!client){
+      resolveInitialContacts?.();
+      return;
+    }
 
-    sync();
-    watchForContactsPage();
+    try{
+      await sync();
+    }finally{
+      resolveInitialContacts?.();
+      resolveInitialContacts=null;
+    }
 
     client.auth.onAuthStateChange(()=>{
       setTimeout(sync,0);
@@ -766,13 +775,9 @@
 
     window.addEventListener('hashchange',()=>{
       if(location.hash.startsWith('#/contacts')){
-        watchForContactsPage();
         setTimeout(sync,0);
       }
     });
-
-    setTimeout(sync,250);
-    setTimeout(sync,1000);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
