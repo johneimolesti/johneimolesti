@@ -7,6 +7,8 @@
 
   const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_CtyexwjoW375UXpjInOuDA_Uz28wWJx';
+  const FAN_API = `${SUPABASE_URL}/functions/v1/fan-api`;
+  const PENDING_VOTE_KEY = 'jm_pending_simple_vote';
 
   let sb = null;
   let songs = new Map();
@@ -16,6 +18,8 @@
   let gridObserver = null;
   let playerSyncTimer = null;
   let currentDetailSongId = '';
+  let voteResumeTimer = null;
+  let catalogVoteCache = null;
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>'"]/g, ch => ({
@@ -32,6 +36,245 @@
       .trim()
       .replace(/\s+/g, ' ')
       .toLocaleLowerCase('it');
+  }
+
+
+  function fanDeviceToken() {
+    let token=localStorage.getItem('jm_fan_device_token');
+    if(!token){
+      token=crypto.randomUUID();
+      localStorage.setItem('jm_fan_device_token',token);
+    }
+    return token;
+  }
+
+  async function fanApi(action,payload={}) {
+    const res=await fetch(FAN_API,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPABASE_KEY,
+        'Authorization':`Bearer ${SUPABASE_KEY}`
+      },
+      body:JSON.stringify({action,device_token:fanDeviceToken(),...payload})
+    });
+    let data={};
+    try{data=await res.json()}catch{}
+    if(!res.ok)throw new Error(data.error||`fan-api HTTP ${res.status}`);
+    return data;
+  }
+
+  function isFanLogged() {
+    return document.getElementById('userEntry')?.classList.contains('is-fan')===true;
+  }
+
+  function isMemberLogged() {
+    return document.getElementById('userEntry')?.classList.contains('is-member')===true;
+  }
+
+  function voteLabel(value) {
+    const n=Number(value);
+    return Number.isFinite(n)?String(n).replace('.',','):'—';
+  }
+
+  function ensureVoteStyles() {
+    if(document.getElementById('jmSimpleVoteStyles'))return;
+    const style=document.createElement('style');
+    style.id='jmSimpleVoteStyles';
+    style.textContent=`
+      .jm-inline-vote{
+        appearance:none;display:inline-flex;align-items:center;justify-content:center;
+        min-height:24px;padding:5px 8px;border:1px solid var(--gold,#eee52b);
+        background:var(--gold,#eee52b);color:#111;box-shadow:2px 2px 0 #5f5924;
+        font:900 8px/1 monospace;letter-spacing:.05em;cursor:pointer;text-transform:uppercase
+      }
+      .repertoire-player .jm-inline-vote{margin-top:7px;width:100%}
+      .ranking-main{position:relative}
+      .ranking-main>.jm-inline-vote{margin-top:5px;min-height:21px;padding:4px 6px;font-size:6.5px}
+      .song-cd-page-actions .jm-inline-vote{min-height:31px;padding:7px 11px}
+      #jmSimpleVoteModal[hidden]{display:none!important}
+      #jmSimpleVoteModal{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:14px}
+      .jm-vote-backdrop{position:absolute;inset:0;border:0;background:rgba(0,0,0,.84);backdrop-filter:blur(7px)}
+      .jm-vote-card{position:relative;z-index:1;width:min(520px,100%);border:2px solid #777568;background:#161615;color:#f2eee3;box-shadow:8px 8px 0 #66364f}
+      .jm-vote-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 17px;border-bottom:2px solid #777568;background:#272717}
+      .jm-vote-head small{display:block;color:var(--gold,#eee52b);font:900 9px/1 monospace;letter-spacing:.1em}
+      .jm-vote-head h2{margin:5px 0 0;font:900 clamp(23px,6vw,34px)/1 Impact,'Arial Narrow',sans-serif;text-transform:uppercase}
+      .jm-vote-close{width:34px;height:34px;border:2px solid var(--gold,#eee52b);background:#111;color:var(--gold,#eee52b);font:900 23px/1 sans-serif;cursor:pointer}
+      .jm-vote-body{padding:17px}
+      .jm-vote-current{min-height:18px;margin-bottom:12px;color:var(--gold,#eee52b);font:900 11px/1.35 monospace}
+      .jm-vote-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+      .jm-vote-key{min-height:46px;border:2px solid #6f6c60;background:#222;color:#f4f1e6;font:900 16px/1 monospace;cursor:pointer}
+      .jm-vote-key.half{border-style:dashed;color:#d2c971;font-size:13px}
+      .jm-vote-key.selected{border-color:var(--gold,#eee52b);background:var(--gold,#eee52b);color:#111;box-shadow:2px 2px 0 #5f5924}
+      .jm-vote-key:disabled{opacity:.45;cursor:wait}
+      .jm-vote-status{min-height:20px;margin-top:12px;color:#bbb;font:700 10px/1.4 monospace}
+      .jm-vote-status.ok{color:#bfe0ae}.jm-vote-status.error{color:#ffadb5}
+      @media(max-width:520px){.jm-vote-grid{gap:4px}.jm-vote-key{min-height:43px}.jm-vote-card{box-shadow:4px 4px 0 #66364f}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureVoteModal() {
+    let modal=document.getElementById('jmSimpleVoteModal');
+    if(modal)return modal;
+    const values=[];
+    for(let n=1;n<=10;n++){values.push(n);if(n<10)values.push(n+.5)}
+    modal=document.createElement('section');
+    modal.id='jmSimpleVoteModal';
+    modal.hidden=true;
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.innerHTML=`
+      <button class="jm-vote-backdrop" type="button" data-jm-vote-close aria-label="Chiudi"></button>
+      <article class="jm-vote-card">
+        <header class="jm-vote-head"><div><small data-jm-vote-kicker>VOTA IL BRANO</small><h2 data-jm-vote-title>BRANO</h2></div><button class="jm-vote-close" type="button" data-jm-vote-close>×</button></header>
+        <div class="jm-vote-body">
+          <div class="jm-vote-current" data-jm-vote-current></div>
+          <div class="jm-vote-grid">${values.map(v=>`<button class="jm-vote-key${Number.isInteger(v)?'':' half'}" type="button" data-jm-vote-value="${v}">${voteLabel(v)}</button>`).join('')}</div>
+          <div class="jm-vote-status" data-jm-vote-status role="status" aria-live="polite"></div>
+        </div>
+      </article>`;
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-jm-vote-close]').forEach(b=>b.onclick=()=>{modal.hidden=true});
+    modal.querySelector('.jm-vote-grid').addEventListener('click',e=>{
+      const b=e.target.closest('[data-jm-vote-value]');
+      if(b&&!b.disabled)saveSimpleVote(Number(b.dataset.jmVoteValue));
+    });
+    return modal;
+  }
+
+  function paintVote(value) {
+    const modal=ensureVoteModal();
+    const n=value==null?null:Number(value);
+    modal.querySelectorAll('[data-jm-vote-value]').forEach(b=>{
+      const on=n!=null&&Math.abs(Number(b.dataset.jmVoteValue)-n)<.001;
+      b.classList.toggle('selected',on);
+    });
+    modal.querySelector('[data-jm-vote-current]').textContent=n==null?'NON HAI ANCORA VOTATO':`IL TUO VOTO: ${voteLabel(n)} / 10`;
+  }
+
+  function voteStatus(message,type='') {
+    const el=ensureVoteModal().querySelector('[data-jm-vote-status]');
+    el.textContent=message||'';
+    el.className='jm-vote-status'+(type?` ${type}`:'');
+  }
+
+  function setVoteBusy(busy) {
+    ensureVoteModal().querySelectorAll('[data-jm-vote-value]').forEach(b=>b.disabled=!!busy);
+  }
+
+  async function existingVote(kind,songId) {
+    if(kind==='song'){
+      if(!catalogVoteCache){
+        const data=await fanApi('catalog');
+        catalogVoteCache=new Map((data.songs||[]).map(r=>[String(r.id||r.song_id||''),r.my_vote?.molesti_score==null?null:Number(r.my_vote.molesti_score)]));
+      }
+      return catalogVoteCache.get(String(songId))??null;
+    }
+    const data=await fanApi('rankings');
+    const row=(data.covers||[]).find(r=>String(r.song_id||'')===String(songId));
+    return row?.my_score==null?null:Number(row.my_score);
+  }
+
+  async function prefillKnownFan() {
+    try{
+      const state=await fanApi('device_status');
+      const input=document.getElementById('fanNameInput');
+      const name=state?.fan?.nickname||state?.fan?.display_name||'';
+      if(state?.recognized&&input&&!input.value.trim()&&name)input.value=name;
+    }catch{}
+  }
+
+  function requestVoteLogin(kind,songId,title) {
+    sessionStorage.setItem(PENDING_VOTE_KEY,JSON.stringify({kind,songId:String(songId),title:String(title||'')}));
+    if(isMemberLogged()){
+      document.getElementById('userEntry')?.click();
+      alert('Per votare come fan, esci prima dall’area BAND.');
+      return;
+    }
+    document.getElementById('userEntry')?.click();
+    setTimeout(()=>{
+      document.querySelector('#loginSwitch [data-login-mode="fan"]')?.click();
+      prefillKnownFan().finally(()=>document.getElementById('fanNameInput')?.focus());
+    },0);
+    scheduleVoteResume();
+  }
+
+  function scheduleVoteResume() {
+    clearTimeout(voteResumeTimer);
+    let tries=0;
+    const run=()=>{
+      tries++;
+      let pending=null;
+      try{pending=JSON.parse(sessionStorage.getItem(PENDING_VOTE_KEY)||'null')}catch{}
+      if(!pending)return;
+      if(!isFanLogged()||!document.getElementById('userModal')?.hidden){
+        if(tries<240)voteResumeTimer=setTimeout(run,150);
+        return;
+      }
+      sessionStorage.removeItem(PENDING_VOTE_KEY);
+      openSimpleVote(pending.kind,pending.songId,pending.title);
+    };
+    run();
+  }
+
+  async function openSimpleVote(kind,songId,title='') {
+    const id=String(songId||'');
+    if(!id)return;
+    const song=songs.get(id);
+    const resolvedTitle=title||song?.title||'BRANO';
+    if(!isFanLogged()){requestVoteLogin(kind,id,resolvedTitle);return}
+    const modal=ensureVoteModal();
+    modal.dataset.kind=kind;
+    modal.dataset.songId=id;
+    modal.querySelector('[data-jm-vote-kicker]').textContent=kind==='cover'?'VOTA LA COVER ART':'VOTA IL BRANO';
+    modal.querySelector('[data-jm-vote-title]').textContent=resolvedTitle;
+    modal.hidden=false;
+    paintVote(null);
+    voteStatus('Caricamento del voto…');
+    try{
+      const current=await existingVote(kind,id);
+      paintVote(current);
+      voteStatus(current==null?'Scegli un voto da 1 a 10, anche a mezzi.':'Puoi modificare il voto in qualsiasi momento.');
+    }catch(err){voteStatus(err.message||'Voto precedente non disponibile.','error')}
+  }
+
+  async function saveSimpleVote(value) {
+    const modal=ensureVoteModal();
+    const kind=modal.dataset.kind||'song';
+    const songId=modal.dataset.songId||'';
+    const n=Number(value);
+    if(!songId||!Number.isFinite(n)||n<1||n>10||Math.round(n*2)!==n*2)return;
+    setVoteBusy(true);voteStatus(`Salvataggio ${voteLabel(n)}…`);
+    try{
+      if(kind==='cover'){
+        await fanApi('cover_art_vote',{song_id:songId,score:n});
+      }else{
+        await fanApi('catalog_vote',{song_id:songId,molesti_score:n,preserve_advanced:true});
+        if(catalogVoteCache)catalogVoteCache.set(String(songId),n);
+      }
+      paintVote(n);voteStatus(`Voto ${voteLabel(n)} salvato ✓`,'ok');
+      window.dispatchEvent(new CustomEvent('jm:ranking-refresh-request',{detail:{kind,song_id:songId}}));
+      setTimeout(()=>{modal.hidden=true},350);
+    }catch(err){voteStatus(err.message||'Salvataggio non riuscito.','error')}
+    finally{setVoteBusy(false)}
+  }
+
+  function voteButton(kind,songId,title,label='VOTA') {
+    const b=document.createElement('button');
+    b.type='button';b.className='jm-inline-vote';
+    b.dataset.jmVoteKind=kind;b.dataset.songId=String(songId||'');b.dataset.songTitle=String(title||'');
+    b.textContent=label;
+    return b;
+  }
+
+  function installVoteHandler() {
+    window.addEventListener('click',e=>{
+      const b=e.target?.closest?.('[data-jm-vote-kind]');
+      if(!b)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      openSimpleVote(b.dataset.jmVoteKind||'song',b.dataset.songId||'',b.dataset.songTitle||'');
+    },true);
   }
 
   function formatDate(value) {
@@ -1120,6 +1363,12 @@
     renderPlayCount(card);
     syncCardPlayingState(card);
 
+    const cardSong=songs.get(String(card.dataset.repertoireSong||''));
+    const player=card.querySelector('.repertoire-player');
+    if(player&&cardSong&&!player.querySelector('[data-jm-vote-kind="song"]')){
+      player.appendChild(voteButton('song',cardSong.id,cardSong.title,'VOTA'));
+    }
+
     if (card.dataset.songsDiscBound === '1') return;
     card.dataset.songsDiscBound = '1';
 
@@ -1164,17 +1413,15 @@
 
   function decorateHitRows() {
     document
-      .querySelectorAll('#songsRanking [data-ranking-song-index]')
+      .querySelectorAll('#songsRanking [data-ranking-song-index],#songsPlayRanking [data-ranking-play-index]')
       .forEach(row => {
-        const title = row
-          .querySelector('.ranking-title')
-          ?.textContent
-          ?.trim() || row.getAttribute('title') || '';
-
-        const song = songsByTitle.get(normalizeTitle(title));
-
-        if (song) {
-          row.dataset.songDetailId = String(song.id);
+        const title = row.querySelector('.ranking-title')?.textContent?.trim() || row.getAttribute('title') || '';
+        const song = songs.get(String(row.dataset.songId||'')) || songsByTitle.get(normalizeTitle(title));
+        if (!song) return;
+        row.dataset.songDetailId = String(song.id);
+        const main=row.querySelector('.ranking-main');
+        if(main&&!main.querySelector('[data-jm-vote-kind="song"]')){
+          main.appendChild(voteButton('song',song.id,song.title,'VOTA'));
         }
       });
   }
@@ -1473,6 +1720,7 @@
       </div>
 
       <div class="song-cd-page-actions">
+        <button type="button" class="jm-inline-vote song-cd-page-button" data-jm-vote-kind="song" data-song-id="${esc(song.id)}" data-song-title="${esc(song.title||'')}">VOTA</button>
         <button
           type="button"
           class="song-cd-page-button primary"
@@ -1951,10 +2199,16 @@
 
   function setup() {
     ensureStyles();
+    ensureVoteStyles();
+    ensureVoteModal();
     renameSection();
     ensureSwitch();
+    installVoteHandler();
     installUnifiedOpenHandler();
     observeDynamicContent();
+
+    const userEntry=document.getElementById('userEntry');
+    if(userEntry)new MutationObserver(()=>{if(isFanLogged()&&sessionStorage.getItem(PENDING_VOTE_KEY))scheduleVoteResume()}).observe(userEntry,{attributes:true,attributeFilter:['class']});
 
     window.JMSongs={
       openDetail:openSongDetail,
