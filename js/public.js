@@ -8,8 +8,6 @@
   const LIVE_REVEAL_MINUTES = 5;
   const MEMBER_ADMINS = new Set(['ema', 'kekko']);
   const ROUTES = new Set(['home', 'tour', 'repertoire', 'rankings', 'band', 'more', 'contacts', 'news-admin']);
-  const PUBLIC_CACHE_KEY = 'jm_public_cache_v3';
-  const PUBLIC_CACHE_MAX_STALE_MS = 7 * 24 * 60 * 60 * 1000;
   const $ = id => document.getElementById(id);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -53,8 +51,6 @@
   const CHECKIN_WINDOW_AFTER_MINUTES = 360;
   const hadFanDeviceTokenAtLoad = (()=>{ try { return !!localStorage.getItem('jm_fan_device_token'); } catch { return true; } })();
   let newDeviceEntryPending = !hadFanDeviceTokenAtLoad;
-  let publicCacheWriteTimer = null;
-  let publicCacheHydrated = false;
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
@@ -124,98 +120,6 @@
   }
 
 
-  function cacheableConcerts() {
-    return (concerts || [])
-      .filter(c => !c?.private_show)
-      .map(c => {
-        const copy = {...c};
-        delete copy.attended;
-        delete copy.my_rating;
-        delete copy.my_concert_rating;
-        delete copy.my_vote;
-        delete copy.my_reactions;
-        return copy;
-      });
-  }
-
-  function hydratePublicCache() {
-    try {
-      const raw = localStorage.getItem(PUBLIC_CACHE_KEY);
-      if (!raw) return false;
-      const cached = JSON.parse(raw);
-      const savedAt = Number(cached?.saved_at || 0);
-      if (!savedAt || Date.now() - savedAt > PUBLIC_CACHE_MAX_STALE_MS) return false;
-
-      if (Array.isArray(cached.concerts) && cached.concerts.length) concerts = cached.concerts;
-      if (cached.rankingData && typeof cached.rankingData === 'object') rankingData = cached.rankingData;
-
-      if (Array.isArray(cached.siteNews)) {
-        const now = Date.now();
-        siteNews = cached.siteNews.filter(row => {
-          const published = row?.published_at ? Date.parse(row.published_at) : 0;
-          const expires = row?.expires_at ? Date.parse(row.expires_at) : Infinity;
-          return (!published || published <= now) && (!Number.isFinite(expires) || expires > now);
-        });
-      }
-
-      if (cached.homeSettings && typeof cached.homeSettings === 'object') {
-        homeSettings = {...homeSettings, ...cached.homeSettings};
-      }
-
-      if (Array.isArray(cached.publicSongs)) {
-        publicSongs = cached.publicSongs;
-        publicSongsLoaded = true;
-        publicSongsError = null;
-      }
-
-      if (Array.isArray(cached.publicMedia)) {
-        publicMedia = cached.publicMedia;
-        publicMediaLoaded = true;
-      }
-
-      publicCacheHydrated = true;
-      return true;
-    } catch (err) {
-      console.warn('Cache pubblica non leggibile', err);
-      return false;
-    }
-  }
-
-  function writePublicCache() {
-    publicCacheWriteTimer = null;
-    try {
-      const savedAt = Date.now();
-      localStorage.setItem(PUBLIC_CACHE_KEY, JSON.stringify({
-        saved_at: savedAt,
-        concerts: cacheableConcerts(),
-        rankingData,
-        siteNews,
-        homeSettings,
-        publicSongs,
-        publicMedia
-      }));
-      window.dispatchEvent(new CustomEvent('jm:public-cache-updated', {
-        detail:{saved_at:savedAt}
-      }));
-    } catch (err) {
-      console.warn('Cache pubblica non salvabile', err);
-    }
-  }
-
-  function schedulePublicCacheWrite() {
-    clearTimeout(publicCacheWriteTimer);
-    publicCacheWriteTimer = setTimeout(writePublicCache, 120);
-  }
-
-  function renderCachedPublicState() {
-    if (!publicCacheHydrated) return;
-    renderHome();
-    renderTour();
-    renderRankings();
-    renderRepertoire();
-    renderPublicMedia();
-    renderRailNextShow();
-  }
   function globalSocialItems() {
     return $$('#contactsSocialActions .contact-tile').map(link => {
       const href = link.getAttribute('href') || '';
@@ -2082,7 +1986,6 @@
       const data = currentFan ? await fanApi('list_concerts') : await fanApi('list_concerts',{guest:true});
       concerts = data.concerts || [];
       concerts.sort((a,b) => String(b.concert_date).localeCompare(String(a.concert_date)) || String(b.start_time || '').localeCompare(String(a.start_time || '')));
-      schedulePublicCacheWrite();
       return concerts;
     } catch (err) {
       console.error(err);
@@ -2100,7 +2003,6 @@
     }
     try {
       rankingData = currentFan ? await fanApi('rankings') : await fanApi('rankings',{guest:true});
-      schedulePublicCacheWrite();
       return rankingData;
     } catch (err) {
       console.error(err);
@@ -2152,7 +2054,6 @@
     }
 
     if (jobs.length) await Promise.all(jobs);
-    schedulePublicCacheWrite();
     return {songs:publicSongs,media:publicMedia};
   }
   function songArtistLine(song) {
@@ -2712,7 +2613,6 @@
 
     syncHomeFallbackAdmin();
     renderHighlights();
-    schedulePublicCacheWrite();
   }
 
   function newsSourceSlide(row) {
@@ -3353,6 +3253,7 @@
   async function init() {
     if (!window.supabase?.createClient) {
       toast(window.JMCopy.text('ui.supabaseUnavailable'),'error');
+      document.documentElement.classList.remove('jm-data-loading');
       return;
     }
 
@@ -3364,47 +3265,15 @@
     observePublishedContacts();
     bindStaticEvents();
 
-    // 1) Prima schermata: usa subito l'ultima fotografia pubblica valida.
-    hydratePublicCache();
     if (!location.hash) history.replaceState(null,'','#/home');
-    renderCachedPublicState();
-    applyRoute();
-    updateUserUI();
-    window.JMCopy.ready();
-    startRealtime();
 
-    // 2) Testi, permessi e dati pubblici partono immediatamente e in parallelo.
+    // Nessun dato locale obsoleto: ogni avvio usa esclusivamente dati correnti.
     const copyJob = window.JMCopy.init(sb)
-      .then(()=>window.JMCopy.ready())
       .catch(err=>console.warn('Testi pubblicati non disponibili',err));
 
     const permissionsJob = loadPermissions()
       .catch(err=>console.warn('Permessi guest non disponibili',err));
 
-    const publicJobs = [
-      loadConcerts(true).then(()=>{
-        renderHome();
-        renderTour();
-        renderRailNextShow();
-      }).catch(err=>console.warn('Concerti non disponibili',err)),
-
-      loadRankings(true).then(()=>{
-        renderHome();
-        renderRankings();
-      }).catch(err=>console.warn('Classifiche non disponibili',err)),
-
-      loadPublicUpdates().then(()=>{
-        renderHome();
-      }).catch(err=>console.warn('Novità Home non disponibili',err)),
-
-      loadPublicContentExtensions(true).then(()=>{
-        renderRepertoire();
-        renderPublicMedia();
-        renderHome();
-      }).catch(err=>console.warn('Contenuti pubblici non disponibili',err))
-    ];
-
-    // 3) Ripristino identità senza bloccare la grafica né i dati pubblici.
     const identityJob = (async()=>{
       try {
         const {data:{session}} = await sb.auth.getSession();
@@ -3420,24 +3289,65 @@
           catch (err) { console.warn('Sessione fan non ripristinata',err); currentFan = null; }
         }
       }
-
-      updateUserUI();
     })();
 
-    // Se il dispositivo appartiene a un fan, dopo il primo refresh pubblico
-    // ricarica solo i due dataset che possono contenere stato personale.
-    Promise.allSettled([...publicJobs, identityJob, permissionsJob]).then(async()=>{
-      if (!currentFan) return;
-      await Promise.allSettled([
-        loadConcerts(true).then(()=>{renderHome();renderTour();renderRailNextShow();}),
-        loadRankings(true).then(()=>{renderHome();renderRankings();})
-      ]);
-    });
+    // Tutti i dataset pubblici partono insieme: niente waterfall.
+    const publicJobs = [
+      loadConcerts(true),
+      loadRankings(true),
+      loadPublicUpdates(),
+      loadPublicContentExtensions(true)
+    ];
 
-    copyJob.catch(()=>{});
+    await Promise.allSettled([
+      copyJob,
+      permissionsJob,
+      identityJob,
+      ...publicJobs
+    ]);
+
+    // Se l'identità fan è stata ripristinata, completa i due dataset personali
+    // prima di mostrare qualunque parte dell'interfaccia.
+    if (currentFan) {
+      await Promise.allSettled([
+        loadConcerts(true),
+        loadRankings(true)
+      ]);
+    }
+
+    updateUserUI();
+
+    // Un solo pass di rendering, quando il dataset iniziale è completo.
+    renderHome();
+    renderTour();
+    renderRankings();
+    renderRepertoire();
+    renderPublicMedia();
+    renderRailNextShow();
+    contactRender();
+    applyRoute();
+    window.JMCopy.ready();
+    startRealtime();
+
+    window.JM_PUBLIC_DATA = {
+      generated_at:new Date().toISOString(),
+      concerts:[...concerts],
+      rankings:rankingData,
+      news:[...siteNews],
+      home_settings:{...homeSettings},
+      songs:[...publicSongs],
+      media:[...publicMedia]
+    };
+
+    document.documentElement.classList.add('jm-public-data-ready');
+    document.documentElement.classList.remove('jm-data-loading');
+    const loader=$('jmDataLoader');
+    if(loader)loader.hidden=true;
+    window.dispatchEvent(new CustomEvent('jm:public-data-ready',{
+      detail:{generated_at:window.JM_PUBLIC_DATA.generated_at}
+    }));
 
     if (rawRoute()==='checkin') {
-      await identityJob;
       await handleQrCheckin();
     }
   }
