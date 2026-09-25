@@ -470,6 +470,7 @@
 
   function completeNewDeviceEntry() {
     newDeviceEntryPending=false;
+    if(sessionStorage.getItem('jm_entry_contacts_seen')==='1')return;
     const live=activeLoadedConcertForEntry();
     openEntryFlowOnHome({source:'new-device',concert:live,certified:false});
   }
@@ -3354,10 +3355,14 @@
           }
         }
 
-        await loginFan(name,{groupName,targetFanId});
+        const loginResult = await loginFan(name,{groupName,targetFanId});
         msg.textContent = '';
         resetFanNameDisambiguation();
+        const loginSource = qrCheckinPending ? 'checkin' : 'normal';
         closeModal('userModal');
+        if(window.JMPublicFanFlow?.afterLogin){
+          await window.JMPublicFanFlow.afterLogin(loginResult,{source:loginSource});
+        }
         if(qrCheckinPending){
           const first=qrClaimedOnLogin[0];
           try{
