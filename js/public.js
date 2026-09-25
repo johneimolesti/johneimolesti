@@ -3134,11 +3134,26 @@
       const role = currentFan ? 'fan' : 'guest';
       const canSeeSetlist = can(role,'concert_setlist_view');
       const started = isLiveNow(c) || c.status === 'completed';
-      const canAttend = !!currentFan && started;
+      const intentionStatus = data.intention_status || null;
+      const canPlanAttendance = !!currentFan && ['future','confirmed'].includes(String(c.status||'')) && !started;
+      const canConfirmIntention = !!currentFan && !data.attended && intentionStatus === 'going' && !!data.attendance_window_open && started;
+      const canAttend = !!currentFan && started && (data.attended || intentionStatus !== 'going');
       const canVote = !!currentFan && !!data.voting_open && !!data.attended;
       const mapQuery = encodeURIComponent([c.venue,c.city].filter(Boolean).join(', '));
       const posterCarousel = posters.length ? `<div class="concert-poster-carousel" data-concert-poster-carousel><div class="concert-poster-stage"><button class="poster-open concert-poster-frame" type="button" aria-label="Ingrandisci locandina"><img class="concert-poster" src="${esc(posters[0])}" alt="${esc(window.JMCopy.text('ui.poster',{name:c.name}))}" draggable="false"></button>${posters.length>1?`<button class="concert-poster-nav concert-poster-prev" type="button" aria-label="Locandina precedente">‹</button><button class="concert-poster-nav concert-poster-next" type="button" aria-label="Locandina successiva">›</button>`:''}</div>${posters.length>1?`<div class="concert-poster-footer"><div class="concert-poster-dots">${posters.map((_,i)=>`<button type="button" class="concert-poster-dot${i===0?' active':''}" data-poster-index="${i}" aria-label="Locandina ${i+1}"></button>`).join('')}</div><span class="concert-poster-count">1 / ${posters.length}</span></div>`:''}</div>` : '';
       let html = `<div class="concert-detail-top"><div class="concert-detail-meta"><span class="status-pill status-${cls}">${esc(status)}</span>${c.private_show?'<span class="private-show-chip">PRIVATE SHOW</span>':''}<p><strong>${esc(formatDate(c.concert_date))}${c.start_time ? ` · ${esc(formatTime(c.start_time))}` : ''}</strong><br>${esc(prettyPlace(c))}</p><div class="concert-public-actions">${mapQuery ? `<a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener" data-copy="ui.d2f10e06593c">INDICAZIONI</a>` : ''}<button class="btn btn-ghost" id="addConcertCalendar" type="button" data-copy="ui.84253b1ec4ee">+ CALENDARIO</button></div></div>${posterCarousel}</div>`;
+
+      if (data.attended || intentionStatus === 'confirmed') {
+        html += '<div class="concert-intention-box confirmed"><div><strong>PRESENZA CONFERMATA ✓</strong><span>La tua presenza a questo live risulta confermata.</span></div></div>';
+      } else if (canConfirmIntention) {
+        html += '<div class="concert-intention-box"><div><strong>AVEVI DETTO “CI SARÒ”</strong><span>Se sei qui, riconferma ora la presenza.</span></div><button id="fanConfirmConcertPresence" class="btn btn-primary" type="button">CI SONO ✓</button></div>';
+      } else if (canPlanAttendance) {
+        const going = intentionStatus === 'going';
+        html += `<div class="concert-intention-box"><div><strong>${going?'CI SARAI ✓':'PENSI DI VENIRE?'}</strong><span>${going?'Hai segnato che ci sarai. Durante il live potrai riconfermare la presenza.':'Segnala la tua intenzione: non vale ancora come presenza e non assegna punti.'}</span></div><button id="fanConcertIntention" class="btn ${going?'btn-ghost':'btn-primary'}" type="button">${going?'ANNULLA CI SARÒ':'CI SARÒ'}</button></div>`;
+      } else if (!currentFan && ['future','confirmed'].includes(String(c.status||'')) && !started) {
+        html += '<div class="concert-intention-box"><div><strong>CI SARAI?</strong><span>Entra come fan per salvarlo e poter riconfermare la presenza durante il live.</span></div><button id="fanConcertLogin" class="btn btn-primary" type="button">ENTRA COME FAN</button></div>';
+      }
+
       if (canAttend) {
         html += `<div class="fan-live-tools"><div class="attendance-toggle"><label><input id="fanAttendanceToggle" type="checkbox" ${data.attended?'checked':''}> <span data-copy="ui.attendance">IO C’ERO</span></label><span class="save-indicator">${esc(data.attended ? window.JMCopy.text('ui.706fd3934ba2') : window.JMCopy.text('ui.57d90e8ecbe0'))}</span></div>${data.attended && data.voting_open ? `<div class="general-score"><span data-copy="ui.5ba790e94203">Voto generale al live</span><select id="concertGeneralScore" class="score-select"><option value="">—</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(data.my_concert_rating)===n+1?'selected':''}>${n+1}</option>`).join('')}</select></div>` : ''}</div>`;
       }
@@ -3173,6 +3188,39 @@
         frame?.addEventListener('click',()=>openPoster(posters[posterIndex],posters.length>1?`${c.name} · ${posterIndex+1}/${posters.length}`:c.name));
       }
       $('addConcertCalendar')?.addEventListener('click', () => downloadCalendar(c));
+      $('fanConcertIntention')?.addEventListener('click', async e => {
+        const going = intentionStatus !== 'going';
+        e.currentTarget.disabled = true;
+        try {
+          await fanApi('concert_intention',{concert_id:id,going});
+          toast(going ? '“Ci sarò” salvato ✓' : '“Ci sarò” rimosso','ok');
+          await openConcert(id);
+        } catch (err) {
+          e.currentTarget.disabled = false;
+          toast(err.message,'error');
+        }
+      });
+      $('fanConfirmConcertPresence')?.addEventListener('click', async e => {
+        e.currentTarget.disabled = true;
+        try {
+          await fanApi('confirm_concert_presence',{concert_id:id});
+          toast('Presenza confermata ✓','ok');
+          await Promise.allSettled([openConcert(id),loadRankings(true)]);
+          renderRankings();
+          renderHome();
+        } catch (err) {
+          e.currentTarget.disabled = false;
+          toast(err.message,'error');
+        }
+      });
+      $('fanConcertLogin')?.addEventListener('click', () => {
+        sessionStorage.setItem('jm_return_concert',id);
+        closeModal('concertModal');
+        renderUserModal();
+        showLoginMode('fan');
+        openModal('userModal');
+        setTimeout(()=>$('fanNameInput')?.focus(),30);
+      });
       $('fanAttendanceToggle')?.addEventListener('change', async e => {
         const checked = e.target.checked;
         e.target.disabled = true;
@@ -3383,6 +3431,11 @@
           completeNewDeviceEntry();
         }else{
           toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok');
+        }
+        const returnConcert = sessionStorage.getItem('jm_return_concert');
+        if (returnConcert && !qrCheckinPending) {
+          sessionStorage.removeItem('jm_return_concert');
+          setTimeout(()=>openConcert(returnConcert),40);
         }
       }
       catch (err) {
