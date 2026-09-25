@@ -30,7 +30,19 @@
       .setup-fan-group-toolbar input{width:100%;min-width:0;height:32px;padding:6px 9px;border:1px solid #3b424d;border-radius:8px;background:#171c23;color:#e9edf2;font-size:8px}
       .setup-fan-group-list{display:grid;gap:0}.setup-fan-group-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.055)}
       .setup-fan-group-row:last-child{border-bottom:0}.setup-fan-group-row strong{display:block;font-size:8.5px}.setup-fan-group-row span{display:block;margin-top:2px;color:#79828f;font-size:6.5px}.setup-fan-group-row button{min-height:27px;padding:5px 8px;border:1px solid rgba(255,255,255,.12);border-radius:7px;background:#292f38;color:#e6e9ed;font-size:6.5px;font-weight:900}.setup-fan-group-row button.primary{border-color:#f3d234;background:#f3d234;color:#111}
-      @media(max-width:700px){.setup-fan-group-toolbar{grid-template-columns:1fr}.setup-fan-group-select{max-width:130px}}
+      .setup-clans-section{min-height:0}
+      .setup-clans-hero{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+      .setup-clan-users-note{margin-top:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(255,255,255,.025);color:#828b97;font-size:7px;line-height:1.45}
+      @media(max-width:700px){
+        .setup-fan-group-toolbar{grid-template-columns:1fr}
+        .setup-fan-group-select{max-width:145px}
+        .setup-fan-group-row{grid-template-columns:1fr}
+        .setup-clans-hero{align-items:flex-start;flex-direction:column}
+      }
+      @media(max-width:899px), (pointer:coarse){
+        body.jm-admin-clans-enabled #setupNavButton{display:inline-flex!important}
+        body.jm-admin-clans-enabled #setupPage.active{display:flex!important}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -48,25 +60,76 @@
     return new Map((state.groups || []).map(g => [String(g.id), g]));
   }
 
-  function ensurePanel() {
-    const usersSection = $('[data-setup-section="users"]');
-    const directory = $('.setup-user-directory-panel', usersSection || document);
-    if (!usersSection || !directory) return null;
+  function ensureClanUI() {
+    const setupPage=$('#setupPage');
+    const tabs=$('.setup-tabs',setupPage||document);
+    if(!setupPage||!tabs)return null;
 
-    let panel = $('#setupFanGroupsPanel');
-    if (!panel) {
-      panel = document.createElement('section');
-      panel.id = 'setupFanGroupsPanel';
-      panel.className = 'panel setup-fan-group-panel';
-      panel.innerHTML = `
-        <div class="panel-header"><h2>CLAN FAN / CERCHIE</h2><span id="setupFanGroupsCounter" class="counter"></span></div>
+    let tab=$('[data-setup-tab="clans"]',tabs);
+    if(!tab){
+      tab=document.createElement('button');
+      tab.type='button';
+      tab.className='setup-tab';
+      tab.dataset.setupTab='clans';
+      tab.textContent='CLAN FAN';
+      const usersTab=$('[data-setup-tab="users"]',tabs);
+      tabs.insertBefore(tab,usersTab?.nextSibling||null);
+    }
+
+    let section=$('[data-setup-section="clans"]',setupPage);
+    if(!section){
+      section=document.createElement('section');
+      section.className='setup-section setup-clans-section';
+      section.dataset.setupSection='clans';
+      section.hidden=true;
+      section.innerHTML=`
+        <div class="fan-hero setup-embedded-hero setup-clans-hero">
+          <div>
+            <h2>Clan fan</h2>
+            <div class="section-note">Gestisci cerchie e gruppi dei fan: creazione, conferma, rinomina e assegnazione.</div>
+          </div>
+          <button id="setupFanGroupsRefresh" class="small-btn secondary" type="button">AGGIORNA</button>
+        </div>
+        <div id="setupFanGroupsMount"></div>
+        <div class="setup-clan-users-note">L’assegnazione manuale del singolo fan resta disponibile anche in <strong>CONFIGURAZIONE → UTENTI</strong>.</div>`;
+      const usersSection=$('[data-setup-section="users"]',setupPage);
+      setupPage.insertBefore(section,usersSection?.nextSibling||null);
+      $('#setupFanGroupsRefresh',section)?.addEventListener('click',()=>refresh(true));
+    }
+
+    tab.hidden=!canManage();
+    if(!tab.dataset.clanBound){
+      tab.dataset.clanBound='1';
+      tab.addEventListener('click',async e=>{
+        e.preventDefault();
+        if(!canManage())return;
+        $$('.setup-tab',tabs).forEach(x=>x.classList.toggle('active',x===tab));
+        $$('.setup-section',setupPage).forEach(x=>x.hidden=x.dataset.setupSection!=='clans');
+        await refresh(false);
+      });
+    }
+    return section;
+  }
+
+  function ensurePanel() {
+    const section=ensureClanUI();
+    const mount=$('#setupFanGroupsMount',section||document);
+    if(!section||!mount||!canManage())return null;
+
+    let panel=$('#setupFanGroupsPanel');
+    if(!panel){
+      panel=document.createElement('section');
+      panel.id='setupFanGroupsPanel';
+      panel.className='panel setup-fan-group-panel';
+      panel.innerHTML=`
+        <div class="panel-header"><h2>GESTIONE CLAN</h2><span id="setupFanGroupsCounter" class="counter"></span></div>
         <div class="section-note" style="margin:8px">Il clan identifica lo zoccolo duro / gruppo di amici / cerchia con cui il fan segue i Molesti o da cui conosce uno dei membri. I fan possono sceglierne uno esistente o proporne uno nuovo; finché l’admin non lo conferma resta DA CONFERMARE.</div>
         <div class="setup-fan-group-toolbar"><input id="setupFanGroupNewName" maxlength="80" placeholder="Nuovo clan, es. Amici Kekko Saletto"><button id="setupFanGroupCreate" class="small-btn primary" type="button">+ CREA E CONFERMA</button></div>
         <div id="setupFanGroupList" class="setup-fan-group-list"></div>
         <div id="setupFanGroupStatus" class="section-note" style="margin:7px 8px"></div>`;
-      directory.insertAdjacentElement('beforebegin', panel);
-      $('#setupFanGroupCreate', panel).onclick = createGroup;
+      $('#setupFanGroupCreate',panel)?.addEventListener('click',createGroup);
     }
+    if(panel.parentElement!==mount)mount.appendChild(panel);
     return panel;
   }
 
@@ -145,7 +208,9 @@
   }
 
   async function refresh(force = false) {
-    if (!canManage() || loading || (loaded && !force)) {
+    if (!canManage()) return;
+    ensureClanUI();
+    if (loading || (loaded && !force)) {
       if (loaded) { renderPanel(); patchFanRows(); }
       return;
     }
@@ -228,21 +293,59 @@
     });
   }
 
-  function init() {
-    if (!canManage()) return;
-    ensureStyles();
-    ensurePanel();
-    const list = $('#setupUserList');
-    if (list) {
-      observer = new MutationObserver(schedulePatch);
-      observer.observe(list, {childList:true, subtree:true});
+  function syncAdminAvailability() {
+    const allowed=canManage();
+    document.body.classList.toggle('jm-admin-clans-enabled',allowed);
+    const section=ensureClanUI();
+    const tab=$('[data-setup-tab="clans"]');
+    if(tab)tab.hidden=!allowed;
+    if(!allowed){
+      if(section)section.hidden=true;
+      return;
     }
-    document.addEventListener('click', e => {
-      if (e.target.closest?.('[data-setup-section="users"], [data-setup="users"], [data-setup-section-target="users"]')) {
-        setTimeout(() => refresh(false), 0);
-      }
-    }, true);
+    ensurePanel();
     schedulePatch();
+  }
+
+  function init() {
+    ensureStyles();
+    ensureClanUI();
+
+    const list=$('#setupUserList');
+    if(list){
+      observer=new MutationObserver(schedulePatch);
+      observer.observe(list,{childList:true,subtree:true});
+    }
+
+    const memberApp=$('#memberApp');
+    if(memberApp){
+      new MutationObserver(()=>setTimeout(syncAdminAvailability,0))
+        .observe(memberApp,{attributes:true,attributeFilter:['hidden','class']});
+    }
+
+    document.addEventListener('click',e=>{
+      const target=e.target.closest?.('#setupNavButton,[data-setup-tab="users"],[data-setup-tab="clans"]');
+      if(!target)return;
+      setTimeout(()=>{
+        syncAdminAvailability();
+        if(canManage()&&(target.matches('[data-setup-tab="users"]')||target.matches('[data-setup-tab="clans"]'))){
+          refresh(false);
+        }
+      },0);
+    },true);
+
+    syncAdminAvailability();
+
+    window.JMFanGroupsAdmin={
+      refresh:()=>refresh(true),
+      open:async()=>{
+        syncAdminAvailability();
+        if(!canManage())return false;
+        document.querySelector('#memberNav [data-page="setupPage"]')?.click();
+        setTimeout(()=>$('[data-setup-tab="clans"]')?.click(),0);
+        return true;
+      }
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
