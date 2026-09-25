@@ -3627,23 +3627,61 @@ function printConcert(c,concertItems=[]){
   popup.document.open();popup.document.write(concertPrintableHtml(c,concertItems).replace("</body>","<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},120));<"+"/script></body>"));popup.document.close()
 }
 function safePdfFilename(value){return String(value||"scaletta").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"")||"scaletta"}
-function saveConcertPdf(c,concertItems=[]){
+async function pdfImageData(src){
+  const response=await fetch(src,{cache:"force-cache"});if(!response.ok)throw new Error("Logo non disponibile");
+  const blob=await response.blob();
+  return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error||new Error("Logo non leggibile"));reader.readAsDataURL(blob)})
+}
+async function saveConcertPdf(c,concertItems=[]){
   const api=window.jspdf?.jsPDF;if(!api){alert("Generatore PDF non disponibile. Ricarica la pagina e riprova.");return}
-  const doc=new api({orientation:"portrait",unit:"mm",format:"a4"}),rows=concertPrintableRows(c,concertItems),title=String(c?.name||"Concerto"),venue=concertLocationParts(c).join(" · ");
-  const left=14,right=196,width=right-left;let y=16,prevType=null;
-  const addHeader=()=>{doc.setTextColor(0);doc.setFont("helvetica","bold");doc.setFontSize(17);doc.text(title,left,y);y+=6.5;doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(95);doc.text([formatDate(c.concert_date),venue||null].filter(Boolean).join(" · "),left,y);doc.setTextColor(0);y+=7};
-  const addPage=()=>{doc.addPage("a4","portrait");y=16;prevType=null;addHeader()};
-  addHeader();
-  if(!rows.length){doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Nessun brano in scaletta.",left,y)}
-  rows.forEach(r=>{
-    const isNewBlock=r.execution_type!==prevType;if(isNewBlock&&y>272)addPage();
-    if(isNewBlock){if(prevType!==null)y+=2;doc.setDrawColor(190);doc.line(left,y,right,y);y+=3.2;doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(105);doc.text(EXECUTION_TYPES[r.execution_type]||String(r.execution_type||"").toUpperCase(),left,y);doc.setTextColor(0);y+=3.8;prevType=r.execution_type}
-    const titleLines=doc.splitTextToSize(r.title,width-34),need=Math.max(7,titleLines.length*4.1+2);if(y+need>283)addPage();
-    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(100);doc.text(String(r.position),left+1,y+1.8,{align:"right"});
-    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(0);doc.text(titleLines,left+5,y+1.8);
-    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(105);doc.text(`${r.bpm} BPM · ${r.key}`,right,y+1.8,{align:"right"});doc.setTextColor(0);
-    y+=need;doc.setDrawColor(228);doc.line(left,y-1,right,y-1)
-  });
+  const doc=new api({orientation:"portrait",unit:"mm",format:"a4"});
+  const rows=concertPrintableRows(c,concertItems),title=String(c?.name||"Concerto"),venue=concertLocationParts(c).join(" · ");
+  const pageW=210,pageH=297,marginX=15,logoSize=20,headerTop=10,tracksTop=43,tracksBottom=284,trackWidth=pageW-(marginX*2);
+
+  try{
+    const logo=await pdfImageData("IMG_6259.PNG");
+    doc.addImage(logo,"PNG",marginX,headerTop,logoSize,logoSize,undefined,"FAST")
+  }catch(err){console.warn("Logo PDF non disponibile",err)}
+
+  const headerX=marginX+logoSize+7;
+  doc.setTextColor(0);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  doc.text(formatDate(c.concert_date)||"—",headerX,17);
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(9);
+  const placeLines=doc.splitTextToSize(venue||"Luogo da definire",pageW-marginX-headerX);
+  doc.text(placeLines,headerX,23);
+  doc.setDrawColor(215);
+  doc.setLineWidth(.25);
+  doc.line(marginX,36,pageW-marginX,36);
+
+  if(!rows.length){
+    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(70);
+    doc.text("Nessun brano in scaletta.",pageW/2,(tracksTop+tracksBottom)/2,{align:"center"});
+  }else{
+    const slot=(tracksBottom-tracksTop)/rows.length;
+    const baseFont=Math.max(9,Math.min(15,slot*1.25));
+    rows.forEach((r,index)=>{
+      let fontSize=baseFont,lines=[];
+      do{
+        doc.setFont("helvetica","bold");doc.setFontSize(fontSize);
+        lines=doc.splitTextToSize(String(r.title||""),trackWidth);
+        const lineHeight=fontSize*.3528*1.08;
+        if(lines.length*lineHeight<=slot*.82||fontSize<=8)break;
+        fontSize-=.5
+      }while(fontSize>=8);
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(fontSize);
+      doc.setTextColor(0);
+      const lineHeight=fontSize*.3528*1.08;
+      const centerY=tracksTop+(index*slot)+(slot/2);
+      const firstBaseline=centerY-((lines.length-1)*lineHeight/2)+(fontSize*.3528*.34);
+      lines.forEach((line,lineIndex)=>doc.text(String(line),pageW/2,firstBaseline+(lineIndex*lineHeight),{align:"center"}))
+    })
+  }
+
   doc.save(`${safePdfFilename(title)}_${String(c.concert_date||"").replaceAll("-","")||"live"}.pdf`)
 }
 
