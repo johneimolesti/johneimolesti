@@ -23,6 +23,12 @@
     catch{return ''}
   }
 
+  function songCoverUrl(path){
+    if(!path||!sb)return '';
+    try{return sb.storage.from('concert-posters').getPublicUrl(path).data.publicUrl||''}
+    catch{return ''}
+  }
+
   function deviceToken(){
     let token=localStorage.getItem('jm_fan_device_token');
     if(!token){
@@ -275,7 +281,7 @@
 
       .jm-global-player[hidden]{display:none!important}
       .jm-global-player{
-        position:fixed;left:0;right:0;bottom:0;z-index:99990;
+        position:fixed;left:0;right:0;bottom:0;z-index:99990;pointer-events:auto;
         display:grid;grid-template-columns:minmax(220px,1fr) minmax(360px,2fr) minmax(120px,.7fr);
         align-items:center;gap:18px;min-height:82px;padding:10px 18px;
         border-top:1px solid #4e4b43;background:rgba(10,10,10,.97);backdrop-filter:blur(16px);
@@ -737,21 +743,42 @@
 
     document.body.appendChild(player);
 
-    player.querySelector('[data-global-toggle]').addEventListener('click',()=>{
+    const toggleCurrent=async()=>{
       if(!repertoireAudio)return;
-      if(repertoireAudio.paused)repertoireAudio.play().catch(()=>{});
-      else repertoireAudio.pause();
-    });
+      if(repertoireAudio.paused){
+        await repertoireAudio.play().catch(err=>console.warn('Ripresa audio',err));
+      }else{
+        repertoireAudio.pause();
+      }
+      syncPlaybackUi();
+    };
 
-    player.querySelector('[data-global-prev]').addEventListener('click',()=>playAdjacent(-1));
-    player.querySelector('[data-global-next]').addEventListener('click',()=>playAdjacent(1));
-    player.querySelector('[data-global-shuffle]').addEventListener('click',()=>{
+    player.querySelector('[data-global-toggle]').onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCurrent();
+    };
+    player.querySelector('[data-global-prev]').onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      playAdjacent(-1);
+    };
+    player.querySelector('[data-global-next]').onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      playAdjacent(1);
+    };
+    player.querySelector('[data-global-shuffle]').onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
       playerShuffle=!playerShuffle;
       syncGlobalPlayer();
-    });
-    player.querySelector('[data-global-stop]').addEventListener('click',()=>{
+    };
+    player.querySelector('[data-global-stop]').onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
       stopRepertoireAudio({restore:true,hidePlayer:true});
-    });
+    };
 
     const seek=player.querySelector('[data-global-seek]');
     seek.addEventListener('input',()=>{
@@ -767,20 +794,21 @@
   }
 
   function syncGlobalPlayer(){
-    const player=ensureGlobalPlayer();
     const audioEl=repertoireAudio;
     const song=currentSong();
+    let player=document.getElementById('jmGlobalAudioPlayer');
 
     if(!audioEl||!song){
-      player.hidden=true;
+      if(player)player.hidden=true;
       document.body.classList.remove('has-jm-global-player');
       return;
     }
 
+    player=ensureGlobalPlayer();
     player.hidden=false;
     document.body.classList.add('has-jm-global-player');
 
-    const cover=publicMediaUrl(song.cover_path);
+    const cover=songCoverUrl(song.cover_path);
     const coverHost=player.querySelector('[data-global-cover]');
     coverHost.innerHTML=cover
       ? `<img src="${esc(cover)}" alt="" draggable="false">`
