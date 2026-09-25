@@ -2253,15 +2253,15 @@
       const item=photos[Number(btn.dataset.publicPhoto)],src=publicMediaAssetUrl(item?.storage_path);
       if(src)openPoster(src,item?.title||'John & i Molesti');
     });
-    $('[data-external-video-src]',videoGrid||document).forEach(btn=>btn.onclick=()=>{
+    $$('[data-external-video-src]',videoGrid||document).forEach(btn=>btn.onclick=()=>{
       const frame=btn.closest('.public-video-frame');
       if(!frame)return;
       const src=btn.dataset.externalVideoSrc||'';
       const title=btn.dataset.externalVideoTitle||'Video';
       frame.innerHTML=`<iframe src="${esc(src)}" title="${esc(title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
     });
-    $('[data-public-video-edit]',videoGrid||document).forEach(btn=>btn.onclick=()=>openPublicVideoEditor(videos.find(v=>String(v.id)===btn.dataset.publicVideoEdit)));
-    $('[data-public-video-delete]',videoGrid||document).forEach(btn=>btn.onclick=()=>deletePublicVideoFromSite(videos.find(v=>String(v.id)===btn.dataset.publicVideoDelete)));
+    $$('[data-public-video-edit]',videoGrid||document).forEach(btn=>btn.onclick=()=>openPublicVideoEditor(videos.find(v=>String(v.id)===btn.dataset.publicVideoEdit)));
+    $$('[data-public-video-delete]',videoGrid||document).forEach(btn=>btn.onclick=()=>deletePublicVideoFromSite(videos.find(v=>String(v.id)===btn.dataset.publicVideoDelete)));
     syncPublicAdminControls();
   }
 
