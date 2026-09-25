@@ -1901,47 +1901,27 @@
     catch (err) { toast(err.message,'error'); }
   }
 
-  function resetFanNameDisambiguation({keepGroup=false} = {}) {
+  function resetFanNameDisambiguation() {
     fanNameCheckState = {name:'',data:null,promise:null};
     const target = $('fanTargetFanId');
     const matches = $('fanNameMatches');
-    const mark = $('fanGroupRequiredMark');
-    const group = $('fanGroupInput');
-    const options = $('fanGroupOptions');
     if (target) target.value = '';
     if (matches) { matches.hidden = true; matches.innerHTML = ''; }
-    if (mark) mark.hidden = true;
-    if (group) {
-      group.required = false;
-      if (!keepGroup) group.value = '';
-    }
-    if (options) options.innerHTML = '';
   }
 
   function renderFanNameCheck(data) {
     const matchesBox = $('fanNameMatches');
-    const mark = $('fanGroupRequiredMark');
-    const group = $('fanGroupInput');
-    const options = $('fanGroupOptions');
     const target = $('fanTargetFanId');
-
-    if (options) options.innerHTML = (data?.groups || []).map(g =>
-      `<option value="${esc(g.name)}"></option>`
-    ).join('');
-
-    const required = !!data?.group_required;
-    if (mark) mark.hidden = !required;
-    if (group) group.required = required && !(target?.value);
-
     const matches = data?.matches || [];
     if (!matchesBox) return;
+
     matchesBox.hidden = !matches.length;
     matchesBox.innerHTML = matches.length ? `
-      <div class="fan-name-match-note"><strong>Nome già presente.</strong> Se uno di questi profili sei tu, selezionalo. Altrimenti indica il tuo clan / cerchia per distinguerti.</div>
+      <div class="fan-name-match-note"><strong>Nome già presente.</strong> Se uno di questi profili sei tu, selezionalo. Altrimenti usa un nickname diverso.</div>
       <div class="fan-name-match-list">
         ${matches.map(m => `
           <button class="fan-name-match" type="button" data-fan-match="${esc(m.fan_id)}">
-            <span><strong>${esc(m.fan_name)}</strong><small>${esc(m.group_name || 'Nessun clan assegnato')}</small></span>
+            <span><strong>${esc(m.fan_name)}</strong></span>
             <b>SONO IO</b>
           </button>`).join('')}
       </div>` : '';
@@ -1951,13 +1931,9 @@
         const id = btn.dataset.fanMatch;
         const selected = matches.find(m => String(m.fan_id) === String(id));
         if (target) target.value = id;
-        if (group) {
-          group.value = selected?.group_name || '';
-          group.required = false;
-        }
         $$('[data-fan-match]', matchesBox).forEach(x => x.classList.toggle('selected', x === btn));
         const msg = $('fanLoginMessage');
-        if (msg) msg.textContent = `Profilo selezionato: ${selected?.fan_name || 'fan'}${selected?.group_name ? ' · '+selected.group_name : ''}`;
+        if (msg) msg.textContent = `Profilo selezionato: ${selected?.fan_name || 'fan'}`;
       };
     });
   }
@@ -1965,7 +1941,7 @@
   async function checkFanName(name, {force=false} = {}) {
     name = String(name || '').trim();
     if (!name) {
-      resetFanNameDisambiguation({keepGroup:true});
+      resetFanNameDisambiguation();
       return null;
     }
     if (!force && fanNameCheckState.name === name && fanNameCheckState.data) {
@@ -2008,10 +1984,9 @@
     return data;
   }
 
-  async function loginFan(name, {refreshData = true, groupName = null, targetFanId = null} = {}) {
+  async function loginFan(name, {refreshData = true, targetFanId = null} = {}) {
     let data = await fanApi('enter', {
       display_name:name,
-      group_name:groupName || null,
       target_fan_id:targetFanId || null
     });
     data = await resolvePossibleFanMatches(data);
@@ -2673,7 +2648,7 @@
     if (!r) return;
     const isMe = currentFan?.id && currentFan.id === r.fan_id;
     const actions = isMe ? [{label:'APRI IL MIO PROFILO',primary:true,run:()=>{closeModal('rankingDetailModal');renderUserModal();openModal('userModal');}}] : [];
-    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Clan',r.group_label||null],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
+    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
   }
   function openPosterRankingDetail(r, position) {
     if (!r) return;
@@ -3431,10 +3406,6 @@
       if (target) target.value = '';
       const matches = $('fanNameMatches');
       if (matches) { matches.hidden = true; matches.innerHTML = ''; }
-      const mark = $('fanGroupRequiredMark');
-      if (mark) mark.hidden = true;
-      const group = $('fanGroupInput');
-      if (group) group.required = false;
       fanNameCheckState = {name:'',data:null,promise:null};
       const msg = $('fanLoginMessage');
       if (msg) msg.textContent = '';
@@ -3449,7 +3420,6 @@
     $('fanLoginForm').addEventListener('submit', async e => {
       e.preventDefault();
       const name = $('fanNameInput').value.trim();
-      const groupName = $('fanGroupInput')?.value.trim() || null;
       const targetFanId = $('fanTargetFanId')?.value || null;
       const msg = $('fanLoginMessage');
       if (!name) return;
@@ -3457,14 +3427,13 @@
       try {
         if (!targetFanId) {
           const check = await checkFanName(name,{force:true});
-          if (check?.group_required && !groupName) {
-            msg.textContent = 'Questo nome esiste già: seleziona il tuo profilo oppure indica il clan / cerchia.';
-            $('fanGroupInput')?.focus();
+          if ((check?.matches || []).length) {
+            msg.textContent = 'Questo nome esiste già: seleziona il tuo profilo oppure usa un nickname diverso.';
             return;
           }
         }
 
-        const loginResult = await loginFan(name,{groupName,targetFanId});
+        const loginResult = await loginFan(name,{targetFanId});
         msg.textContent = '';
         resetFanNameDisambiguation();
         const loginSource = qrCheckinPending ? 'checkin' : 'normal';
@@ -3493,7 +3462,7 @@
       }
       catch (err) {
         msg.textContent = err.message;
-        if (err.message && /scegli il tuo profilo|stesso nome|gruppo|clan|cerchia/i.test(err.message)) {
+        if (err.message && /scegli il tuo profilo|stesso nome|nome esiste|profilo/i.test(err.message)) {
           try { await checkFanName(name,{force:true}); } catch {}
         }
       }
