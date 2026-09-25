@@ -3303,6 +3303,7 @@
       copyJob,
       permissionsJob,
       identityJob,
+      window.JM_CONTACTS_READY || Promise.resolve(),
       ...publicJobs
     ]);
 
