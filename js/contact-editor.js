@@ -481,6 +481,15 @@
   async function loadContacts(){
     if(!client)return;
 
+    if(!admin && Array.isArray(window.JM_PUBLIC_DATA?.contacts)){
+      rows=window.JM_PUBLIC_DATA.contacts.map(item=>({
+        ...item,
+        enabled:true,
+        label:TYPES[item.contact_type]?.label||item.label||'Contatto'
+      }));
+      return;
+    }
+
     let query=client
       .from('site_contacts')
       .select('id,contact_type,label,value,enabled,sort_order,created_at');
