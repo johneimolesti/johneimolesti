@@ -1153,13 +1153,6 @@
 }
 
 
-/* Disambiguazione identità fan tramite gruppo / cerchia. */
-.fan-group-help{
-  margin:-2px 0 2px;
-  color:var(--muted);
-  font:700 9px/1.45 monospace;
-}
-#fanGroupRequiredMark{color:var(--gold)}
 .fan-name-matches{
   display:grid;
   gap:8px;
