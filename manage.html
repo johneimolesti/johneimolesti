@@ -2208,6 +2208,41 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
 
 </style>
 
+
+<style id="jm-menu-ux-structure">
+  .member-category-nav{gap:4px!important}
+  .member-category-button{padding-inline:10px!important}
+  .member-subnav{gap:5px!important}
+  #setupPage>.setup-tabs{
+    display:flex!important;
+    gap:4px!important;
+    padding:4px!important;
+    border:1px solid rgba(255,255,255,.06)!important;
+    border-radius:12px!important;
+    background:rgba(255,255,255,.018)!important
+  }
+  #setupPage>.setup-tabs .setup-tab{
+    min-height:30px!important;
+    padding:6px 10px!important;
+    border-radius:8px!important;
+    white-space:nowrap!important
+  }
+  #setupPage>.setup-tabs .setup-tab[data-setup-tab="venue"],
+  #setupPage>.setup-tabs .setup-tab[data-setup-tab="users"],
+  #setupPage>.setup-tabs .setup-tab[data-setup-tab="fanlog"]{
+    margin-left:8px!important
+  }
+  @media(max-width:900px){
+    .member-category-nav,.member-subnav,#setupPage>.setup-tabs{
+      justify-content:flex-start!important;
+      overflow-x:auto!important;
+      scrollbar-width:none!important
+    }
+    .member-category-nav::-webkit-scrollbar,
+    .member-subnav::-webkit-scrollbar,
+    #setupPage>.setup-tabs::-webkit-scrollbar{display:none!important}
+  }
+</style>
 </head>
 <body>
 
@@ -2255,28 +2290,35 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <nav id="memberCategoryNav" class="member-category-nav no-print" aria-label="Categorie area membri">
       <button type="button" class="member-category-button active" data-member-category="setlists">SCALETTE</button>
       <button type="button" class="member-category-button" data-member-category="music">MUSICA</button>
-      <button type="button" class="member-category-button" data-member-category="fan">FAN</button>
-      <button type="button" class="member-category-button" data-member-category="management">GESTIONE</button>
-      <button type="button" class="member-category-button" data-member-category="rankings">CLASSIFICHE</button>
-      <button type="button" class="member-category-button" data-member-category="setup">SETUP</button>
+      <button type="button" class="member-category-button" data-member-category="live">LIVE</button>
+      <button type="button" class="member-category-button" data-member-category="community">COMMUNITY</button>
+      <button type="button" class="member-category-button" data-member-category="admin">AMMINISTRAZIONE</button>
+      <button type="button" class="member-category-button" data-member-category="insights">ANALISI</button>
+      <button type="button" class="member-category-button" data-member-category="site">SITO</button>
     </nav>
     <div class="user-area"><strong id="currentMemberName"></strong><button id="memberChangePassword" class="small-btn" type="button" title="Cambia la tua password">PASSWORD</button><button class="small-btn full-immersion-btn" type="button" data-full-immersion>⛶ FULL IMMERSION</button><button id="memberLogout" class="small-btn">Esci</button></div>
   </header>
   <nav class="nav member-subnav no-print" id="memberNav" aria-label="Sottomenu area membri">
     <button class="nav-button active" data-category="setlists" data-page="mySetlistPage">LA MIA SCALETTA</button>
-    <button class="nav-button" data-category="setlists" data-page="proposalsPage">3 PROPOSTE</button>
+    <button class="nav-button" data-category="setlists" data-page="proposalsPage">PROPOSTE</button>
     <button class="nav-button" data-category="setlists" data-page="membersPage">SCALETTE MEMBRI</button>
+
     <button class="nav-button" data-category="music" data-page="catalogPage">CATALOGO <span id="proposalBadge" class="badge hidden"></span></button>
-    <button class="nav-button" data-category="music" data-page="concertsPage">CONCERTI</button>
-    <button id="memberPresenceNav" class="nav-button" data-static-nav="1" data-category="fan" data-page="demoCertificationPage">PRESENZE</button>
-    <button class="nav-button" data-category="fan" data-page="fansAdminPage">GESTIONE UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
-    <button class="nav-button" data-category="management" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
-    <button id="memberAvailabilityNav" class="nav-button" data-static-nav="1" data-category="management" data-page="bandAvailabilityPage">DISPONIBILITÀ</button>
-    <button id="requestsNav" class="nav-button" data-category="management" data-page="requestsPage">RICHIESTE <span class="rq-badge" id="rqNavBadge"></span></button>
-    <button class="nav-button" data-category="rankings" data-page="songRankingPage">CLASSIFICHE</button>
-    <button class="nav-button" data-category="rankings" data-page="analyticsPage">STATISTICHE</button>
-    <button id="memberPublicMediaNav" class="nav-button" data-static-nav="1" data-category="setup" data-page="publicMediaAdminPage">MEDIA PUBBLICI</button>
-    <button id="setupNavButton" class="nav-button" data-category="setup" data-page="setupPage">SETUP</button>
+
+    <button class="nav-button" data-category="live" data-page="concertsPage">CONCERTI</button>
+    <button id="memberAvailabilityNav" class="nav-button" data-static-nav="1" data-category="live" data-page="bandAvailabilityPage">DISPONIBILITÀ</button>
+
+    <button id="memberPresenceNav" class="nav-button" data-static-nav="1" data-category="community" data-page="demoCertificationPage">PRESENZE</button>
+    <button class="nav-button" data-category="community" data-page="fansAdminPage">UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
+
+    <button class="nav-button" data-category="admin" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
+    <button id="requestsNav" class="nav-button" data-category="admin" data-page="requestsPage">RICHIESTE <span class="rq-badge" id="rqNavBadge"></span></button>
+
+    <button class="nav-button" data-category="insights" data-page="songRankingPage">CLASSIFICHE</button>
+    <button class="nav-button" data-category="insights" data-page="analyticsPage">STATISTICHE</button>
+
+    <button id="memberPublicMediaNav" class="nav-button" data-static-nav="1" data-category="site" data-page="publicMediaAdminPage">MEDIA PUBBLICI</button>
+    <button id="setupNavButton" class="nav-button" data-category="site" data-page="setupPage">CONFIGURAZIONE</button>
   </nav>
   <main>
     <section id="mySetlistPage" class="page active">
@@ -2413,12 +2455,13 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <section id="analyticsPage" class="page"><div class="fan-hero"><h2>Statistiche & Analytics</h2><div class="section-note">Una panoramica del repertorio e della storia live: annate, durate, artisti, territori, scalette e tipologie di venue.</div></div><div id="memberAnalyticsContent"></div></section>
 
     <section id="setupPage" class="page">
-      <div class="setup-tabs">
+      <div class="setup-tabs" aria-label="Configurazione sito e sistema">
+        <button type="button" class="setup-tab" data-setup-tab="hero">HERO</button>
         <button type="button" class="setup-tab active" data-setup-tab="labels">ETICHETTE</button>
         <button type="button" class="setup-tab" data-setup-tab="scores">PUNTEGGI</button>
+        <button type="button" class="setup-tab" data-setup-tab="venue">VENUE</button>
         <button type="button" class="setup-tab" data-setup-tab="params">PARAMETRI</button>
         <button type="button" class="setup-tab" data-setup-tab="users">UTENTI <span id="setupUserResetBadge" class="setup-user-tab-badge" hidden>0</span></button>
-        <button type="button" class="setup-tab" data-setup-tab="venue">VENUE</button>
         <button type="button" class="setup-tab" data-setup-tab="permissions">PERMESSI</button>
         <button type="button" class="setup-tab" data-setup-tab="fanlog">LOG</button>
       </div>
@@ -6809,12 +6852,12 @@ setMemberRankingTab('songs');
 
   const PAGE_CATEGORY={
     mySetlistPage:"setlists",proposalsPage:"setlists",membersPage:"setlists",
-    catalogPage:"music",concertsPage:"music",
-    demoCertificationPage:"fan",fansAdminPage:"fan",
-    cashPage:"management",bandAvailabilityPage:"management",requestsPage:"management",
-    demoCodesPage:"management",bookingAdminPage:"management",
-    songRankingPage:"rankings",analyticsPage:"rankings",
-    publicMediaAdminPage:"setup",setupPage:"setup",checkinQrPage:"setup"
+    catalogPage:"music",
+    concertsPage:"live",bandAvailabilityPage:"live",checkinQrPage:"live",
+    demoCertificationPage:"community",fansAdminPage:"community",
+    cashPage:"admin",requestsPage:"admin",demoCodesPage:"admin",bookingAdminPage:"admin",
+    songRankingPage:"insights",analyticsPage:"insights",
+    publicMediaAdminPage:"site",setupPage:"site"
   };
   const PAGE_ROUTE={
     mySetlistPage:"scaletta",proposalsPage:"proposte",membersPage:"scalette-membri",
@@ -6834,14 +6877,14 @@ setMemberRankingTab('songs');
   };
   const ORDER=[
     "mySetlistPage","proposalsPage","membersPage",
-    "catalogPage","concertsPage",
+    "catalogPage",
+    "concertsPage","bandAvailabilityPage","checkinQrPage",
     "demoCertificationPage","fansAdminPage",
-    "cashPage","bandAvailabilityPage","requestsPage",
+    "cashPage","requestsPage","demoCodesPage","bookingAdminPage",
     "songRankingPage","analyticsPage",
-    "publicMediaAdminPage","setupPage","checkinQrPage",
-    "demoCodesPage","bookingAdminPage"
+    "publicMediaAdminPage","setupPage"
   ];
-  const LABELS={demoCertificationPage:"PRESENZE",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",publicMediaAdminPage:"MEDIA PUBBLICI",checkinQrPage:"QR CHECK-IN"};
+  const LABELS={proposalsPage:"PROPOSTE",demoCertificationPage:"PRESENZE",fansAdminPage:"UTENTI",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",songRankingPage:"CLASSIFICHE",analyticsPage:"STATISTICHE",publicMediaAdminPage:"MEDIA PUBBLICI",setupPage:"CONFIGURAZIONE",checkinQrPage:"QR CHECK-IN"};
   const nav=()=>document.getElementById("memberNav");
   const top=()=>document.getElementById("memberCategoryNav");
   const memberApp=()=>document.getElementById("memberApp");
@@ -7227,5 +7270,6 @@ setMemberRankingTab('songs');
 })();
 
 </script>
+  <script src="js/hero-background-admin.js"></script>
 </body>
 </html>
