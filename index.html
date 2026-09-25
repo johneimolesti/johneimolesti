@@ -14,6 +14,7 @@
   <link rel="dns-prefetch" href="https://etzwybamvfpeitkttwrc.supabase.co">
   <script>
     (() => {
+      document.documentElement.classList.add('jm-data-loading');
       try {
         if (window.matchMedia('(max-width: 760px)').matches) {
           document.documentElement.classList.add('jm-mobile-home-pending');
@@ -28,6 +29,22 @@
 
 
   <style>
+    html.jm-data-loading body{overflow:hidden!important;background:#080808!important}
+    html.jm-data-loading body>:not(#jmDataLoader){visibility:hidden!important}
+    #jmDataLoader{
+      position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;
+      background:#080808;color:#fff;padding:24px;text-align:center
+    }
+    #jmDataLoader[hidden]{display:none!important}
+    .jm-data-loader-card{display:grid;justify-items:center;gap:14px}
+    .jm-data-loader-mark{width:72px;height:72px;object-fit:contain}
+    .jm-data-loader-title{font:900 16px/1.1 "Courier New",monospace;letter-spacing:.12em}
+    .jm-data-loader-progress{width:min(260px,70vw);height:3px;overflow:hidden;background:#333}
+    .jm-data-loader-progress::after{
+      content:"";display:block;width:45%;height:100%;background:var(--gold,#eee52b);
+      animation:jmDataLoader 1.05s ease-in-out infinite
+    }
+    @keyframes jmDataLoader{0%{transform:translateX(-120%)}100%{transform:translateX(260%)}}
     /* HOME MOBILE FULL-DISPLAY
        Desktop: nessun override della Home esistente. */
     .jm-mobile-home-experience {
@@ -678,6 +695,13 @@
 </head>
 
 <body>
+  <div id="jmDataLoader" role="status" aria-live="polite">
+    <div class="jm-data-loader-card">
+      <img class="jm-data-loader-mark" src="IMG_6259.PNG" alt="">
+      <div class="jm-data-loader-title">JOHN &amp; I MOLESTI</div>
+      <div class="jm-data-loader-progress" aria-hidden="true"></div>
+    </div>
+  </div>
   <a class="skip-link" href="#contentStage" data-copy="global.002">Salta al contenuto</a>
 
   <div class="site-noise" aria-hidden="true"></div>
