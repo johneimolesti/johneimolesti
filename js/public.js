@@ -2090,7 +2090,7 @@
           : `<span class="repertoire-audio-missing">Audio in arrivo</span>`;
       return `<article class="repertoire-card glass-card" data-repertoire-song="${esc(song.id)}">
         <div class="repertoire-cover">${cover?`<img src="${esc(cover)}" alt="Cover di ${esc(song.title)}" loading="lazy">`:'<span>JM</span>'}</div>
-        <div class="repertoire-copy"><h3>${esc(song.title)}</h3><p>${esc(songArtistLine(song)||'John & i Molesti')}</p><span>${esc(songTechLine(song))}</span></div>
+        <div class="repertoire-copy"><h3>${esc(song.title)}</h3><span class="song-play-count">▶ ${Math.max(0,Math.trunc(Number(song.weighted_play_count||0)))} RIPRODUZIONI</span><p>${esc(songArtistLine(song)||'John & i Molesti')}</p><span class="repertoire-tech-line">${esc(songTechLine(song))}</span></div>
         <div class="repertoire-player">${player}</div>
       </article>`;
     }).join('') || '<div class="empty-state">Nessun brano trovato.</div>';
@@ -2098,7 +2098,9 @@
       card.addEventListener('click',e=>{
         if(e.target.closest('audio,a,button,input'))return;
         const song=publicSongs.find(s=>String(s.id)===card.dataset.repertoireSong);
-        if(song)openSongRankingDetail(song,publicSongs.indexOf(song)+1);
+        if(!song)return;
+        if(window.JMSongs?.openDetail)window.JMSongs.openDetail(song.id);
+        else openSongRankingDetail(song,publicSongs.indexOf(song)+1);
       });
     });
 
@@ -2438,7 +2440,7 @@
   function rankingSongRow(r, i) {
     const artists = [r.base_artist, r.lyrics_artist].filter(Boolean).join(' / ');
     const cover = posterUrl(r.cover_path);
-    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
+    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" data-song-id="${esc(r.song_id||r.id||'')}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
@@ -2488,6 +2490,11 @@
   }
   function openSongRankingDetail(r, position) {
     if (!r) return;
+    const detailId=String(r.song_id||r.id||'');
+    if(detailId&&window.JMSongs?.openDetail){
+      window.JMSongs.openDetail(detailId);
+      return;
+    }
     const cover = posterUrl(r.cover_path);
     const rankingMatch = (rankingData?.songs||[]).find(item =>
       (String(item.song_id||item.id||'') && String(item.song_id||item.id||'')===String(r.song_id||r.id||'')) ||
