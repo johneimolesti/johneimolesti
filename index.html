@@ -1187,6 +1187,26 @@
               data-copy-placeholder="account.008">
           </label>
 
+          <input id="fanTargetFanId" type="hidden">
+
+          <div id="fanNameMatches" class="fan-name-matches" hidden></div>
+
+          <label id="fanGroupField">
+            <span>Gruppo / cerchia <b id="fanGroupRequiredMark" hidden>*</b></span>
+            <input
+              id="fanGroupInput"
+              maxlength="80"
+              list="fanGroupOptions"
+              autocomplete="off"
+              placeholder="Es. I Limenesi, I Salettesi, Deltametrina…">
+            <datalist id="fanGroupOptions"></datalist>
+          </label>
+
+          <p class="fan-group-help">
+            Per gruppo intendiamo la cerchia con cui segui di solito i Molesti o quella da cui li conosci.
+            Puoi scegliere un gruppo esistente oppure scriverne uno nuovo. È obbligatorio solo se esiste già un fan con lo stesso nome.
+          </p>
+
           <p data-copy="account.009">
             Non serve una password: questo dispositivo ti riconoscerà le prossime volte.
           </p>
