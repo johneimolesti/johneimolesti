@@ -1606,12 +1606,9 @@
     }
     return token;
   }
-  function fanFingerprint() {
-    return [navigator.userAgent, navigator.language, Intl.DateTimeFormat().resolvedOptions().timeZone, screen.width, screen.height, window.devicePixelRatio || 1].join('|');
-  }
   async function fanApi(action, payload = {}) {
     const guest = payload?.guest === true;
-    const body = guest ? {action, ...payload} : {action, device_token:getFanDeviceToken(), fingerprint:fanFingerprint(), ...payload};
+    const body = guest ? {action, ...payload} : {action, device_token:getFanDeviceToken(), ...payload};
     const res = await fetch(FAN_API, {
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},
@@ -1631,7 +1628,6 @@
     const body = {
       action,
       device_token:getFanDeviceToken(),
-      fingerprint:fanFingerprint(),
       ...payload
     };
     const res = await fetch(CHECKIN_API, {
