@@ -3577,6 +3577,66 @@ function setConcertEditorSaveState(text,state=""){const el=$("concertEditorSaveS
 async function refreshConcertDetailQuiet(id){const list=$("concertSetlistLive"),cat=document.querySelector("#concertDetail .concert-catalog-list"),ls=list?.scrollTop||0,cs=cat?.scrollTop||0;await renderConcertDetail(id);requestAnimationFrame(()=>{const nl=$("concertSetlistLive"),nc=document.querySelector("#concertDetail .concert-catalog-list");if(nl)nl.scrollTop=ls;if(nc)nc.scrollTop=cs})}
 function rebuildConcertExecutionDividers(list){if(!list)return;list.querySelectorAll(".concert-block-divider").forEach(x=>x.remove());let prev=null;[...list.querySelectorAll(".song-row[data-item-id]")].forEach(row=>{const type=row.dataset.executionType||"planned";if(type!==prev)row.before(executionDivider(type));prev=type})}
 function updateConcertPositionsInDom(list){[...list.querySelectorAll(".song-row[data-item-id]")].forEach((row,i)=>{const p=row.querySelector(".position");if(p)p.textContent=String(i+1)})}
+function normalizeSetlistEmojiText(value){
+  return String(value||"").toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim()
+}
+const SETLIST_EMOJI_RULES=[
+  {emoji:"🍺",words:["birra","beer","bira","sbronza","ubriac","pub","osteria"]},
+  {emoji:"🍷",words:["vino","wine","spritz","ombra"]},
+  {emoji:"🛵",words:["vespa","scooter","moto","motorino"]},
+  {emoji:"🚗",words:["auto","car","macchina","drive","strada","road"]},
+  {emoji:"🚨",words:["polizia","posto di blocco","sirena","fuga","scappa"]},
+  {emoji:"⛰️",words:["mount","mont","monte","montagna","mountain","valle"]},
+  {emoji:"🌊",words:["mare","sea","surf","onda","fiume","river","acqua"]},
+  {emoji:"🌙",words:["notte","night","luna","moon","buio","dark"]},
+  {emoji:"☀️",words:["sole","sun","estate","summer","giorno","day"]},
+  {emoji:"🔥",words:["fuoco","fire","burn","brucia","fiamma"]},
+  {emoji:"⚡",words:["fulmine","lightning","shock","tuono","thunder"]},
+  {emoji:"❤️",words:["amore","love","cuore","heart","bacio"]},
+  {emoji:"💔",words:["addio","odio","hate","broken","alone"]},
+  {emoji:"🕺",words:["balla","dance","dondola","twist","pogo"]},
+  {emoji:"⏰",words:["tempo","time","ora","clock"]},
+  {emoji:"🏙️",words:["padova","pd","citta","city"]},
+  {emoji:"🏟️",words:["live","concerto","show","arena","palco","stage"]},
+  {emoji:"🎸",words:["rock","punk","riff","chitarra","guitar"]},
+  {emoji:"🥁",words:["drum","batteria","beat","ritmo"]},
+  {emoji:"🎤",words:["canto","voce","sing","hymn","inno"]},
+  {emoji:"🍔",words:["hamburger","burger","panino"]},
+  {emoji:"🍕",words:["pizza"]},
+  {emoji:"💯",words:["100","cento"]},
+  {emoji:"🚀",words:["space","spazio","rocket","razzo","ufo"]},
+  {emoji:"👽",words:["alien","ufo","marzian"]},
+  {emoji:"🎄",words:["natale","christmas","xmas"]},
+  {emoji:"💀",words:["morte","death","dead","morto"]},
+  {emoji:"😈",words:["diavolo","devil","hell","inferno"]}
+];
+const SETLIST_EMOJI_FALLBACK=["🎵","🎶","🎸","🥁","🎤","🔥","⚡","🍺","🚀","🌙","🛵","🌊","❤️","🏟️","🕺"];
+function setlistTitleHash(value){let h=2166136261;for(const ch of String(value||"")){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function setlistEmojisForTitle(title){
+  const normalized=normalizeSetlistEmojiText(title),found=[];
+  SETLIST_EMOJI_RULES.forEach(rule=>{if(rule.words.some(word=>normalized.includes(normalizeSetlistEmojiText(word))))found.push(rule.emoji)});
+  const unique=[...new Set(found)];
+  if(!unique.length)unique.push(SETLIST_EMOJI_FALLBACK[setlistTitleHash(title)%SETLIST_EMOJI_FALLBACK.length]);
+  if(unique.length===1&&normalized.length>18){const extra=SETLIST_EMOJI_FALLBACK[(setlistTitleHash(title)+7)%SETLIST_EMOJI_FALLBACK.length];if(extra!==unique[0])unique.push(extra)}
+  return unique.slice(0,2).join(" ")
+}
+function askSetlistEmojiOption(){
+  return window.confirm("Aggiungere anche le emoji ai titoli della scaletta?\n\nOK = con emoji\nANNULLA = solo titoli")
+}
+function setlistPrintableTitle(title,includeEmoji){
+  const clean=String(title||"").trim();return includeEmoji?(setlistEmojisForTitle(clean)+" "+clean):clean
+}
+function setlistEmojiPng(emoji){
+  if(!emoji)return null;
+  const canvas=document.createElement("canvas"),scale=2,ctx=canvas.getContext("2d");
+  ctx.font=(28*scale)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  const width=Math.ceil(ctx.measureText(emoji).width)+(8*scale);
+  canvas.width=Math.max(40*scale,width);canvas.height=38*scale;
+  const draw=canvas.getContext("2d");draw.clearRect(0,0,canvas.width,canvas.height);
+  draw.font=(28*scale)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  draw.textAlign="center";draw.textBaseline="middle";draw.fillText(emoji,canvas.width/2,canvas.height/2+scale);
+  return {data:canvas.toDataURL("image/png"),ratio:canvas.width/canvas.height}
+}
 function concertPrintableRows(c,concertItems=[]){
   let position=0;
   return (concertItems||[]).map(entry=>{
