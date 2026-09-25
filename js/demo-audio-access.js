@@ -71,21 +71,22 @@
   }
 
   async function loadRepertoire(){
-    if(!sb)return false;
-    let lastError=null;
-    for(let attempt=0;attempt<3;attempt++){
-      try{
-        const {data,error}=await sb.rpc('get_public_repertoire');
-        if(error)throw error;
-        repertoire=new Map((data||[]).map(song=>[String(song.id),song]));
-        return true;
-      }catch(err){
-        lastError=err;
-        if(attempt<2)await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
-      }
+    const shared=window.JM_PUBLIC_DATA?.songs;
+    if(Array.isArray(shared)){
+      repertoire=new Map(shared.map(song=>[String(song.id),song]));
+      return true;
     }
-    console.warn('Demo repertoire',lastError);
-    return false;
+
+    if(!sb)return false;
+    try{
+      const {data,error}=await sb.rpc('get_public_repertoire');
+      if(error)throw error;
+      repertoire=new Map((data||[]).map(song=>[String(song.id),song]));
+      return true;
+    }catch(err){
+      console.warn('Demo repertoire',err);
+      return false;
+    }
   }
 
   async function loadStatus(){
@@ -1237,11 +1238,12 @@
     }
   }
 
-  async function refresh(){
+  async function refresh({reloadStatus=true}={}){
     clearTimeout(refreshTimer);
     refreshTimer=setTimeout(async()=>{
-      await Promise.all([loadRepertoire(),loadStatus()]);
-      await checkPendingRequests();
+      if(reloadStatus)await Promise.all([loadRepertoire(),loadStatus()]);
+      else await loadRepertoire();
+      if(reloadStatus)await checkPendingRequests();
       ensureJukeboxLauncher();
       decorate();
     },30);
@@ -1249,57 +1251,59 @@
 
   function boot(){
     if(!sb)return;
-    ensureStyles();
 
-    let lateUiObserver=null;
+    const start=()=>{
+      if(document.documentElement.dataset.jmAudioStarted==='1')return;
+      document.documentElement.dataset.jmAudioStarted='1';
 
-    const bindWhenReady=()=>{
-      const toolbar=document.querySelector('.repertoire-toolbar');
-      const grid=document.getElementById('repertoireGrid');
+      ensureStyles();
 
-      if(!toolbar||!grid)return false;
+      let lateUiObserver=null;
 
-      ensureJukeboxLauncher();
-      refresh();
+      const bindWhenReady=()=>{
+        const toolbar=document.querySelector('.repertoire-toolbar');
+        const grid=document.getElementById('repertoireGrid');
+        if(!toolbar||!grid)return false;
 
-      if(lateUiObserver){
-        lateUiObserver.disconnect();
-        lateUiObserver=null;
+        ensureJukeboxLauncher();
+        refresh({reloadStatus:true});
+
+        if(lateUiObserver){
+          lateUiObserver.disconnect();
+          lateUiObserver=null;
+        }
+        return true;
+      };
+
+      if(!bindWhenReady()){
+        lateUiObserver=new MutationObserver(()=>{ bindWhenReady(); });
+        lateUiObserver.observe(document.body,{childList:true,subtree:true});
       }
-      return true;
+
+      window.addEventListener('jm:repertoire-rendered',()=>{
+        ensureJukeboxLauncher();
+        refresh({reloadStatus:false});
+      });
+
+      const user=document.getElementById('userEntry');
+      if(user){
+        new MutationObserver(()=>refresh({reloadStatus:true})).observe(user,{
+          attributes:true,childList:true,subtree:true
+        });
+      }
+
+      sb.auth.onAuthStateChange(()=>refresh({reloadStatus:true}));
+      setInterval(()=>checkPendingRequests(),30000);
+
+      window.addEventListener('hashchange',()=>{
+        if(location.hash.startsWith('#/repertoire')){
+          if(!bindWhenReady())refresh({reloadStatus:true});
+        }
+      });
     };
 
-    // public.js crea la sezione Repertorio dinamicamente.
-    // Se non esiste ancora, aspettiamo solo finché compare.
-    if(!bindWhenReady()){
-      lateUiObserver=new MutationObserver(()=>{
-        bindWhenReady();
-      });
-      lateUiObserver.observe(document.body,{childList:true,subtree:true});
-    }
-
-    // Ogni ricerca/rerender del catalogo segnala esplicitamente che le card
-    // sono state ricostruite: riapplichiamo play/sblocco e manteniamo Jukebox.
-    window.addEventListener('jm:repertoire-rendered',()=>{
-      ensureJukeboxLauncher();
-      refresh();
-    });
-
-    const user=document.getElementById('userEntry');
-    if(user){
-      new MutationObserver(()=>refresh()).observe(user,{
-        attributes:true,childList:true,subtree:true
-      });
-    }
-
-    sb.auth.onAuthStateChange(()=>refresh());
-    setInterval(()=>checkPendingRequests(),30000);
-
-    window.addEventListener('hashchange',()=>{
-      if(location.hash.startsWith('#/repertoire')){
-        if(!bindWhenReady())refresh();
-      }
-    });
+    if(document.documentElement.classList.contains('jm-public-data-ready'))start();
+    else window.addEventListener('jm:public-data-ready',start,{once:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
