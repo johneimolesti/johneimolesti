@@ -482,13 +482,20 @@
         transform-origin:right center;
         transform:rotateY(0deg);
         transform-style:preserve-3d;
-        transition:transform .78s cubic-bezier(.22,.7,.18,1);
+        visibility:visible;
+        transition:
+          transform .78s cubic-bezier(.22,.7,.18,1),
+          visibility 0s linear 0s;
         box-shadow:10px 0 28px rgba(0,0,0,.45);
         pointer-events:none;
       }
 
       #songCdModal.is-open .song-cd-front{
         transform:rotateY(176deg);
+        visibility:hidden;
+        transition:
+          transform .78s cubic-bezier(.22,.7,.18,1),
+          visibility 0s linear .78s;
       }
 
       .song-cd-front-face,
@@ -653,6 +660,7 @@
 
       .song-cd-disc-panel{
         position:relative;
+        z-index:2;
         display:grid;
         align-content:center;
         justify-items:center;
