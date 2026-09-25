@@ -1892,7 +1892,7 @@
       $('fanRecovery')?.addEventListener('click', setFanRecovery);
       $('forgetFanDevice')?.addEventListener('click', forgetFanDevice);
     }
-    $('[data-session-logout]', session).forEach(b => b.onclick = () => logout(b.dataset.sessionLogout));
+    $$('[data-session-logout]', session).forEach(b => b.onclick = () => logout(b.dataset.sessionLogout));
   }
   async function setFanRecovery() {
     const value = window.prompt(window.JMCopy.text('ui.recoveryPrompt'));
@@ -1946,7 +1946,7 @@
           </button>`).join('')}
       </div>` : '';
 
-    $('[data-fan-match]', matchesBox).forEach(btn => {
+    $$('[data-fan-match]', matchesBox).forEach(btn => {
       btn.onclick = () => {
         const id = btn.dataset.fanMatch;
         const selected = matches.find(m => String(m.fan_id) === String(id));
@@ -1955,7 +1955,7 @@
           group.value = selected?.group_name || '';
           group.required = false;
         }
-        $('[data-fan-match]', matchesBox).forEach(x => x.classList.toggle('selected', x === btn));
+        $$('[data-fan-match]', matchesBox).forEach(x => x.classList.toggle('selected', x === btn));
         const msg = $('fanLoginMessage');
         if (msg) msg.textContent = `Profilo selezionato: ${selected?.fan_name || 'fan'}${selected?.group_name ? ' · '+selected.group_name : ''}`;
       };
