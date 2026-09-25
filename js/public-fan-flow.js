@@ -902,7 +902,7 @@
       ui.card.innerHTML = `
         <header class="jm-public-fan-head"><div><span class="section-kicker">DISPOSITIVO RICONOSCIUTO</span><h2>SEI ${esc(String(name).toUpperCase())}?</h2></div></header>
         <div class="jm-public-fan-body">
-          <div class="jm-public-fan-copy">Questo dispositivo è già associato a <strong>${esc(name)}</strong>${fan?.group_name ? ` · ${esc(fan.group_name)}` : ''}.</div>
+          <div class="jm-public-fan-copy">Questo dispositivo è già associato a <strong>${esc(name)}</strong>.</div>
           <div class="jm-public-fan-actions">
             <button type="button" data-no>NO</button>
             <button type="button" class="primary" data-yes>SÌ, SONO IO</button>
