@@ -38,17 +38,6 @@
     return token;
   }
 
-  function fingerprint(){
-    return [
-      navigator.userAgent,
-      navigator.language,
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-      screen.width,
-      screen.height,
-      window.devicePixelRatio||1
-    ].join('|');
-  }
-
   async function call(action,payload={}){
     if(!sb)throw new Error('Supabase non disponibile');
     const {data:{session}}=await sb.auth.getSession();
@@ -63,7 +52,6 @@
       body:JSON.stringify({
         action,
         device_token:deviceToken(),
-        fingerprint:fingerprint(),
         ...payload
       })
     });
@@ -124,6 +112,10 @@
         }
       }
 
+      if(!localStorage.getItem('jm_fan_device_token')){
+        access={allowed:false,reason:'locked',global_access:'none',grants:[]};
+        return;
+      }
       access=await call('status');
     }catch(err){
       console.warn('Demo status',err);
