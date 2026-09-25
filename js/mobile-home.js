@@ -3,9 +3,6 @@
 
   const MOBILE_QUERY = '(max-width: 760px)';
   const AUTOPLAY_MS = 7000;
-  const PUBLIC_CACHE_KEY = 'jm_public_cache_v3';
-  const PUBLIC_CACHE_MAX_STALE_MS = 7 * 24 * 60 * 60 * 1000;
-  const SUPABASE_URL = 'https://etzwybamvfpeitkttwrc.supabase.co';
 
   const media = window.matchMedia(MOBILE_QUERY);
 
@@ -64,174 +61,6 @@
     const match = raw.match(/url\((['"]?)(.*?)\1\)/i);
     return match ? match[2] : '';
   }
-
-  function storageUrl(bucket, path) {
-    const raw = String(path || '').trim();
-    if (!raw) return '';
-    if (/^https?:\/\//i.test(raw)) return raw;
-
-    return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${
-      raw.split('/').map(encodeURIComponent).join('/')
-    }`;
-  }
-
-  function posterPaths(value) {
-    if (Array.isArray(value)) {
-      return [...new Set(value.filter(Boolean).map(String))];
-    }
-
-    const raw = String(value || '').trim();
-    if (!raw) return [];
-
-    if (raw.startsWith('[')) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return [...new Set(parsed.filter(Boolean).map(String))];
-        }
-      } catch {}
-    }
-
-    return [raw];
-  }
-
-  function concertStartMs(c) {
-    if (!c?.concert_date) return NaN;
-
-    const time = String(c.start_time || '21:30').slice(0, 5);
-    const local = Date.parse(`${String(c.concert_date).slice(0, 10)}T${time}:00`);
-
-    return Number.isFinite(local)
-      ? local
-      : Date.parse(String(c.concert_date).slice(0, 10));
-  }
-
-  function formatDate(value) {
-    if (!value) return '';
-    const [y, m, d] = String(value).slice(0, 10).split('-');
-    return [d, m, y].filter(Boolean).join('/');
-  }
-
-  function formatTime(value) {
-    return value ? String(value).slice(0, 5) : '';
-  }
-
-  function prettyPlace(c) {
-    return [c?.venue, c?.city].filter(Boolean).join(' · ');
-  }
-
-  function readPublicCache() {
-    try {
-      const raw = localStorage.getItem(PUBLIC_CACHE_KEY);
-      if (!raw) return null;
-
-      const cached = JSON.parse(raw);
-      const savedAt = Number(cached?.saved_at || 0);
-
-      if (!savedAt || Date.now() - savedAt > PUBLIC_CACHE_MAX_STALE_MS) {
-        return null;
-      }
-
-      return cached;
-    } catch {
-      return null;
-    }
-  }
-
-  function cachedSlideData() {
-    const cached = readPublicCache();
-    if (!cached) return null;
-
-    const now = Date.now();
-
-    const concerts = (Array.isArray(cached.concerts) ? cached.concerts : [])
-      .filter(c => !c?.private_show && c?.status !== 'cancelled');
-
-    const future = concerts
-      .filter(c => {
-        if (c.status === 'completed') return false;
-        const start = concertStartMs(c);
-        return !Number.isFinite(start) || start >= now - 6 * 60 * 60 * 1000;
-      })
-      .sort((a, b) => concertStartMs(a) - concertStartMs(b));
-
-    const next = future[0] || null;
-
-    const live = next
-      ? {
-          title: next.name || 'Prossimo live',
-          meta: [
-            formatDate(next.concert_date),
-            formatTime(next.start_time)
-          ].filter(Boolean).join(' · '),
-          place: prettyPlace(next) || 'Dettagli del prossimo concerto.',
-          image: storageUrl(
-            'concert-posters',
-            posterPaths(next.poster_path)[0] || ''
-          )
-        }
-      : {
-          title: 'Nuove date in arrivo',
-          meta: '',
-          place: 'Apri il tour per vedere tutte le date.',
-          image: ''
-        };
-
-    const songs = (cached.rankingData?.songs || [])
-      .slice(0, 3)
-      .map((row, index) => ({
-        rank: Number(row.ranking_position || index + 1),
-        title: row.title || 'Brano',
-        score: row.ranking_score ?? row.score ?? '',
-        cover: storageUrl('concert-posters', row.cover_path || '')
-      }));
-
-    const fans = (cached.rankingData?.fans || [])
-      .slice(0, 3)
-      .map((row, index) => ({
-        rank: row.ranking_position || index + 1,
-        name: row.fan_name || 'Fan',
-        score: row.points ?? row.score ?? ''
-      }));
-
-    const mediaItem = (Array.isArray(cached.publicMedia) ? cached.publicMedia : [])
-      .find(item => item?.kind === 'photo' && item?.storage_path);
-
-    const mediaData = {
-      image: mediaItem
-        ? storageUrl('public-media', mediaItem.storage_path)
-        : ''
-    };
-
-    return {live, songs, fans, mediaData};
-  }
-
-  function warmCachedAssets() {
-    if (!media.matches) return;
-
-    const data = cachedSlideData();
-    if (!data) return;
-
-    const urls = [
-      data.live?.image,
-      data.songs?.find(song => song.cover)?.cover,
-      data.mediaData?.image
-    ].filter(Boolean);
-
-    urls.forEach((src, index) => {
-      const img = new Image();
-      img.decoding = 'async';
-
-      if ('fetchPriority' in img) {
-        img.fetchPriority = index === 0 ? 'high' : 'low';
-      }
-
-      img.src = src;
-    });
-  }
-
-  // Precarica subito gli asset disponibili nella cache.
-  warmCachedAssets();
 
   function readLiveFromDom() {
     const source = $('#homeNextShow');
@@ -336,33 +165,24 @@
   }
 
   function getSlideData() {
-    const cached = cachedSlideData();
-
     const domLive = readLiveFromDom();
     const domSongs = readSongsFromDom();
     const domFans = readFansFromDom();
     const domMedia = readMediaFromDom();
 
     return {
-      live:
-        domLive.valid
-          ? domLive.value
-          : cached?.live || {
-              title: 'Nuove date in arrivo',
-              meta: '',
-              place: 'Apri il tour per vedere tutte le date.',
-              image: ''
-            },
-
-      songs: domSongs.length ? domSongs : cached?.songs || [],
-      fans: domFans.length ? domFans : cached?.fans || [],
-
-      mediaData:
-        domMedia.image
-          ? domMedia
-          : cached?.mediaData || {image: ''},
-
-      contacts: readContacts()
+      live: domLive.valid
+        ? domLive.value
+        : {
+            title:'Nuove date in arrivo',
+            meta:'',
+            place:'Apri il tour per vedere tutte le date.',
+            image:''
+          },
+      songs:domSongs,
+      fans:domFans,
+      mediaData:domMedia,
+      contacts:readContacts()
     };
   }
 
@@ -578,6 +398,7 @@
   }
 
   function renderExperience(force = false) {
+    if (!document.documentElement.classList.contains('jm-public-data-ready')) return;
     if (!media.matches || !isHomeRoute()) return;
 
     const root = ensureExperience();
@@ -1087,67 +908,52 @@
     headerObserver.observe(header);
   }
 
-  function handleCacheUpdate() {
-    warmCachedAssets();
-    scheduleRender(false);
-  }
-
   function boot() {
     if (!media.matches) return;
 
-    watchHeader();
-    syncRouteState();
-    observeSources();
+    const start = () => {
+      if (document.documentElement.dataset.jmMobileHomeStarted === '1') return;
+      document.documentElement.dataset.jmMobileHomeStarted = '1';
 
-    addEventListener('hashchange', syncRouteState);
+      watchHeader();
+      syncRouteState();
+      observeSources();
 
-    addEventListener(
-      'resize',
-      () => {
-        measureHeader();
+      addEventListener('hashchange', syncRouteState);
 
-        if (media.matches && isHomeRoute()) {
-          requestAnimationFrame(() => {
-            if (track) {
-              track.scrollLeft =
-                currentIndex * track.clientWidth;
-            }
-          });
-        }
-      },
-      {passive: true}
-    );
+      addEventListener(
+        'resize',
+        () => {
+          measureHeader();
 
-    document.addEventListener(
-      'visibilitychange',
-      () => {
-        if (document.hidden) {
-          pauseAuto();
-        } else if (media.matches && isHomeRoute()) {
-          resumeAuto();
-        }
+          if (media.matches && isHomeRoute()) {
+            requestAnimationFrame(() => {
+              if (track) track.scrollLeft = currentIndex * track.clientWidth;
+            });
+          }
+        },
+        {passive:true}
+      );
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseAuto();
+        else if (media.matches && isHomeRoute()) resumeAuto();
+      });
+
+      if (typeof media.addEventListener === 'function') {
+        media.addEventListener('change', syncRouteState);
+      } else if (typeof media.addListener === 'function') {
+        media.addListener(syncRouteState);
       }
-    );
 
-    window.addEventListener(
-      'jm:public-cache-updated',
-      handleCacheUpdate
-    );
+      scheduleRender(true);
+    };
 
-    window.addEventListener('storage', event => {
-      if (event.key === PUBLIC_CACHE_KEY) {
-        handleCacheUpdate();
-      }
-    });
-
-    if (typeof media.addEventListener === 'function') {
-      media.addEventListener('change', syncRouteState);
-    } else if (typeof media.addListener === 'function') {
-      media.addListener(syncRouteState);
+    if (document.documentElement.classList.contains('jm-public-data-ready')) {
+      start();
+    } else {
+      window.addEventListener('jm:public-data-ready', start, {once:true});
     }
-
-    // Un solo pass iniziale: nessuna raffica di render programmati.
-    scheduleRender(true);
   }
 
   if (document.readyState === 'loading') {
