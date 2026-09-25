@@ -1153,42 +1153,6 @@
 }
 
 
-/* Gruppo / cerchia fan: una sola label pubblica per fan in HITS. */
-.fan-ranking-title{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-  flex-wrap:wrap;
-}
-.fan-ranking-title>span:first-child{
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.fan-group-label{
-  display:inline-flex;
-  align-items:center;
-  flex:0 0 auto;
-  max-width:150px;
-  padding:2px 6px;
-  border:1px solid rgba(243,210,52,.28);
-  border-radius:999px;
-  background:rgba(243,210,52,.07);
-  color:var(--gold);
-  font:900 7px/1.2 monospace;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-@media(max-width:620px){
-  .fan-group-label{max-width:118px;font-size:6.5px}
-}
-
-
 /* Disambiguazione identità fan tramite gruppo / cerchia. */
 .fan-group-help{
   margin:-2px 0 2px;
