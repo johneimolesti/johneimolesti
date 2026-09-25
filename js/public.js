@@ -3340,12 +3340,13 @@
     };
 
     document.documentElement.classList.add('jm-public-data-ready');
-    document.documentElement.classList.remove('jm-data-loading');
-    const loader=$('jmDataLoader');
-    if(loader)loader.hidden=true;
     window.dispatchEvent(new CustomEvent('jm:public-data-ready',{
       detail:{generated_at:window.JM_PUBLIC_DATA.generated_at}
     }));
+    document.documentElement.classList.remove('jm-mobile-home-pending');
+    document.documentElement.classList.remove('jm-data-loading');
+    const loader=$('jmDataLoader');
+    if(loader)loader.hidden=true;
 
     if (rawRoute()==='checkin') {
       await handleQrCheckin();
