@@ -547,6 +547,65 @@
   let playerShuffle=false;
   let previewCutoffTimer=null;
 
+  const AUDIO_TICKET_KEY='jm_demo_audio_tickets';
+  const prefetchedTickets=new Map();
+
+  function readAudioTickets(){
+    try{
+      const value=JSON.parse(sessionStorage.getItem(AUDIO_TICKET_KEY)||'{}');
+      return value&&typeof value==='object'?value:{};
+    }catch{return {}}
+  }
+
+  function writeAudioTickets(value){
+    try{sessionStorage.setItem(AUDIO_TICKET_KEY,JSON.stringify(value))}catch{}
+  }
+
+  function cachedAudioTicket(songId){
+    const id=String(songId);
+    const item=readAudioTickets()[id];
+    if(!item?.url||!item?.expires_at)return null;
+    if(Date.parse(item.expires_at)<=Date.now()+30000)return null;
+    const mode=songAccess(id);
+    if(!mode||mode!==item.access_mode)return null;
+    return item;
+  }
+
+  function rememberAudioTicket(songId,data){
+    if(!data?.url)return;
+    const tickets=readAudioTickets();
+    tickets[String(songId)]={
+      url:data.url,
+      expires_at:data.expires_at || new Date(Date.now()+Math.max(60,Number(data.expires_in)||1200)*1000).toISOString(),
+      access_mode:data.access_mode,
+      reason:data.reason||''
+    };
+    writeAudioTickets(tickets);
+  }
+
+  async function prefetchTrack(songId,{source='songs'}={}){
+    const id=String(songId);
+    const song=repertoire.get(id);
+    if(!song?.has_demo||!songAccess(id))return null;
+    if(prefetchedTickets.has(id))return prefetchedTickets.get(id);
+    const cached=cachedAudioTicket(id);
+    if(cached)return cached;
+
+    const job=call('audio',{song_id:id,source:source==='jukebox'?'jukebox':'songs'})
+      .then(data=>{
+        rememberAudioTicket(id,data);
+        prefetchedTickets.set(id,data);
+        return data;
+      })
+      .catch(err=>{
+        prefetchedTickets.delete(id);
+        throw err;
+      });
+
+    prefetchedTickets.set(id,job);
+    return job;
+  }
+
   function formatDemoTime(seconds){
     if(!Number.isFinite(seconds)||seconds<0)return '0:00';
     const total=Math.floor(seconds);
@@ -621,6 +680,7 @@
     audioEl.addEventListener('play',markPlay);
     audioEl.addEventListener('pause',markPause);
     audioEl.addEventListener('ended',markPause,{once:true});
+    if(!audioEl.paused)markPlay();
   }
 
   function currentSong(){
@@ -920,7 +980,22 @@
       setTimeout(decorate,0);
     }
 
-    const data=await call('audio',{song_id:id,source:source==='jukebox'?'jukebox':'songs'});
+    let data=null;
+    const prefetched=prefetchedTickets.get(id);
+
+    if(prefetched){
+      data=await Promise.resolve(prefetched);
+      prefetchedTickets.delete(id);
+    }else{
+      const cached=cachedAudioTicket(id);
+      if(cached){
+        data={...cached,play_id:null,qualify_after_seconds:8};
+      }else{
+        data=await call('audio',{song_id:id,source:source==='jukebox'?'jukebox':'songs'});
+        rememberAudioTicket(id,data);
+      }
+    }
+
     if(request!==repertoireRequest)return;
 
     const audioEl=new Audio(data.url);
@@ -931,7 +1006,17 @@
     repertoireAudioData=data;
     repertoireAudioSource=source==='jukebox'?'jukebox':'songs';
 
-    bindPlayCounter(audioEl,data,id,repertoireAudioSource);
+    if(data.play_id){
+      bindPlayCounter(audioEl,data,id,repertoireAudioSource);
+    }else{
+      call('start_play',{
+        song_id:id,
+        source:repertoireAudioSource
+      }).then(playData=>{
+        if(repertoireAudio!==audioEl)return;
+        bindPlayCounter(audioEl,{...data,...playData},id,repertoireAudioSource);
+      }).catch(err=>console.warn('Avvio conteggio ascolto',err));
+    }
 
     const onSync=()=>{
       if(repertoireAudio!==audioEl)return;
@@ -1214,11 +1299,14 @@
 
       if(mode){
         host.innerHTML=`<button class="btn btn-primary demo-player-button" type="button">${mode==='preview_30'?'▶ ANTEPRIMA 30S':'▶ ASCOLTA DEMO'}</button>`;
-        host.querySelector('button').onclick=e=>{
+        const playButton=host.querySelector('button');
+        playButton.onclick=e=>{
           e.preventDefault();
           e.stopPropagation();
           playDemo(id,e.currentTarget);
         };
+        playButton.addEventListener('pointerenter',()=>{prefetchTrack(id,{source:'songs'}).catch(()=>{})},{once:true});
+        playButton.addEventListener('touchstart',()=>{prefetchTrack(id,{source:'songs'}).catch(()=>{})},{passive:true,once:true});
       }else{
         host.innerHTML=`
           <button class="btn btn-ghost demo-player-button" type="button">RICHIEDI / CODICE</button>
