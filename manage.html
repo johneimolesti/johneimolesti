@@ -3644,9 +3644,9 @@ function concertPrintableRows(c,concertItems=[]){
     if(!song)return null;position+=1;return {position,title:String(song.title||""),bpm:song.bpm??"—",key:keyLabel(song),execution_type:looksLikeItem?(entry.execution_type||"planned"):"planned"}
   }).filter(Boolean)
 }
-function concertPrintableHtml(c,concertItems=[]){
-  const list=concertPrintableRows(c,concertItems),venue=concertLocationParts(c).join(" · "),title=String(c?.name||"Concerto");let prevType=null;
-  const rows=list.map(r=>{const divider=r.execution_type!==prevType?`<div class="block-divider">${esc(EXECUTION_TYPES[r.execution_type]||String(r.execution_type||"").toUpperCase())}</div>`:"";prevType=r.execution_type;return `${divider}<div class="track"><span class="num">${r.position}</span><strong>${esc(r.title)}</strong><span class="track-meta">${esc(r.bpm)} BPM · ${esc(r.key)}</span></div>`}).join("");
+function concertPrintableHtml(c,concertItems=[],options={}){
+  const includeEmoji=!!options.includeEmoji,list=concertPrintableRows(c,concertItems),venue=concertLocationParts(c).join(" · "),title=String(c?.name||"Concerto");let prevType=null;
+  const rows=list.map(r=>{const divider=r.execution_type!==prevType?`<div class="block-divider">${esc(EXECUTION_TYPES[r.execution_type]||String(r.execution_type||"").toUpperCase())}</div>`:"";prevType=r.execution_type;return `${divider}<div class="track"><span class="num">${r.position}</span><strong>${esc(setlistPrintableTitle(r.title,includeEmoji))}</strong><span class="track-meta">${esc(r.bpm)} BPM · ${esc(r.key)}</span></div>`}).join("");
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)} — Scaletta</title><style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff}h1{margin:0 0 3mm;font-size:19pt;line-height:1.05}.meta{margin:0 0 7mm;color:#666;font-size:8.5pt}.setlist{width:100%}.block-divider{display:flex;align-items:center;gap:3mm;margin:4.5mm 0 1.8mm;color:#777;font-size:7.5pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;break-after:avoid}.block-divider:before,.block-divider:after{content:"";height:.25mm;background:#c8c8c8;flex:1}.track{display:grid;grid-template-columns:8mm minmax(0,1fr) auto;gap:2.2mm;align-items:baseline;min-height:8mm;padding:1.6mm 0;border-bottom:.2mm solid #e3e3e3;break-inside:avoid}.num{color:#777;font-size:8.5pt;text-align:right}.track strong{font-size:10.5pt;line-height:1.15}.track-meta{color:#777;font-size:7.5pt;white-space:nowrap}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     </style>
 
@@ -3683,8 +3683,9 @@ function concertPrintableHtml(c,concertItems=[]){
 </head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
 function printConcert(c,concertItems=[]){
+  const includeEmoji=askSetlistEmojiOption();
   const popup=window.open("","_blank");if(!popup){alert("Il browser ha bloccato la finestra di stampa. Consenti i popup e riprova.");return}try{popup.opener=null}catch{}
-  popup.document.open();popup.document.write(concertPrintableHtml(c,concertItems).replace("</body>","<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},120));<"+"/script></body>"));popup.document.close()
+  popup.document.open();popup.document.write(concertPrintableHtml(c,concertItems,{includeEmoji}).replace("</body>","<script>window.addEventListener('load',()=>setTimeout(()=>{window.focus();window.print()},120));<"+"/script></body>"));popup.document.close()
 }
 function safePdfFilename(value){return String(value||"scaletta").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_").replace(/^_+|_+$/g,"")||"scaletta"}
 async function pdfImageData(src){
