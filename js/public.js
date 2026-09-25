@@ -47,6 +47,7 @@
   let qrClaimedOnLogin = [];
   let qrCheckinConcert = null;
   let homeEntryFlowContext = null;
+  let fanNameCheckState = {name:'',data:null,promise:null};
   const CHECKIN_WINDOW_BEFORE_MINUTES = 30;
   const CHECKIN_WINDOW_AFTER_END_MINUTES = 60;
   const DEFAULT_LIVE_DURATION_MINUTES = 90;
@@ -1867,6 +1868,7 @@
     if (!logged) {
       showLoginMode('fan');
       session.innerHTML = '';
+      resetFanNameDisambiguation();
       return;
     }
     if (currentMember) {
@@ -1892,6 +1894,94 @@
     catch (err) { toast(err.message,'error'); }
   }
 
+  function resetFanNameDisambiguation({keepGroup=false} = {}) {
+    fanNameCheckState = {name:'',data:null,promise:null};
+    const target = $('fanTargetFanId');
+    const matches = $('fanNameMatches');
+    const mark = $('fanGroupRequiredMark');
+    const group = $('fanGroupInput');
+    const options = $('fanGroupOptions');
+    if (target) target.value = '';
+    if (matches) { matches.hidden = true; matches.innerHTML = ''; }
+    if (mark) mark.hidden = true;
+    if (group) {
+      group.required = false;
+      if (!keepGroup) group.value = '';
+    }
+    if (options) options.innerHTML = '';
+  }
+
+  function renderFanNameCheck(data) {
+    const matchesBox = $('fanNameMatches');
+    const mark = $('fanGroupRequiredMark');
+    const group = $('fanGroupInput');
+    const options = $('fanGroupOptions');
+    const target = $('fanTargetFanId');
+
+    if (options) options.innerHTML = (data?.groups || []).map(g =>
+      `<option value="${esc(g.name)}"></option>`
+    ).join('');
+
+    const required = !!data?.group_required;
+    if (mark) mark.hidden = !required;
+    if (group) group.required = required && !(target?.value);
+
+    const matches = data?.matches || [];
+    if (!matchesBox) return;
+    matchesBox.hidden = !matches.length;
+    matchesBox.innerHTML = matches.length ? `
+      <div class="fan-name-match-note"><strong>Nome già presente.</strong> Se uno di questi profili sei tu, selezionalo. Altrimenti indica il tuo gruppo per distinguerti.</div>
+      <div class="fan-name-match-list">
+        ${matches.map(m => `
+          <button class="fan-name-match" type="button" data-fan-match="${esc(m.fan_id)}">
+            <span><strong>${esc(m.fan_name)}</strong><small>${esc(m.group_name || 'Nessun gruppo assegnato')}</small></span>
+            <b>SONO IO</b>
+          </button>`).join('')}
+      </div>` : '';
+
+    $('[data-fan-match]', matchesBox).forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.fanMatch;
+        const selected = matches.find(m => String(m.fan_id) === String(id));
+        if (target) target.value = id;
+        if (group) {
+          group.value = selected?.group_name || '';
+          group.required = false;
+        }
+        $('[data-fan-match]', matchesBox).forEach(x => x.classList.toggle('selected', x === btn));
+        const msg = $('fanLoginMessage');
+        if (msg) msg.textContent = `Profilo selezionato: ${selected?.fan_name || 'fan'}${selected?.group_name ? ' · '+selected.group_name : ''}`;
+      };
+    });
+  }
+
+  async function checkFanName(name, {force=false} = {}) {
+    name = String(name || '').trim();
+    if (!name) {
+      resetFanNameDisambiguation({keepGroup:true});
+      return null;
+    }
+    if (!force && fanNameCheckState.name === name && fanNameCheckState.data) {
+      return fanNameCheckState.data;
+    }
+    if (fanNameCheckState.promise && fanNameCheckState.name === name) {
+      return fanNameCheckState.promise;
+    }
+
+    const promise = fanApi('fan_name_check',{display_name:name})
+      .then(data => {
+        fanNameCheckState = {name,data,promise:null};
+        renderFanNameCheck(data);
+        return data;
+      })
+      .catch(err => {
+        fanNameCheckState = {name:'',data:null,promise:null};
+        throw err;
+      });
+    fanNameCheckState = {name,data:null,promise};
+    return promise;
+  }
+
   async function resolvePossibleFanMatches(data) {
     const matches = data?.possible_matches || [];
     if (!matches.length) return data;
@@ -1911,8 +2001,12 @@
     return data;
   }
 
-  async function loginFan(name, {refreshData = true} = {}) {
-    let data = await fanApi('enter', {display_name:name});
+  async function loginFan(name, {refreshData = true, groupName = null, targetFanId = null} = {}) {
+    let data = await fanApi('enter', {
+      display_name:name,
+      group_name:groupName || null,
+      target_fan_id:targetFanId || null
+    });
     data = await resolvePossibleFanMatches(data);
     currentFan = data.fan || data;
     localStorage.setItem('jm_public_fan_name', currentFan.display_name || name);
@@ -3222,12 +3316,47 @@
       if (open) closeModal(open.id);
     });
     $$('#loginSwitch [data-login-mode]').forEach(b => b.onclick = () => showLoginMode(b.dataset.loginMode));
+    $('fanNameInput')?.addEventListener('input', () => {
+      const target = $('fanTargetFanId');
+      if (target) target.value = '';
+      const matches = $('fanNameMatches');
+      if (matches) { matches.hidden = true; matches.innerHTML = ''; }
+      const mark = $('fanGroupRequiredMark');
+      if (mark) mark.hidden = true;
+      const group = $('fanGroupInput');
+      if (group) group.required = false;
+      fanNameCheckState = {name:'',data:null,promise:null};
+      const msg = $('fanLoginMessage');
+      if (msg) msg.textContent = '';
+    });
+    $('fanNameInput')?.addEventListener('blur', async () => {
+      const name = $('fanNameInput').value.trim();
+      if (!name) return;
+      try { await checkFanName(name); }
+      catch (err) { const msg=$('fanLoginMessage'); if(msg)msg.textContent=err.message; }
+    });
+
     $('fanLoginForm').addEventListener('submit', async e => {
-      e.preventDefault(); const name = $('fanNameInput').value.trim(); const msg = $('fanLoginMessage');
-      if (!name) return; msg.textContent = window.JMCopy.text('ui.876e88411094');
+      e.preventDefault();
+      const name = $('fanNameInput').value.trim();
+      const groupName = $('fanGroupInput')?.value.trim() || null;
+      const targetFanId = $('fanTargetFanId')?.value || null;
+      const msg = $('fanLoginMessage');
+      if (!name) return;
+      msg.textContent = window.JMCopy.text('ui.876e88411094');
       try {
-        await loginFan(name);
+        if (!targetFanId) {
+          const check = await checkFanName(name,{force:true});
+          if (check?.group_required && !groupName) {
+            msg.textContent = 'Questo nome esiste già: seleziona il tuo profilo oppure indica il gruppo / cerchia.';
+            $('fanGroupInput')?.focus();
+            return;
+          }
+        }
+
+        await loginFan(name,{groupName,targetFanId});
         msg.textContent = '';
+        resetFanNameDisambiguation();
         closeModal('userModal');
         if(qrCheckinPending){
           const first=qrClaimedOnLogin[0];
@@ -3243,7 +3372,12 @@
           toast(window.JMCopy.text('ui.hello',{name:currentFan.nickname || currentFan.display_name}),'ok');
         }
       }
-      catch (err) { msg.textContent = err.message; }
+      catch (err) {
+        msg.textContent = err.message;
+        if (err.message && /scegli il tuo profilo|stesso nome|gruppo/i.test(err.message)) {
+          try { await checkFanName(name,{force:true}); } catch {}
+        }
+      }
     });
     $('memberLoginForm').addEventListener('submit', async e => {
       e.preventDefault(); const msg = $('memberLoginMessage'); msg.textContent = window.JMCopy.text('ui.876e88411094');
