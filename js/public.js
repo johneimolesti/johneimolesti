@@ -713,6 +713,7 @@
                 <label class="booking-wide"><span>Dettagli dell'evento</span><textarea id="bookingDetails" maxlength="3000" placeholder="Orari indicativi, palco, pubblico, formula della serata, eventuali vincoli…"></textarea></label>
               </div>
               <div class="booking-submit-row"><span id="bookingStatus" role="status"></span><button class="btn btn-primary" type="submit">INVIA RICHIESTA</button></div>
+              <p class="privacy-inline-note">I dati inseriti servono solo a gestire la richiesta di booking. <a href="privacy.html" target="_blank" rel="noopener">Informativa privacy</a>.</p>
             </form>
           </article>
         </section>`;
@@ -735,7 +736,7 @@
           if (m) id = m[1];
         }
       }
-      if (id) return {provider:'YouTube',embed:`https://www.youtube.com/embed/${encodeURIComponent(id)}`,href};
+      if (id) return {provider:'YouTube',embed:`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`,href};
       if (host.endsWith('vimeo.com')) {
         const m = u.pathname.match(/\/(\d+)/);
         if (m) return {provider:'Vimeo',embed:`https://player.vimeo.com/video/${m[1]}`,href};
@@ -1814,7 +1815,7 @@
       home:[[window.JMCopy.text('ui.f9d0a39219d7'),'homeNextShow'],[window.JMCopy.text('ui.5b0d2517b8b5'),'homeRankingPreview']],
       tour:[[window.JMCopy.text('ui.0449f09cec41'),'upcomingBlock'],[window.JMCopy.text('ui.801a122f224b'),'archiveBlock']],
       repertoire:[['Tutte le canzoni','repertoireBlock']],
-      rankings:[[window.JMCopy.text('ui.11440317430b'),'songsRankingBlock'],[window.JMCopy.text('ui.050b875e0945'),'fansRankingBlock'],['Locandine','postersRankingBlock'],[window.JMCopy.text('ui.854f5adc717d'),'concertsRankingBlock']],
+      rankings:[['FAN','fansRankingBlock'],['SONGS','songsRankingBlock'],['SONGS PLAY','songsPlayRankingBlock'],['LOCANDINE','postersRankingBlock'],['COVER ART','coverArtRankingBlock'],['LIVE','concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
       more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock']],
       contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']],
@@ -1884,13 +1885,14 @@
       const me = (rankingData?.fans || []).find(r => currentFan?.id && r.fan_id === currentFan.id);
       const questionnaireDone = !!fanOnboardingStatus?.flow_completed;
       const questionnaireLabel = questionnaireDone ? 'QUESTIONARIO COMPLETATO' : (fanOnboardingStatus?.onboarding_state?.intro_seen_at ? 'RIPRENDI IL QUESTIONARIO' : 'INIZIA IL QUESTIONARIO');
-      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div><div class="fan-questionnaire-summary"><strong>${esc(questionnaireLabel)}</strong><span>${questionnaireDone?'Puoi rivedere e modificare le risposte dal profilo.':'Il flusso iniziale è ancora disponibile e riparte dal punto lasciato.'}</span></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanQuestionnaire">${questionnaireDone?'VEDI RISPOSTE':'APRI QUESTIONARIO'}</button><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
+      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div><div class="fan-questionnaire-summary"><strong>${esc(questionnaireLabel)}</strong><span>${questionnaireDone?'Puoi rivedere e modificare le risposte dal profilo.':'Il flusso iniziale è ancora disponibile e riparte dal punto lasciato.'}</span></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanQuestionnaire">${questionnaireDone?'VEDI RISPOSTE':'APRI QUESTIONARIO'}</button><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" id="forgetFanDevice">DIMENTICA QUESTO DISPOSITIVO</button><a class="btn btn-ghost" href="privacy.html" target="_blank" rel="noopener">PRIVACY E DIRITTI</a><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
       $('openFanQuestionnaire')?.addEventListener('click',()=>{window.location.href='manage.html#profilo';});
       $('openFanCatalog')?.addEventListener('click', () => { closeModal('userModal'); openFanCatalog(); });
       $('openMyShows')?.addEventListener('click', () => { closeModal('userModal'); go('tour'); setTimeout(() => $('archiveBlock')?.scrollIntoView({behavior:'smooth'}), 50); });
       $('fanRecovery')?.addEventListener('click', setFanRecovery);
+      $('forgetFanDevice')?.addEventListener('click', forgetFanDevice);
     }
-    $$('[data-session-logout]', session).forEach(b => b.onclick = () => logout(b.dataset.sessionLogout));
+    $('[data-session-logout]', session).forEach(b => b.onclick = () => logout(b.dataset.sessionLogout));
   }
   async function setFanRecovery() {
     const value = window.prompt(window.JMCopy.text('ui.recoveryPrompt'));
@@ -2074,6 +2076,21 @@
     await Promise.all([loadConcerts(true), loadRankings(true)]);
     renderHome(); renderTour(); renderRankings();
   }
+  async function forgetFanDevice() {
+    try { await fanApi('device_forget'); } catch (err) { console.warn('Rimozione dispositivo',err); }
+    currentFan=null;
+    fanOnboardingStatus=null;
+    localStorage.removeItem('jm_public_fan_name');
+    localStorage.removeItem('jm_fan_device_token');
+    sessionStorage.removeItem('jm_entry_identity_done');
+    sessionStorage.removeItem('jm_entry_guest');
+    newDeviceEntryPending=true;
+    updateUserUI();
+    closeModal('userModal');
+    toast('Questo dispositivo non è più associato al profilo fan.','ok');
+    await Promise.allSettled([loadConcerts(true),loadRankings(true)]);
+    renderHome();renderTour();renderRankings();
+  }
 
   async function loadPermissions() {
     try {
@@ -2107,6 +2124,7 @@
     }
     try {
       rankingData = currentFan ? await fanApi('rankings') : await fanApi('rankings',{guest:true});
+      if(window.JM_PUBLIC_DATA)window.JM_PUBLIC_DATA.rankings=rankingData;
       return rankingData;
     } catch (err) {
       console.error(err);
@@ -2221,7 +2239,7 @@
       const info=videoEmbedInfo(item.source_url);
       if(!info)return '';
       const player=info.embed
-        ? `<div class="public-video-frame"><iframe src="${esc(info.embed)}" title="${esc(item.title||'Video')}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`
+        ? `<div class="public-video-frame public-video-gated"><button class="public-video-load" type="button" data-external-video-src="${esc(info.embed)}" data-external-video-title="${esc(item.title||'Video')}" data-external-video-provider="${esc(info.provider)}">CARICA VIDEO · ${esc(info.provider)}</button><small>Il player esterno viene contattato solo dopo il click.</small></div>`
         : `<a class="public-video-fallback" href="${esc(info.href)}" target="_blank" rel="noopener noreferrer">APRI IL VIDEO</a>`;
       const adminTools=admin?`<div class="public-video-admin-tools"><button type="button" data-public-video-edit="${esc(item.id)}">MODIFICA</button><button type="button" data-public-video-delete="${esc(item.id)}">ELIMINA</button></div>`:'';
       return `<article class="public-video-card">${player}<div class="public-media-copy"><strong>${esc(item.title||'Video')}</strong>${item.caption?`<span>${esc(item.caption)}</span>`:''}<small>${esc(info.provider)}</small>${adminTools}</div></article>`;
@@ -2235,8 +2253,15 @@
       const item=photos[Number(btn.dataset.publicPhoto)],src=publicMediaAssetUrl(item?.storage_path);
       if(src)openPoster(src,item?.title||'John & i Molesti');
     });
-    $$('[data-public-video-edit]',videoGrid||document).forEach(btn=>btn.onclick=()=>openPublicVideoEditor(videos.find(v=>String(v.id)===btn.dataset.publicVideoEdit)));
-    $$('[data-public-video-delete]',videoGrid||document).forEach(btn=>btn.onclick=()=>deletePublicVideoFromSite(videos.find(v=>String(v.id)===btn.dataset.publicVideoDelete)));
+    $('[data-external-video-src]',videoGrid||document).forEach(btn=>btn.onclick=()=>{
+      const frame=btn.closest('.public-video-frame');
+      if(!frame)return;
+      const src=btn.dataset.externalVideoSrc||'';
+      const title=btn.dataset.externalVideoTitle||'Video';
+      frame.innerHTML=`<iframe src="${esc(src)}" title="${esc(title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    });
+    $('[data-public-video-edit]',videoGrid||document).forEach(btn=>btn.onclick=()=>openPublicVideoEditor(videos.find(v=>String(v.id)===btn.dataset.publicVideoEdit)));
+    $('[data-public-video-delete]',videoGrid||document).forEach(btn=>btn.onclick=()=>deletePublicVideoFromSite(videos.find(v=>String(v.id)===btn.dataset.publicVideoDelete)));
     syncPublicAdminControls();
   }
 
@@ -2544,7 +2569,18 @@
   function rankingSongRow(r, i) {
     const artists = [r.base_artist, r.lyrics_artist].filter(Boolean).join(' / ');
     const cover = posterUrl(r.cover_path);
-    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" data-song-id="${esc(r.song_id||r.id||'')}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}<small data-copy="ui.ec7bd9952fa3">SCORE</small></div></div>`;
+    const id=String(r.song_id||r.id||'');
+    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="song" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA</button></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}</div></div>`;
+  }
+  function rankingSongPlayRow(r,i){
+    const cover=posterUrl(r.cover_path), id=String(r.id||r.song_id||'');
+    const plays=Math.max(0,Math.trunc(Number(r.weighted_play_count||0)));
+    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-play-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Brano')}</div><div class="ranking-meta">${esc([r.base_artist,r.lyrics_artist].filter(Boolean).join(' / ')||'John & i Molesti')}</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="song" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA</button></div><div class="ranking-score">${plays}<small>PLAY</small></div></div>`;
+  }
+  function rankingCoverRow(r,i){
+    const src=posterUrl(r.cover_path), id=String(r.song_id||r.id||'');
+    const raw=Number(r.ranking_score), score=Number.isFinite(raw)?raw.toFixed(2):'—';
+    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-cover-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'Cover art')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-cover" src="${esc(src)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Cover art')}</div><div class="ranking-meta">${esc(Number(r.vote_count||0))} voti</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="cover" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA COVER</button></div><div class="ranking-score">${esc(score)}<small>COVER</small></div></div>`;
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
@@ -2660,27 +2696,40 @@
   }
   function renderRankings() {
     const data = rankingData || {};
+    const targetIds=['fansRanking','songsRanking','songsPlayRanking','postersRanking','coverArtRanking','concertsRanking'];
     if (data.blocked) {
-      ['songsRanking','fansRanking','concertsRanking','postersRanking'].forEach(id => $(id).innerHTML = '<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>');
+      targetIds.forEach(id => { if($(id))$(id).innerHTML = '<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>'; });
       return;
     }
     if (data.error) {
-      ['songsRanking','fansRanking','concertsRanking','postersRanking'].forEach(id => $(id).innerHTML = `<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`);
+      targetIds.forEach(id => { if($(id))$(id).innerHTML = `<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`; });
       return;
     }
     const limit = key => expandedRankings.has(key) ? Infinity : 8;
-    const visibleSongs=(data.songs||[]).slice(0,limit('songs'));
     const visibleFans=(data.fans||[]).slice(0,limit('fans'));
-    const visibleConcerts=(data.concerts||[]).slice(0,limit('concerts'));
+    const visibleSongs=(data.songs||[]).slice(0,limit('songs'));
+    const visiblePlays=[...publicSongs]
+      .filter(r=>r&&String(r.title||'').trim())
+      .sort((a,b)=>Number(b.weighted_play_count||0)-Number(a.weighted_play_count||0)||String(a.title||'').localeCompare(String(b.title||''),'it'))
+      .slice(0,limit('songs-play'));
     const visiblePosters=(data.posters||[]).slice(0,limit('posters'));
-    $('songsRanking').innerHTML = visibleSongs.map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
-    $('fansRanking').innerHTML = visibleFans.map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
-    $('concertsRanking').innerHTML = visibleConcerts.map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
-    $('postersRanking').innerHTML = visiblePosters.map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
-    $$('[data-ranking-song-index]',$('songsRanking')).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1));});
-    $$('[data-ranking-fan-index]',$('fansRanking')).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1));});
-    $$('[data-ranking-concert]', $('concertsRanking')).forEach(row => { if (row.dataset.rankingConcert) bindRankingRow(row,() => openConcert(row.dataset.rankingConcert)); });
-    $$('[data-ranking-poster-index]',$('postersRanking')).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1));});
+    const visibleCovers=(data.covers||[]).slice(0,limit('covers'));
+    const visibleConcerts=(data.concerts||[]).slice(0,limit('concerts'));
+
+    if($('fansRanking'))$('fansRanking').innerHTML = visibleFans.map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
+    if($('songsRanking'))$('songsRanking').innerHTML = visibleSongs.map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
+    if($('songsPlayRanking'))$('songsPlayRanking').innerHTML = visiblePlays.map(rankingSongPlayRow).join('') || '<div class="empty-state">Nessuna riproduzione registrata.</div>';
+    if($('postersRanking'))$('postersRanking').innerHTML = visiblePosters.map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
+    if($('coverArtRanking'))$('coverArtRanking').innerHTML = visibleCovers.map(rankingCoverRow).join('') || '<div class="empty-state">Nessun voto alle cover art. Apri una cover e votala.</div>';
+    if($('concertsRanking'))$('concertsRanking').innerHTML = visibleConcerts.map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
+
+    $$('[data-ranking-fan-index]',$('fansRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1));});
+    $$('[data-ranking-song-index]',$('songsRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1));});
+    $$('[data-ranking-play-index]',$('songsPlayRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPlayIndex),song=visiblePlays[i];bindRankingRow(row,()=>song&&window.JMSongs?.openDetail?window.JMSongs.openDetail(song.id):openSongRankingDetail(song,i+1));});
+    $$('[data-ranking-poster-index]',$('postersRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1));});
+    $$('[data-ranking-cover-index]',$('coverArtRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingCoverIndex),cover=visibleCovers[i];bindRankingRow(row,()=>cover?.song_id&&window.JMSongs?.openDetail?window.JMSongs.openDetail(cover.song_id):null);});
+    $$('[data-ranking-concert]', $('concertsRanking')||document).forEach(row => { if (row.dataset.rankingConcert) bindRankingRow(row,() => openConcert(row.dataset.rankingConcert)); });
+
     $$('[data-expand-ranking]').forEach(btn => {
       const key = btn.dataset.expandRanking;
       const expanded = expandedRankings.has(key);
@@ -3354,6 +3403,14 @@
     window.addEventListener('jm:song-play-counted', async()=>{
       publicSongsLoaded=false;
       await loadPublicContentExtensions();
+      renderRankings();
+    });
+    window.addEventListener('jm:ranking-refresh-request', async()=>{
+      try{
+        await loadRankings(true);
+        renderRankings();
+        renderHome();
+      }catch(err){console.warn('Aggiornamento classifiche',err);}
     });
     $$('.nav-item').forEach(b => b.onclick = () => go(b.dataset.route));
     $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
