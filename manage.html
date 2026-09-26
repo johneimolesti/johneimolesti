@@ -472,6 +472,189 @@ body.app-full-immersion header{min-height:48px;padding-top:6px;padding-bottom:6p
   @media(max-width:720px){.setup-grid{grid-template-columns:1fr}.activity-row-v2{grid-template-columns:1fr!important}.member-reaction-toggles{order:3}.review-actions{display:grid;grid-template-columns:1fr}.review-actions button{width:100%}}
 </style>
 
+
+<style id="live-activity-layout-fix">
+  .live-activity-modal>.modal-card{
+    width:min(1040px,calc(100vw - 28px))!important;
+  }
+  .live-activity-modal-body{
+    padding:0 16px 14px;
+  }
+  .live-activity-modal-body .activity-list{
+    margin-top:0;
+    padding-top:0;
+    border-top:0;
+  }
+  .live-activity-modal-body .activity-list>.panel-header{
+    min-height:38px;
+    padding:8px 0!important;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .live-activity-modal-body .activity-list>.panel-header h2{
+    font-size:9px;
+    color:#8f97a2;
+    letter-spacing:.06em;
+  }
+  .live-activity-modal-body .activity-row-v2{
+    display:grid!important;
+    grid-template-columns:minmax(180px,1fr) 92px minmax(320px,auto) 54px!important;
+    align-items:center!important;
+    gap:14px!important;
+    min-height:66px;
+    padding:10px 0!important;
+    border-bottom:1px solid rgba(255,255,255,.075)!important;
+  }
+  .activity-fan{
+    min-width:0;
+  }
+  .activity-fan strong{
+    display:block;
+    font-size:11px;
+    line-height:1.2;
+  }
+  .activity-fan .small-info{
+    margin-top:4px;
+    font-size:8px;
+  }
+  .activity-score-wrap{
+    display:grid;
+    gap:4px;
+    min-width:0;
+  }
+  .activity-score-wrap>span{
+    color:#737c88;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.08em;
+  }
+  .activity-row-v2 .activity-score{
+    width:100%!important;
+    height:36px;
+    padding:6px 9px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    border-radius:9px!important;
+    background:rgba(255,255,255,.04)!important;
+    font-size:10px;
+    font-weight:800;
+  }
+  .activity-row-v2 .member-reaction-toggles{
+    display:grid!important;
+    grid-template-columns:82px 92px 112px;
+    gap:6px!important;
+    align-items:center;
+    justify-content:end;
+    flex-wrap:nowrap!important;
+  }
+  .activity-row-v2 .member-reaction-toggle{
+    position:relative;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-width:0;
+    height:36px;
+    padding:0 10px!important;
+    border:1px solid rgba(255,255,255,.10)!important;
+    border-radius:10px!important;
+    background:rgba(255,255,255,.035)!important;
+    color:#aeb5bf!important;
+    font-size:8px!important;
+    font-weight:900!important;
+    letter-spacing:.03em;
+    white-space:nowrap;
+    cursor:pointer;
+    user-select:none;
+  }
+  .activity-row-v2 .member-reaction-toggle input{
+    position:absolute!important;
+    width:1px!important;
+    height:1px!important;
+    margin:0!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+  .activity-row-v2 .member-reaction-toggle:has(input:checked){
+    border-color:rgba(243,210,52,.5)!important;
+    background:rgba(243,210,52,.13)!important;
+    color:#f5dc62!important;
+    box-shadow:inset 0 0 0 1px rgba(243,210,52,.06);
+  }
+  .activity-row-v2 .member-reaction-toggle:has(input:checked)::before{
+    content:"✓";
+    margin-right:5px;
+    font-size:8px;
+  }
+  .activity-row-v2 .autosave-status{
+    margin:0!important;
+    justify-self:end;
+    min-width:44px;
+    text-align:right;
+    color:#7fbd8d;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.05em;
+  }
+
+  @media(max-width:760px){
+    .live-activity-modal{
+      padding:8px!important;
+    }
+    .live-activity-modal>.modal-card{
+      width:100%!important;
+      max-height:calc(100dvh - 16px)!important;
+    }
+    .live-activity-modal-body{
+      padding:0 10px 12px;
+    }
+    .live-activity-modal-body .activity-list>.panel-header{
+      align-items:flex-start;
+      gap:4px;
+    }
+    .live-activity-modal-body .activity-list>.panel-header .counter{
+      font-size:6.5px;
+    }
+    .live-activity-modal-body .activity-row-v2{
+      grid-template-columns:minmax(0,1fr) 76px!important;
+      grid-template-areas:
+        "fan status"
+        "score score"
+        "reactions reactions";
+      gap:8px!important;
+      min-height:0;
+      padding:12px 0!important;
+    }
+    .activity-row-v2 .activity-fan{grid-area:fan}
+    .activity-row-v2 .activity-score-wrap{
+      grid-area:score;
+      grid-template-columns:46px minmax(0,1fr);
+      align-items:center;
+    }
+    .activity-row-v2 .member-reaction-toggles{
+      grid-area:reactions;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      width:100%;
+      justify-content:stretch;
+    }
+    .activity-row-v2 .autosave-status{
+      grid-area:status;
+      align-self:start;
+      justify-self:end;
+    }
+    .activity-row-v2 .member-reaction-toggle{
+      width:100%;
+      padding:0 6px!important;
+    }
+  }
+
+  @media(max-width:390px){
+    .activity-row-v2 .member-reaction-toggles{
+      grid-template-columns:1fr 1fr;
+    }
+    .activity-row-v2 .member-reaction-toggle:last-child{
+      grid-column:1/-1;
+    }
+  }
+</style>
+
 <style id="v2-4-layout-style">
   .autosave-status{margin-right:auto;color:#8fbf95;font-size:8px;align-self:center}
   /* Setup: desktop-only; ogni etichetta resta su una sola riga */
@@ -3872,7 +4055,7 @@ async function compactConcertPositions(concertId){const items=await getConcertIt
 async function setExecutionType(concertId,itemId,type){const c=concerts.find(x=>x.id===concertId);if(c?.status!=="completed"&&type!=="planned")return alert("I tipi speciali sono disponibili solo sui concerti conclusi.");const list=$("concertSetlistLive"),row=list?.querySelector(`.song-row[data-item-id="${itemId}"]`),previous=row?.dataset.executionType||"planned";if(row)row.dataset.executionType=type;rebuildConcertExecutionDividers(list);setConcertEditorSaveState("SALVATAGGIO...","saving");const {error}=await sb.from("concert_setlist_items").update({execution_type:type}).eq("id",itemId);if(error){if(row)row.dataset.executionType=previous;rebuildConcertExecutionDividers(list);setConcertEditorSaveState("ERRORE","error");return alert(error.message)}setConcertEditorSaveState("SALVATO ✓ · ONLINE","saved")}
 async function saveConcertOrder(concertId,list){const ids=[...list.querySelectorAll(".song-row[data-item-id]")].map(x=>x.dataset.itemId);updateConcertPositionsInDom(list);setConcertEditorSaveState("SALVATAGGIO...","saving");const results=await Promise.all(ids.map((id,i)=>sb.from("concert_setlist_items").update({position:i}).eq("id",id))),failed=results.find(x=>x.error);if(failed?.error){setConcertEditorSaveState("ERRORE","error");alert(failed.error.message);return refreshConcertDetailQuiet(concertId)}setConcertEditorSaveState("SALVATO ✓ · ONLINE","saved")}
 
-async function renderLiveActivity(concertId,parent){try{const [{data,error},{data:reactions,error:re}]=await Promise.all([sb.rpc("get_concert_fans_for_member",{p_concert_id:concertId}),sb.rpc("get_concert_fan_reactions_for_member",{p_concert_id:concertId})]);if(error)throw error;if(re)throw re;const reactionMap=new Map((reactions||[]).map(r=>[r.fan_id,r]));const wrap=document.createElement("div");wrap.className="activity-list";wrap.innerHTML='<div class="panel-header" style="padding-left:0"><h2>ATTIVITÀ LIVE DEI FAN</h2><span class="counter">Salvataggio automatico</span></div>';if(!data?.length)wrap.insertAdjacentHTML("beforeend",`<div class="empty">Nessun fan ha segnato “Io c'ero”.</div>`);(data||[]).forEach(f=>{const rx=reactionMap.get(f.fan_id)||{},row=document.createElement("div");row.className="activity-row activity-row-v2";row.innerHTML=`<div><strong>${esc(f.fan_name)}</strong><div class="small-info">Fan dal ${formatDate(f.fan_since)}</div></div><input class="activity-score" type="number" min="1" max="10" step="0.1" value="${f.my_activity_score??""}" placeholder="1–10"><div class="member-reaction-toggles"><label class="member-reaction-toggle"><input class="rx-pogo" type="checkbox" ${rx.my_pogo?"checked":""}> POGO</label><label class="member-reaction-toggle"><input class="rx-sang" type="checkbox" ${rx.my_sang_along?"checked":""}> CANTATA</label><label class="member-reaction-toggle"><input class="rx-moving" type="checkbox" ${rx.my_moving?"checked":""}> NON STAVA FERMO/A</label></div><span class="autosave-status">Auto</span>`;const save=async()=>{const status=row.querySelector(".autosave-status"),val=numberOrNull(row.querySelector(".activity-score").value),jobs=[sb.rpc("set_my_fan_concert_reactions",{p_concert_id:concertId,p_fan_id:f.fan_id,p_pogo:row.querySelector(".rx-pogo").checked,p_sang_along:row.querySelector(".rx-sang").checked,p_moving:row.querySelector(".rx-moving").checked})];if(val!=null)jobs.unshift(sb.rpc("set_my_fan_live_rating",{p_concert_id:concertId,p_fan_id:f.fan_id,p_score:val}));status.textContent="...";const results=await Promise.all(jobs),failed=results.find(x=>x.error);if(failed?.error){status.textContent="ERRORE";return alert(failed.error.message)}status.textContent="OK ✓"};row.querySelector(".activity-score").onblur=save;row.querySelectorAll('input[type="checkbox"]').forEach(ch=>ch.onchange=save);wrap.appendChild(row)});parent.appendChild(wrap)}catch(err){const d=document.createElement("div");d.className="section-note";d.textContent=`Voto attività/reazioni fan non disponibile: ${err.message}`;parent.appendChild(d)}}
+async function renderLiveActivity(concertId,parent){try{const [{data,error},{data:reactions,error:re}]=await Promise.all([sb.rpc("get_concert_fans_for_member",{p_concert_id:concertId}),sb.rpc("get_concert_fan_reactions_for_member",{p_concert_id:concertId})]);if(error)throw error;if(re)throw re;const reactionMap=new Map((reactions||[]).map(r=>[r.fan_id,r]));const wrap=document.createElement("div");wrap.className="activity-list";wrap.innerHTML='<div class="panel-header" style="padding-left:0"><h2>ATTIVITÀ LIVE DEI FAN</h2><span class="counter">Salvataggio automatico</span></div>';if(!data?.length)wrap.insertAdjacentHTML("beforeend",`<div class="empty">Nessun fan ha segnato “Io c'ero”.</div>`);(data||[]).forEach(f=>{const rx=reactionMap.get(f.fan_id)||{},row=document.createElement("div");row.className="activity-row activity-row-v2";row.innerHTML=`<div class="activity-fan"><strong>${esc(f.fan_name)}</strong><div class="small-info">Fan dal ${formatDate(f.fan_since)}</div></div><label class="activity-score-wrap"><span>VOTO</span><input class="activity-score" type="number" min="1" max="10" step="0.1" value="${f.my_activity_score??""}" placeholder="1–10"></label><div class="member-reaction-toggles"><label class="member-reaction-toggle"><input class="rx-pogo" type="checkbox" ${rx.my_pogo?"checked":""}><span>POGO</span></label><label class="member-reaction-toggle"><input class="rx-sang" type="checkbox" ${rx.my_sang_along?"checked":""}><span>CANTA</span></label><label class="member-reaction-toggle"><input class="rx-moving" type="checkbox" ${rx.my_moving?"checked":""}><span>SI MUOVE</span></label></div><span class="autosave-status">AUTO</span>`;const save=async()=>{const status=row.querySelector(".autosave-status"),val=numberOrNull(row.querySelector(".activity-score").value),jobs=[sb.rpc("set_my_fan_concert_reactions",{p_concert_id:concertId,p_fan_id:f.fan_id,p_pogo:row.querySelector(".rx-pogo").checked,p_sang_along:row.querySelector(".rx-sang").checked,p_moving:row.querySelector(".rx-moving").checked})];if(val!=null)jobs.unshift(sb.rpc("set_my_fan_live_rating",{p_concert_id:concertId,p_fan_id:f.fan_id,p_score:val}));status.textContent="...";const results=await Promise.all(jobs),failed=results.find(x=>x.error);if(failed?.error){status.textContent="ERRORE";return alert(failed.error.message)}status.textContent="OK ✓"};row.querySelector(".activity-score").onblur=save;row.querySelectorAll('input[type="checkbox"]').forEach(ch=>ch.onchange=save);wrap.appendChild(row)});parent.appendChild(wrap)}catch(err){const d=document.createElement("div");d.className="section-note";d.textContent=`Voto attività/reazioni fan non disponibile: ${err.message}`;parent.appendChild(d)}}
 
 /* FAN RANKING + ADMIN */
 function applyFanPointBonuses(rows,bonusRows=[]){const bm=new Map();(bonusRows||[]).forEach(x=>bm.set(String(x.fan_id),Number(x.points||0)));const decorated=(rows||[]).map((r,i)=>({...r,__base_rank:Number(r.ranking_position)||i+1,onboarding_points:bm.get(String(r.fan_id))||0,points:Number(r.points||0)+(bm.get(String(r.fan_id))||0)}));decorated.sort((a,b)=>Number(b.points||0)-Number(a.points||0)||Number(a.__base_rank)-Number(b.__base_rank)||String(a.fan_name||"").localeCompare(String(b.fan_name||""),"it"));decorated.forEach((r,i)=>r.ranking_position=i+1);return decorated}
