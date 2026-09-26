@@ -91,10 +91,21 @@
       .repertoire-player .jm-inline-vote{margin-top:7px;width:100%}
       .song-cd-page-actions .jm-inline-vote{min-height:31px;padding:7px 11px}
       .jm-inline-vote.disc-cover-vote{display:none!important}
+      .jm-inline-vote.song-list-vote{
+        display:inline-flex;
+        margin-top:8px;
+        min-height:26px;
+        padding:5px 10px;
+      }
+      .repertoire-grid.repertoire-discs-view .jm-inline-vote.song-list-vote{
+        display:none!important;
+      }
       .repertoire-grid.repertoire-discs-view .jm-inline-vote.disc-cover-vote{
         display:inline-flex!important;
         min-height:26px;
-        margin:8px auto 0;
+        width:max-content;
+        min-width:64px;
+        margin:0 auto;
         padding:5px 9px;
         font-size:8px;
       }
@@ -620,16 +631,22 @@
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-copy{
-        display:block;
+        display:grid;
+        grid-template-rows:56px 14px 28px;
+        align-items:start;
         min-width:0;
         text-align:center;
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-copy h3{
         margin:0;
+        min-height:56px;
+        display:-webkit-box;
+        -webkit-box-orient:vertical;
+        -webkit-line-clamp:3;
         white-space:normal;
-        overflow:visible;
-        text-overflow:clip;
+        overflow:hidden;
+        text-overflow:ellipsis;
         font-size:16px;
         line-height:1.15;
         cursor:pointer;
@@ -649,9 +666,19 @@
 
       .repertoire-grid.repertoire-discs-view .song-play-count{
         display:block!important;
-        margin-top:6px;
+        margin:0;
+        align-self:center;
         text-align:center;
       }
+
+      .songs-fan-hint{
+        width:100%;
+        margin:2px 0 10px;
+        color:var(--muted);
+        font:700 10px/1.45 monospace;
+      }
+      .songs-fan-hint strong{color:var(--gold)}
+
 
       .jm-flying-disc{
         position:fixed;
@@ -1341,6 +1368,30 @@
         });
       });
     }
+
+    ensureFanHint();
+  }
+
+  function ensureFanHint(){
+    const toolbar=document.querySelector('.repertoire-toolbar');
+    if(!toolbar)return null;
+
+    let hint=document.getElementById('songsFanHint');
+    if(!hint){
+      hint=document.createElement('p');
+      hint.id='songsFanHint';
+      hint.className='songs-fan-hint';
+      toolbar.insertAdjacentElement('afterend',hint);
+    }
+    return hint;
+  }
+
+  function updateFanHint(view=getView()){
+    const hint=ensureFanHint();
+    if(!hint)return;
+    hint.innerHTML=view===VIEW_DISCS
+      ? '<strong>FAN:</strong> clicca una cover per ascoltare la demo, il titolo per aprire i dettagli e <strong>VOTA</strong> la cover art.'
+      : '<strong>FAN:</strong> apri un brano per dettagli e testo, ascolta le demo disponibili e usa <strong>VOTA</strong> per dare il tuo voto.';
   }
 
   function renderPlayCount(card) {
@@ -1466,6 +1517,19 @@
     return false;
   }
 
+  function ensureSongListVote(card,song) {
+    const copy=card?.querySelector('.repertoire-copy');
+    if(!copy||!song?.id)return;
+
+    let button=copy.querySelector('.song-list-vote');
+    if(!button){
+      button=voteButton('song',song.id,song.title,'VOTA');
+      button.classList.add('song-list-vote');
+      button.setAttribute('aria-label',`Vota il brano ${song.title||''}`);
+      copy.appendChild(button);
+    }
+  }
+
   function ensureDiscCoverVote(card,song) {
     const copy=card.querySelector('.repertoire-copy');
     const count=copy?.querySelector('.song-play-count');
@@ -1489,6 +1553,7 @@
 
     const song=songs.get(String(card.dataset.repertoireSong||''));
     renderPlayCount(card);
+    ensureSongListVote(card,song);
     ensureDiscCoverVote(card,song);
     syncCardPlayingState(card);
 
@@ -1560,6 +1625,7 @@
     if (!grid) return;
 
     const view = getView();
+    updateFanHint(view);
 
     grid.classList.toggle(
       'repertoire-discs-view',
@@ -2185,7 +2251,7 @@
         if (repertoireCard) {
           if (
             event.target.closest(
-              'audio,a,.repertoire-player button,input,.disc-cover-vote'
+              'audio,a,.repertoire-player button,input,[data-jm-vote-kind]'
             )
           ) {
             return;
