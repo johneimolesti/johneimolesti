@@ -550,6 +550,8 @@
   let playerShuffle=false;
   let previewCutoffTimer=null;
   let lastPlaybackSignal='';
+  let playbackWanted=false;
+  let playbackStarting=false;
 
   const AUDIO_TICKET_KEY='jm_demo_audio_tickets';
   const prefetchedTickets=new Map();
@@ -704,6 +706,44 @@
     return raw;
   }
 
+  async function playCurrentAudio(audioEl=repertoireAudio){
+    if(!audioEl || repertoireAudio!==audioEl)return false;
+
+    playbackWanted=true;
+    playbackStarting=true;
+    syncPlaybackUi();
+
+    try{
+      await audioEl.play();
+      return true;
+    }catch(err){
+      if(playbackWanted)console.warn('Riproduzione audio',err);
+      return false;
+    }finally{
+      if(repertoireAudio===audioEl){
+        playbackStarting=false;
+
+        /*
+          Se l'utente ha premuto pausa mentre play() era pending,
+          impedisce al completamento tardivo della Promise di far ripartire
+          il brano qualche secondo dopo.
+        */
+        if(!playbackWanted && !audioEl.paused){
+          try{audioEl.pause()}catch{}
+        }
+        syncPlaybackUi();
+      }
+    }
+  }
+
+  function pauseCurrentAudio(audioEl=repertoireAudio){
+    playbackWanted=false;
+    if(audioEl && repertoireAudio===audioEl && !audioEl.paused){
+      try{audioEl.pause()}catch{}
+    }
+    syncPlaybackUi();
+  }
+
   function ensureGlobalPlayer(){
     let player=document.getElementById('jmGlobalAudioPlayer');
     if(player)return player;
@@ -746,31 +786,22 @@
       if(!audioEl)return;
 
       /*
-        La pausa deve essere sincrona e immediata. In precedenza il toggle
-        dipendeva dallo stato globale durante la fase iniziale di play:
-        se il play() era ancora in assestamento, il primo click poteva
-        lasciare UI e Audio fuori sincrono finché un altro evento (es. seek)
-        non forzava il refresh.
+        Anche mentre HTMLMediaElement.play() è ancora pending, il primo
+        click su pausa deve vincere. playbackStarting/playbackWanted
+        distinguono "sta partendo" da "è davvero in pausa".
       */
-      if(!audioEl.paused){
-        audioEl.pause();
-        syncPlaybackUi();
+      if(playbackStarting || playbackWanted || !audioEl.paused){
+        pauseCurrentAudio(audioEl);
         return;
       }
 
-      try{
-        await audioEl.play();
-      }catch(err){
-        console.warn('Ripresa audio',err);
-      }finally{
-        if(repertoireAudio===audioEl)syncPlaybackUi();
-      }
+      await playCurrentAudio(audioEl);
     };
 
-    player.querySelector('[data-global-toggle]').onclick=async e=>{
+    player.querySelector('[data-global-toggle]').onclick=e=>{
       e.preventDefault();
       e.stopPropagation();
-      await toggleCurrent();
+      toggleCurrent();
     };
     player.querySelector('[data-global-prev]').onclick=e=>{
       e.preventDefault();
@@ -905,8 +936,8 @@
         e.preventDefault();
         e.stopPropagation();
         if(!repertoireAudio||String(repertoireAudioSongId)!==String(songId))return;
-        if(repertoireAudio.paused)repertoireAudio.play().catch(()=>{});
-        else repertoireAudio.pause();
+        if(playbackStarting || playbackWanted || !repertoireAudio.paused)pauseCurrentAudio(repertoireAudio);
+        else playCurrentAudio(repertoireAudio);
       };
 
       wrap.querySelector('[data-demo-stop]').onclick=e=>{
@@ -980,6 +1011,8 @@
 
   function stopRepertoireAudio({restore=true,hidePlayer=true}={}){
     repertoireRequest++;
+    playbackWanted=false;
+    playbackStarting=false;
     const host=repertoireAudioHost;
     if(previewCutoffTimer){
       clearTimeout(previewCutoffTimer);
@@ -1040,12 +1073,14 @@
 
     if(repertoireAudio&&repertoireAudioSongId===id){
       if(host)repertoireAudioHost=host;
-      if(repertoireAudio.paused)await repertoireAudio.play();
-      syncPlaybackUi();
+      if(repertoireAudio.paused || !playbackWanted)await playCurrentAudio(repertoireAudio);
+      else syncPlaybackUi();
       return;
     }
 
     const request=++repertoireRequest;
+    playbackWanted=false;
+    playbackStarting=false;
     const previousHost=repertoireAudioHost;
     if(repertoireAudio){
       try{
@@ -1124,8 +1159,8 @@
     },{once:true});
 
     syncPlaybackUi();
-    await audioEl.play();
-    onSync();
+    await playCurrentAudio(audioEl);
+    if(repertoireAudio===audioEl)onSync();
   }
 
   async function playAdjacent(direction,{fromEnded=false}={}){
@@ -1267,9 +1302,8 @@
     }
 
     if(repertoireAudio&&repertoireAudioSongId===id){
-      if(repertoireAudio.paused)await repertoireAudio.play().catch(()=>{});
-      else repertoireAudio.pause();
-      syncPlaybackUi();
+      if(playbackStarting || playbackWanted || !repertoireAudio.paused)pauseCurrentAudio(repertoireAudio);
+      else await playCurrentAudio(repertoireAudio);
       return;
     }
 
