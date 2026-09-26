@@ -281,8 +281,13 @@
       }
       body.has-jm-global-player{padding-bottom:94px}
       .jm-global-player-song{display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:10px;min-width:0}
-      .jm-global-player-cover{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border:1px solid #4e4b43;background:#171717;color:var(--gold);font:900 15px/1 Impact,Arial,sans-serif}
-      .jm-global-player-cover img{width:100%;height:100%;object-fit:cover;display:block}
+      .jm-global-player-cover{position:relative;width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border:1px solid #4e4b43;border-radius:50%;background:#171717;color:var(--gold);font:900 15px/1 Impact,Arial,sans-serif;transform-origin:center}
+      .jm-global-player-cover img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+      .jm-global-player-cover::after{content:"";position:absolute;left:50%;top:50%;width:13%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#0c0c0c;border:1px solid #aaa;box-shadow:0 0 0 3px #1118;pointer-events:none}
+      .jm-global-player.is-playing .jm-global-player-cover{animation:jmGlobalDiscSpin 2.2s linear infinite;box-shadow:0 0 0 2px #111,0 0 0 3px var(--gold)}
+      .jm-global-player-cover.disc-arrive{animation:jmGlobalDiscArrive .48s cubic-bezier(.18,.8,.22,1)}
+      @keyframes jmGlobalDiscSpin{to{transform:rotate(360deg)}}
+      @keyframes jmGlobalDiscArrive{0%{opacity:.2;transform:translateY(-34px) scale(.55) rotate(-180deg)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
       .jm-global-player-copy{display:grid;gap:4px;min-width:0}
       .jm-global-player-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:900 13px/1.1 Arial,sans-serif}
       .jm-global-player-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font:700 9px/1.2 monospace}
@@ -544,6 +549,7 @@
   let repertoireRequest=0;
   let playerShuffle=false;
   let previewCutoffTimer=null;
+  let lastPlaybackSignal='';
 
   const AUDIO_TICKET_KEY='jm_demo_audio_tickets';
   const prefetchedTickets=new Map();
@@ -791,7 +797,7 @@
     let player=document.getElementById('jmGlobalAudioPlayer');
 
     if(!audioEl||!song){
-      if(player)player.hidden=true;
+      if(player){player.hidden=true;player.classList.remove('is-playing')}
       document.body.classList.remove('has-jm-global-player');
       return;
     }
@@ -800,11 +806,21 @@
     player.hidden=false;
     document.body.classList.add('has-jm-global-player');
 
+    player.classList.toggle('is-playing',!audioEl.paused);
+
     const cover=songCoverUrl(song.cover_path);
     const coverHost=player.querySelector('[data-global-cover]');
-    coverHost.innerHTML=cover
-      ? `<img src="${esc(cover)}" alt="" draggable="false">`
-      : '<span>JM</span>';
+    if(coverHost.dataset.songId!==String(song.id)){
+      coverHost.dataset.songId=String(song.id);
+      coverHost.innerHTML=cover
+        ? `<img src="${esc(cover)}" alt="" draggable="false">`
+        : '<span>JM</span>';
+      coverHost.classList.remove('disc-arrive');
+      requestAnimationFrame(()=>{
+        coverHost.classList.add('disc-arrive');
+        setTimeout(()=>coverHost.classList.remove('disc-arrive'),520);
+      });
+    }
 
     player.querySelector('[data-global-title]').textContent=song.title||'Brano';
     player.querySelector('[data-global-artist]').textContent=
@@ -899,6 +915,22 @@
     }
   }
 
+  function playbackState(){
+    return {
+      song_id:String(repertoireAudioSongId||''),
+      active:!!(repertoireAudio&&repertoireAudioSongId),
+      playing:!!(repertoireAudio&&repertoireAudioSongId&&!repertoireAudio.paused)
+    };
+  }
+
+  function emitPlaybackState(){
+    const state=playbackState();
+    const signature=`${state.song_id}|${state.active?1:0}|${state.playing?1:0}`;
+    if(signature===lastPlaybackSignal)return;
+    lastPlaybackSignal=signature;
+    window.dispatchEvent(new CustomEvent('jm:demo-playback-state',{detail:state}));
+  }
+
   function syncPlaybackUi(){
     syncGlobalPlayer();
 
@@ -913,6 +945,7 @@
     }
 
     syncJukeboxPlaybackUi();
+    emitPlaybackState();
   }
 
   function stopRepertoireAudio({restore=true,hidePlayer=true}={}){
@@ -947,6 +980,7 @@
       setTimeout(decorate,0);
     }
     syncJukeboxPlaybackUi();
+    emitPlaybackState();
   }
 
   function schedulePreviewCutoff(){
@@ -1086,6 +1120,15 @@
     if(!next)return;
     await startTrack(next.id,{source:repertoireAudioSource||'songs'});
   }
+
+  window.JMDemoAudio={
+    playSong:async songId=>{
+      await startTrack(String(songId),{source:'songs'});
+      return playbackState();
+    },
+    state:()=>playbackState(),
+    prefetch:songId=>prefetchTrack(String(songId),{source:'songs'})
+  };
 
   async function playDemo(songId,button){
     const host=button.closest('.repertoire-player')||button.parentElement;
