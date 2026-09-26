@@ -121,8 +121,7 @@
       const previewPath=await uploadPreview(song,blob);
       const old=song.audio_preview_path||null;
       const {error:updateError}=await sb.from('songs').update({
-        audio_preview_path:previewPath,
-        updated_at:new Date().toISOString()
+        audio_preview_path:previewPath
       }).eq('id',song.id);
       if(updateError){
         await sb.storage.from(DEMO_BUCKET).remove([previewPath]);
@@ -177,8 +176,7 @@
       const {error:updateError}=await sb.from('songs').update({
         audio_path:next,
         audio_preview_path:previewPath,
-        audio_bucket:DEMO_BUCKET,
-        updated_at:new Date().toISOString()
+        audio_bucket:DEMO_BUCKET
       }).eq('id',song.id);
       if(updateError){
         await sb.storage.from(DEMO_BUCKET).remove([next]);
@@ -203,15 +201,19 @@
 
   async function uploadDemo(song,file,anchor){
     if(!isAdmin())return;
-    if(!file||!String(file.type||'').startsWith('audio/'))return alert('Seleziona un file audio.');
+    if(!file)return;
+    const ext=(file.name.split('.').pop()||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const audioExts=new Set(['mp3','m4a','aac','wav','ogg','oga','flac','opus','webm']);
+    const audioByType=String(file.type||'').startsWith('audio/');
+    if(!audioByType&&!audioExts.has(ext))return alert('Seleziona un file audio (MP3, M4A, WAV, AAC, OGG, FLAC, OPUS o WEBM).');
     if(file.size>50*1024*1024)return alert('File massimo 50 MB.');
 
     anchor.disabled=true;
     const original=anchor.textContent;
     anchor.textContent='CARICO…';
 
-    const ext=(file.name.split('.').pop()||'mp3').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp3';
-    const path=`songs/${song.id}/${Date.now()}-${safeFile(file.name)}.${ext}`;
+    const safeExt=ext||'mp3';
+    const path=`songs/${song.id}/${Date.now()}-${safeFile(file.name)}.${safeExt}`;
 
     try{
       const {error:up}=await sb.storage.from(DEMO_BUCKET).upload(path,file,{
@@ -230,8 +232,7 @@
       const {error:update}=await sb.from('songs').update({
         audio_path:path,
         audio_preview_path:previewPath,
-        audio_bucket:DEMO_BUCKET,
-        updated_at:new Date().toISOString()
+        audio_bucket:DEMO_BUCKET
       }).eq('id',song.id);
 
       if(update){
@@ -282,8 +283,7 @@
     const {error}=await sb.from('songs').update({
       audio_path:null,
       audio_preview_path:null,
-      audio_bucket:DEMO_BUCKET,
-      updated_at:new Date().toISOString()
+      audio_bucket:DEMO_BUCKET
     }).eq('id',song.id);
 
     if(error)return alert(error.message);
@@ -458,8 +458,7 @@
 
       const oldPath=song.jukebox_label_path||null;
       const {error:update}=await sb.from('songs').update({
-        jukebox_label_path:path,
-        updated_at:new Date().toISOString()
+        jukebox_label_path:path
       }).eq('id',song.id);
 
       if(update){
@@ -501,8 +500,7 @@
 
     const oldPath=song.jukebox_label_path;
     const {error}=await sb.from('songs').update({
-      jukebox_label_path:null,
-      updated_at:new Date().toISOString()
+      jukebox_label_path:null
     }).eq('id',song.id);
 
     if(error)return alert(error.message);
