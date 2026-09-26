@@ -65,7 +65,13 @@
     if (button.classList.contains("modal-close")) return;
     // Controlli funzionali con label dinamiche: non vanno trasformati in icone.
     // In particolare DEMO/LABEL hanno listener propri e il target deve restare il <button>.
-    if (button.classList.contains("secure-demo-button") || button.classList.contains("jukebox-label-button")) return;
+    if (
+      button.classList.contains("secure-demo-button") ||
+      button.classList.contains("jukebox-label-button") ||
+      button.classList.contains("concert-edit-remove") ||
+      button.classList.contains("concert-tool-icon") ||
+      button.classList.contains("concert-catalog-toggle")
+    ) return;
 
     const action = findAction(button);
     if (!action) return;
