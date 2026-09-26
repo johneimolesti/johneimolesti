@@ -548,10 +548,12 @@
   let repertoireAudioSource='songs';
   let repertoireRequest=0;
   let playerShuffle=false;
+  let playerQueue=[];
   let previewCutoffTimer=null;
   let lastPlaybackSignal='';
   let playbackWanted=false;
   let playbackStarting=false;
+  let mediaSessionSongId='';
 
   const AUDIO_TICKET_KEY='jm_demo_audio_tickets';
   const prefetchedTickets=new Map();
@@ -699,6 +701,110 @@
       .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'it',{sensitivity:'base'}));
   }
 
+  function rebuildPlayerQueue(currentId=repertoireAudioSongId){
+    const songs=playableSongs();
+    if(!songs.length){playerQueue=[];return playerQueue}
+    const currentIndex=songs.findIndex(song=>String(song.id)===String(currentId||''));
+    if(playerShuffle){
+      const current=currentIndex>=0?songs[currentIndex]:null;
+      const rest=songs.filter((_,i)=>i!==currentIndex);
+      for(let i=rest.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [rest[i],rest[j]]=[rest[j],rest[i]];
+      }
+      playerQueue=current?[current,...rest]:rest;
+    }else if(currentIndex>=0){
+      playerQueue=[...songs.slice(currentIndex),...songs.slice(0,currentIndex)];
+    }else{
+      playerQueue=[...songs];
+    }
+    return playerQueue
+  }
+
+  function queueAdjacent(direction=1){
+    const queue=rebuildPlayerQueue(repertoireAudioSongId);
+    if(!queue.length)return null;
+    const currentIndex=queue.findIndex(song=>String(song.id)===String(repertoireAudioSongId));
+    if(currentIndex<0)return queue[0]||null;
+    const nextIndex=(currentIndex+direction+queue.length)%queue.length;
+    return queue[nextIndex]||null
+  }
+
+  function prefetchNextTrack(){
+    const next=queueAdjacent(1);
+    if(!next||String(next.id)===String(repertoireAudioSongId))return;
+    prefetchTrack(String(next.id),{source:repertoireAudioSource||'songs'}).catch(()=>{});
+  }
+
+  function syncMediaSessionMetadata(){
+    if(!('mediaSession' in navigator)||typeof window.MediaMetadata!=='function')return;
+    const song=currentSong();
+    if(!song)return;
+    const id=String(song.id||'');
+    const cover=songCoverUrl(song.cover_path);
+    if(mediaSessionSongId!==id){
+      const metadata={
+        title:song.title||'Brano',
+        artist:'John & i Molesti',
+        album:'Demo'
+      };
+      if(cover)metadata.artwork=[{src:cover}];
+      try{navigator.mediaSession.metadata=new MediaMetadata(metadata)}catch(err){console.warn('Media Session metadata',err)}
+      mediaSessionSongId=id;
+    }
+    try{navigator.mediaSession.playbackState=repertoireAudio?.paused?'paused':'playing'}catch{}
+  }
+
+  function syncMediaSessionPosition(){
+    if(!('mediaSession' in navigator)||typeof navigator.mediaSession.setPositionState!=='function'||!repertoireAudio)return;
+    const duration=effectiveDuration(repertoireAudio,repertoireAudioData);
+    const position=Number(repertoireAudio.currentTime)||0;
+    if(!(duration>0)||!Number.isFinite(duration)||!Number.isFinite(position))return;
+    try{
+      navigator.mediaSession.setPositionState({
+        duration,
+        playbackRate:Number(repertoireAudio.playbackRate)||1,
+        position:Math.max(0,Math.min(duration,position))
+      })
+    }catch{}
+  }
+
+  function clearMediaSession(){
+    if(!('mediaSession' in navigator))return;
+    mediaSessionSongId='';
+    try{navigator.mediaSession.metadata=null}catch{}
+    try{navigator.mediaSession.playbackState='none'}catch{}
+  }
+
+  function installMediaSessionHandlers(){
+    if(!('mediaSession' in navigator)||typeof navigator.mediaSession.setActionHandler!=='function')return;
+    const set=(action,handler)=>{try{navigator.mediaSession.setActionHandler(action,handler)}catch{}};
+    set('play',()=>playCurrentAudio(repertoireAudio));
+    set('pause',()=>pauseCurrentAudio(repertoireAudio));
+    set('previoustrack',()=>playAdjacent(-1));
+    set('nexttrack',()=>playAdjacent(1));
+    set('seekbackward',details=>{
+      if(!repertoireAudio)return;
+      const step=Number(details?.seekOffset)||10;
+      repertoireAudio.currentTime=Math.max(0,(Number(repertoireAudio.currentTime)||0)-step);
+      syncPlaybackUi();
+    });
+    set('seekforward',details=>{
+      if(!repertoireAudio)return;
+      const duration=effectiveDuration();
+      const step=Number(details?.seekOffset)||10;
+      repertoireAudio.currentTime=Math.min(duration||Infinity,(Number(repertoireAudio.currentTime)||0)+step);
+      syncPlaybackUi();
+    });
+    set('seekto',details=>{
+      if(!repertoireAudio||!Number.isFinite(details?.seekTime))return;
+      const duration=effectiveDuration();
+      repertoireAudio.currentTime=Math.max(0,Math.min(duration||Infinity,Number(details.seekTime)));
+      syncPlaybackUi();
+    });
+    set('stop',()=>stopRepertoireAudio({restore:true,hidePlayer:true}));
+  }
+
   function effectiveDuration(audioEl=repertoireAudio,data=repertoireAudioData){
     if(!audioEl)return 0;
     const raw=Number.isFinite(audioEl.duration)?audioEl.duration:0;
@@ -817,6 +923,8 @@
       e.preventDefault();
       e.stopPropagation();
       playerShuffle=!playerShuffle;
+      rebuildPlayerQueue(repertoireAudioSongId);
+      prefetchNextTrack();
       syncGlobalPlayer();
     };
     player.querySelector('[data-global-stop]').onclick=e=>{
@@ -994,6 +1102,8 @@
 
   function syncPlaybackUi(){
     syncGlobalPlayer();
+    syncMediaSessionMetadata();
+    syncMediaSessionPosition();
 
     if(repertoireAudio&&repertoireAudioSongId){
       let host=repertoireAudioHost;
@@ -1031,6 +1141,8 @@
     repertoireAudioHost=null;
     repertoireAudioData=null;
     repertoireAudioSource='songs';
+    playerQueue=[];
+    clearMediaSession();
 
     if(hidePlayer){
       const player=document.getElementById('jmGlobalAudioPlayer');
@@ -1124,6 +1236,10 @@
     repertoireAudioHost=host;
     repertoireAudioData=data;
     repertoireAudioSource=source==='jukebox'?'jukebox':'songs';
+    rebuildPlayerQueue(id);
+    syncMediaSessionMetadata();
+    installMediaSessionHandlers();
+    prefetchNextTrack();
 
     if(data.play_id){
       bindPlayCounter(audioEl,data,id,repertoireAudioSource);
@@ -1170,18 +1286,7 @@
       return;
     }
 
-    const currentIndex=songs.findIndex(song=>String(song.id)===String(repertoireAudioSongId));
-    let nextIndex=0;
-
-    if(playerShuffle&&songs.length>1){
-      do{
-        nextIndex=Math.floor(Math.random()*songs.length);
-      }while(nextIndex===currentIndex);
-    }else if(currentIndex>=0){
-      nextIndex=(currentIndex+direction+songs.length)%songs.length;
-    }
-
-    const next=songs[nextIndex];
+    const next=queueAdjacent(direction);
     if(!next)return;
     await startTrack(next.id,{source:repertoireAudioSource||'songs'});
   }
@@ -1194,9 +1299,13 @@
       await startTrack(id,{source:'songs'});
       return playbackState();
     },
-    state:()=>playbackState(),
+    state:()=>({...playbackState(),queue:rebuildPlayerQueue(repertoireAudioSongId).map(song=>({id:String(song.id),title:song.title||''}))}),
+    next:()=>playAdjacent(1),
+    previous:()=>playAdjacent(-1),
     prefetch:songId=>prefetchTrack(String(songId),{source:'songs'})
   };
+
+  installMediaSessionHandlers();
 
   async function playDemo(songId,button){
     const host=button.closest('.repertoire-player')||button.parentElement;
