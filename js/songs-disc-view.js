@@ -2185,7 +2185,7 @@
         if (repertoireCard) {
           if (
             event.target.closest(
-              'audio,a,.repertoire-player button,input'
+              'audio,a,.repertoire-player button,input,.disc-cover-vote'
             )
           ) {
             return;
@@ -2197,7 +2197,8 @@
           */
           if (
             getView() === VIEW_DISCS &&
-            event.target.closest('.repertoire-cover')
+            event.target.closest('.repertoire-cover') &&
+            repertoireCard.classList.contains('has-disc-audio')
           ) {
             return;
           }
@@ -2333,6 +2334,12 @@
     installVoteHandler();
     installUnifiedOpenHandler();
     observeDynamicContent();
+
+    window.addEventListener('jm:demo-playback-state',event=>{
+      const state=event.detail||demoPlaybackState();
+      document.querySelectorAll('#repertoireGrid .repertoire-card').forEach(card=>syncCardPlayingState(card,state));
+      syncDiscAudioControls();
+    });
 
     const userEntry=document.getElementById('userEntry');
     if(userEntry)new MutationObserver(()=>{if(isFanLogged()&&sessionStorage.getItem(PENDING_VOTE_KEY))scheduleVoteResume()}).observe(userEntry,{attributes:true,attributeFilter:['class']});
