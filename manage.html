@@ -3681,7 +3681,7 @@ function concertPrintableHtml(c,concertItems=[],options={}){
 }
 </style>
   <link rel="stylesheet" href="css/manage-actions.css">
-  <script src="js/manage-action-icons.js" defer></script>
+  <script src="js/manage-action-icons.js?cache=login-fix" defer></script>
 </head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
 function printConcert(c,concertItems=[]){
