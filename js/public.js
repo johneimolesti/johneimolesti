@@ -24,6 +24,7 @@
   let activeConcertId = null;
   let expandedRankings = new Set();
   let songsRankingMode = localStorage.getItem('jm_song_ranking_mode') === 'play' ? 'play' : 'score';
+  let graphicsRankingMode = localStorage.getItem('jm_graphics_ranking_mode') === 'covers' ? 'covers' : 'posters';
   let siteNews = [], contacts = [];
   let homeSettings = {
     fallback_image_position_x:50,
@@ -1816,7 +1817,7 @@
       home:[[window.JMCopy.text('ui.f9d0a39219d7'),'homeNextShow'],[window.JMCopy.text('ui.5b0d2517b8b5'),'homeRankingPreview']],
       tour:[[window.JMCopy.text('ui.0449f09cec41'),'upcomingBlock'],[window.JMCopy.text('ui.801a122f224b'),'archiveBlock']],
       repertoire:[['Tutte le canzoni','repertoireBlock']],
-      rankings:[['FAN','fansRankingBlock'],['SONGS','songsRankingBlock'],['LOCANDINE','postersRankingBlock'],['COVER ART','coverArtRankingBlock'],['LIVE','concertsRankingBlock']],
+      rankings:[['FAN','fansRankingBlock'],['SONGS','songsRankingBlock'],['GRAFICHE','graphicsRankingBlock'],['LIVE','concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
       more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock']],
       contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']],
@@ -2576,10 +2577,12 @@
     return `<div class="ranking-row ranking-row-clickable" data-ranking-concert="${esc(r.concert_id || r.id || '')}" title="${esc(name)}"><div class="ranking-pos">${i+1}</div><div class="ranking-main"><div class="ranking-title">${esc(name)}</div><div class="ranking-meta">${esc(formatDate(r.concert_date))}${r.attendance_count != null ? ` · ${esc(window.JMCopy.text('ui.attendances',{count:Number(r.attendance_count)}))}` : ''}</div></div><div class="ranking-score">${esc(score)}<small data-copy="ui.6990f01ad9d2">LIVE</small></div></div>`;
   }
   function rankingPosterRow(r, i) {
-    const src = posterUrl(r.storage_path || r.poster_path);
-    const raw = Number(r.ranking_score);
-    const score = Number.isFinite(raw) ? (raw/10).toFixed(1) : '—';
-    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-poster-index="${i}" title="${esc(r.concert_name||'Locandina')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-poster-thumb" src="${esc(src)}" alt="Locandina ${esc(r.concert_name||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.concert_name||'Concerto')}</div><div class="ranking-meta">${esc(r.caption||formatDate(r.concert_date))}</div></div><div class="ranking-score">${esc(score)}<small>POSTER</small></div></div>`;
+    const src=posterUrl(r.storage_path||r.poster_path);
+    const raw=Number(r.ranking_score);
+    const metric=Number.isFinite(raw)&&raw>0
+      ? `<div class="ranking-score">${esc((raw/10).toFixed(1))}<small>POSTER</small></div>`
+      : '<div class="ranking-score ranking-score-empty" aria-hidden="true"></div>';
+    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-poster-index="${i}" title="${esc(r.concert_name||'Locandina')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-poster-thumb" src="${esc(src)}" alt="Locandina ${esc(r.concert_name||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.concert_name||'Concerto')}</div><div class="ranking-meta">${esc(r.caption||formatDate(r.concert_date))}</div></div>${metric}</div>`;
   }
   function ensureRankingDetailModal() {
     let modal = $('rankingDetailModal');
@@ -2679,7 +2682,7 @@
   }
   function renderRankings() {
     const data=rankingData||{};
-    const targetIds=['fansRanking','songsRanking','postersRanking','coverArtRanking','concertsRanking'];
+    const targetIds=['fansRanking','songsRanking','graphicsRanking','concertsRanking'];
     if(data.blocked){
       targetIds.forEach(id=>{if($(id))$(id).innerHTML='<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>'});
       return;
@@ -2701,16 +2704,34 @@
 
     if($('fansRanking'))$('fansRanking').innerHTML=visibleFans.map(rankingFanRow).join('')||'<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
     if($('songsRanking'))$('songsRanking').innerHTML=visibleSongs.map((r,i)=>rankingSongRow(r,i,songsRankingMode)).join('')||'<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
-    if($('postersRanking'))$('postersRanking').innerHTML=visiblePosters.map(rankingPosterRow).join('')||'<div class="empty-state">Classifica locandine non disponibile.</div>';
-    if($('coverArtRanking'))$('coverArtRanking').innerHTML=visibleCovers.length
-      ? visibleCovers.map(rankingCoverRow).join('')
-      : '<div class="empty-state ranking-empty-cta"><span>Nessun voto alle cover art.</span><button type="button" data-open-song-discs>VAI A SONGS · DISCHI →</button></div>';
+
+    if($('graphicsRanking')){
+      if(graphicsRankingMode==='covers'){
+        $('graphicsRanking').innerHTML=visibleCovers.length
+          ? visibleCovers.map(rankingCoverRow).join('')
+          : '<div class="empty-state ranking-empty-cta"><span>Nessun voto alle cover art.</span><button type="button" data-open-song-discs>VAI A SONGS · DISCHI →</button></div>';
+      }else{
+        $('graphicsRanking').innerHTML=visiblePosters.map(rankingPosterRow).join('')||'<div class="empty-state">Classifica locandine non disponibile.</div>';
+      }
+    }
+
     if($('concertsRanking'))$('concertsRanking').innerHTML=visibleConcerts.map(rankingConcertRow).join('')||'<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
 
     $$('[data-ranking-fan-index]',$('fansRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1))});
     $$('[data-ranking-song-index]',$('songsRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1))});
-    $$('[data-ranking-poster-index]',$('postersRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1))});
-    $$('[data-ranking-cover-index]',$('coverArtRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingCoverIndex),cover=visibleCovers[i];bindRankingRow(row,()=>cover?.song_id&&window.JMSongs?.openDetail?window.JMSongs.openDetail(cover.song_id):null)});
+
+    if(graphicsRankingMode==='covers'){
+      $$('[data-ranking-cover-index]',$('graphicsRanking')||document).forEach(row=>{
+        const i=Number(row.dataset.rankingCoverIndex),cover=visibleCovers[i];
+        bindRankingRow(row,()=>cover?.song_id&&window.JMSongs?.openDetail?window.JMSongs.openDetail(cover.song_id):null)
+      });
+    }else{
+      $$('[data-ranking-poster-index]',$('graphicsRanking')||document).forEach(row=>{
+        const i=Number(row.dataset.rankingPosterIndex);
+        bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1))
+      });
+    }
+
     $$('[data-ranking-concert]',$('concertsRanking')||document).forEach(row=>{if(row.dataset.rankingConcert)bindRankingRow(row,()=>openConcert(row.dataset.rankingConcert))});
 
     $$('[data-song-ranking-mode]').forEach(btn=>{
@@ -2722,6 +2743,19 @@
         if(next===songsRankingMode)return;
         songsRankingMode=next;
         localStorage.setItem('jm_song_ranking_mode',songsRankingMode);
+        renderRankings();
+      };
+    });
+
+    $$('[data-graphics-ranking-mode]').forEach(btn=>{
+      const active=btn.dataset.graphicsRankingMode===graphicsRankingMode;
+      btn.classList.toggle('active',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+      btn.onclick=()=>{
+        const next=btn.dataset.graphicsRankingMode==='covers'?'covers':'posters';
+        if(next===graphicsRankingMode)return;
+        graphicsRankingMode=next;
+        localStorage.setItem('jm_graphics_ranking_mode',graphicsRankingMode);
         renderRankings();
       };
     });
