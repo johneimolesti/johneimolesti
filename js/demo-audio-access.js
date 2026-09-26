@@ -742,19 +742,35 @@
     document.body.appendChild(player);
 
     const toggleCurrent=async()=>{
-      if(!repertoireAudio)return;
-      if(repertoireAudio.paused){
-        await repertoireAudio.play().catch(err=>console.warn('Ripresa audio',err));
-      }else{
-        repertoireAudio.pause();
+      const audioEl=repertoireAudio;
+      if(!audioEl)return;
+
+      /*
+        La pausa deve essere sincrona e immediata. In precedenza il toggle
+        dipendeva dallo stato globale durante la fase iniziale di play:
+        se il play() era ancora in assestamento, il primo click poteva
+        lasciare UI e Audio fuori sincrono finché un altro evento (es. seek)
+        non forzava il refresh.
+      */
+      if(!audioEl.paused){
+        audioEl.pause();
+        syncPlaybackUi();
+        return;
       }
-      syncPlaybackUi();
+
+      try{
+        await audioEl.play();
+      }catch(err){
+        console.warn('Ripresa audio',err);
+      }finally{
+        if(repertoireAudio===audioEl)syncPlaybackUi();
+      }
     };
 
-    player.querySelector('[data-global-toggle]').onclick=e=>{
+    player.querySelector('[data-global-toggle]').onclick=async e=>{
       e.preventDefault();
       e.stopPropagation();
-      toggleCurrent();
+      await toggleCurrent();
     };
     player.querySelector('[data-global-prev]').onclick=e=>{
       e.preventDefault();
@@ -810,16 +826,30 @@
 
     const cover=songCoverUrl(song.cover_path);
     const coverHost=player.querySelector('[data-global-cover]');
-    if(coverHost.dataset.songId!==String(song.id)){
+    const songChanged=coverHost.dataset.songId!==String(song.id);
+    const currentImg=coverHost.querySelector('img');
+    const coverMissing=cover
+      ? (!currentImg || currentImg.getAttribute('src')!==cover)
+      : !coverHost.querySelector('span');
+
+    /*
+      Non fidarti solo del songId: altri render possono ricreare/svuotare
+      il contenuto del player mentre lo stesso brano resta attivo.
+      Se la cover manca la ripristiniamo al sync successivo.
+    */
+    if(songChanged||coverMissing){
       coverHost.dataset.songId=String(song.id);
       coverHost.innerHTML=cover
-        ? `<img src="${esc(cover)}" alt="" draggable="false">`
+        ? `<img src="${esc(cover)}" alt="Cover di ${esc(song.title||'brano')}" draggable="false">`
         : '<span>JM</span>';
-      coverHost.classList.remove('disc-arrive');
-      requestAnimationFrame(()=>{
-        coverHost.classList.add('disc-arrive');
-        setTimeout(()=>coverHost.classList.remove('disc-arrive'),520);
-      });
+
+      if(songChanged){
+        coverHost.classList.remove('disc-arrive');
+        requestAnimationFrame(()=>{
+          coverHost.classList.add('disc-arrive');
+          setTimeout(()=>coverHost.classList.remove('disc-arrive'),520);
+        });
+      }
     }
 
     player.querySelector('[data-global-title]').textContent=song.title||'Brano';
