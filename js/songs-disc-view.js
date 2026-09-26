@@ -1366,123 +1366,179 @@
     }
   }
 
-  function syncCardPlayingState(card) {
-    if (!card) return;
+  function demoPlaybackState() {
+    try{
+      return window.JMDemoAudio?.state?.() || {song_id:'',active:false,playing:false};
+    }catch{
+      return {song_id:'',active:false,playing:false};
+    }
+  }
 
-    const toggle = card.querySelector('[data-demo-toggle]');
-
-    const playing = !!(
-      toggle &&
-      /PAUSA/i.test(toggle.textContent || '')
-    );
-
+  function syncCardPlayingState(card,state=demoPlaybackState()) {
+    if(!card)return;
+    const id=String(card.dataset.repertoireSong||'');
+    const song=songs.get(id);
+    const active=!!state.active&&String(state.song_id)===id;
+    const playing=active&&!!state.playing;
+    card.classList.toggle('has-disc-audio',!!song?.has_demo);
+    card.classList.toggle('is-case-open',active);
     card.classList.toggle('is-disc-playing',playing);
   }
 
+  async function waitForGlobalPlayerCover() {
+    for(let i=0;i<12;i++){
+      const player=document.getElementById('jmGlobalAudioPlayer');
+      const cover=player?.querySelector('[data-global-cover]');
+      if(player&&!player.hidden&&cover)return cover;
+      await new Promise(resolve=>setTimeout(resolve,35));
+    }
+    return null;
+  }
+
+  async function animateDiscToPlayer(card) {
+    const source=card?.querySelector('.repertoire-cover');
+    if(!source)return;
+    const target=await waitForGlobalPlayerCover();
+    if(!target)return;
+
+    const image=source.querySelector('img');
+    const sourceRect=source.getBoundingClientRect();
+    const targetRect=target.getBoundingClientRect();
+    if(!sourceRect.width||!targetRect.width)return;
+
+    const diameter=Math.max(48,Math.min(126,sourceRect.width*.72));
+    const startLeft=sourceRect.left+(sourceRect.width-diameter)/2;
+    const startTop=sourceRect.top+(sourceRect.height-diameter)/2;
+    const targetDiameter=Math.max(1,Math.min(targetRect.width,targetRect.height));
+    const targetLeft=targetRect.left+(targetRect.width-targetDiameter)/2;
+    const targetTop=targetRect.top+(targetRect.height-targetDiameter)/2;
+
+    const flyer=document.createElement('div');
+    flyer.className='jm-flying-disc';
+    flyer.style.left=`${startLeft}px`;
+    flyer.style.top=`${startTop}px`;
+    flyer.style.width=`${diameter}px`;
+    flyer.style.height=`${diameter}px`;
+    flyer.innerHTML=image
+      ? `<img src="${esc(image.currentSrc||image.src)}" alt="" draggable="false">`
+      : '<span>JM</span>';
+    document.body.appendChild(flyer);
+
+    const dx=targetLeft-startLeft;
+    const dy=targetTop-startTop;
+    const scale=targetDiameter/diameter;
+    const animation=flyer.animate([
+      {transform:'translate3d(0,0,0) scale(1) rotate(0deg)',opacity:1},
+      {offset:.36,transform:`translate3d(${dx*.28}px,${Math.min(dy*.2,-24)}px,0) scale(.82) rotate(180deg)`,opacity:.96},
+      {transform:`translate3d(${dx}px,${dy}px,0) scale(${scale}) rotate(720deg)`,opacity:.9}
+    ],{
+      duration:620,
+      easing:'cubic-bezier(.18,.78,.2,1)',
+      fill:'forwards'
+    });
+    try{await animation.finished}catch{}
+    flyer.remove();
+  }
+
   async function playFromRepertoireCard(songId) {
-    const id = CSS.escape(String(songId));
+    const id=String(songId);
 
-    let card = document.querySelector(
-      `#repertoireGrid [data-repertoire-song="${id}"]`
-    );
-
-    if (!card) {
-      window.dispatchEvent(
-        new CustomEvent('jm:repertoire-rendered')
-      );
-      await new Promise(resolve => setTimeout(resolve,120));
-
-      card = document.querySelector(
-        `#repertoireGrid [data-repertoire-song="${id}"]`
-      );
+    if(window.JMDemoAudio?.playSong){
+      try{
+        const state=await window.JMDemoAudio.playSong(id);
+        return !!(state?.active&&String(state.song_id)===id);
+      }catch(err){
+        console.warn('Riproduzione da custodia CD',err);
+        return false;
+      }
     }
 
-    if (!card) return false;
+    const escaped=CSS.escape(id);
+    let card=document.querySelector(`#repertoireGrid [data-repertoire-song="${escaped}"]`);
+    if(!card)return false;
 
-    const toggle = card.querySelector('[data-demo-toggle]');
+    const toggle=card.querySelector('[data-demo-toggle]');
+    if(toggle){toggle.click();return true}
 
-    if (toggle) {
-      toggle.click();
-      return true;
-    }
-
-    let button = card.querySelector(
-      '.demo-player-button:not([disabled])'
-    );
-
-    if (!button) {
-      window.dispatchEvent(
-        new CustomEvent('jm:repertoire-rendered')
-      );
-
-      await new Promise(resolve => setTimeout(resolve,220));
-
-      button = card.querySelector(
-        '.demo-player-button:not([disabled])'
-      );
-    }
-
-    if (button) {
-      button.click();
-      return true;
-    }
-
-    const spotify = card.querySelector('.repertoire-stream-link');
-
-    if (spotify) {
-      spotify.click();
-      return true;
-    }
+    const button=card.querySelector('.demo-player-button:not([disabled])');
+    if(button){button.click();return true}
 
     return false;
   }
 
-  function decorateCard(card) {
-    if (!card) return;
+  function ensureDiscCoverVote(card,song) {
+    const copy=card.querySelector('.repertoire-copy');
+    const count=copy?.querySelector('.song-play-count');
+    let button=copy?.querySelector('.disc-cover-vote');
 
+    if(!song?.cover_path){
+      button?.remove();
+      return;
+    }
+
+    if(!button&&count){
+      button=voteButton('cover',song.id,song.title,'VOTA');
+      button.classList.add('disc-cover-vote');
+      button.setAttribute('aria-label',`Vota la cover art di ${song.title||'questo brano'}`);
+      count.insertAdjacentElement('afterend',button);
+    }
+  }
+
+  function decorateCard(card) {
+    if(!card)return;
+
+    const song=songs.get(String(card.dataset.repertoireSong||''));
     renderPlayCount(card);
+    ensureDiscCoverVote(card,song);
     syncCardPlayingState(card);
 
-    if (card.dataset.songsDiscBound === '1') return;
-    card.dataset.songsDiscBound = '1';
+    if(card.dataset.songsDiscBound==='1')return;
+    card.dataset.songsDiscBound='1';
 
-    const cover = card.querySelector('.repertoire-cover');
-    const title = card.querySelector('.repertoire-copy h3');
+    const cover=card.querySelector('.repertoire-cover');
+    const title=card.querySelector('.repertoire-copy h3');
 
-    if (cover) {
+    if(cover&&song?.has_demo){
       cover.setAttribute('role','button');
-      cover.tabIndex = 0;
+      cover.tabIndex=0;
+      cover.setAttribute('aria-label',`Riproduci ${song.title||'brano'}`);
 
-      const run = async event => {
-        if (getView() !== VIEW_DISCS) return;
-
+      const run=async event=>{
+        if(getView()!==VIEW_DISCS)return;
         event.preventDefault();
         event.stopPropagation();
 
-        await playFromRepertoireCard(
-          card.dataset.repertoireSong
-        );
+        const started=await playFromRepertoireCard(card.dataset.repertoireSong);
+        syncCardPlayingState(card);
+        if(started){
+          card.classList.add('is-case-open');
+          animateDiscToPlayer(card).catch(()=>{});
+        }
       };
 
       cover.addEventListener('click',run);
-
-      cover.addEventListener('keydown',event => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          run(event);
-        }
+      cover.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' ')run(event);
       });
+      cover.addEventListener('pointerenter',()=>{
+        window.JMDemoAudio?.prefetch?.(String(card.dataset.repertoireSong)).catch?.(()=>{});
+      },{once:true});
     }
 
-    if (title) {
+    if(title){
       title.setAttribute('role','button');
-      title.tabIndex = 0;
+      title.tabIndex=0;
     }
   }
 
   function decorateAll() {
+    const state=demoPlaybackState();
     document
       .querySelectorAll('#repertoireGrid .repertoire-card')
-      .forEach(decorateCard);
+      .forEach(card=>{
+        decorateCard(card);
+        syncCardPlayingState(card,state);
+      });
   }
 
   function decorateHitRows() {
