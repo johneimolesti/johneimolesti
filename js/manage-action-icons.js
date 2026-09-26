@@ -63,6 +63,9 @@
     if (button.closest(".gate,.nav,.fan-bottom-nav,.member-tabs,.proposal-tabs,.setup-tabs,.label-scope-tabs")) return;
     if (button.dataset.jmActionDecorated === "1") return;
     if (button.classList.contains("modal-close")) return;
+    // Controlli funzionali con label dinamiche: non vanno trasformati in icone.
+    // In particolare DEMO/LABEL hanno listener propri e il target deve restare il <button>.
+    if (button.classList.contains("secure-demo-button") || button.classList.contains("jukebox-label-button")) return;
 
     const action = findAction(button);
     if (!action) return;
