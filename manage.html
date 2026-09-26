@@ -3864,6 +3864,60 @@ function concertPrintableHtml(c,concertItems=[],options={}){
   .concert-header-tools .small-btn{padding:4px 6px;font-size:6.5px}
   .concert-header-select{min-width:125px;max-width:170px}
 }
+
+.concert-header-tools .concert-tool-icon{
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  border-radius:9px!important;
+  font-size:13px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  flex:0 0 28px!important;
+}
+.concert-header-tools .concert-tool-icon:hover{
+  border-color:rgba(243,210,52,.38)!important;
+  color:var(--accent)!important;
+  background:rgba(243,210,52,.07)!important;
+}
+.concert-edit-compact-row{
+  grid-template-columns:15px 26px minmax(0,1fr) minmax(96px,118px) 28px!important;
+}
+.concert-edit-compact-row .concert-edit-remove{
+  display:grid!important;
+  place-items:center!important;
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  min-height:28px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+  color:#e7959d!important;
+  font-size:15px!important;
+  line-height:1!important;
+}
+.concert-edit-compact-row .concert-edit-remove:hover{
+  border-color:rgba(232,115,115,.45)!important;
+  background:rgba(212,79,79,.10)!important;
+  color:#ffb0b7!important;
+}
+@media(max-width:720px){
+  .concert-header-tools .concert-tool-icon{
+    width:32px!important;
+    min-width:32px!important;
+    height:32px!important;
+    min-height:32px!important;
+    flex-basis:32px!important;
+  }
+  .concert-edit-compact-row{
+    grid-template-columns:14px 24px minmax(0,1fr) 96px 30px!important;
+  }
+}
 </style>
 </head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
@@ -3970,12 +4024,22 @@ async function renderConcertDetail(id){
   box.appendChild(meta);
 
   const tools=headerTools||document.createElement("div");tools.classList.add("concert-header-tools");
-  const print=document.createElement("button");print.className="small-btn";print.textContent="STAMPA";print.onclick=()=>printConcert(c,items);tools.appendChild(print);
-  const pdf=document.createElement("button");pdf.className="small-btn";pdf.textContent="SALVA PDF";pdf.onclick=()=>saveConcertPdf(c,items);tools.appendChild(pdf);
-  if(c.status==="completed"){const activity=document.createElement("button");activity.className="small-btn";activity.textContent="ATTIVITÀ FAN";activity.onclick=()=>openLiveActivityModal(c.id,c.name);tools.appendChild(activity)}
+  const makeToolIcon=(symbol,label,handler)=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="small-btn concert-tool-icon";
+    b.textContent=symbol;
+    b.title=label;
+    b.setAttribute("aria-label",label);
+    b.onclick=handler;
+    return b
+  };
+  tools.appendChild(makeToolIcon("⎙","Stampa scaletta",()=>printConcert(c,items)));
+  tools.appendChild(makeToolIcon("⇩","Salva PDF",()=>saveConcertPdf(c,items)));
+  if(c.status==="completed")tools.appendChild(makeToolIcon("♙","Attività fan",()=>openLiveActivityModal(c.id,c.name)));
   if(isEma()){
-    const editConcert=document.createElement("button");editConcert.className="small-btn";editConcert.textContent="MODIFICA CONCERTO";editConcert.onclick=()=>openConcertModal(c);tools.appendChild(editConcert);
-    const copy=document.createElement("button");copy.className="small-btn";copy.textContent="COPIA LIVE";copy.onclick=()=>openConcertModal(c,{copy:true});tools.appendChild(copy);
+    tools.appendChild(makeToolIcon("✎","Modifica concerto",()=>openConcertModal(c)));
+    tools.appendChild(makeToolIcon("⧉","Copia live",()=>openConcertModal(c,{copy:true})));
     if(editable){
       await loadCommunityData();
       const select=document.createElement("select");select.id="concertImportSource";select.className="concert-header-select";select.innerHTML='<option value="fused">Importa: Media Fusa</option><option value="media">Importa: Media membri</option><option value="pure">Importa: Algoritmo puro</option>';
@@ -4002,7 +4066,7 @@ async function renderConcertDetail(id){
       let row;
       if(compactCompletedEdit){
         row=document.createElement("div");row.className="song-row concert-edit-compact-row";row.dataset.id=s.id;row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
-        row.innerHTML=`<div class="drag-handle">☰</div><div class="position">${i+1}</div><div class="song-title" title="${esc(s.title)}">${esc(s.title)}</div><select class="execution-type-select" aria-label="Tipo esecuzione">${executionTypeOptions(item.execution_type)}</select><button class="concert-edit-remove" type="button" title="Rimuovi esecuzione">×</button>`;
+        row.innerHTML=`<div class="drag-handle">☰</div><div class="position">${i+1}</div><div class="song-title" title="${esc(s.title)}">${esc(s.title)}</div><select class="execution-type-select" aria-label="Tipo esecuzione">${executionTypeOptions(item.execution_type)}</select><button class="concert-edit-remove" type="button" title="Rimuovi esecuzione" aria-label="Rimuovi esecuzione">×</button>`;
         const sel=row.querySelector(".execution-type-select");sel.onchange=e=>{e.stopPropagation();setExecutionType(c.id,item.id,sel.value)};
         row.querySelector(".concert-edit-remove").onclick=e=>{e.stopPropagation();removeConcertExecution(c.id,item.id)};
       }else{
