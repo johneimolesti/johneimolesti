@@ -1709,6 +1709,7 @@
 
       <div class="song-cd-page-actions">
         <button type="button" class="jm-inline-vote song-cd-page-button" data-jm-vote-kind="song" data-song-id="${esc(song.id)}" data-song-title="${esc(song.title||'')}">VOTA</button>
+        ${song.cover_path?`<button type="button" class="jm-inline-vote song-cd-page-button" data-jm-vote-kind="cover" data-song-id="${esc(song.id)}" data-song-title="${esc(song.title||'')}">VOTA COVER</button>`:''}
         <button
           type="button"
           class="song-cd-page-button primary"
