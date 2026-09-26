@@ -89,8 +89,6 @@
         font:900 8px/1 monospace;letter-spacing:.05em;cursor:pointer;text-transform:uppercase
       }
       .repertoire-player .jm-inline-vote{margin-top:7px;width:100%}
-      .ranking-main{position:relative}
-      .ranking-main>.jm-inline-vote{margin-top:5px;min-height:21px;padding:4px 6px;font-size:6.5px}
       .song-cd-page-actions .jm-inline-vote{min-height:31px;padding:7px 11px}
       #jmSimpleVoteModal[hidden]{display:none!important}
       #jmSimpleVoteModal{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:14px}
@@ -1363,12 +1361,6 @@
     renderPlayCount(card);
     syncCardPlayingState(card);
 
-    const cardSong=songs.get(String(card.dataset.repertoireSong||''));
-    const player=card.querySelector('.repertoire-player');
-    if(player&&cardSong&&!player.querySelector('[data-jm-vote-kind="song"]')){
-      player.appendChild(voteButton('song',cardSong.id,cardSong.title,'VOTA'));
-    }
-
     if (card.dataset.songsDiscBound === '1') return;
     card.dataset.songsDiscBound = '1';
 
@@ -1413,16 +1405,12 @@
 
   function decorateHitRows() {
     document
-      .querySelectorAll('#songsRanking [data-ranking-song-index],#songsPlayRanking [data-ranking-play-index]')
+      .querySelectorAll('#songsRanking [data-ranking-song-index]')
       .forEach(row => {
         const title = row.querySelector('.ranking-title')?.textContent?.trim() || row.getAttribute('title') || '';
         const song = songs.get(String(row.dataset.songId||'')) || songsByTitle.get(normalizeTitle(title));
         if (!song) return;
         row.dataset.songDetailId = String(song.id);
-        const main=row.querySelector('.ranking-main');
-        if(main&&!main.querySelector('[data-jm-vote-kind="song"]')){
-          main.appendChild(voteButton('song',song.id,song.title,'VOTA'));
-        }
       });
   }
 
@@ -2212,7 +2200,8 @@
 
     window.JMSongs={
       openDetail:openSongDetail,
-      loadDetail:(songId,options)=>loadSongDetail(songId,options)
+      loadDetail:(songId,options)=>loadSongDetail(songId,options),
+      setView:view=>setView(view)
     };
 
     loadSongs().then(()=>{
