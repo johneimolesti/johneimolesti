@@ -3761,7 +3761,19 @@ function concertCatalogSongs(items){
 function setConcertEditorSaveState(text,state=""){const el=$("concertEditorSaveState");if(!el)return;el.textContent=text;el.className=`concert-editor-save-state ${state}`.trim()}
 async function refreshConcertDetailQuiet(id){const list=$("concertSetlistLive"),cat=document.querySelector("#concertDetail .concert-catalog-list"),ls=list?.scrollTop||0,cs=cat?.scrollTop||0;await renderConcertDetail(id);requestAnimationFrame(()=>{const nl=$("concertSetlistLive"),nc=document.querySelector("#concertDetail .concert-catalog-list");if(nl)nl.scrollTop=ls;if(nc)nc.scrollTop=cs})}
 function rebuildConcertExecutionDividers(list){if(!list)return;list.querySelectorAll(".concert-block-divider").forEach(x=>x.remove());let prev=null;[...list.querySelectorAll(".song-row[data-item-id]")].forEach(row=>{const type=row.dataset.executionType||"planned";if(type!==prev)row.before(executionDivider(type));prev=type})}
-function updateConcertPositionsInDom(list){[...list.querySelectorAll(".song-row[data-item-id]")].forEach((row,i)=>{const p=row.querySelector(".position");if(p)p.textContent=String(i+1)})}
+function updateConcertPositionsInDom(list){
+  let plannedPosition=0;
+  [...list.querySelectorAll(".song-row[data-item-id]")].forEach(row=>{
+    const p=row.querySelector(".position");
+    if(!p)return;
+    if((row.dataset.executionType||"planned")==="planned"){
+      plannedPosition+=1;
+      p.textContent=String(plannedPosition)
+    }else{
+      p.textContent=""
+    }
+  })
+}
 function normalizeSetlistEmojiText(value){
   return String(value||"").toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim()
 }
@@ -3845,11 +3857,40 @@ function concertPrintableHtml(c,concertItems=[],options={}){
 .concert-header-tools{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap;min-width:0}
 .concert-header-tools .small-btn{min-height:26px;padding:4px 7px;font-size:7px;white-space:nowrap}
 .concert-header-select{
-  min-width:145px;max-width:205px;height:27px;padding:3px 24px 3px 7px;
-  border:1px solid rgba(255,255,255,.10);border-radius:9px;
-  background:#171b23;color:#e7eaf0;font-size:7px;font-weight:800
+  min-width:210px;max-width:280px;height:34px;padding:0 38px 0 12px;
+  border:1px solid rgba(255,255,255,.12);border-radius:11px;
+  background-color:#171b23;
+  background-image:
+    linear-gradient(45deg,transparent 50%,#9ca4af 50%),
+    linear-gradient(135deg,#9ca4af 50%,transparent 50%),
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+  background-position:
+    calc(100% - 16px) 14px,
+    calc(100% - 11px) 14px,
+    0 0;
+  background-size:5px 5px,5px 5px,100% 100%;
+  background-repeat:no-repeat;
+  color:#eef0f3;font-size:8.5px;font-weight:850;
+  appearance:none;-webkit-appearance:none;
+  color-scheme:dark;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)
 }
-.concert-header-select:focus{outline:none;border-color:rgba(243,210,52,.38)}
+.concert-header-select:hover{border-color:rgba(255,255,255,.20);background-color:#1b202a}
+.concert-header-select:focus{outline:none;border-color:rgba(243,210,52,.48);box-shadow:0 0 0 2px rgba(243,210,52,.08)}
+.concert-header-select option{background:#171b23;color:#eef0f3}
+
+.concert-header-tools .concert-header-select + .small-btn.primary{
+  min-height:34px!important;
+  height:34px!important;
+  padding:0 12px!important;
+  border-radius:11px!important;
+  font-size:8px!important;
+}
+.concert-edit-compact-row .position:empty,
+#concertSetlistLive .song-row .position:empty{
+  visibility:hidden;
+}
+
 #concertsPage>.concert-layout{height:100%;min-height:0}
 #concertsPage>.concert-layout>.panel>.panel-header{flex:0 0 auto}
 #concertList,#concertDetail{min-height:0}
@@ -3862,22 +3903,22 @@ function concertPrintableHtml(c,concertItems=[],options={}){
 @media(max-width:720px){
   .concert-header-tools{gap:3px}
   .concert-header-tools .small-btn{padding:4px 6px;font-size:6.5px}
-  .concert-header-select{min-width:125px;max-width:170px}
+  .concert-header-select{min-width:180px;max-width:240px;height:36px}
 }
 
 .concert-header-tools .concert-tool-icon{
-  width:28px!important;
-  min-width:28px!important;
-  height:28px!important;
-  min-height:28px!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
   padding:0!important;
   display:inline-grid!important;
   place-items:center!important;
   border-radius:9px!important;
-  font-size:13px!important;
+  font-size:15px!important;
   line-height:1!important;
   font-weight:900!important;
-  flex:0 0 28px!important;
+  flex:0 0 34px!important;
 }
 .concert-header-tools .concert-tool-icon:hover{
   border-color:rgba(243,210,52,.38)!important;
@@ -3908,11 +3949,11 @@ function concertPrintableHtml(c,concertItems=[],options={}){
 }
 @media(max-width:720px){
   .concert-header-tools .concert-tool-icon{
-    width:32px!important;
-    min-width:32px!important;
-    height:32px!important;
-    min-height:32px!important;
-    flex-basis:32px!important;
+    width:36px!important;
+    min-width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    flex-basis:36px!important;
   }
   .concert-edit-compact-row{
     grid-template-columns:14px 24px minmax(0,1fr) 96px 30px!important;
@@ -4059,14 +4100,15 @@ async function renderConcertDetail(id){
   const list=document.createElement("div");list.className="song-list";list.id="concertSetlistLive";left.appendChild(list);layout.appendChild(left);
 
   if(showSetlist){
-    let prevType=null;
+    let prevType=null,plannedPosition=0;
     items.forEach((item,i)=>{
+      const visiblePosition=item.execution_type==="planned"?++plannedPosition:null;
       const s=songForItem(item);if(!s)return;
       if(item.execution_type!==prevType){list.appendChild(executionDivider(item.execution_type));prevType=item.execution_type}
       let row;
       if(compactCompletedEdit){
         row=document.createElement("div");row.className="song-row concert-edit-compact-row";row.dataset.id=s.id;row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
-        row.innerHTML=`<div class="drag-handle">☰</div><div class="position">${i+1}</div><div class="song-title" title="${esc(s.title)}">${esc(s.title)}</div><select class="execution-type-select" aria-label="Tipo esecuzione">${executionTypeOptions(item.execution_type)}</select><button class="concert-edit-remove" type="button" title="Rimuovi esecuzione" aria-label="Rimuovi esecuzione">×</button>`;
+        row.innerHTML=`<div class="drag-handle">☰</div><div class="position">${visiblePosition??""}</div><div class="song-title" title="${esc(s.title)}">${esc(s.title)}</div><select class="execution-type-select" aria-label="Tipo esecuzione">${executionTypeOptions(item.execution_type)}</select><button class="concert-edit-remove" type="button" title="Rimuovi esecuzione" aria-label="Rimuovi esecuzione">×</button>`;
         const sel=row.querySelector(".execution-type-select");sel.onchange=e=>{e.stopPropagation();setExecutionType(c.id,item.id,sel.value)};
         row.querySelector(".concert-edit-remove").onclick=e=>{e.stopPropagation();removeConcertExecution(c.id,item.id)};
       }else{
@@ -4075,6 +4117,7 @@ async function renderConcertDetail(id){
         if(item.execution_type!=="planned")tags.push({text:EXECUTION_TYPES[item.execution_type],className:""});
         row=createSongRow(s,i,{draggable:editable,tags,labels:dynamicLabelsForSong(s.id,"setlist",c.id),actions:editable?[{label:"×",title:"Rimuovi esecuzione",onClick:()=>removeConcertExecution(c.id,item.id)}]:[]});
         row.dataset.itemId=item.id;row.dataset.executionType=item.execution_type;
+        const visiblePos=row.querySelector(".position");if(visiblePos)visiblePos.textContent=visiblePosition??"";
         row.classList.toggle("execution-skipped",item.execution_type==="skipped");row.classList.toggle("execution-truncated",item.execution_type==="truncated");
         if(c.status==="completed"){
           const v=vibeMap.get(s.id)||{},actions=row.querySelector(".song-actions"),wrap=document.createElement("div");wrap.className="concert-row-vibes";
