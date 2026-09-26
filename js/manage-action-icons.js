@@ -14,7 +14,7 @@
     {key:"print", words:["STAMPA"], icon:"⎙", cls:"jm-action-print", mobile:true},
     {key:"import", words:["IMPORTA","CARICA"], icon:"⇧", cls:"jm-action-import", mobile:true},
     {key:"reset", words:["RESET","RIPRISTINA","RIPRISTINO"], icon:"↺", cls:"jm-action-reset", mobile:true},
-    {key:"vary", words:["VARIA / STORICIZZA","VARIA"], icon:"↻", cls:"jm-action-vary", mobile:true}
+    {key:"vary", words:["VARIA / STORICIZZA","VARIA"], icon:"🕘", cls:"jm-action-vary", mobile:true}
   ];
 
   const clean = value => String(value || "")
