@@ -77,7 +77,8 @@
 }
 .ranking-mode-switch button.active,
 .ranking-mode-switch button[aria-pressed="true"]{
-  background:currentColor;
+  border-color:var(--gold);
+  background:var(--gold);
   color:#111;
   opacity:1;
 }
