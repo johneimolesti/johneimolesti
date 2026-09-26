@@ -60,13 +60,15 @@
 
   function decorate(button) {
     if (!(button instanceof HTMLButtonElement)) return;
-    if (button.closest(".nav,.fan-bottom-nav,.member-tabs,.proposal-tabs,.setup-tabs,.label-scope-tabs")) return;
+    if (button.closest(".gate,.nav,.fan-bottom-nav,.member-tabs,.proposal-tabs,.setup-tabs,.label-scope-tabs")) return;
+    if (button.dataset.jmActionDecorated === "1") return;
     if (button.classList.contains("modal-close")) return;
 
     const action = findAction(button);
     if (!action) return;
 
     const label = labelFor(button, action);
+    button.dataset.jmActionDecorated = "1";
     button.classList.add("jm-action-btn", action.cls);
     if (action.mobile) button.classList.add("jm-mobile-icon");
     button.dataset.actionLabel = label;
@@ -131,18 +133,18 @@
   }
 
   new MutationObserver(mutations => {
+    let added = false;
     for (const m of mutations) {
-      if (m.type === "childList") {
-        m.addedNodes.forEach(node => {
-          if (node.nodeType === 1) decorateTree(node);
-        });
-      } else if (m.type === "characterData") {
-        const button = m.target.parentElement?.closest?.("button");
-        if (button) decorate(button);
-      }
+      if (m.type !== "childList" || !m.addedNodes.length) continue;
+      m.addedNodes.forEach(node => {
+        if (node.nodeType === 1) {
+          decorateTree(node);
+          added = true;
+        }
+      });
     }
-    schedule();
-  }).observe(document.documentElement, {subtree:true, childList:true, characterData:true});
+    if (added) requestAnimationFrame(compactOverflowingGroups);
+  }).observe(document.documentElement, {subtree:true, childList:true});
 
   window.addEventListener("resize", schedule, {passive:true});
   document.addEventListener("DOMContentLoaded", schedule);
