@@ -1123,7 +1123,10 @@
 
   window.JMDemoAudio={
     playSong:async songId=>{
-      await startTrack(String(songId),{source:'songs'});
+      const id=String(songId);
+      if(!repertoire.has(id))await loadRepertoire();
+      if(!songAccess(id))await loadStatus();
+      await startTrack(id,{source:'songs'});
       return playbackState();
     },
     state:()=>playbackState(),
