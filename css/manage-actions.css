@@ -1,0 +1,155 @@
+/* Responsive action system for manage.html
+   Desktop: labels stay compact and on one line.
+   Mobile/narrow action groups: common actions collapse to icons with accessible labels.
+*/
+:root{
+  --jm-action-size:30px;
+  --jm-action-gap:4px;
+  --jm-action-neutral:#c9ced6;
+  --jm-action-danger:#ef8f98;
+  --jm-action-success:#86d39b;
+  --jm-action-accent:#f0cf21;
+}
+
+.row-buttons,
+.song-actions,
+.panel-header-actions,
+.modal-actions,
+.cash-ledger-actions,
+.cash-recurring-actions,
+.venue-actions,
+.member-global-actions,
+.cash-hero-actions{
+  flex-wrap:nowrap!important;
+  align-items:center;
+  gap:var(--jm-action-gap)!important;
+}
+
+.row-buttons,
+.cash-ledger-actions,
+.cash-recurring-actions,
+.venue-actions{
+  white-space:nowrap;
+}
+
+.jm-action-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  min-width:0;
+  white-space:nowrap!important;
+  flex:0 0 auto!important;
+}
+
+.jm-action-btn .jm-action-icon{
+  display:none;
+  width:1.05em;
+  min-width:1.05em;
+  text-align:center;
+  font-style:normal;
+  font-weight:900;
+  line-height:1;
+}
+
+.jm-action-btn.jm-action-edit .jm-action-icon{color:var(--jm-action-neutral)}
+.jm-action-btn.jm-action-delete .jm-action-icon,
+.jm-action-btn.jm-action-remove .jm-action-icon,
+.jm-action-btn.jm-action-reject .jm-action-icon{color:var(--jm-action-danger)}
+.jm-action-btn.jm-action-confirm .jm-action-icon,
+.jm-action-btn.jm-action-approve .jm-action-icon,
+.jm-action-btn.jm-action-save .jm-action-icon{color:var(--jm-action-success)}
+.jm-action-btn.jm-action-add .jm-action-icon{color:var(--jm-action-accent)}
+.jm-action-btn.jm-action-copy .jm-action-icon,
+.jm-action-btn.jm-action-import .jm-action-icon,
+.jm-action-btn.jm-action-print .jm-action-icon,
+.jm-action-btn.jm-action-reset .jm-action-icon,
+.jm-action-btn.jm-action-vary .jm-action-icon{color:var(--jm-action-neutral)}
+
+.jm-action-btn.jm-icon-only{
+  width:var(--jm-action-size)!important;
+  min-width:var(--jm-action-size)!important;
+  height:var(--jm-action-size)!important;
+  min-height:var(--jm-action-size)!important;
+  padding:0!important;
+  border-radius:9px!important;
+}
+.jm-action-btn.jm-icon-only .jm-action-icon{display:inline-block}
+.jm-action-btn.jm-icon-only .jm-action-label{display:none}
+
+@media(max-width:900px){
+  .row-buttons,
+  .cash-ledger-actions,
+  .cash-recurring-actions,
+  .venue-actions{
+    justify-content:flex-end!important;
+    flex-wrap:nowrap!important;
+  }
+}
+
+@media(max-width:700px){
+  :root{--jm-action-size:34px}
+
+  .jm-action-btn.jm-mobile-icon{
+    width:var(--jm-action-size)!important;
+    min-width:var(--jm-action-size)!important;
+    height:var(--jm-action-size)!important;
+    min-height:var(--jm-action-size)!important;
+    padding:0!important;
+    border-radius:10px!important;
+  }
+  .jm-action-btn.jm-mobile-icon .jm-action-icon{display:inline-block}
+  .jm-action-btn.jm-mobile-icon .jm-action-label{display:none}
+
+  .row-buttons,
+  .song-actions,
+  .panel-header-actions,
+  .modal-actions,
+  .cash-ledger-actions,
+  .cash-recurring-actions,
+  .venue-actions,
+  .member-global-actions,
+  .cash-hero-actions{
+    flex-wrap:nowrap!important;
+  }
+
+  .cash-ledger-actions,
+  .cash-recurring-actions{
+    min-width:max-content;
+  }
+
+  .list-row,
+  .cash-ledger-row,
+  .cash-recurring-card{
+    min-width:0;
+  }
+
+  .row-buttons,
+  .cash-ledger-actions,
+  .cash-recurring-actions{
+    margin-left:auto;
+  }
+
+  .panel-header-actions{
+    max-width:55%;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .panel-header-actions::-webkit-scrollbar{display:none}
+
+  .modal-actions{
+    overflow-x:auto;
+    justify-content:flex-end!important;
+    scrollbar-width:none;
+  }
+  .modal-actions::-webkit-scrollbar{display:none}
+}
+
+@media(max-width:420px){
+  :root{--jm-action-size:32px;--jm-action-gap:3px}
+  .cash-ledger-actions,
+  .cash-recurring-actions,
+  .row-buttons{
+    gap:3px!important;
+  }
+}
