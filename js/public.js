@@ -23,6 +23,7 @@
   let publicPoll = null;
   let activeConcertId = null;
   let expandedRankings = new Set();
+  let songsRankingMode = localStorage.getItem('jm_song_ranking_mode') === 'play' ? 'play' : 'score';
   let siteNews = [], contacts = [];
   let homeSettings = {
     fallback_image_position_x:50,
@@ -1815,7 +1816,7 @@
       home:[[window.JMCopy.text('ui.f9d0a39219d7'),'homeNextShow'],[window.JMCopy.text('ui.5b0d2517b8b5'),'homeRankingPreview']],
       tour:[[window.JMCopy.text('ui.0449f09cec41'),'upcomingBlock'],[window.JMCopy.text('ui.801a122f224b'),'archiveBlock']],
       repertoire:[['Tutte le canzoni','repertoireBlock']],
-      rankings:[['FAN','fansRankingBlock'],['SONGS','songsRankingBlock'],['SONGS PLAY','songsPlayRankingBlock'],['LOCANDINE','postersRankingBlock'],['COVER ART','coverArtRankingBlock'],['LIVE','concertsRankingBlock']],
+      rankings:[['FAN','fansRankingBlock'],['SONGS','songsRankingBlock'],['LOCANDINE','postersRankingBlock'],['COVER ART','coverArtRankingBlock'],['LIVE','concertsRankingBlock']],
       band:[[window.JMCopy.text('ui.15cbfb980542'),'membersBlock'],[window.JMCopy.text('ui.04923d0f0b62'),'conceptBlock']],
       more:[['Video','videosBlock'],['Foto','photosBlock'],['Locandine','galleryBlock']],
       contacts:[['Canali','contactChannelsBlock'],['Booking','bookingBlock']],
@@ -2541,21 +2542,28 @@
     }
   }
 
-  function rankingSongRow(r, i) {
-    const artists = [r.base_artist, r.lyrics_artist].filter(Boolean).join(' / ');
-    const cover = posterUrl(r.cover_path);
-    const id=String(r.song_id||r.id||'');
-    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title || '')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title)}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title)}</div><div class="ranking-meta">${esc(artists || 'Dettagli brano')}</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="song" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA</button></div><div class="ranking-score">${esc(r.ranking_score ?? '—')}</div></div>`;
+  function rankingMetric(value,label='') {
+    const n=Number(value);
+    if(!Number.isFinite(n)||n<=0)return '<div class="ranking-score ranking-score-empty" aria-hidden="true"></div>';
+    const shown=label==='PLAY'?Math.trunc(n):Math.round(n);
+    return `<div class="ranking-score">${esc(shown)}${label?`<small>${esc(label)}</small>`:''}</div>`;
   }
-  function rankingSongPlayRow(r,i){
-    const cover=posterUrl(r.cover_path), id=String(r.id||r.song_id||'');
-    const plays=Math.max(0,Math.trunc(Number(r.weighted_play_count||0)));
-    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-play-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Brano')}</div><div class="ranking-meta">${esc([r.base_artist,r.lyrics_artist].filter(Boolean).join(' / ')||'John & i Molesti')}</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="song" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA</button></div><div class="ranking-score">${plays}<small>PLAY</small></div></div>`;
+  function rankingSongRow(r, i, mode='score') {
+    const artists=[r.base_artist,r.lyrics_artist].filter(Boolean).join(' / ');
+    const cover=posterUrl(r.cover_path);
+    const id=String(r.song_id||r.id||'');
+    const metric=mode==='play'
+      ? rankingMetric(r.weighted_play_count,'PLAY')
+      : rankingMetric(r.ranking_score,'');
+    return `<div class="ranking-row ranking-row-clickable${cover?' has-cover':''}" data-ranking-song-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'')}">${cover?`<div class="ranking-row-bg" style="background-image:url('${esc(cover)}')"></div>`:''}<div class="ranking-pos">${i+1}</div>${cover?`<img class="ranking-cover" src="${esc(cover)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Brano')}</div><div class="ranking-meta">${esc(artists||'John & i Molesti')}</div></div>${metric}</div>`;
   }
   function rankingCoverRow(r,i){
-    const src=posterUrl(r.cover_path), id=String(r.song_id||r.id||'');
-    const raw=Number(r.ranking_score), score=Number.isFinite(raw)?raw.toFixed(2):'—';
-    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-cover-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'Cover art')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-cover" src="${esc(src)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Cover art')}</div><div class="ranking-meta">${esc(Number(r.vote_count||0))} voti</div><button class="jm-inline-vote" type="button" data-jm-vote-kind="cover" data-song-id="${esc(id)}" data-song-title="${esc(r.title||'')}">VOTA COVER</button></div><div class="ranking-score">${esc(score)}<small>COVER</small></div></div>`;
+    const src=posterUrl(r.cover_path),id=String(r.song_id||r.id||'');
+    const raw=Number(r.ranking_score),votes=Math.max(0,Math.trunc(Number(r.vote_count||0)));
+    const metric=Number.isFinite(raw)&&raw>0
+      ? `<div class="ranking-score">${esc(raw.toFixed(2))}<small>COVER</small></div>`
+      : '<div class="ranking-score ranking-score-empty" aria-hidden="true"></div>';
+    return `<div class="ranking-row ranking-row-clickable${src?' has-cover':''}" data-ranking-cover-index="${i}" data-song-id="${esc(id)}" title="${esc(r.title||'Cover art')}"><div class="ranking-pos">${i+1}</div>${src?`<img class="ranking-cover" src="${esc(src)}" alt="Cover di ${esc(r.title||'')}" loading="lazy">`:''}<div class="ranking-main"><div class="ranking-title">${esc(r.title||'Cover art')}</div><div class="ranking-meta">${votes>0?`${esc(votes)} voti`:''}</div></div>${metric}</div>`;
   }
   function rankingFanRow(r, i) {
     const self = currentFan?.id && currentFan.id === r.fan_id;
@@ -2670,46 +2678,59 @@
     };
   }
   function renderRankings() {
-    const data = rankingData || {};
-    const targetIds=['fansRanking','songsRanking','songsPlayRanking','postersRanking','coverArtRanking','concertsRanking'];
-    if (data.blocked) {
-      targetIds.forEach(id => { if($(id))$(id).innerHTML = '<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>'; });
+    const data=rankingData||{};
+    const targetIds=['fansRanking','songsRanking','postersRanking','coverArtRanking','concertsRanking'];
+    if(data.blocked){
+      targetIds.forEach(id=>{if($(id))$(id).innerHTML='<div class="empty-state" data-copy="ui.fdb82cb3d193">Classifiche non abilitate per questo accesso.</div>'});
       return;
     }
-    if (data.error) {
-      targetIds.forEach(id => { if($(id))$(id).innerHTML = `<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`; });
+    if(data.error){
+      targetIds.forEach(id=>{if($(id))$(id).innerHTML=`<div class="empty-state">${esc(window.JMCopy.text('ui.error',{error:data.error}))}</div>`});
       return;
     }
-    const limit = key => expandedRankings.has(key) ? Infinity : 8;
-    const visibleFans=(data.fans||[]).slice(0,limit('fans'));
-    const visibleSongs=(data.songs||[]).slice(0,limit('songs'));
-    const visiblePlays=[...publicSongs]
-      .filter(r=>r&&String(r.title||'').trim())
-      .sort((a,b)=>Number(b.weighted_play_count||0)-Number(a.weighted_play_count||0)||String(a.title||'').localeCompare(String(b.title||''),'it'))
-      .slice(0,limit('songs-play'));
-    const visiblePosters=(data.posters||[]).slice(0,limit('posters'));
-    const visibleCovers=(data.covers||[]).slice(0,limit('covers'));
-    const visibleConcerts=(data.concerts||[]).slice(0,limit('concerts'));
 
-    if($('fansRanking'))$('fansRanking').innerHTML = visibleFans.map(rankingFanRow).join('') || '<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
-    if($('songsRanking'))$('songsRanking').innerHTML = visibleSongs.map(rankingSongRow).join('') || '<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
-    if($('songsPlayRanking'))$('songsPlayRanking').innerHTML = visiblePlays.map(rankingSongPlayRow).join('') || '<div class="empty-state">Nessuna riproduzione registrata.</div>';
-    if($('postersRanking'))$('postersRanking').innerHTML = visiblePosters.map(rankingPosterRow).join('') || '<div class="empty-state">Classifica locandine non disponibile.</div>';
-    if($('coverArtRanking'))$('coverArtRanking').innerHTML = visibleCovers.map(rankingCoverRow).join('') || '<div class="empty-state">Nessun voto alle cover art. Apri una cover e votala.</div>';
-    if($('concertsRanking'))$('concertsRanking').innerHTML = visibleConcerts.map(rankingConcertRow).join('') || '<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
+    const visibleFans=data.fans||[];
+    const visibleSongs=songsRankingMode==='play'
+      ? [...publicSongs]
+          .filter(r=>r&&String(r.title||'').trim())
+          .sort((a,b)=>Number(b.weighted_play_count||0)-Number(a.weighted_play_count||0)||String(a.title||'').localeCompare(String(b.title||''),'it'))
+      : (data.songs||[]);
+    const visiblePosters=data.posters||[];
+    const visibleCovers=data.covers||[];
+    const visibleConcerts=data.concerts||[];
 
-    $$('[data-ranking-fan-index]',$('fansRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1));});
-    $$('[data-ranking-song-index]',$('songsRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1));});
-    $$('[data-ranking-play-index]',$('songsPlayRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPlayIndex),song=visiblePlays[i];bindRankingRow(row,()=>song&&window.JMSongs?.openDetail?window.JMSongs.openDetail(song.id):openSongRankingDetail(song,i+1));});
-    $$('[data-ranking-poster-index]',$('postersRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1));});
-    $$('[data-ranking-cover-index]',$('coverArtRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingCoverIndex),cover=visibleCovers[i];bindRankingRow(row,()=>cover?.song_id&&window.JMSongs?.openDetail?window.JMSongs.openDetail(cover.song_id):null);});
-    $$('[data-ranking-concert]', $('concertsRanking')||document).forEach(row => { if (row.dataset.rankingConcert) bindRankingRow(row,() => openConcert(row.dataset.rankingConcert)); });
+    if($('fansRanking'))$('fansRanking').innerHTML=visibleFans.map(rankingFanRow).join('')||'<div class="empty-state" data-copy="ui.a436fdc3dfc1">Classifica fan non disponibile.</div>';
+    if($('songsRanking'))$('songsRanking').innerHTML=visibleSongs.map((r,i)=>rankingSongRow(r,i,songsRankingMode)).join('')||'<div class="empty-state" data-copy="ui.05f718376042">Classifica brani non disponibile.</div>';
+    if($('postersRanking'))$('postersRanking').innerHTML=visiblePosters.map(rankingPosterRow).join('')||'<div class="empty-state">Classifica locandine non disponibile.</div>';
+    if($('coverArtRanking'))$('coverArtRanking').innerHTML=visibleCovers.length
+      ? visibleCovers.map(rankingCoverRow).join('')
+      : '<div class="empty-state ranking-empty-cta"><span>Nessun voto alle cover art.</span><button type="button" data-open-song-discs>VAI A SONGS · DISCHI →</button></div>';
+    if($('concertsRanking'))$('concertsRanking').innerHTML=visibleConcerts.map(rankingConcertRow).join('')||'<div class="empty-state" data-copy="ui.6f59b6c9181a">Classifica concerti non disponibile.</div>';
 
-    $$('[data-expand-ranking]').forEach(btn => {
-      const key = btn.dataset.expandRanking;
-      const expanded = expandedRankings.has(key);
-      window.JMCopy.write(btn,expanded?'ui.513edd5fd93e':'ui.c4a5176fc495');
-      btn.closest('.ranking-panel')?.classList.toggle('expanded', expanded);
+    $$('[data-ranking-fan-index]',$('fansRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingFanIndex);bindRankingRow(row,()=>openFanRankingDetail(visibleFans[i],i+1))});
+    $$('[data-ranking-song-index]',$('songsRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingSongIndex);bindRankingRow(row,()=>openSongRankingDetail(visibleSongs[i],i+1))});
+    $$('[data-ranking-poster-index]',$('postersRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingPosterIndex);bindRankingRow(row,()=>openPosterRankingDetail(visiblePosters[i],i+1))});
+    $$('[data-ranking-cover-index]',$('coverArtRanking')||document).forEach(row=>{const i=Number(row.dataset.rankingCoverIndex),cover=visibleCovers[i];bindRankingRow(row,()=>cover?.song_id&&window.JMSongs?.openDetail?window.JMSongs.openDetail(cover.song_id):null)});
+    $$('[data-ranking-concert]',$('concertsRanking')||document).forEach(row=>{if(row.dataset.rankingConcert)bindRankingRow(row,()=>openConcert(row.dataset.rankingConcert))});
+
+    $$('[data-song-ranking-mode]').forEach(btn=>{
+      const active=btn.dataset.songRankingMode===songsRankingMode;
+      btn.classList.toggle('active',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+      btn.onclick=()=>{
+        const next=btn.dataset.songRankingMode==='play'?'play':'score';
+        if(next===songsRankingMode)return;
+        songsRankingMode=next;
+        localStorage.setItem('jm_song_ranking_mode',songsRankingMode);
+        renderRankings();
+      };
+    });
+
+    $$('[data-open-song-discs]').forEach(btn=>btn.onclick=()=>{
+      if(window.JMSongs?.setView)window.JMSongs.setView('discs');
+      else localStorage.setItem('jm_songs_view','discs');
+      go('repertoire');
+      setTimeout(()=>$('repertoireBlock')?.scrollIntoView({behavior:'smooth',block:'start'}),60);
     });
   }
 
@@ -3478,11 +3499,6 @@
     $('bookingPrevMonth')?.addEventListener('click',()=>{bookingCalendarMonth=new Date(bookingCalendarMonth.getFullYear(),bookingCalendarMonth.getMonth()-1,1);renderBookingCalendar();});
     $('bookingNextMonth')?.addEventListener('click',()=>{bookingCalendarMonth=new Date(bookingCalendarMonth.getFullYear(),bookingCalendarMonth.getMonth()+1,1);renderBookingCalendar();});
     $('bookingForm')?.addEventListener('submit',submitBookingRequest);
-    $$('[data-expand-ranking]').forEach(btn => btn.onclick = () => {
-      const key = btn.dataset.expandRanking;
-      if (expandedRankings.has(key)) expandedRankings.delete(key); else expandedRankings.add(key);
-      renderRankings();
-    });
   }
 
   async function loadPublicBootstrap() {
