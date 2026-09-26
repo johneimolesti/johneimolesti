@@ -82,6 +82,9 @@
   color:#111;
   opacity:1;
 }
+.graphics-mode-switch button{padding-inline:6px;font-size:7px}
+#graphicsRankingBlock .panel-heading{gap:6px}
+
 .ranking-empty-cta{
   min-height:100%;
   display:flex;
