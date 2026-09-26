@@ -90,6 +90,14 @@
       }
       .repertoire-player .jm-inline-vote{margin-top:7px;width:100%}
       .song-cd-page-actions .jm-inline-vote{min-height:31px;padding:7px 11px}
+      .jm-inline-vote.disc-cover-vote{display:none!important}
+      .repertoire-grid.repertoire-discs-view .jm-inline-vote.disc-cover-vote{
+        display:inline-flex!important;
+        min-height:26px;
+        margin:8px auto 0;
+        padding:5px 9px;
+        font-size:8px;
+      }
       #jmSimpleVoteModal[hidden]{display:none!important}
       #jmSimpleVoteModal{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;padding:14px}
       .jm-vote-backdrop{position:absolute;inset:0;border:0;background:rgba(0,0,0,.84);backdrop-filter:blur(7px)}
@@ -467,18 +475,20 @@
       }
 
       .repertoire-grid.repertoire-discs-view{
-        grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
-        gap:22px 18px;
+        grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+        gap:26px 20px;
         align-items:start;
+        overflow:visible;
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-card{
         display:grid;
         grid-template-columns:1fr;
-        gap:10px;
+        gap:11px;
         align-items:start;
-        padding:12px;
+        padding:13px;
         min-width:0;
+        overflow:visible;
         background:transparent;
         border-color:transparent;
         box-shadow:none;
@@ -486,91 +496,127 @@
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-card:hover{
-        background:color-mix(in srgb,var(--gold) 7%,transparent);
+        background:color-mix(in srgb,var(--gold) 6%,transparent);
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-cover{
         position:relative;
-        width:min(100%,220px);
+        z-index:1;
+        width:min(100%,224px);
         height:auto;
         aspect-ratio:1;
         margin:0 auto;
-        border-radius:50%;
-        border:2px solid #171717;
-        cursor:pointer;
-        overflow:hidden;
-        transform:translateZ(0);
-        transition:transform .18s ease,box-shadow .18s ease;
-      }
-
-      .repertoire-grid.repertoire-discs-view .repertoire-cover::before{
-        content:"▶";
-        position:absolute;
-        z-index:3;
-        inset:50% auto auto 50%;
-        transform:translate(-50%,-50%);
-        width:42px;
-        height:42px;
-        display:grid;
-        place-items:center;
-        border-radius:50%;
-        background:rgba(0,0,0,.72);
-        color:#fff;
-        font:900 15px/1 Arial,sans-serif;
-        padding-left:2px;
-        opacity:0;
-        transition:opacity .15s ease;
-        pointer-events:none;
+        padding:7px 8px 7px 10px;
+        border:1px solid rgba(235,240,242,.5);
+        border-radius:3px;
+        background:
+          linear-gradient(90deg,rgba(255,255,255,.16),rgba(255,255,255,.035) 8%,rgba(12,12,12,.06) 9% 92%,rgba(255,255,255,.18) 100%),
+          rgba(210,218,222,.08);
+        box-shadow:
+          inset 3px 0 0 rgba(255,255,255,.12),
+          inset -2px 0 0 rgba(255,255,255,.08),
+          inset 0 0 0 2px rgba(0,0,0,.14),
+          0 8px 20px rgba(0,0,0,.32);
+        cursor:default;
+        overflow:visible;
+        perspective:900px;
+        transform-style:preserve-3d;
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-cover::after{
         content:"";
         position:absolute;
-        z-index:4;
+        z-index:0;
+        inset:7px 8px 7px 10px;
+        border:1px solid rgba(255,255,255,.13);
+        background:
+          radial-gradient(circle at 50% 50%,#0b0b0b 0 8%,#555 8.5% 10%,#161616 10.5% 12%,transparent 12.5% 47%,rgba(255,255,255,.035) 47.5% 49%,transparent 49.5%),
+          linear-gradient(135deg,#252525,#101010 52%,#1d1d1d);
+        box-shadow:inset 0 0 18px rgba(0,0,0,.7);
+        pointer-events:none;
+      }
+
+      .repertoire-grid.repertoire-discs-view .repertoire-cover::before{
+        content:"▶";
+        position:absolute;
+        z-index:6;
         left:50%;
         top:50%;
-        width:13%;
-        aspect-ratio:1;
         transform:translate(-50%,-50%);
+        width:50px;
+        height:50px;
+        display:grid;
+        place-items:center;
+        border:1px solid rgba(255,255,255,.72);
         border-radius:50%;
-        background:#111;
-        border:2px solid rgba(255,255,255,.72);
-        box-shadow:0 0 0 4px rgba(0,0,0,.22);
+        background:rgba(0,0,0,.52);
+        color:#fff;
+        box-shadow:0 5px 18px rgba(0,0,0,.35);
+        font:900 17px/1 Arial,sans-serif;
+        padding-left:3px;
+        opacity:0;
+        transition:opacity .16s ease,transform .16s ease;
         pointer-events:none;
       }
 
       .repertoire-grid.repertoire-discs-view
-      .repertoire-card:not(.is-disc-playing)
+      .repertoire-card.has-disc-audio:not(.is-case-open)
+      .repertoire-cover{
+        cursor:pointer;
+      }
+
+      .repertoire-grid.repertoire-discs-view
+      .repertoire-card.has-disc-audio:not(.is-case-open)
       .repertoire-cover:hover::before{
-        opacity:1;
+        opacity:.72;
+        transform:translate(-50%,-50%) scale(1.04);
+      }
+
+      .repertoire-grid.repertoire-discs-view .repertoire-cover img,
+      .repertoire-grid.repertoire-discs-view .repertoire-cover>span{
+        position:relative;
+        z-index:2;
+        display:grid;
+        place-items:center;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:0;
+        background:#171717;
+        transform-origin:left center;
+        transform-style:preserve-3d;
+        transition:transform .58s cubic-bezier(.18,.75,.22,1),box-shadow .58s ease,filter .2s ease;
+        box-shadow:0 1px 5px rgba(0,0,0,.45);
+        pointer-events:none;
+        user-select:none;
+        -webkit-user-drag:none;
+        backface-visibility:hidden;
+      }
+
+      .repertoire-grid.repertoire-discs-view
+      .repertoire-card.is-case-open
+      .repertoire-cover img,
+      .repertoire-grid.repertoire-discs-view
+      .repertoire-card.is-case-open
+      .repertoire-cover>span{
+        transform:rotateY(-112deg);
+        box-shadow:-10px 7px 18px rgba(0,0,0,.42);
+      }
+
+      .repertoire-grid.repertoire-discs-view
+      .repertoire-card.is-case-open
+      .repertoire-cover::before{
+        opacity:0;
       }
 
       .repertoire-grid.repertoire-discs-view
       .repertoire-card.is-disc-playing
       .repertoire-cover{
-        animation:jm-song-disc-spin 2.2s linear infinite;
-        box-shadow:0 0 0 2px var(--gold),0 12px 30px rgba(0,0,0,.35);
-      }
-
-      .repertoire-grid.repertoire-discs-view
-      .repertoire-card.is-disc-playing
-      .repertoire-cover::before{
-        content:"❚❚";
-        opacity:1;
-        background:rgba(0,0,0,.58);
-        font-size:13px;
-        letter-spacing:-2px;
-        padding-left:0;
-      }
-
-      .repertoire-grid.repertoire-discs-view .repertoire-cover img{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-        border-radius:50%;
-        pointer-events:none;
-        user-select:none;
-        -webkit-user-drag:none;
+        box-shadow:
+          inset 3px 0 0 rgba(255,255,255,.12),
+          inset -2px 0 0 rgba(255,255,255,.08),
+          0 0 0 2px color-mix(in srgb,var(--gold) 75%,transparent),
+          0 10px 26px rgba(0,0,0,.42);
       }
 
       .repertoire-grid.repertoire-discs-view .repertoire-copy{
@@ -607,9 +653,45 @@
         text-align:center;
       }
 
-      @keyframes jm-song-disc-spin{
-        from{transform:rotate(0deg)}
-        to{transform:rotate(360deg)}
+      .jm-flying-disc{
+        position:fixed;
+        z-index:2147483000;
+        display:grid;
+        place-items:center;
+        overflow:hidden;
+        border-radius:50%;
+        border:2px solid #111;
+        background:#171717;
+        box-shadow:0 12px 30px rgba(0,0,0,.55);
+        pointer-events:none;
+        transform-origin:center;
+      }
+
+      .jm-flying-disc img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:50%;
+      }
+
+      .jm-flying-disc::after{
+        content:"";
+        position:absolute;
+        left:50%;
+        top:50%;
+        width:13%;
+        aspect-ratio:1;
+        transform:translate(-50%,-50%);
+        border-radius:50%;
+        background:#0b0b0b;
+        border:1px solid #bbb;
+        box-shadow:0 0 0 3px rgba(0,0,0,.38);
+      }
+
+      @media(hover:none){
+        .repertoire-grid.repertoire-discs-view
+        .repertoire-card.has-disc-audio:not(.is-case-open)
+        .repertoire-cover::before{opacity:.38}
       }
 
       /* ---------- DETTAGLIO CANZONE / CUSTODIA CD ---------- */
