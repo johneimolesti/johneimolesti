@@ -153,3 +153,13 @@
     gap:3px!important;
   }
 }
+
+
+/* Gli elementi grafici interni non devono mai intercettare il click:
+   il target resta sempre il button che possiede il relativo handler. */
+.jm-action-btn > .jm-action-icon,
+.jm-action-btn > .jm-action-label,
+.secure-demo-button > *,
+.jukebox-label-button > *{
+  pointer-events:none!important;
+}
