@@ -910,32 +910,33 @@
 
         <section class="ranking-stack">
           <article class="ranking-panel glass-card" id="fansRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">01</span><h3>FAN</h3></div><button class="text-button" data-expand-ranking="fans" type="button">MOSTRA TUTTI</button></div>
+            <div class="panel-heading"><div><span class="section-kicker">01</span><h3>FAN</h3></div></div>
             <div class="ranking-list" id="fansRanking"><div class="empty-state">Caricamento…</div></div>
           </article>
 
           <article class="ranking-panel glass-card" id="songsRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">02</span><h3>SONGS</h3></div><button class="text-button" data-expand-ranking="songs" type="button">MOSTRA TUTTI</button></div>
+            <div class="panel-heading">
+              <div><span class="section-kicker">02</span><h3>SONGS</h3></div>
+              <div class="ranking-mode-switch" role="group" aria-label="Ordina le songs">
+                <button type="button" data-song-ranking-mode="score" aria-pressed="true">SCORE</button>
+                <button type="button" data-song-ranking-mode="play" aria-pressed="false">PLAY</button>
+              </div>
+            </div>
             <div class="ranking-list" id="songsRanking"><div class="empty-state">Caricamento…</div></div>
           </article>
 
-          <article class="ranking-panel glass-card" id="songsPlayRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">03</span><h3>SONGS PLAY</h3></div><button class="text-button" data-expand-ranking="songs-play" type="button">MOSTRA TUTTI</button></div>
-            <div class="ranking-list" id="songsPlayRanking"><div class="empty-state">Caricamento…</div></div>
-          </article>
-
           <article class="ranking-panel glass-card" id="postersRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">04</span><h3>LOCANDINE</h3></div><button class="text-button" data-expand-ranking="posters" type="button">MOSTRA TUTTE</button></div>
+            <div class="panel-heading"><div><span class="section-kicker">03</span><h3>LOCANDINE</h3></div></div>
             <div class="ranking-list" id="postersRanking"><div class="empty-state">Caricamento…</div></div>
           </article>
 
           <article class="ranking-panel glass-card" id="coverArtRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">05</span><h3>COVER ART</h3></div><button class="text-button" data-expand-ranking="covers" type="button">MOSTRA TUTTE</button></div>
+            <div class="panel-heading"><div><span class="section-kicker">04</span><h3>COVER ART</h3></div></div>
             <div class="ranking-list" id="coverArtRanking"><div class="empty-state">Caricamento…</div></div>
           </article>
 
           <article class="ranking-panel glass-card" id="concertsRankingBlock">
-            <div class="panel-heading"><div><span class="section-kicker">06</span><h3>LIVE</h3></div><button class="text-button" data-expand-ranking="concerts" type="button">MOSTRA TUTTI</button></div>
+            <div class="panel-heading"><div><span class="section-kicker">05</span><h3>LIVE</h3></div></div>
             <div class="ranking-list" id="concertsRanking"><div class="empty-state">Caricamento…</div></div>
           </article>
         </section>
