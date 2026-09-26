@@ -1432,7 +1432,11 @@
     const active=!!state.active&&String(state.song_id)===id;
     const playing=active&&!!state.playing;
     card.classList.toggle('has-disc-audio',!!song?.has_demo);
-    card.classList.toggle('is-case-open',active);
+    /*
+      Il disco che vola verso il player è una copia animata:
+      la cover originale deve restare sempre visibile nella custodia.
+    */
+    card.classList.remove('is-case-open');
     card.classList.toggle('is-disc-playing',playing);
   }
 
@@ -1576,7 +1580,6 @@
         const started=await playFromRepertoireCard(card.dataset.repertoireSong);
         syncCardPlayingState(card);
         if(started){
-          card.classList.add('is-case-open');
           animateDiscToPlayer(card).catch(()=>{});
         }
       };
