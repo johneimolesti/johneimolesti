@@ -3186,10 +3186,11 @@
     const labels = {planned:window.JMCopy.text('ui.f8cb346d3c38'),request:window.JMCopy.text('ui.097045253499'),bis:window.JMCopy.text('ui.fa71037e7274'),recovery:window.JMCopy.text('ui.281d94ee06bd'),skipped:window.JMCopy.text('ui.1fe76bced1b8'),truncated:window.JMCopy.text('ui.9d075021885e')};
     return `<div class="execution-divider">${esc(labels[type] || String(type || '').toUpperCase())}</div>`;
   }
-  function liveSongRow(song, i, editable, hidden) {
+  function liveSongRow(song, visiblePosition, editable, hidden) {
     const score = song.my_vote?.molesti_score ?? '';
     const rx = song.my_reactions || {};
-    return `<div class="concert-song-row${hidden ? ' is-hidden' : ''}" data-live-song="${esc(song.id)}"><div class="concert-song-pos">${i+1}</div><div><div class="concert-song-title">${esc(song.title)}</div><div class="concert-song-meta">${esc([song.base_artist ? window.JMCopy.text('ui.base',{artist:song.base_artist}) : '',song.lyrics_artist ? window.JMCopy.text('ui.lyrics',{artist:song.lyrics_artist}) : ''].filter(Boolean).join(' · '))}</div></div>${editable ? `<div class="song-vote-controls"><select class="score-select song-score" aria-label="Voto performance" data-copy-aria-label="ui.performance"><option value="" data-copy="ui.a8603c064e80">Voto</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(score)===n+1?'selected':''}>${n+1}</option>`).join('')}</select><label class="reaction-chip"><input type="checkbox" class="rx-pogo" ${rx.pogo?'checked':''}><span data-copy="ui.pogo">POGO</span></label><label class="reaction-chip"><input type="checkbox" class="rx-sang" ${rx.sang_along?'checked':''}><span data-copy="ui.sing">CANTA</span></label><label class="reaction-chip"><input type="checkbox" class="rx-enjoy" ${rx.enjoyed?'checked':''}><span data-copy="ui.top">TOP</span></label></div>` : ''}</div>`;
+    const position = visiblePosition == null ? '' : String(visiblePosition);
+    return `<div class="concert-song-row${hidden ? ' is-hidden' : ''}" data-live-song="${esc(song.id)}"><div class="concert-song-pos${position ? '' : ' is-empty'}">${position}</div><div><div class="concert-song-title">${esc(song.title)}</div><div class="concert-song-meta">${esc([song.base_artist ? window.JMCopy.text('ui.base',{artist:song.base_artist}) : '',song.lyrics_artist ? window.JMCopy.text('ui.lyrics',{artist:song.lyrics_artist}) : ''].filter(Boolean).join(' · '))}</div></div>${editable ? `<div class="song-vote-controls"><select class="score-select song-score" aria-label="Voto performance" data-copy-aria-label="ui.performance"><option value="" data-copy="ui.a8603c064e80">Voto</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(score)===n+1?'selected':''}>${n+1}</option>`).join('')}</select><label class="reaction-chip"><input type="checkbox" class="rx-pogo" ${rx.pogo?'checked':''}><span data-copy="ui.pogo">POGO</span></label><label class="reaction-chip"><input type="checkbox" class="rx-sang" ${rx.sang_along?'checked':''}><span data-copy="ui.sing">CANTA</span></label><label class="reaction-chip"><input type="checkbox" class="rx-enjoy" ${rx.enjoyed?'checked':''}><span data-copy="ui.top">TOP</span></label></div>` : ''}</div>`;
   }
   async function openConcert(id) {
     const request=++concertRequest;
@@ -3237,12 +3238,13 @@
       } else {
         const songs = data.songs || [];
         const reveal = revealCount(c, songs.length);
-        let prevType = null;
+        let prevType = null, plannedPosition = 0;
         html += '<div class="concert-setlist">';
         songs.forEach((song,i) => {
           const type = song.execution_type || 'planned';
           if (type !== prevType) { html += executionDivider(type); prevType = type; }
-          html += liveSongRow(song,i,canVote,c.status === 'future' && i >= reveal);
+          const visiblePosition = type === 'planned' ? ++plannedPosition : null;
+          html += liveSongRow(song,visiblePosition,canVote,c.status === 'future' && i >= reveal);
         });
         html += songs.length ? '</div>' : '<div class="empty-state" style="padding:20px" data-copy="ui.a085ec909a15">Nessun brano disponibile.</div></div>';
         if (c.status === 'future' && reveal < songs.length) html += `<div class="setlist-lock">${esc(window.JMCopy.text('ui.revealProgress',{visible:reveal,total:songs.length}))}</div>`;
