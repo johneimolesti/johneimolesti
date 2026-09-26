@@ -2245,6 +2245,8 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     #setupPage>.setup-tabs::-webkit-scrollbar{display:none!important}
   }
 </style>
+  <link rel="stylesheet" href="css/manage-actions.css">
+  <script src="js/manage-action-icons.js?fix=actions" defer></script>
 </head>
 <body>
 
@@ -3680,8 +3682,6 @@ function concertPrintableHtml(c,concertItems=[],options={}){
   .concert-header-select{min-width:125px;max-width:170px}
 }
 </style>
-  <link rel="stylesheet" href="css/manage-actions.css">
-  <script src="js/manage-action-icons.js?cache=login-fix" defer></script>
 </head><body><h1>${esc(title)}</h1><div class="meta">${formatDate(c.concert_date)}${venue?` · ${esc(venue)}`:""}</div><div class="setlist">${rows||'<div class="track"><strong>Nessun brano in scaletta.</strong></div>'}</div></body></html>`
 }
 function printConcert(c,concertItems=[]){
