@@ -2123,7 +2123,7 @@
 
     document
       .querySelectorAll('#repertoireGrid .repertoire-card')
-      .forEach(syncCardPlayingState);
+      .forEach(card=>syncCardPlayingState(card));
   }
 
   function refreshOpenDetail() {
