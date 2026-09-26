@@ -2338,7 +2338,7 @@
     window.addEventListener('jm:demo-playback-state',event=>{
       const state=event.detail||demoPlaybackState();
       document.querySelectorAll('#repertoireGrid .repertoire-card').forEach(card=>syncCardPlayingState(card,state));
-      syncDiscAudioControls();
+      syncDetailPlayer();
     });
 
     const userEntry=document.getElementById('userEntry');
