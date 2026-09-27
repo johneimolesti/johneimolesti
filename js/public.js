@@ -738,7 +738,12 @@
           if (m) id = m[1];
         }
       }
-      if (id) return {provider:'YouTube',embed:`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`,href};
+      if (id) return {
+        provider:'YouTube',
+        embed:`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`,
+        preview:`https://etzwybamvfpeitkttwrc.supabase.co/functions/v1/youtube-thumb?id=${encodeURIComponent(id)}`,
+        href
+      };
       if (host.endsWith('vimeo.com')) {
         const m = u.pathname.match(/\/(\d+)/);
         if (m) return {provider:'Vimeo',embed:`https://player.vimeo.com/video/${m[1]}`,href};
@@ -2216,7 +2221,9 @@
       const info=videoEmbedInfo(item.source_url);
       if(!info)return '';
       const player=info.embed
-        ? `<div class="public-video-frame public-video-gated"><button class="public-video-load" type="button" data-external-video-src="${esc(info.embed)}" data-external-video-title="${esc(item.title||'Video')}" data-external-video-provider="${esc(info.provider)}">CARICA VIDEO · ${esc(info.provider)}</button><small>Il player esterno viene contattato solo dopo il click.</small></div>`
+        ? info.preview
+          ? `<div class="public-video-frame public-video-gated public-video-preview"><button class="public-video-thumb" type="button" data-external-video-src="${esc(info.embed)}" data-external-video-title="${esc(item.title||'Video')}" data-external-video-provider="${esc(info.provider)}" aria-label="Riproduci ${esc(item.title||'video')}"><img src="${esc(info.preview)}" alt="" loading="lazy"><span class="public-video-play" aria-hidden="true">▶</span><span class="public-video-provider">${esc(info.provider)}</span></button></div>`
+          : `<div class="public-video-frame public-video-gated"><button class="public-video-load" type="button" data-external-video-src="${esc(info.embed)}" data-external-video-title="${esc(item.title||'Video')}" data-external-video-provider="${esc(info.provider)}">CARICA VIDEO · ${esc(info.provider)}</button><small>Il player esterno viene contattato solo dopo il click.</small></div>`
         : `<a class="public-video-fallback" href="${esc(info.href)}" target="_blank" rel="noopener noreferrer">APRI IL VIDEO</a>`;
       const adminTools=admin?`<div class="public-video-admin-tools"><button type="button" data-public-video-edit="${esc(item.id)}">MODIFICA</button><button type="button" data-public-video-delete="${esc(item.id)}">ELIMINA</button></div>`:'';
       return `<article class="public-video-card">${player}<div class="public-media-copy"><strong>${esc(item.title||'Video')}</strong>${item.caption?`<span>${esc(item.caption)}</span>`:''}<small>${esc(info.provider)}</small>${adminTools}</div></article>`;
