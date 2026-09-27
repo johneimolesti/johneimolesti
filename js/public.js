@@ -1892,7 +1892,11 @@
       const me = (rankingData?.fans || []).find(r => currentFan?.id && r.fan_id === currentFan.id);
       const questionnaireDone = !!fanOnboardingStatus?.flow_completed;
       const questionnaireLabel = questionnaireDone ? 'QUESTIONARIO COMPLETATO' : (fanOnboardingStatus?.onboarding_state?.intro_seen_at ? 'RIPRENDI IL QUESTIONARIO' : 'INIZIA IL QUESTIONARIO');
-      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div><div class="fan-questionnaire-summary"><strong>${esc(questionnaireLabel)}</strong><span>${questionnaireDone?'Puoi rivedere e modificare le risposte dal profilo.':'Il flusso iniziale è ancora disponibile e riparte dal punto lasciato.'}</span></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanQuestionnaire">${questionnaireDone?'VEDI RISPOSTE':'APRI QUESTIONARIO'}</button><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" id="forgetFanDevice">DIMENTICA QUESTO DISPOSITIVO</button><a class="btn btn-ghost" href="privacy.html" target="_blank" rel="noopener">PRIVACY E DIRITTI</a><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
+      const topPlayed=Array.isArray(me?.top_played_songs)?me.top_played_songs.slice(0,3):[];
+      const topPlayedHtml=topPlayed.length
+        ? `<div class="fan-questionnaire-summary"><strong>TOP 3 RIPRODOTTE</strong>${topPlayed.map((song,i)=>`<span><b>#${i+1}</b> ${esc(song.title||'Brano')} · ${Number(song.play_count||0)} play</span>`).join('')}</div>`
+        : `<div class="fan-questionnaire-summary"><strong>TOP 3 RIPRODOTTE</strong><span>Inizia ad ascoltare le demo: qui compariranno i tuoi brani più riprodotti.</span></div>`;
+      session.innerHTML = `<div class="session-hero"><strong>${esc(currentFan.nickname || currentFan.display_name)}</strong><span data-copy="ui.a7c16b8e53c1">Profilo fan attivo su questo dispositivo.</span><div class="fan-profile-stats"><div><b>${attended.length}</b><span data-copy="ui.6990f01ad9d2">LIVE</span></div><div><b>${esc(me?.ranking_position ?? '—')}</b><span data-copy="ui.f0efa8a9d43d">POSIZIONE</span></div><div><b>${esc(me?.points ?? 0)}</b><span data-copy="ui.b30bda418efd">PUNTI</span></div></div>${topPlayedHtml}<div class="fan-questionnaire-summary"><strong>${esc(questionnaireLabel)}</strong><span>${questionnaireDone?'Puoi rivedere e modificare le risposte dal profilo.':'Il flusso iniziale è ancora disponibile e riparte dal punto lasciato.'}</span></div></div><div class="session-actions"><button class="btn btn-primary" type="button" id="openFanQuestionnaire">${questionnaireDone?'VEDI RISPOSTE':'APRI QUESTIONARIO'}</button><button class="btn btn-primary" type="button" id="openFanCatalog" data-copy="ui.3664bde9cb01">VOTA I BRANI</button><button class="btn btn-ghost" type="button" id="openMyShows" data-copy="ui.e3930548f346">I MIEI LIVE</button><button class="btn btn-ghost" type="button" id="fanRecovery" data-copy="ui.281d94ee06bd">RECUPERO</button><button class="btn btn-ghost" type="button" id="forgetFanDevice">DIMENTICA QUESTO DISPOSITIVO</button><a class="btn btn-ghost" href="privacy.html" target="_blank" rel="noopener">PRIVACY E DIRITTI</a><button class="btn btn-ghost" type="button" data-session-logout="fan" data-copy="ui.b3ef7c765220">ESCI</button></div>`;
       $('openFanQuestionnaire')?.addEventListener('click',()=>{window.location.href='manage.html#profilo';});
       $('openFanCatalog')?.addEventListener('click', () => { closeModal('userModal'); openFanCatalog(); });
       $('openMyShows')?.addEventListener('click', () => { closeModal('userModal'); go('tour'); setTimeout(() => $('archiveBlock')?.scrollIntoView({behavior:'smooth'}), 50); });
@@ -2661,11 +2665,30 @@
       actions
     });
   }
+  function fanTopPlayedDetailRows(r) {
+    const top=Array.isArray(r?.top_played_songs)?r.top_played_songs.slice(0,3):[];
+    return top.map((song,i)=>[
+      `${i+1}ª più riprodotta`,
+      `${song.title||'Brano'} · ${Number(song.play_count||0)} play`
+    ]);
+  }
   function openFanRankingDetail(r, position) {
     if (!r) return;
     const isMe = currentFan?.id && currentFan.id === r.fan_id;
     const actions = isMe ? [{label:'APRI IL MIO PROFILO',primary:true,run:()=>{closeModal('rankingDetailModal');renderUserModal();openModal('userModal');}}] : [];
-    openRankingDetail({kind:'FAN',title:String(r.fan_name||'Fan').toUpperCase(),score:r.points??0,scoreLabel:'PUNTI',rows:[['Posizione',`#${r.ranking_position??position}`],['Presenze',Number(r.attendance_count||0)],['Fan dal',r.fan_since?formatDate(r.fan_since):null]],actions});
+    openRankingDetail({
+      kind:'FAN',
+      title:String(r.fan_name||'Fan').toUpperCase(),
+      score:r.points??0,
+      scoreLabel:'PUNTI',
+      rows:[
+        ['Posizione',`#${r.ranking_position??position}`],
+        ['Presenze',Number(r.attendance_count||0)],
+        ['Fan dal',r.fan_since?formatDate(r.fan_since):null],
+        ...fanTopPlayedDetailRows(r)
+      ],
+      actions
+    });
   }
   function openPosterRankingDetail(r, position) {
     if (!r) return;
