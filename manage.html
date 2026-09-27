@@ -7823,16 +7823,43 @@ setMemberRankingTab('songs');
     return `<div class="analytics-usage-wrap"><div class="analytics-usage-donut" style="--p1:${p1}%;--p2:${p2}%;--p3:${p3}%"></div><div class="analytics-usage-legend"><span>Scaletta <b>${planned}</b></span><span>Richieste <b>${req}</b></span><span>Recuperi <b>${rec}</b></span><span>Bis <b>${bis}</b> <small style="color:#6f7884">(aggiuntivi, non nuovi live)</small></span></div></div>`;
   }
   function jmPositionChart(row){
-    const history=(row.history||[]).filter(x=>Number(x.position)>0);
-    if(history.length<2)return '<div class="analytics-position-empty">Servono almeno 2 esecuzioni per mostrare l’andamento.</div>';
-    const W=640,H=165,padL=28,padR=12,padT=12,padB=24,maxPos=Math.max(5,...history.map(x=>Number(x.position)||1));
+    const history=(row.history||[])
+      .filter(x=>Number(x.position)>0&&x.concert_id)
+      .sort((a,b)=>String(a.concert_date||"").localeCompare(String(b.concert_date||""))||String(a.concert_id).localeCompare(String(b.concert_id)));
+    if(history.length<2)return '<div class="analytics-position-empty">Servono almeno 2 live per mostrare l’andamento.</div>';
+
+    const W=720,H=205,padL=32,padR=14,padT=20,padB=50,maxPos=Math.max(5,...history.map(x=>Number(x.position)||1));
     const x=i=>padL+(history.length===1?0:i*(W-padL-padR)/(history.length-1));
     const y=p=>padT+((Math.max(1,p)-1)/(Math.max(2,maxPos)-1))*(H-padT-padB);
     const pts=history.map((h,i)=>`${x(i)},${y(Number(h.position)||1)}`).join(" ");
-    const grid=[1,Math.ceil(maxPos/2),maxPos].filter((v,i,a)=>a.indexOf(v)===i).map(p=>`<line class="grid" x1="${padL}" x2="${W-padR}" y1="${y(p)}" y2="${y(p)}"></line><text x="3" y="${y(p)+3}" fill="#727b87" font-size="8">#${p}</text>`).join("");
-    const dots=history.map((h,i)=>`<circle class="dot" cx="${x(i)}" cy="${y(Number(h.position)||1)}" r="4"><title>${esc(h.concert_name||"Live")} · ${esc(h.concert_date||"")} · posizione ${Number(h.position)} · ${esc(h.execution_type||"planned")}</title></circle>`).join("");
-    const labels=history.map((h,i)=>i===0||i===history.length-1||history.length<=5?`<text x="${x(i)}" y="${H-5}" text-anchor="${i===0?"start":i===history.length-1?"end":"middle"}" fill="#727b87" font-size="7">${esc(String(h.concert_date||"").slice(0,4))}</text>`:"").join("");
-    return `<svg class="analytics-position-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Andamento posizione in scaletta">${grid}<polyline class="line" points="${pts}"></polyline>${dots}${labels}</svg>`;
+
+    const grid=[1,Math.ceil(maxPos/2),maxPos]
+      .filter((v,i,a)=>a.indexOf(v)===i)
+      .map(p=>`<line class="grid" x1="${padL}" x2="${W-padR}" y1="${y(p)}" y2="${y(p)}"></line><text x="3" y="${y(p)+3}" fill="#727b87" font-size="8">#${p}</text>`)
+      .join("");
+
+    const concertGuides=history.map((h,i)=>
+      `<line x1="${x(i)}" x2="${x(i)}" y1="${padT}" y2="${H-padB}" stroke="#242c36" stroke-width="1" stroke-dasharray="2 4"></line>`
+    ).join("");
+
+    const dots=history.map((h,i)=>{
+      const pos=Number(h.position)||1;
+      const date=String(h.concert_date||"");
+      const shortDate=date?date.slice(5).split("-").reverse().join("/"):"";
+      const shortName=String(h.concert_name||"Live");
+      const label=shortName.length>12?shortName.slice(0,11)+"…":shortName;
+      return `
+        <g data-concert-id="${esc(String(h.concert_id))}">
+          <circle class="dot" cx="${x(i)}" cy="${y(pos)}" r="5">
+            <title>${esc(shortName)} · ${esc(date)} · posizione #${pos} · ${esc(h.execution_type||"planned")}</title>
+          </circle>
+          <text x="${x(i)}" y="${Math.max(10,y(pos)-9)}" text-anchor="middle" fill="#d7dce3" font-size="8" font-weight="800">#${pos}</text>
+          <text x="${x(i)}" y="${H-27}" text-anchor="middle" fill="#89929e" font-size="7">${esc(shortDate)}</text>
+          <text x="${x(i)}" y="${H-15}" text-anchor="middle" fill="#69727e" font-size="6.5">${esc(label)}</text>
+        </g>`;
+    }).join("");
+
+    return `<div class="analytics-card-note" style="margin-bottom:5px">${history.length} live distinti · un punto per concert_id</div><svg class="analytics-position-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Andamento posizione in scaletta per singolo concerto">${grid}${concertGuides}<polyline class="line" points="${pts}"></polyline>${dots}</svg>`;
   }
   function jmDetailHtml(row){
     if(!row)return '<div class="analytics-song-detail"><div class="empty">Seleziona un brano.</div></div>';
