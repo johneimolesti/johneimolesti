@@ -36,7 +36,15 @@
       .fan-presence-toolbar{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,.75fr);gap:7px;padding:10px;border-bottom:1px solid rgba(255,255,255,.07)}
       .fan-presence-toolbar select,.fan-presence-toolbar input{width:100%;min-height:34px;padding:6px 8px;border:1px solid #414750;border-radius:7px;background:#171b22;color:#fff;font-size:8px}
       .fan-presence-empty{padding:16px;color:#7f8791;font-size:8px;text-align:center}
-      @media(max-width:850px){.fan-presence-grid{grid-template-columns:1fr}.fan-presence-panel.full{grid-column:auto}.fan-presence-toolbar{grid-template-columns:1fr}.fan-presence-list{max-height:none}}
+      .fan-presence-concert-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:10px;min-height:0}
+      .fan-presence-subpanel{min-width:0;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(0,0,0,.12);overflow:hidden}
+      .fan-presence-subhead{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02)}
+      .fan-presence-subhead h4{margin:0;font-size:9px}
+      .fan-presence-subhead .section-note{margin-top:2px;font-size:7px}
+      .fan-presence-subcount{flex:0 0 auto;color:#89919d;font-size:7px;white-space:nowrap}
+      .fan-presence-sublist{height:46vh;min-height:260px;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+      .fan-presence-sublist .fan-presence-row{min-height:52px}
+      @media(max-width:850px){.fan-presence-grid{grid-template-columns:1fr}.fan-presence-panel.full{grid-column:auto}.fan-presence-toolbar{grid-template-columns:1fr}.fan-presence-list{max-height:none}.fan-presence-concert-columns{grid-template-columns:1fr;padding:8px}.fan-presence-sublist{height:40vh;min-height:240px}}
     `;
     document.head.appendChild(st);
   }
@@ -47,6 +55,26 @@
   let fanPresenceRoster=[];
   let fanPresenceConcertId='';
   let fanPresenceSearch='';
+  let rosterScrollSnapshot=null;
+
+  function captureRosterScroll(){
+    rosterScrollSnapshot={
+      present:q('#fanPresencePresentList')?.scrollTop||0,
+      available:q('#fanPresenceAvailableList')?.scrollTop||0
+    };
+  }
+
+  function restoreRosterScroll(){
+    if(!rosterScrollSnapshot)return;
+    const snapshot=rosterScrollSnapshot;
+    rosterScrollSnapshot=null;
+    requestAnimationFrame(()=>{
+      const present=q('#fanPresencePresentList');
+      const available=q('#fanPresenceAvailableList');
+      if(present)present.scrollTop=snapshot.present;
+      if(available)available.scrollTop=snapshot.available;
+    });
+  }
 
   function presenceDate(value){
     if(!value)return '—';
@@ -122,7 +150,7 @@
             <div class="fan-presence-panel-head">
               <div>
                 <h3>GESTIONE PER CONCERTO</h3>
-                <div class="section-note">Seleziona un live e aggiungi, conferma o rimuovi i fan.</div>
+                <div class="section-note">Presenti e fan da aggiungere restano in due liste indipendenti.</div>
               </div>
               <span class="counter" id="fanPresenceConcertCount"></span>
             </div>
@@ -130,7 +158,28 @@
               <select id="fanPresenceConcertSelect"><option value="">Seleziona concerto…</option></select>
               <input id="fanPresenceSearch" type="search" autocomplete="off" placeholder="Cerca fan…">
             </div>
-            <div class="fan-presence-list" id="fanPresenceConcertList"></div>
+            <div class="fan-presence-concert-columns">
+              <section class="fan-presence-subpanel">
+                <div class="fan-presence-subhead">
+                  <div>
+                    <h4>PRESENTI</h4>
+                    <div class="section-note">Presenze già registrate.</div>
+                  </div>
+                  <span class="fan-presence-subcount" id="fanPresencePresentCount">0</span>
+                </div>
+                <div class="fan-presence-sublist" id="fanPresencePresentList"></div>
+              </section>
+              <section class="fan-presence-subpanel">
+                <div class="fan-presence-subhead">
+                  <div>
+                    <h4>DA AGGIUNGERE</h4>
+                    <div class="section-note">Fan senza presenza registrata.</div>
+                  </div>
+                  <span class="fan-presence-subcount" id="fanPresenceAvailableCount">0</span>
+                </div>
+                <div class="fan-presence-sublist" id="fanPresenceAvailableList"></div>
+              </section>
+            </div>
           </section>
 
           <section class="fan-presence-panel full">
@@ -150,10 +199,12 @@
     button.onclick=openCertificationPage;
     q('#fanPresenceConcertSelect',page).onchange=async e=>{
       fanPresenceConcertId=e.target.value||'';
+      rosterScrollSnapshot=null;
       await loadConcertPresenceRoster();
     };
     q('#fanPresenceSearch',page).oninput=e=>{
       fanPresenceSearch=String(e.target.value||'').trim().toLowerCase();
+      rosterScrollSnapshot=null;
       renderConcertPresenceRoster();
     };
   }
@@ -210,21 +261,30 @@
   }
 
   async function loadConcertPresenceRoster(){
-    const list=q('#fanPresenceConcertList');
+    const presentList=q('#fanPresencePresentList');
+    const availableList=q('#fanPresenceAvailableList');
+
     if(!fanPresenceConcertId){
       fanPresenceRoster=[];
-      if(list)list.innerHTML='<div class="fan-presence-empty">Seleziona un concerto.</div>';
+      if(presentList)presentList.innerHTML='<div class="fan-presence-empty">Seleziona un concerto.</div>';
+      if(availableList)availableList.innerHTML='<div class="fan-presence-empty">Seleziona un concerto.</div>';
+      if(q('#fanPresencePresentCount'))q('#fanPresencePresentCount').textContent='0';
+      if(q('#fanPresenceAvailableCount'))q('#fanPresenceAvailableCount').textContent='0';
       if(q('#fanPresenceConcertCount'))q('#fanPresenceConcertCount').textContent='';
       return;
     }
 
-    if(list)list.innerHTML='<div class="fan-presence-empty">Caricamento fan…</div>';
+    if(presentList)presentList.innerHTML='<div class="fan-presence-empty">Caricamento presenti…</div>';
+    if(availableList)availableList.innerHTML='<div class="fan-presence-empty">Caricamento fan…</div>';
 
     const {data,error}=await sb.rpc('member_list_concert_fan_attendance',{
       p_concert_id:fanPresenceConcertId
     });
     if(error){
-      if(list)list.innerHTML=`<div class="fan-presence-empty">${esc(error.message)}</div>`;
+      rosterScrollSnapshot=null;
+      const message=`<div class="fan-presence-empty">${esc(error.message)}</div>`;
+      if(presentList)presentList.innerHTML=message;
+      if(availableList)availableList.innerHTML=message;
       return;
     }
 
@@ -232,63 +292,82 @@
     renderConcertPresenceRoster();
   }
 
-  function renderConcertPresenceRoster(){
-    const list=q('#fanPresenceConcertList');
-    if(!list)return;
+  function rosterRow(x){
+    const exists=!!x.attendance_exists;
+    const certified=!!x.certified;
+    const statusClass=certified?'certified':exists?'pending':'absent';
+    const status=certified?certificationLabel(x):exists?'DA CONFERMARE':'ASSENTE';
+    let actions='';
 
-    const rows=fanPresenceRoster.filter(x=>{
-      if(!fanPresenceSearch)return true;
-      return String(x.fan_name||'').toLowerCase().includes(fanPresenceSearch);
+    if(!exists){
+      actions=`<button class="fan-presence-action primary" type="button"
+        data-roster-add="${esc(x.fan_id)}">AGGIUNGI</button>`;
+    }else if(!certified){
+      actions=`<button class="fan-presence-action primary" type="button"
+        data-roster-add="${esc(x.fan_id)}">CONFERMA</button>
+        ${isAdmin()?`<button class="fan-presence-action danger" type="button"
+        data-roster-remove="${esc(x.fan_id)}">RIMUOVI</button>`:''}`;
+    }else if(isAdmin()){
+      actions=`<button class="fan-presence-action danger" type="button"
+        data-roster-remove="${esc(x.fan_id)}">RIMUOVI</button>`;
+    }
+
+    return `
+      <div class="fan-presence-row">
+        <div class="fan-presence-main">
+          <strong>${esc(x.fan_name)}</strong>
+          <span>${exists
+            ? `presenza registrata ${esc(presenceDateTime(x.attendance_created_at))}`
+            : 'nessuna presenza registrata'}</span>
+        </div>
+        <div class="fan-presence-actions">
+          <span class="fan-presence-status ${statusClass}">${esc(status)}</span>
+          ${actions}
+        </div>
+      </div>`;
+  }
+
+  function bindRosterActions(root){
+    if(!root)return;
+    qa('[data-roster-add]',root).forEach(btn=>btn.onclick=async()=>{
+      captureRosterScroll();
+      await certifyFanPresence(btn.dataset.rosterAdd,fanPresenceConcertId,btn);
     });
+    qa('[data-roster-remove]',root).forEach(btn=>btn.onclick=async()=>{
+      captureRosterScroll();
+      await removeFanPresence(btn.dataset.rosterRemove,fanPresenceConcertId,btn);
+    });
+  }
+
+  function renderConcertPresenceRoster(){
+    const presentList=q('#fanPresencePresentList');
+    const availableList=q('#fanPresenceAvailableList');
+    if(!presentList||!availableList)return;
+
+    const matches=x=>!fanPresenceSearch || String(x.fan_name||'').toLowerCase().includes(fanPresenceSearch);
+    const visible=fanPresenceRoster.filter(matches);
+    const presentRows=visible.filter(x=>x.attendance_exists);
+    const availableRows=visible.filter(x=>!x.attendance_exists);
 
     const presentCount=fanPresenceRoster.filter(x=>x.attendance_exists).length;
     const certifiedCount=fanPresenceRoster.filter(x=>x.certified).length;
     const pendingCount=fanPresenceRoster.filter(x=>x.attendance_exists&&!x.certified).length;
+    const availableCount=fanPresenceRoster.length-presentCount;
+
     q('#fanPresenceConcertCount').textContent=fanPresenceConcertId
-      ? `${certifiedCount} certificate · ${pendingCount} da confermare · ${presentCount} totali`
+      ? `${certifiedCount} certificate · ${pendingCount} da confermare · ${presentCount} presenti`
       : '';
+    q('#fanPresencePresentCount').textContent=fanPresenceSearch?`${presentRows.length} / ${presentCount}`:String(presentCount);
+    q('#fanPresenceAvailableCount').textContent=fanPresenceSearch?`${availableRows.length} / ${availableCount}`:String(availableCount);
 
-    list.innerHTML=rows.map(x=>{
-      const exists=!!x.attendance_exists;
-      const certified=!!x.certified;
-      const statusClass=certified?'certified':exists?'pending':'absent';
-      const status=certified?certificationLabel(x):exists?'DA CONFERMARE':'ASSENTE';
-      let actions='';
+    presentList.innerHTML=presentRows.map(rosterRow).join('')
+      || `<div class="fan-presence-empty">${fanPresenceSearch?'Nessun presente corrisponde alla ricerca.':'Nessuna presenza registrata per questo live.'}</div>`;
+    availableList.innerHTML=availableRows.map(rosterRow).join('')
+      || `<div class="fan-presence-empty">${fanPresenceSearch?'Nessun fan da aggiungere corrisponde alla ricerca.':'Tutti i fan risultano già presenti.'}</div>`;
 
-      if(!exists){
-        actions=`<button class="fan-presence-action primary" type="button"
-          data-roster-add="${esc(x.fan_id)}">AGGIUNGI</button>`;
-      }else if(!certified){
-        actions=`<button class="fan-presence-action primary" type="button"
-          data-roster-add="${esc(x.fan_id)}">CONFERMA</button>
-          ${isAdmin()?`<button class="fan-presence-action danger" type="button"
-          data-roster-remove="${esc(x.fan_id)}">RIMUOVI</button>`:''}`;
-      }else if(isAdmin()){
-        actions=`<button class="fan-presence-action danger" type="button"
-          data-roster-remove="${esc(x.fan_id)}">RIMUOVI</button>`;
-      }
-
-      return `
-        <div class="fan-presence-row">
-          <div class="fan-presence-main">
-            <strong>${esc(x.fan_name)}</strong>
-            <span>${exists
-              ? `presenza registrata ${esc(presenceDateTime(x.attendance_created_at))}`
-              : 'nessuna presenza registrata'}</span>
-          </div>
-          <div class="fan-presence-actions">
-            <span class="fan-presence-status ${statusClass}">${esc(status)}</span>
-            ${actions}
-          </div>
-        </div>`;
-    }).join('')||'<div class="fan-presence-empty">Nessun fan corrisponde alla ricerca.</div>';
-
-    qa('[data-roster-add]',list).forEach(btn=>btn.onclick=async()=>{
-      await certifyFanPresence(btn.dataset.rosterAdd,fanPresenceConcertId,btn);
-    });
-    qa('[data-roster-remove]',list).forEach(btn=>btn.onclick=async()=>{
-      await removeFanPresence(btn.dataset.rosterRemove,fanPresenceConcertId,btn);
-    });
+    bindRosterActions(presentList);
+    bindRosterActions(availableList);
+    restoreRosterScroll();
   }
 
   async function certifyFanPresence(fanId,concertId,button=null){
@@ -302,6 +381,7 @@
       if(error)throw error;
       await loadCertifications();
     }catch(err){
+      rosterScrollSnapshot=null;
       alert(err.message||String(err));
     }finally{
       if(button)button.disabled=false;
@@ -311,7 +391,10 @@
   async function removeFanPresence(fanId,concertId,button=null){
     if(!isAdmin()||!fanId||!concertId)return;
     const concert=fanPresenceConcerts.find(x=>String(x.concert_id)===String(concertId));
-    if(!confirm(`Rimuovere la presenza${concert?.concert_name?` a “${concert.concert_name}”`:''}? Verranno eliminati anche i dati live collegati.`))return;
+    if(!confirm(`Rimuovere la presenza${concert?.concert_name?` a “${concert.concert_name}”`:''}? Verranno eliminati anche i dati live collegati.`)){
+      rosterScrollSnapshot=null;
+      return;
+    }
 
     if(button)button.disabled=true;
     try{
@@ -322,6 +405,7 @@
       if(error)throw error;
       await loadCertifications();
     }catch(err){
+      rosterScrollSnapshot=null;
       alert(err.message||String(err));
     }finally{
       if(button)button.disabled=false;
