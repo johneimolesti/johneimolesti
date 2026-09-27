@@ -7817,8 +7817,10 @@ setMemberRankingTab('songs');
   function jmUsage(row){
     const total=Math.max(1,Number(row.executions||0));
     const planned=Number(row.planned_count||0),req=Number(row.request_count||0),bis=Number(row.bis_count||0),rec=Number(row.recovery_count||0);
-    const p1=(planned/total*100),p2=p1+(req/total*100),p3=p2+(bis/total*100);
-    return `<div class="analytics-usage-wrap"><div class="analytics-usage-donut" style="--p1:${p1}%;--p2:${p2}%;--p3:${p3}%"></div><div class="analytics-usage-legend"><span>Scaletta <b>${planned}</b></span><span>Richieste <b>${req}</b></span><span>Bis <b>${bis}</b></span><span>Recuperi <b>${rec}</b></span></div></div>`;
+    const p1=Math.min(100,planned/total*100);
+    const p2=Math.min(100,p1+(req/total*100));
+    const p3=100;
+    return `<div class="analytics-usage-wrap"><div class="analytics-usage-donut" style="--p1:${p1}%;--p2:${p2}%;--p3:${p3}%"></div><div class="analytics-usage-legend"><span>Scaletta <b>${planned}</b></span><span>Richieste <b>${req}</b></span><span>Recuperi <b>${rec}</b></span><span>Bis <b>${bis}</b> <small style="color:#6f7884">(aggiuntivi, non nuovi live)</small></span></div></div>`;
   }
   function jmPositionChart(row){
     const history=(row.history||[]).filter(x=>Number(x.position)>0);
