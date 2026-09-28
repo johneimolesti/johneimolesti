@@ -3217,9 +3217,8 @@
   }
   function liveSongRow(song, visiblePosition, editable, hidden) {
     const score = song.my_vote?.molesti_score ?? '';
-    const rx = song.my_reactions || {};
     const position = visiblePosition == null ? '' : String(visiblePosition);
-    return `<div class="concert-song-row${hidden ? ' is-hidden' : ''}" data-live-song="${esc(song.id)}"><div class="concert-song-pos${position ? '' : ' is-empty'}">${position}</div><div><div class="concert-song-title">${esc(song.title)}</div><div class="concert-song-meta">${esc([song.base_artist ? window.JMCopy.text('ui.base',{artist:song.base_artist}) : '',song.lyrics_artist ? window.JMCopy.text('ui.lyrics',{artist:song.lyrics_artist}) : ''].filter(Boolean).join(' · '))}</div></div>${editable ? `<div class="song-vote-controls"><select class="score-select song-score" aria-label="Voto performance" data-copy-aria-label="ui.performance"><option value="" data-copy="ui.a8603c064e80">Voto</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(score)===n+1?'selected':''}>${n+1}</option>`).join('')}</select><label class="reaction-chip"><input type="checkbox" class="rx-pogo" ${rx.pogo?'checked':''}><span data-copy="ui.pogo">POGO</span></label><label class="reaction-chip"><input type="checkbox" class="rx-sang" ${rx.sang_along?'checked':''}><span data-copy="ui.sing">CANTA</span></label><label class="reaction-chip"><input type="checkbox" class="rx-enjoy" ${rx.enjoyed?'checked':''}><span data-copy="ui.top">TOP</span></label></div>` : ''}</div>`;
+    return `<div class="concert-song-row${hidden ? ' is-hidden' : ''}" data-live-song="${esc(song.id)}"><div class="concert-song-pos${position ? '' : ' is-empty'}">${position}</div><div><div class="concert-song-title">${esc(song.title)}</div><div class="concert-song-meta">${esc([song.base_artist ? window.JMCopy.text('ui.base',{artist:song.base_artist}) : '',song.lyrics_artist ? window.JMCopy.text('ui.lyrics',{artist:song.lyrics_artist}) : ''].filter(Boolean).join(' · '))}</div></div>${editable ? `<div class="song-vote-controls"><select class="score-select song-score" aria-label="Voto performance" data-copy-aria-label="ui.performance"><option value="" data-copy="ui.a8603c064e80">Voto</option>${Array.from({length:10},(_,n)=>`<option value="${n+1}" ${Number(score)===n+1?'selected':''}>${n+1}</option>`).join('')}</select></div>` : ''}</div>`;
   }
   async function openConcert(id) {
     const request=++concertRequest;
@@ -3345,12 +3344,9 @@
     }
   }
   async function saveLiveFeedback(concertId) {
-    const rows = $$('[data-live-song]', $('concertModalBody')).map(row => ({
+    const rows = $('[data-live-song]', $('concertModalBody')).map(row => ({
       song_id:row.dataset.liveSong,
-      performance_score:row.querySelector('.song-score')?.value || null,
-      pogo:!!row.querySelector('.rx-pogo')?.checked,
-      sang_along:!!row.querySelector('.rx-sang')?.checked,
-      enjoyed:!!row.querySelector('.rx-enjoy')?.checked
+      performance_score:row.querySelector('.song-score')?.value || null
     }));
     const performance = $('concertGeneralScore')?.value || null;
     const btn = $('saveLiveFeedback');
