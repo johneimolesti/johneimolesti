@@ -20,7 +20,8 @@
   let privateFactor=.33;
   let loading=false;
   let view="queue";
-  let search="";
+  let fanSearch="";
+  let liveFilter="";
   let editing=null;
 
   function injectStyles(){
@@ -77,8 +78,12 @@
       .fan-review-next-row strong{display:block;font-size:9px}.fan-review-next-row span{display:block;margin-top:2px;color:#838c98;font-size:7px}
       .fan-review-empty{padding:28px 16px;text-align:center;color:#8f98a4}
       .fan-review-empty strong{display:block;margin-bottom:5px;color:#fff;font-size:13px}
-      .fan-review-history-toolbar{display:flex;gap:7px;padding:10px;border-bottom:1px solid rgba(255,255,255,.07)}
-      .fan-review-history-toolbar input{width:100%;min-height:38px;padding:7px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#15191f;color:#fff}
+      .fan-review-history-toolbar{display:grid;grid-template-columns:minmax(190px,.75fr) minmax(240px,1.25fr) auto;gap:8px;align-items:end;padding:10px;border-bottom:1px solid rgba(255,255,255,.07)}
+      .fan-review-history-filter{display:grid;gap:5px;min-width:0}
+      .fan-review-history-filter label{font-size:7px;font-weight:950;letter-spacing:.07em;color:#89919d}
+      .fan-review-history-toolbar input,.fan-review-history-toolbar select{width:100%;min-height:40px;padding:7px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#15191f;color:#fff;font-size:9px;outline:none}
+      .fan-review-history-toolbar input:focus,.fan-review-history-toolbar select:focus{border-color:rgba(243,210,52,.6);box-shadow:0 0 0 2px rgba(243,210,52,.08)}
+      .fan-review-history-count{display:flex;align-items:center;justify-content:center;min-height:40px;padding:6px 10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.025);color:#9aa2ad;font-size:8px;font-weight:900;white-space:nowrap}
       .fan-review-history-list{max-height:64vh;overflow:auto}
       .fan-review-history-row{display:grid;grid-template-columns:minmax(150px,1fr) minmax(180px,1.2fr) 86px 90px 80px auto;gap:8px;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
       .fan-review-history-row:last-child{border-bottom:0}
@@ -92,6 +97,8 @@
         .fan-review-fields{grid-template-columns:1fr}
         .fan-review-actions{grid-template-columns:1fr 1fr}.fan-review-actions .save{grid-column:1/-1;order:-1}
         .fan-review-actions.editing{grid-template-columns:1fr 1fr}.fan-review-actions.editing .save{grid-column:auto;order:0}
+        .fan-review-history-toolbar{grid-template-columns:1fr}
+        .fan-review-history-count{justify-content:flex-start}
         .fan-review-history-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"fan edit" "live live" "presence participation" "points points"}
         .fan-review-history-row .history-fan{grid-area:fan}.fan-review-history-row .history-live{grid-area:live}.fan-review-history-row .history-presence{grid-area:presence}.fan-review-history-row .history-participation{grid-area:participation}.fan-review-history-row .fan-review-history-points{grid-area:points}.fan-review-history-row button{grid-area:edit}
       }
@@ -170,27 +177,79 @@
     return `<div class="fan-review-grid">${editorMarkup(row,!!editing)}${next}</div>`;
   }
 
-  function filteredReviews(){
-    const needle=search.trim().toLowerCase();
-    if(!needle)return reviews;
-    return reviews.filter(r=>`${r.fan_name||""} ${r.concert_name||""}`.toLowerCase().includes(needle));
+  function liveOptions(){
+    const map=new Map();
+    reviews.forEach(r=>{
+      const key=String(r.concert_id||"");
+      if(!key||map.has(key))return;
+      map.set(key,{
+        id:key,
+        name:r.concert_name||"Live",
+        date:r.concert_date||"",
+        start_time:r.start_time||""
+      });
+    });
+    return [...map.values()].sort((a,b)=>
+      String(b.date).localeCompare(String(a.date))
+      || String(b.start_time||"").localeCompare(String(a.start_time||""))
+      || String(a.name).localeCompare(String(b.name),"it")
+    );
+  }
+
+  function historyRowsMarkup(){
+    return reviews.map(r=>`<div class="fan-review-history-row"
+      data-history-row
+      data-fan-name="${escHtml(String(r.fan_name||"").toLowerCase())}"
+      data-concert-id="${escHtml(r.concert_id)}">
+      <strong class="history-fan">${escHtml(r.fan_name)}</strong>
+      <span class="history-live">${escHtml(r.concert_name)} · ${fmtDate(r.concert_date)}</span>
+      <span class="history-presence">${Number(r.presence_percent)}% presenza</span>
+      <span class="history-participation">partecipazione ${Number(r.participation_score).toFixed(1)}</span>
+      <span class="fan-review-history-points">${Number(r.estimated_points||0)} pt</span>
+      <button type="button" data-review-edit="${escHtml(r.concert_id)}" data-fan-id="${escHtml(r.fan_id)}">MODIFICA</button>
+    </div>`).join("");
   }
 
   function renderHistory(){
-    const rows=filteredReviews();
+    const options=liveOptions();
     return `<div class="fan-review-history">
-      <div class="fan-review-history-toolbar"><input id="fanReviewSearch" type="search" autocomplete="off" placeholder="Cerca fan o live..." value="${escHtml(search)}"></div>
-      <div class="fan-review-history-list">
-        ${rows.length?rows.map(r=>`<div class="fan-review-history-row">
-          <strong class="history-fan">${escHtml(r.fan_name)}</strong>
-          <span class="history-live">${escHtml(r.concert_name)} · ${fmtDate(r.concert_date)}</span>
-          <span class="history-presence">${Number(r.presence_percent)}% presenza</span>
-          <span class="history-participation">partecipazione ${Number(r.participation_score).toFixed(1)}</span>
-          <span class="fan-review-history-points">${Number(r.estimated_points||0)} pt</span>
-          <button type="button" data-review-edit="${escHtml(r.concert_id)}" data-fan-id="${escHtml(r.fan_id)}">MODIFICA</button>
-        </div>`).join(""):'<div class="fan-review-empty">Nessuna valutazione corrisponde alla ricerca.</div>'}
+      <div class="fan-review-history-toolbar">
+        <div class="fan-review-history-filter">
+          <label for="fanReviewLiveFilter">LIVE</label>
+          <select id="fanReviewLiveFilter">
+            <option value="">TUTTI I LIVE</option>
+            ${options.map(c=>`<option value="${escHtml(c.id)}" ${String(c.id)===String(liveFilter)?"selected":""}>${fmtDate(c.date)} · ${escHtml(c.name)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="fan-review-history-filter">
+          <label for="fanReviewSearch">FAN</label>
+          <input id="fanReviewSearch" type="search" autocomplete="off" placeholder="Cerca nome fan..." value="${escHtml(fanSearch)}">
+        </div>
+        <div class="fan-review-history-count" id="fanReviewHistoryCount">${reviews.length} VALUTAZIONI</div>
+      </div>
+      <div class="fan-review-history-list" id="fanReviewHistoryList">
+        ${reviews.length?historyRowsMarkup():'<div class="fan-review-empty">Nessuna valutazione salvata.</div>'}
+        <div class="fan-review-empty" id="fanReviewHistoryEmpty" hidden>Nessuna valutazione corrisponde ai filtri.</div>
       </div>
     </div>`;
+  }
+
+  function applyHistoryFilters(){
+    const list=$("fanReviewHistoryList");
+    if(!list)return;
+    const needle=fanSearch.trim().toLowerCase();
+    let visible=0;
+    qa("[data-history-row]",list).forEach(row=>{
+      const fan=String(row.dataset.fanName||"");
+      const concertId=String(row.dataset.concertId||"");
+      const show=(!needle||fan.includes(needle))&&(!liveFilter||concertId===String(liveFilter));
+      row.hidden=!show;
+      if(show)visible++;
+    });
+    const count=$("fanReviewHistoryCount");
+    if(count)count.textContent=`${visible} DI ${reviews.length} VALUTAZIONI`;
+    const empty=$("fanReviewHistoryEmpty");
+    if(empty)empty.hidden=visible!==0||reviews.length===0;
   }
 
   function render(){
@@ -211,7 +270,15 @@
 
   function bindHistory(){
     const input=$("fanReviewSearch");
-    if(input)input.oninput=e=>{search=String(e.target.value||"");render()};
+    const select=$("fanReviewLiveFilter");
+    if(input)input.oninput=e=>{
+      fanSearch=String(e.target.value||"");
+      applyHistoryFilters();
+    };
+    if(select)select.onchange=e=>{
+      liveFilter=String(e.target.value||"");
+      applyHistoryFilters();
+    };
     qa("[data-review-edit]",$(PAGE_ID)).forEach(btn=>btn.onclick=()=>{
       const row=reviews.find(r=>String(r.concert_id)===String(btn.dataset.reviewEdit)&&String(r.fan_id)===String(btn.dataset.fanId));
       if(!row)return;
@@ -219,6 +286,7 @@
       view="queue";
       render();
     });
+    applyHistoryFilters();
   }
 
   function bindEditor(){
