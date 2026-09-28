@@ -2363,6 +2363,7 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
     <button id="memberAvailabilityNav" class="nav-button" data-static-nav="1" data-category="live" data-page="bandAvailabilityPage">DISPONIBILITÀ</button>
 
     <button id="memberPresenceNav" class="nav-button" data-static-nav="1" data-category="community" data-page="demoCertificationPage">PRESENZE</button>
+    <button id="memberFanReviewsNav" class="nav-button" data-static-nav="1" data-category="community" data-page="fanReviewsPage">VALUTAZIONI</button>
     <button class="nav-button" data-category="community" data-page="fansAdminPage">UTENTI <span id="mergeBadge" class="badge hidden"></span></button>
 
     <button class="nav-button" data-category="admin" data-page="cashPage">CASSA <span id="cashPendingBadge" class="badge hidden"></span></button>
@@ -2446,6 +2447,10 @@ body.app-full-immersion #venueList,body.app-full-immersion .label-setup-list,bod
       <section class="panel member-ranking-panel" data-member-ranking-panel="posters"><div class="panel-header"><h2>CLASSIFICA LOCANDINE</h2><span id="memberPosterRankingCounter" class="counter"></span></div><div id="memberPosterRankingList" class="admin-ranking-scroll"></div></section>
       <section class="panel member-ranking-panel" data-member-ranking-panel="fans"><div class="panel-header"><h2>CLASSIFICA FAN</h2><span id="memberFanRankingCounter" class="counter"></span></div><div id="memberFanRankingList" class="admin-ranking-scroll"></div></section>
       <section class="panel member-ranking-panel" data-member-ranking-panel="concerts"><div class="panel-header"><h2>CLASSIFICA CONCERTI</h2><span id="memberConcertRankingCounter" class="counter"></span></div><div id="memberConcertRankingList" class="admin-ranking-scroll"></div></section>
+    </section>
+
+    <section id="fanReviewsPage" class="page">
+      <div class="fan-review-card"><div class="fan-review-empty">Apri la sezione per caricare le valutazioni fan.</div></div>
     </section>
 
     <section id="fansAdminPage" class="page">
@@ -2908,7 +2913,7 @@ async function loadPublicPermissions(role){try{const data=await fanApi("permissi
 function activateFirstVisibleNav(appId,buttonSelector,pageAttr){const app=$(appId),buttons=[...app.querySelectorAll(buttonSelector)].filter(b=>!b.hidden&&!b.classList.contains("hidden")),main=app.querySelector("main");let empty=app.querySelector(".permission-empty-state");if(!buttons.length){app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));if(!empty&&main){empty=document.createElement("div");empty.className="panel empty permission-empty-state";empty.textContent="Nessuna sezione abilitata per questo tipo di accesso.";main.prepend(empty)}return}if(empty)empty.remove();let active=buttons.find(b=>b.classList.contains("active"));if(!active){active=buttons[0];app.querySelectorAll(buttonSelector).forEach(b=>b.classList.remove("active"));active.classList.add("active")}app.querySelectorAll("main .page").forEach(p=>p.classList.remove("active"));const pageId=active.dataset[pageAttr];if(pageId&&$(pageId))$(pageId).classList.add("active")}
 function canUseDesktopSetup(){return window.matchMedia("(min-width:900px) and (pointer:fine)").matches}
 function applyMemberPermissionsUI(){
-  const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view"};
+  const map={mySetlistPage:"member_setlist_view",proposalsPage:"proposals_view",catalogPage:"catalog_view",membersPage:"member_setlists_view",concertsPage:"concerts_view",songRankingPage:"rankings_view",fansAdminPage:"fan_section_view",fanReviewsPage:"fan_section_view"};
   $("memberNav").querySelectorAll("[data-page]").forEach(btn=>{
     const page=btn.dataset.page;
     if(page==="setupPage"){btn.classList.toggle("hidden",!isEma()||!canUseDesktopSetup());return}
@@ -3019,6 +3024,7 @@ window.JM_MEMBER_LOAD_PAGE=async function(page){
     if(page==="concertsPage"){await loadConcerts();renderConcerts();if(selectedConcertId)await renderConcertDetail(selectedConcertId)}
     if(page==="songRankingPage"){await loadUnifiedMemberRankings()}
     if(page==="fansAdminPage"){await loadFanArea();renderFanArea()}
+    if(page==="fanReviewsPage"){await window.JM_FAN_REVIEWS_LOAD?.(true)}
     if(page==="analyticsPage")await renderAnalyticsInto("memberAnalyticsContent");
     if(page==="setupPage"&&isEma()){
       if(!canUseDesktopSetup()){alert("SETUP è disponibile solo da PC.");return}
@@ -3936,7 +3942,7 @@ async function renderConcertDetail(id){
   };
   tools.appendChild(makeToolIcon("⎙","Stampa scaletta",()=>printConcert(c,items)));
   tools.appendChild(makeToolIcon("⇩","Salva PDF",()=>saveConcertPdf(c,items)));
-  if(c.status==="completed")tools.appendChild(makeToolIcon("♙","Attività fan",()=>openLiveActivityModal(c.id,c.name)));
+
   if(isEma()){
     tools.appendChild(makeToolIcon("✎","Modifica concerto",()=>openConcertModal(c)));
     tools.appendChild(makeToolIcon("⧉","Copia live",()=>openConcertModal(c,{copy:true})));
@@ -6919,6 +6925,7 @@ setMemberRankingTab('songs');
   <script src="js/public-media-admin.js"></script>
   <script src="js/demo-audio-admin.js"></script>
   <script src="js/fan-presenze.js"></script>
+<script src="js/fan-valutazioni.js"></script>
   <script src="js/qr-checkin-admin.js"></script>
   <script id="requests-admin-inline">
 (()=>{
@@ -7224,7 +7231,7 @@ setMemberRankingTab('songs');
     mySetlistPage:"setlists",proposalsPage:"setlists",membersPage:"setlists",
     catalogPage:"music",
     concertsPage:"live",bandAvailabilityPage:"live",checkinQrPage:"live",
-    demoCertificationPage:"community",fansAdminPage:"community",
+    demoCertificationPage:"community",fanReviewsPage:"community",fansAdminPage:"community",
     cashPage:"admin",requestsPage:"admin",demoCodesPage:"admin",bookingAdminPage:"admin",
     songRankingPage:"insights",analyticsPage:"insights",
     publicMediaAdminPage:"site",setupPage:"site"
@@ -7232,7 +7239,7 @@ setMemberRankingTab('songs');
   const PAGE_ROUTE={
     mySetlistPage:"scaletta",proposalsPage:"proposte",membersPage:"scalette-membri",
     catalogPage:"catalogo",concertsPage:"concerti",
-    demoCertificationPage:"presenze",fansAdminPage:"fan",
+    demoCertificationPage:"presenze",fanReviewsPage:"valutazioni",fansAdminPage:"fan",
     cashPage:"cassa",bandAvailabilityPage:"disponibilita",requestsPage:"richieste",
     songRankingPage:"classifiche",analyticsPage:"statistiche",
     publicMediaAdminPage:"media-pubblici",setupPage:"setup",checkinQrPage:"qr-checkin"
@@ -7240,7 +7247,7 @@ setMemberRankingTab('songs');
   const ROUTE_PAGE={
     scaletta:"mySetlistPage",proposte:"proposalsPage","scalette-membri":"membersPage",
     catalogo:"catalogPage",concerti:"concertsPage",
-    presenze:"demoCertificationPage",fan:"fansAdminPage",
+    presenze:"demoCertificationPage",valutazioni:"fanReviewsPage",fan:"fansAdminPage",
     cassa:"cashPage",disponibilita:"bandAvailabilityPage",richieste:"requestsPage",
     classifiche:"songRankingPage","classifica-brani":"songRankingPage",statistiche:"analyticsPage",
     "media-pubblici":"publicMediaAdminPage",setup:"setupPage","qr-checkin":"checkinQrPage"
@@ -7249,12 +7256,12 @@ setMemberRankingTab('songs');
     "mySetlistPage","proposalsPage","membersPage",
     "catalogPage",
     "concertsPage","bandAvailabilityPage","checkinQrPage",
-    "demoCertificationPage","fansAdminPage",
+    "demoCertificationPage","fanReviewsPage","fansAdminPage",
     "cashPage","requestsPage","demoCodesPage","bookingAdminPage",
     "songRankingPage","analyticsPage",
     "publicMediaAdminPage","setupPage"
   ];
-  const LABELS={proposalsPage:"PROPOSTE",demoCertificationPage:"PRESENZE",fansAdminPage:"UTENTI",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",songRankingPage:"CLASSIFICHE",analyticsPage:"STATISTICHE",publicMediaAdminPage:"MEDIA PUBBLICI",setupPage:"CONFIGURAZIONE",checkinQrPage:"QR CHECK-IN"};
+  const LABELS={proposalsPage:"PROPOSTE",demoCertificationPage:"PRESENZE",fanReviewsPage:"VALUTAZIONI",fansAdminPage:"UTENTI",bandAvailabilityPage:"DISPONIBILITÀ",requestsPage:"RICHIESTE",songRankingPage:"CLASSIFICHE",analyticsPage:"STATISTICHE",publicMediaAdminPage:"MEDIA PUBBLICI",setupPage:"CONFIGURAZIONE",checkinQrPage:"QR CHECK-IN"};
   const nav=()=>document.getElementById("memberNav");
   const top=()=>document.getElementById("memberCategoryNav");
   const memberApp=()=>document.getElementById("memberApp");
