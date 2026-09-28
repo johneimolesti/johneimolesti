@@ -32,6 +32,9 @@
       .fan-review-pill.pending{border-color:rgba(243,210,52,.35);color:#f3d234}
       .fan-review-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.6fr);gap:10px}
       .fan-review-card,.fan-review-next{border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.025);overflow:hidden}
+      .fan-review-card.is-ignored{opacity:.56;filter:saturate(.75)}
+      .fan-review-card.is-ignored:hover,.fan-review-card.is-ignored:focus-within{opacity:.82}
+      .fan-review-ignored{display:inline-flex;margin-top:9px;padding:4px 7px;border:1px solid rgba(255,255,255,.10);border-radius:999px;color:#a8afb9;font-size:7px;font-weight:900}
       .fan-review-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
       .fan-review-live{color:#f3d234;font-size:8px;font-weight:950;letter-spacing:.06em}
       .fan-review-meta{margin-top:3px;color:#88919d;font-size:8px}
@@ -59,6 +62,7 @@
       .fan-review-status{min-height:18px;margin-top:8px;color:#8f98a4;font-size:8px}
       .fan-review-next-head{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.07);font-size:8px;font-weight:950}
       .fan-review-next-row{padding:9px 11px;border-bottom:1px solid rgba(255,255,255,.06)}
+      .fan-review-next-row.is-ignored{opacity:.46}
       .fan-review-next-row:last-child{border-bottom:0}
       .fan-review-next-row strong{display:block;font-size:9px}.fan-review-next-row span{display:block;margin-top:2px;color:#838c98;font-size:7px}
       .fan-review-empty{padding:28px 16px;text-align:center;color:#8f98a4}
@@ -96,7 +100,7 @@
       main=`<div class="fan-review-card"><div class="fan-review-empty"><strong>CODA COMPLETATA ✓</strong>Non ci sono fan da valutare in questo momento.</div></div>`;
     }else{
       const presence=100,participation=6;
-      main=`<div class="fan-review-card" data-review-card>
+      main=`<div class="fan-review-card${row.my_state==="skipped"?" is-ignored":""}" data-review-card>
         <div class="fan-review-card-head">
           <div><div class="fan-review-live">${escHtml(row.concert_name)}${row.private_show?" · PRIVATE SHOW":""}</div><div class="fan-review-meta">${fmtDate(row.concert_date)}${row.start_time?` · ${escHtml(String(row.start_time).slice(0,5))}`:""}</div></div>
           <span class="fan-review-position">#${Number(row.queue_position||1)} IN CODA</span>
@@ -104,7 +108,7 @@
         <div class="fan-review-body">
           <div class="fan-review-fanname">${escHtml(row.fan_name)}</div>
           <div class="fan-review-fanmeta">Fan dal ${fmtDate(row.fan_since)}</div>
-          ${Number(row.my_defer_count||0)>0?`<span class="fan-review-deferred">RIMANDATO DA TE ${Number(row.my_defer_count)} VOLT${Number(row.my_defer_count)===1?"A":"E"}</span>`:""}
+          ${row.my_state==="skipped"?'<span class="fan-review-ignored">NON RICONOSCIUTO · MESSO IN FONDO</span>':Number(row.my_defer_count||0)>0?`<span class="fan-review-deferred">RIMANDATO DA TE ${Number(row.my_defer_count)} VOLT${Number(row.my_defer_count)===1?"A":"E"}</span>`:""}
           <div class="fan-review-fields">
             <div class="fan-review-field">
               <label>PRESENZA AL LIVE</label>
@@ -119,7 +123,7 @@
           <div class="fan-review-preview"><span>Punteggio stimato per questo live</span><strong data-points-preview>${pointsFor(row,presence,participation)} pt</strong></div>
           <div class="fan-review-actions">
             <button class="defer" type="button" data-review-defer>RIMANDA</button>
-            <button class="skip" type="button" data-review-skip>NON SO CHI È · SCARTA</button>
+            <button class="skip" type="button" data-review-skip>NON SO CHI È · METTI IN FONDO</button>
             <button class="save" type="button" data-review-save>SALVA VALUTAZIONE</button>
           </div>
           <div class="fan-review-status" data-review-status></div>
@@ -128,15 +132,15 @@
     }
 
     const upcoming=queue.slice(1,6);
-    const next=`<div class="fan-review-next"><div class="fan-review-next-head">PROSSIMI IN CODA</div>${upcoming.length?upcoming.map(x=>`<div class="fan-review-next-row"><strong>${escHtml(x.fan_name)}</strong><span>${escHtml(x.concert_name)} · ${fmtDate(x.concert_date)}${Number(x.my_defer_count||0)?` · rimandato ${Number(x.my_defer_count)}×`:""}</span></div>`).join(""):'<div class="fan-review-empty">Nessun altro fan in coda.</div>'}</div>`;
+    const next=`<div class="fan-review-next"><div class="fan-review-next-head">PROSSIMI IN CODA</div>${upcoming.length?upcoming.map(x=>`<div class="fan-review-next-row${x.my_state==="skipped"?" is-ignored":""}"><strong>${escHtml(x.fan_name)}</strong><span>${escHtml(x.concert_name)} · ${fmtDate(x.concert_date)}${x.my_state==="skipped"?" · non riconosciuto":Number(x.my_defer_count||0)?` · rimandato ${Number(x.my_defer_count)}×`:""}</span></div>`).join(""):'<div class="fan-review-empty">Nessun altro fan in coda.</div>'}</div>`;
 
     root.innerHTML=`<div class="fan-review-shell">
       <div class="fan-review-hero">
-        <div><h2>VALUTAZIONI FAN</h2><div class="section-note">Valuta presenza e partecipazione senza entrare nei singoli concerti. RIMANDA sposta progressivamente il fan più in basso; SCARTA lo esclude definitivamente dalla tua coda per quel live.</div></div>
+        <div><h2>VALUTAZIONI FAN</h2><div class="section-note">Valuta presenza e partecipazione senza entrare nei singoli concerti. RIMANDA abbassa progressivamente la priorità; NON SO CHI È mette il fan in fondo e in semitrasparenza, ma resta sempre valutabile in futuro.</div></div>
         <div class="fan-review-stats">
           <span class="fan-review-pill pending">${pending} DA VALUTARE</span>
           <span class="fan-review-pill">${deferred} RIMANDATI</span>
-          <span class="fan-review-pill">${skipped} SCARTATI</span>
+          <span class="fan-review-pill">${skipped} NON RICONOSCIUTI</span>
           <span class="fan-review-pill">${rated} VALUTATI</span>
         </div>
       </div>
@@ -196,8 +200,11 @@
     };
 
     q("[data-review-skip]",card).onclick=async()=>{
-      if(!confirm(`Scartare definitivamente ${row.fan_name} dalla tua valutazione di “${row.concert_name}”?\n\nNon ti verrà più proposto per questo live.`))return;
-      busy(true);status.textContent="Scarto...";
+      if(row.my_state==="skipped"){
+        status.textContent="È già in fondo alla coda: puoi comunque valutarlo quando vuoi.";
+        return;
+      }
+      busy(true);status.textContent="Sposto in fondo...";
       try{
         const {error}=await sb.rpc("skip_my_fan_live_review",{p_concert_id:row.concert_id,p_fan_id:row.fan_id});
         if(error)throw error;
