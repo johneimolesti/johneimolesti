@@ -886,11 +886,17 @@
         <div class="jm-public-fan-body">
           <div class="jm-public-fan-copy">Come fan puoi salvare “Ci sarò”, presenze, voti e preferenze. Altrimenti puoi visitare normalmente il sito come ospite.</div>
           <div class="jm-public-fan-actions">
+            <button type="button" data-google>CONTINUA CON GOOGLE</button>
             <button type="button" data-guest>CONTINUA COME OSPITE</button>
             <button type="button" class="primary" data-fan>REGISTRATI / ENTRA</button>
           </div>
         </div>`;
       $('[data-guest]',ui.card).onclick = () => { ui.close(); resolve('guest'); };
+      $('[data-google]',ui.card).onclick = async () => {
+        ui.close();
+        try { await window.JMGoogleFanLogin?.(); }
+        catch (err) { toast(err.message || 'Accesso Google non disponibile','error'); resolve('guest'); }
+      };
       $('[data-fan]',ui.card).onclick = () => { ui.close(); resolve('fan'); };
     });
   }

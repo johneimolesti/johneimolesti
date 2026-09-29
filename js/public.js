@@ -12,6 +12,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
   let sb;
+  let fanAuth;
   let currentFan = null;
   let currentMember = null;
   let guestPermissions = {};
@@ -2019,6 +2020,53 @@
     }
     return data;
   }
+  async function activateFanSession(data, {refreshData = true} = {}) {
+    currentFan = data.fan || data;
+    localStorage.setItem('jm_public_fan_name', currentFan.display_name || 'Fan');
+    await claimPendingQrCheckins({notify:!qrCheckinPending});
+    const perms = await fanApi('permissions');
+    fanPermissions = perms.permissions || {};
+    try { fanOnboardingStatus = await fanApi('onboarding_status'); }
+    catch (err) { console.warn('Stato questionario non disponibile',err); fanOnboardingStatus = null; }
+    currentMember = null;
+    updateUserUI();
+    startRealtime();
+    if (refreshData) {
+      await Promise.allSettled([
+        loadConcerts(true).then(()=>{renderHome();renderTour();renderRailNextShow();}),
+        loadRankings(true).then(()=>{renderHome();renderRankings();})
+      ]);
+    }
+    return data;
+  }
+  async function loginGoogleFan(session, {refreshData = true} = {}) {
+    const res = await fetch(FAN_API, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        apikey:SUPABASE_KEY,
+        Authorization:`Bearer ${session.access_token}`
+      },
+      body:JSON.stringify({
+        action:'google_identity',
+        device_token:getFanDeviceToken()
+      })
+    });
+    let data={};
+    try { data=await res.json(); } catch {}
+    if (!res.ok) throw new Error(data.error || `fan-api HTTP ${res.status}`);
+    return activateFanSession(data,{refreshData});
+  }
+  async function beginGoogleFanLogin() {
+    sessionStorage.setItem('jm_google_fan_login','1');
+    const redirectTo = `${location.origin}${location.pathname}`;
+    const {error}=await fanAuth.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo,queryParams:{prompt:'select_account'}}
+    });
+    if(error)throw error;
+  }
+  window.JMGoogleFanLogin=beginGoogleFanLogin;
   async function loginMember(username, password) {
     username = String(username || '').trim().toLowerCase();
     if (!username) throw new Error(window.JMCopy.text('ui.987765bea304'));
@@ -2045,8 +2093,9 @@
   async function restoreMemberSession() {
     const {data:{user}} = await sb.auth.getUser();
     if (!user) return false;
-    const {data:profile,error} = await sb.from('profiles').select('*').eq('id',user.id).single();
+    const {data:profile,error} = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
     if (error) throw error;
+    if (!profile) return false;
     currentMember = profile;
     currentFan = null;
     updateUserUI();
@@ -2054,7 +2103,14 @@
   }
   async function logout(type) {
     if (type === 'member') { await sb.auth.signOut(); currentMember = null; }
-    if (type === 'fan') { currentFan = null; fanOnboardingStatus = null; localStorage.removeItem('jm_public_fan_name'); }
+    if (type === 'fan') {
+      const {data:{session}}=await fanAuth.auth.getSession();
+      if(session?.user)await fanAuth.auth.signOut({scope:'local'});
+      currentFan = null;
+      fanOnboardingStatus = null;
+      localStorage.removeItem('jm_public_fan_name');
+      sessionStorage.removeItem('jm_google_fan_login');
+    }
     tourPrivateMode = false;
     updateUserUI();
     renderUserModal();
@@ -3498,6 +3554,12 @@
       try { await checkFanName(name); }
       catch (err) { const msg=$('fanLoginMessage'); if(msg)msg.textContent=err.message; }
     });
+    $('fanGoogleLogin')?.addEventListener('click',async()=>{
+      const msg=$('fanLoginMessage');
+      if(msg)msg.textContent='Apertura di Google…';
+      try{await beginGoogleFanLogin()}
+      catch(err){if(msg)msg.textContent=err.message||String(err)}
+    });
 
     $('fanLoginForm').addEventListener('submit', async e => {
       e.preventDefault();
@@ -3635,7 +3697,17 @@
       return;
     }
 
-    sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    fanAuth = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+      auth:{
+        storageKey:'jm-fan-google-auth',
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    });
+    sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+      auth:{detectSessionInUrl:false}
+    });
     ensurePublicSections();
     ensureHomeHeroNewsLayout();
     ensureGlobalSocialShells();
@@ -3652,6 +3724,11 @@
       try {
         const {data:{session}} = await sb.auth.getSession();
         if (session?.user) await restoreMemberSession();
+        if(!currentMember){
+          const {data:{session:fanSession}}=await fanAuth.auth.getSession();
+          if(fanSession?.user)await loginGoogleFan(fanSession,{refreshData:false});
+          sessionStorage.removeItem('jm_google_fan_login');
+        }
       } catch (err) {
         console.warn('Sessione membro non ripristinata',err);
       }
