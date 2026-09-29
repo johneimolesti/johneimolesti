@@ -24,7 +24,7 @@
   </script>
   <link rel="preload" href="js/mobile-home.js?h=3a664f899b9d" as="script" media="(max-width: 760px)">
   <link rel="preload" href="js/desktop-home.js?h=cf8b78e9a28c" as="script" media="(min-width: 761px)">
-  <link rel="stylesheet" href="css/public.css?h=5f3c8970c0b0">
+  <link rel="stylesheet" href="css/public.css?h=cd8e4b185725">
   <link rel="stylesheet" href="css/public-updates.css?h=a8f1e7be729b9">
 
 
@@ -675,8 +675,8 @@
   <script src="js/copy-core.js?h=4c7dfb6adf61" defer></script>
   <script src="js/copy-catalog.js?h=35bf3e8b05d8" defer></script>
   <script src="js/copy-runtime.js?h=7a4bff888970" defer></script>
-  <script src="js/public.js?h=54580a911e0c" defer></script>
-  <script src="js/public-fan-flow.js?h=40109960179c" defer></script>
+  <script src="js/public.js?h=b1b784c39ee0" defer></script>
+  <script src="js/public-fan-flow.js?h=83b8e4c8a7b0" defer></script>
   <script>
     (() => {
       const renderer = document.createElement('script');
@@ -1141,6 +1141,16 @@
         </div>
 
         <form class="login-form" id="fanLoginForm">
+          <button class="btn btn-primary" type="button" id="fanGoogleLogin">
+            CONTINUA CON GOOGLE
+          </button>
+
+          <p class="privacy-inline-note">
+            Accedi con Google per ritrovare lo stesso profilo fan anche su altri dispositivi.
+          </p>
+
+          <div class="login-divider" aria-hidden="true">OPPURE</div>
+
           <label>
             <span data-copy="account.007">Come ti chiami?</span>
             <input
@@ -1157,7 +1167,7 @@
           <div id="fanNameMatches" class="fan-name-matches" hidden></div>
 
           <p data-copy="account.009">
-            Non serve una password: questo dispositivo ti riconoscerà le prossime volte.
+            Puoi continuare senza Google: questo dispositivo ti riconoscerà le prossime volte.
           </p>
           <p class="privacy-inline-note">
             Il riconoscimento usa un identificatore tecnico casuale sul dispositivo. Nome/nickname e punti possono comparire nelle classifiche pubbliche. Se hai meno di 14 anni chiedi prima a un genitore o tutore. <a href="privacy.html" target="_blank" rel="noopener">Informativa privacy e diritti</a>.
